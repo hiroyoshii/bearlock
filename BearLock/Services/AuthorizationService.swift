@@ -16,10 +16,6 @@ struct FamilyControlsAuthorizationService: AuthorizationServicing {
     func currentStatus() -> AuthorizationState {
         let status = AuthorizationCenter.shared.authorizationStatus
 
-        if #available(iOS 26.4, *), status == .approvedWithDataAccess {
-            return .approved
-        }
-
         switch status {
         case .approved:
             return .approved
