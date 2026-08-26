@@ -2,10 +2,12 @@ name: iOS CI
 
 on:
   push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
 
 concurrency:
   group: ios-ci-${{ github.ref }}
@@ -50,6 +52,7 @@ jobs:
 
       - name: Build app and extensions for simulator
         run: |
+          set -o pipefail
           mkdir -p artifacts
           xcodebuild \
             -project "$PROJECT" \
@@ -61,6 +64,7 @@ jobs:
 
       - name: Run UI launch test with screenshot attachment
         run: |
+          set -o pipefail
           mkdir -p artifacts
           xcodebuild \
             -project "$PROJECT" \
@@ -74,18 +78,19 @@ jobs:
       - name: Capture launched app screenshot
         if: always()
         run: |
+          set -euo pipefail
           mkdir -p artifacts
           UDID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 16/ { print $2; exit }')"
           APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name BearLock.app -type d | head -n 1)"
 
           if [ -z "$UDID" ]; then
             echo "No available iPhone 16 simulator found."
-            exit 0
+            exit 1
           fi
 
           if [ -z "$APP_PATH" ]; then
             echo "BearLock.app was not found in DerivedData."
-            exit 0
+            exit 1
           fi
 
           xcrun simctl boot "$UDID" || true
@@ -94,6 +99,9 @@ jobs:
           xcrun simctl launch "$UDID" com.example.bearlock --ui-testing
           sleep 5
           xcrun simctl io "$UDID" screenshot "$SCREENSHOT_PATH"
+          test -s "$SCREENSHOT_PATH"
+          file "$SCREENSHOT_PATH"
+          shasum -a 256 "$SCREENSHOT_PATH"
 
       - name: Upload artifacts
         if: always()
