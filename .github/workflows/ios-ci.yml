@@ -66,7 +66,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build | tee artifacts/xcodebuild-build.log
 
-      - name: Run UI launch test with screenshot attachment
+      - name: Compile UI test bundle
         run: |
           set -o pipefail
           mkdir -p artifacts
@@ -77,10 +77,9 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             -resultBundlePath "$RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
-            test | tee artifacts/xcodebuild-test.log
+            build-for-testing | tee artifacts/xcodebuild-ui-test-build.log
 
       - name: Capture launched app screenshot
-        if: always()
         run: |
           set -euo pipefail
           mkdir -p artifacts
