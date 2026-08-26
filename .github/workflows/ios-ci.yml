@@ -71,16 +71,29 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test | tee artifacts/xcodebuild-test.log
 
-      - name: Capture booted simulator screenshot
+      - name: Capture launched app screenshot
         if: always()
         run: |
           mkdir -p artifacts
-          UDID="$(xcrun simctl list devices booted | awk -F '[()]' '/Booted/ { print $2; exit }')"
-          if [ -n "$UDID" ]; then
-            xcrun simctl io "$UDID" screenshot "$SCREENSHOT_PATH"
-          else
-            echo "No booted simulator found; screenshot attachment may still exist in the xcresult bundle."
+          UDID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 16/ { print $2; exit }')"
+          APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name BearLock.app -type d | head -n 1)"
+
+          if [ -z "$UDID" ]; then
+            echo "No available iPhone 16 simulator found."
+            exit 0
           fi
+
+          if [ -z "$APP_PATH" ]; then
+            echo "BearLock.app was not found in DerivedData."
+            exit 0
+          fi
+
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP_PATH"
+          xcrun simctl launch "$UDID" com.example.bearlock --ui-testing
+          sleep 5
+          xcrun simctl io "$UDID" screenshot "$SCREENSHOT_PATH"
 
       - name: Upload artifacts
         if: always()
