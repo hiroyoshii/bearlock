@@ -59,3 +59,5 @@ The workflow at `.github/workflows/ios-ci.yml` runs on `macos-15` and performs t
 The artifact is named `bearlock-ios-ci-artifacts`.
 
 This CI can catch Swift/package regressions, Xcode project generation failures, iOS compile errors, extension compile errors, and basic launch/UI regressions. It cannot prove real Screen Time enforcement, Shield display over third-party apps, Family Controls authorization behavior, or DeviceActivity background callback behavior. Those still require a signed build on a physical iOS device with the Family Controls entitlement.
+
+Pushes to the repository are expected to start this workflow automatically.
