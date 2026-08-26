@@ -1,0 +1,92 @@
+name: iOS CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ios-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-screenshot:
+    name: Build, Test, Screenshot
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    env:
+      PROJECT: BearLock.xcodeproj
+      SCHEME: BearLock
+      DERIVED_DATA: DerivedData
+      RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
+      SCREENSHOT_PATH: artifacts/bearlock-simulator.png
+      DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+          xcrun simctl list runtimes
+
+      - name: Install XcodeGen
+        run: |
+          brew update
+          brew install xcodegen
+          xcodegen --version
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Run core Swift package tests
+        run: swift test
+
+      - name: Build app and extensions for simulator
+        run: |
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Run UI launch test with screenshot attachment
+        run: |
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "$RESULT_BUNDLE" \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Capture booted simulator screenshot
+        if: always()
+        run: |
+          mkdir -p artifacts
+          UDID="$(xcrun simctl list devices booted | awk -F '[()]' '/Booted/ { print $2; exit }')"
+          if [ -n "$UDID" ]; then
+            xcrun simctl io "$UDID" screenshot "$SCREENSHOT_PATH"
+          else
+            echo "No booted simulator found; screenshot attachment may still exist in the xcresult bundle."
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bearlock-ios-ci-artifacts
+          path: |
+            artifacts
+            DerivedData/Logs/Test
+          if-no-files-found: warn
