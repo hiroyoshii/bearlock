@@ -50,13 +50,14 @@ jobs:
 
       - name: Build app and extensions for simulator
         run: |
+          mkdir -p artifacts
           xcodebuild \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build | tee artifacts/xcodebuild-build.log
 
       - name: Run UI launch test with screenshot attachment
         run: |
@@ -68,7 +69,7 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             -resultBundlePath "$RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
-            test
+            test | tee artifacts/xcodebuild-test.log
 
       - name: Capture booted simulator screenshot
         if: always()

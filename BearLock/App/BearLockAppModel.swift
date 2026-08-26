@@ -34,12 +34,29 @@ final class BearLockAppModel: ObservableObject {
     }
 
     static func live() -> BearLockAppModel {
-        let repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
+        let repository: JSONFileLockRepository
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
+            repository = JSONFileLockRepository(fileURL: FileManager.default.temporaryDirectory.appending(path: "bearlock-ui-test-state.json"))
+        } else {
+            repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
+        }
+
         let lockStore: LockStore
         do {
             lockStore = try LockStore(repository: repository)
         } catch {
             fatalError("Failed to initialize Bear Lock store: \(error)")
+        }
+
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
+            let selectionStore = PreviewTargetSelectionStore()
+            return BearLockAppModel(
+                authorizationService: PreviewAuthorizationService(),
+                targetSelectionStore: selectionStore,
+                shieldController: NoopShieldController(),
+                scheduleController: NoopScheduleController(),
+                lockStore: lockStore
+            )
         }
 
         return BearLockAppModel(
