@@ -5,8 +5,10 @@ struct SettingsView: View {
         List {
             Section {
                 VStack(spacing: 12) {
-                    BearDenArt(compact: true)
-                        .frame(height: 120)
+                    Image("BrandBear")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 108)
                     BrandLockup(
                         subtitle: "A private space that protects your time and energy.",
                         compact: true

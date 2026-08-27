@@ -11,8 +11,12 @@ struct SetupView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                BearDenArt()
+                Image("BrandAppIcon")
+                    .resizable()
+                    .scaledToFit()
                     .frame(maxWidth: 230)
+                    .clipShape(RoundedRectangle(cornerRadius: 38))
+                    .shadow(color: AppTheme.navy.opacity(0.12), radius: 16, y: 10)
 
                 BrandLockup(
                     subtitle: "Disappear for a while.",

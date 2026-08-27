@@ -9,7 +9,7 @@ struct ActiveLockView: View {
     var body: some View {
         VStack(spacing: 18) {
             BearDenArt()
-                .frame(maxWidth: 240)
+                .frame(maxWidth: 300)
 
             Text("Bear is sleeping.")
                 .font(.title.bold())
