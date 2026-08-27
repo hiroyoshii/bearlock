@@ -18,6 +18,10 @@ schemes:
     test:
       targets:
         - BearLockUITests
+  BearLockScreenshot:
+    build:
+      targets:
+        BearLockScreenshot: all
 targets:
   BearLock:
     type: application
@@ -36,6 +40,20 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock
         CODE_SIGN_ENTITLEMENTS: BearLock/App/BearLock.entitlements
+        INFOPLIST_FILE: BearLock/App/Info.plist
+  BearLockScreenshot:
+    type: application
+    platform: iOS
+    sources:
+      - BearLock/App
+      - BearLock/Features
+      - BearLock/Services
+    dependencies:
+      - package: BearLockCore
+        product: BearLockCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.screenshot
         INFOPLIST_FILE: BearLock/App/Info.plist
   BearLockMonitorExtension:
     type: app-extension

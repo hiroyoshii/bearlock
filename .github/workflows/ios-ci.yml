@@ -26,6 +26,8 @@ jobs:
     env:
       PROJECT: BearLock.xcodeproj
       SCHEME: BearLock
+      SCREENSHOT_SCHEME: BearLockScreenshot
+      SCREENSHOT_BUNDLE_ID: com.example.bearlock.screenshot
       DERIVED_DATA: DerivedData
       RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
@@ -79,12 +81,24 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build-for-testing | tee artifacts/xcodebuild-ui-test-build.log
 
+      - name: Build screenshot app for simulator
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCREENSHOT_SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee artifacts/xcodebuild-screenshot-build.log
+
       - name: Capture launched app screenshot
         run: |
           set -euo pipefail
           mkdir -p artifacts
           UDID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 16/ { print $2; exit }')"
-          APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name BearLock.app -type d | head -n 1)"
+          APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name BearLockScreenshot.app -type d | head -n 1)"
 
           if [ -z "$UDID" ]; then
             echo "No available iPhone 16 simulator found."
@@ -99,7 +113,7 @@ jobs:
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" "$APP_PATH"
-          xcrun simctl launch "$UDID" com.example.bearlock --ui-testing
+          xcrun simctl launch "$UDID" "$SCREENSHOT_BUNDLE_ID" --ui-testing
           sleep 5
           xcrun simctl io "$UDID" screenshot "$SCREENSHOT_PATH"
           test -s "$SCREENSHOT_PATH"
