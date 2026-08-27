@@ -18,9 +18,8 @@ struct LockConfirmationSheet: View {
     var body: some View {
         VStack(spacing: 22) {
             VStack(spacing: 10) {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(AppTheme.navy)
+                BearDenArt(compact: true)
+                    .frame(width: 180, height: 112)
 
                 Text(details.title)
                     .font(.title2.bold())

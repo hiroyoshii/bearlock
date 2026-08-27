@@ -11,13 +11,13 @@ struct SetupView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Image(systemName: "lock.shield")
-                    .font(.system(size: 48, weight: .semibold))
-                    .foregroundStyle(AppTheme.navy)
+                BearDenArt()
+                    .frame(maxWidth: 230)
 
-                Text("Bear Lock")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(AppTheme.navy)
+                BrandLockup(
+                    subtitle: "Disappear for a while.",
+                    compact: false
+                )
 
                 Text("決めた時間まで、選んだアプリを静かに眠らせます。")
                     .font(.body)

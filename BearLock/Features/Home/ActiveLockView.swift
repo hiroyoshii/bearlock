@@ -8,9 +8,8 @@ struct ActiveLockView: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            Image(systemName: "lock.fill")
-                .font(.title)
-                .foregroundStyle(.white)
+            BearDenArt()
+                .frame(maxWidth: 240)
 
             Text("Bear is sleeping.")
                 .font(.title.bold())
@@ -30,7 +29,14 @@ struct ActiveLockView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(28)
-        .background(AppTheme.steel.gradient, in: RoundedRectangle(cornerRadius: 8))
+        .background(
+            LinearGradient(
+                colors: [AppTheme.steel, AppTheme.navy],
+                startPoint: .top,
+                endPoint: .bottom
+            ),
+            in: RoundedRectangle(cornerRadius: 8)
+        )
         .onReceive(timer) { date in
             now = date
         }

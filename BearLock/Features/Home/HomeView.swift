@@ -37,10 +37,9 @@ struct HomeView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "snowflake")
-                .font(.title2)
-                .foregroundStyle(AppTheme.steel)
+        HStack(spacing: 14) {
+            BearDenArt(compact: true)
+                .frame(width: 116, height: 76)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Do not wake the bear.")
