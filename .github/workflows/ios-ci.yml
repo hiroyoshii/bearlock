@@ -87,26 +87,111 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build-for-testing | tee artifacts/xcodebuild-ui-test-build.log
 
-      - name: Run mock UI e2e tests
+      - name: Prepare mock UI e2e artifacts
+        run: |
+          mkdir -p artifacts "$E2E_SCREENSHOT_DIR"
+          rm -rf /tmp/bearlock-e2e-screenshots
+
+      - name: Run setup screen UI e2e
+        continue-on-error: true
         run: |
           set -o pipefail
-          rm -rf /tmp/bearlock-e2e-screenshots
-          mkdir -p artifacts "$E2E_SCREENSHOT_DIR"
           xcodebuild \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "$E2E_RESULT_BUNDLE" \
+            -resultBundlePath "artifacts/BearLockE2E-setup.xcresult" \
             CODE_SIGNING_ALLOWED=NO \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e.log
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-setup.log || touch artifacts/e2e-setup.failed
+
+      - name: Run immediate lock UI e2e
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-immediate.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-immediate.log || touch artifacts/e2e-immediate.failed
+
+      - name: Run delayed lock UI e2e
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-delayed.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-delayed.log || touch artifacts/e2e-delayed.failed
+
+      - name: Run recurring lock UI e2e
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-recurring.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-recurring.log || touch artifacts/e2e-recurring.failed
+
+      - name: Run disabled recurring UI e2e
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-disabled-recurring.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-disabled-recurring.log || touch artifacts/e2e-disabled-recurring.failed
+
+      - name: Run active lock constraint UI e2e
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-active-lock.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-active-lock.log || touch artifacts/e2e-active-lock.failed
+
+      - name: Collect mock UI e2e screenshots
+        run: |
           if [ -d /tmp/bearlock-e2e-screenshots ]; then
-            cp /tmp/bearlock-e2e-screenshots/*.png "$E2E_SCREENSHOT_DIR"/
+            cp /tmp/bearlock-e2e-screenshots/*.png "$E2E_SCREENSHOT_DIR"/ || true
           fi
-          test -s "$E2E_SCREENSHOT_DIR/e2e-immediate-active-lock.png"
-          test -s "$E2E_SCREENSHOT_DIR/e2e-delayed-deleted.png"
-          test -s "$E2E_SCREENSHOT_DIR/e2e-recurring-disabled-list.png"
-          test -s "$E2E_SCREENSHOT_DIR/e2e-active-lock-constraints.png"
+          for screenshot in \
+            e2e-immediate-active-lock.png \
+            e2e-delayed-deleted.png \
+            e2e-recurring-disabled-list.png \
+            e2e-active-lock-constraints.png
+          do
+            if [ ! -s "$E2E_SCREENSHOT_DIR/$screenshot" ]; then
+              echo "Missing e2e screenshot: $screenshot"
+              touch "artifacts/missing-$screenshot.failed"
+            fi
+          done
 
       - name: Build screenshot app for simulator
         run: |
@@ -169,6 +254,14 @@ jobs:
           test -s "$SCREENSHOT_PATH"
           file "$SCREENSHOT_PATH"
           shasum -a 256 "$SCREENSHOT_PATH"
+
+      - name: Assert mock UI e2e passed
+        run: |
+          if compgen -G "artifacts/e2e-*.failed" > /dev/null || compgen -G "artifacts/missing-*.failed" > /dev/null; then
+            echo "Mock UI e2e failures:"
+            ls -1 artifacts/*.failed
+            exit 1
+          fi
 
       - name: Upload artifacts
         if: always()
