@@ -85,6 +85,7 @@ final class BearLockLaunchUITests: XCTestCase {
     func testDisabledRecurringSeedShowsOffStateWithMockServices() throws {
         let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
 
+        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
         scrollToStaticText("Repeats", in: app)
         scrollToStaticText("Off", in: app)
         captureScreenshot(named: "e2e-recurring-disabled-list")
