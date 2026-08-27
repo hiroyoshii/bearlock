@@ -45,6 +45,7 @@ struct RecurringRuleEditorView: View {
                         .onChange(of: isEnabled) { _, enabled in
                             onSetEnabled(enabled)
                         }
+                        .accessibilityIdentifier("recurring-rule-enabled-toggle")
                 }
 
                 Section("曜日") {

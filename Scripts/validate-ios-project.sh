@@ -66,6 +66,15 @@ check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/iphone-40@2x.pn
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/iphone-40@3x.png 120 120
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/iphone-60@2x.png 120 120
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/iphone-60@3x.png 180 180
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-20@1x.png 20 20
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-20@2x.png 40 40
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-29@1x.png 29 29
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-29@2x.png 58 58
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-40@1x.png 40 40
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-40@2x.png 80 80
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-76@1x.png 76 76
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-76@2x.png 152 152
+check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-83_5@2x.png 167 167
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ios-marketing-1024.png 1024 1024
 check_image_size BearLock/App/Assets.xcassets/BrandHero.imageset/BrandHero.png 1672 941
 check_image_size BearLock/App/Assets.xcassets/BrandDen.imageset/BrandDen.png 1254 1254

@@ -105,6 +105,8 @@ jobs:
           fi
           test -s "$E2E_SCREENSHOT_DIR/e2e-immediate-active-lock.png"
           test -s "$E2E_SCREENSHOT_DIR/e2e-delayed-deleted.png"
+          test -s "$E2E_SCREENSHOT_DIR/e2e-recurring-disabled-list.png"
+          test -s "$E2E_SCREENSHOT_DIR/e2e-active-lock-constraints.png"
 
       - name: Build screenshot app for simulator
         run: |

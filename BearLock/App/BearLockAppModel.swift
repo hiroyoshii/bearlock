@@ -92,15 +92,31 @@ final class BearLockAppModel: ObservableObject {
             id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
             displayName: "SNS, Video, Games"
         )
+        let state: LockState
+        if arguments.contains("--ui-testing-active-lock") {
+            let now = Date()
+            state = LockState(
+                targetSelections: [target],
+                activeLock: ActiveLock(
+                    sourceRuleID: nil,
+                    startedAt: now.addingTimeInterval(-5 * 60),
+                    endsAt: now.addingTimeInterval(115 * 60),
+                    targetSelectionID: target.id
+                )
+            )
+        } else {
+            state = LockState(targetSelections: [target])
+        }
 
         do {
-            var state = try repository.load()
-            if state.targetSelections.isEmpty {
-                state.targetSelections = [target]
-                try repository.save(state)
+            var existingState = try repository.load()
+            if existingState.targetSelections.isEmpty {
+                existingState.targetSelections = state.targetSelections
+                existingState.activeLock = state.activeLock
+                try repository.save(existingState)
             }
         } catch {
-            try? repository.save(LockState(targetSelections: [target]))
+            try? repository.save(state)
         }
     }
 

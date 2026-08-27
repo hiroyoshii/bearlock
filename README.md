@@ -11,6 +11,7 @@ This repository contains:
 - Device Activity Monitor, Shield Configuration, and Shield Action extension source.
 - OS-independent core domain logic under `Sources/BearLockCore`.
 - XCTest coverage for lock planning, recurrence, overlap rejection, and active lock immutability.
+- Mock-driven UI end-to-end tests for the core creation/edit/delete flows.
 - Design and implementation docs under `docs/`.
 
 ## Generate The Xcode Project
@@ -51,13 +52,14 @@ Real Screen Time behavior must be verified on a physical iOS device. Simulator-o
 The workflow at `.github/workflows/ios-ci.yml` runs on `macos-15` and performs the highest-value automated validation available without a physical iPhone:
 
 - Generate `BearLock.xcodeproj` with XcodeGen.
+- Validate plist, entitlement, and asset catalog metadata.
 - Run `swift test` for `BearLockCore`.
 - Build the iOS app and extensions for iOS Simulator with signing disabled.
-- Run a UI launch test against an iPhone simulator.
-- Attach an XCTest screenshot and export a booted simulator screenshot as workflow artifacts.
+- Run mock-driven UI end-to-end tests against an iPhone simulator.
+- Export e2e screenshots and static screen snapshots as workflow artifacts.
 
 The artifact is named `bearlock-ios-ci-artifacts`.
 
-This CI can catch Swift/package regressions, Xcode project generation failures, iOS compile errors, extension compile errors, and basic launch/UI regressions. It cannot prove real Screen Time enforcement, Shield display over third-party apps, Family Controls authorization behavior, or DeviceActivity background callback behavior. Those still require a signed build on a physical iOS device with the Family Controls entitlement.
+The mock e2e tests currently cover setup launch, immediate lock creation, delayed lock creation, delayed lock edit/delete, recurring lock creation/disable, and active-lock immutability controls. This CI can catch Swift/package regressions, Xcode project generation failures, iOS compile errors, extension compile errors, and the main mock UI workflows. It cannot prove real Screen Time enforcement, Shield display over third-party apps, Family Controls authorization behavior, or DeviceActivity background callback behavior. Those still require a signed build on a physical iOS device with the Family Controls entitlement.
 
 Pushes to the repository are expected to start this workflow automatically.

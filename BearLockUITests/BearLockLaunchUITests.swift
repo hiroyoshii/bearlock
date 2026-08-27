@@ -62,14 +62,48 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-delayed-deleted")
     }
 
-    private func launchApprovedSeededApp() -> XCUIApplication {
+    func testCreateAndDisableRecurringLockWithMockServices() throws {
+        let app = launchApprovedSeededApp()
+
+        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        app.buttons["Repeat"].tap()
+        app.buttons["lock-composer-primary-button"].tap()
+        XCTAssertTrue(app.staticTexts["Schedule Bear's sleep."].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-recurring-confirmation")
+
+        app.buttons["lock-confirmation-confirm-button"].tap()
+        XCTAssertTrue(app.staticTexts["Repeats"].waitForExistence(timeout: 10))
+        captureScreenshot(named: "e2e-recurring-scheduled")
+
+        tapFirstButton(app, identifier: "scheduled-lock-edit-button")
+        XCTAssertTrue(app.navigationBars["Repeat"].waitForExistence(timeout: 5))
+        tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
+        captureScreenshot(named: "e2e-recurring-disabled-editor")
+
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Off"].waitForExistence(timeout: 10))
+        captureScreenshot(named: "e2e-recurring-disabled-list")
+    }
+
+    func testActiveLockHidesMutableControlsWithMockServices() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-lock"])
+
+        XCTAssertTrue(app.staticTexts["Bear is sleeping."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Do not wake the bear."].exists)
+        XCTAssertFalse(app.buttons["lock-composer-primary-button"].exists)
+        XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.exists)
+        XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
+        captureScreenshot(named: "e2e-active-lock-constraints")
+    }
+
+    private func launchApprovedSeededApp(extraArguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = [
             "--ui-testing",
             "--ui-testing-approved",
             "--ui-testing-seeded",
             "--reset-ui-testing-state"
-        ]
+        ] + extraArguments
         app.launch()
         return app
     }
@@ -81,6 +115,18 @@ final class BearLockLaunchUITests: XCTestCase {
         }
         XCTAssertTrue(button.waitForExistence(timeout: 5), "Expected button with identifier \(identifier)")
         button.tap()
+    }
+
+    private func tapSwitch(_ app: XCUIApplication, identifier: String, label: String) {
+        let identifiedSwitch = app.switches.matching(identifier: identifier).firstMatch
+        if identifiedSwitch.waitForExistence(timeout: 3) {
+            identifiedSwitch.tap()
+            return
+        }
+
+        let labeledSwitch = app.switches[label]
+        XCTAssertTrue(labeledSwitch.waitForExistence(timeout: 5), "Expected switch with identifier \(identifier) or label \(label)")
+        labeledSwitch.tap()
     }
 
     private func captureScreenshot(named name: String) {
