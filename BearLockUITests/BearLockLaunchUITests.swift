@@ -82,8 +82,8 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["Cancel"].tap()
 
         let disabledApp = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
-        XCTAssertTrue(disabledApp.staticTexts["Repeats"].waitForExistence(timeout: 10))
-        XCTAssertTrue(disabledApp.staticTexts["Off"].waitForExistence(timeout: 10))
+        scrollToStaticText("Repeats", in: disabledApp)
+        scrollToStaticText("Off", in: disabledApp)
         captureScreenshot(named: "e2e-recurring-disabled-list")
     }
 
@@ -129,6 +129,14 @@ final class BearLockLaunchUITests: XCTestCase {
         let labeledSwitch = app.switches[label]
         XCTAssertTrue(labeledSwitch.waitForExistence(timeout: 5), "Expected switch with identifier \(identifier) or label \(label)")
         labeledSwitch.tap()
+    }
+
+    private func scrollToStaticText(_ text: String, in app: XCUIApplication) {
+        let element = app.staticTexts[text]
+        for _ in 0..<4 where !element.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(element.waitForExistence(timeout: 5), "Expected static text \(text)")
     }
 
     private func captureScreenshot(named name: String) {
