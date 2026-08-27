@@ -94,11 +94,7 @@ final class BearLockLaunchUITests: XCTestCase {
     }
 
     private func writeScreenshotIfRequested(_ screenshot: XCUIScreenshot, named name: String) {
-        guard let directory = ProcessInfo.processInfo.environment["E2E_SCREENSHOT_DIR"],
-              !directory.isEmpty
-        else {
-            return
-        }
+        let directory = ProcessInfo.processInfo.environment["E2E_SCREENSHOT_DIR"] ?? "/tmp/bearlock-e2e-screenshots"
 
         do {
             let directoryURL = URL(fileURLWithPath: directory, isDirectory: true)

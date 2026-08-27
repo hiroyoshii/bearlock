@@ -90,6 +90,7 @@ jobs:
       - name: Run mock UI e2e tests
         run: |
           set -o pipefail
+          rm -rf /tmp/bearlock-e2e-screenshots
           mkdir -p artifacts "$E2E_SCREENSHOT_DIR"
           xcodebuild \
             -project "$PROJECT" \
@@ -99,6 +100,11 @@ jobs:
             -resultBundlePath "$E2E_RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
             test-without-building | tee artifacts/xcodebuild-ui-e2e.log
+          if [ -d /tmp/bearlock-e2e-screenshots ]; then
+            cp /tmp/bearlock-e2e-screenshots/*.png "$E2E_SCREENSHOT_DIR"/
+          fi
+          test -s "$E2E_SCREENSHOT_DIR/e2e-immediate-active-lock.png"
+          test -s "$E2E_SCREENSHOT_DIR/e2e-delayed-deleted.png"
 
       - name: Build screenshot app for simulator
         run: |
