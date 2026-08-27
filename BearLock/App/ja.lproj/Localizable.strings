@@ -13,7 +13,7 @@
 "Bundle ID" = "Bundle ID";
 "Cancel" = "キャンセル";
 "Choose at least one target" = "対象アプリを1つ以上選ぶ";
-"Clear Diagnostics" = "Diagnosticsを消去";
+"Clear Diagnostics" = "診断ログを消去";
 "Come back later" = "あとで戻る";
 "Confirm shield appears" = "シールド表示を確認する";
 "Confirmation" = "確認";
@@ -27,9 +27,10 @@
 "Debug safety: max %d min" = "Debug安全: 最大%d分";
 "Delete scheduled lock" = "予定ロックを削除";
 "Denied" = "拒否";
-"Diagnostics" = "Diagnostics";
-"Diagnostics writable" = "Diagnostics書き込み";
+"Diagnostics" = "診断";
+"Diagnostics writable" = "診断ログ書き込み";
 "Device Check" = "実機チェック";
+"Disappear for a while." = "少しのあいだ、離れる。";
 "Distractions stay outside." = "誘惑は外に置いておく。";
 "Do not wake the bear." = "熊を起こさないでください。";
 "Duration" = "ロック時間";
@@ -58,7 +59,7 @@
 "Recent Events" = "最近のイベント";
 "Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared." = "繰り返しルールの変更は次回以降に反映されます。現在のロックは短縮・解除されません。";
 "Recurring rules" = "繰り返し予定";
-"Release limits" = "Release制限";
+"Release limits" = "リリース設定";
 "Repeat" = "繰り返し";
 "Repeats" = "繰り返し";
 "Save" = "保存";
@@ -69,7 +70,7 @@
 "Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced." = "開始前の予定だけ編集できます。開始後は短縮、削除、対象アプリ削減はできません。";
 "Scheduled rules" = "予定数";
 "Schedules" = "予定";
-"Safety policy" = "Safety policy";
+"Safety policy" = "安全ポリシー";
 "Screen Timeアクセスを許可" = "Screen Timeアクセスを許可";
 "Select blocked apps" = "ブロック対象アプリを選ぶ";
 "Select blocked apps first." = "まずはブロック対象アプリを選びます。";
