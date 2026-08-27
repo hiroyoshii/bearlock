@@ -110,7 +110,18 @@ jobs:
 
           find_device_udid() {
             local device_name="$1"
-            xcrun simctl list devices available | awk -F '[()]' -v name="$device_name" 'index($0, name) > 0 { print $2; exit }'
+            xcrun simctl list devices available -j | python3 -c '
+import json
+import sys
+
+name = sys.argv[1]
+data = json.load(sys.stdin)
+for devices in data.get("devices", {}).values():
+    for device in devices:
+        if device.get("isAvailable") and device.get("name") == name:
+            print(device["udid"])
+            raise SystemExit(0)
+' "$device_name"
           }
 
           capture_device() {
