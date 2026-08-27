@@ -12,8 +12,8 @@ final class BearLockLaunchUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Bear Lock"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Screen Timeアクセスを許可"].exists)
-        XCTAssertTrue(app.buttons["ブロック対象アプリを選ぶ"].exists)
+        XCTAssertTrue(app.buttons["Allow Screen Time access"].exists)
+        XCTAssertTrue(app.buttons["Select blocked apps"].exists)
 
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
@@ -58,7 +58,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
 
         tapFirstButton(app, identifier: "scheduled-lock-delete-button")
-        XCTAssertTrue(app.staticTexts["予定された冬眠はありません。"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["No scheduled hibernation."].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-delayed-deleted")
     }
 
