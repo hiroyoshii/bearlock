@@ -104,6 +104,25 @@ final class BearLockAppModel: ObservableObject {
                     targetSelectionID: target.id
                 )
             )
+        } else if arguments.contains("--ui-testing-disabled-recurring") {
+            let recurrence = RecurrenceRule(
+                weekdays: [.monday, .tuesday, .wednesday, .thursday, .friday],
+                startsAt: TimeOfDay(hour: 23, minute: 0),
+                endsAt: TimeOfDay(hour: 7, minute: 0)
+            )
+            state = LockState(
+                targetSelections: [target],
+                rules: [
+                    LockRule(
+                        kind: .recurring,
+                        startsAt: recurrence.nextInterval(after: Date())?.start ?? Date().addingTimeInterval(24 * 60 * 60),
+                        duration: recurrence.duration,
+                        recurrence: recurrence,
+                        targetSelectionID: target.id,
+                        status: .disabled
+                    )
+                ]
+            )
         } else {
             state = LockState(targetSelections: [target])
         }

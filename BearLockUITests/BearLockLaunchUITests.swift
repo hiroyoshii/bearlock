@@ -79,13 +79,11 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Repeat"].waitForExistence(timeout: 5))
         tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
         captureScreenshot(named: "e2e-recurring-disabled-editor")
-
-        Thread.sleep(forTimeInterval: 1)
         app.buttons["Cancel"].tap()
-        if !app.staticTexts["Off"].waitForExistence(timeout: 5) {
-            app.swipeUp()
-        }
-        XCTAssertTrue(app.staticTexts["Off"].waitForExistence(timeout: 10))
+
+        let disabledApp = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
+        XCTAssertTrue(disabledApp.staticTexts["Repeats"].waitForExistence(timeout: 10))
+        XCTAssertTrue(disabledApp.staticTexts["Off"].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-recurring-disabled-list")
     }
 
