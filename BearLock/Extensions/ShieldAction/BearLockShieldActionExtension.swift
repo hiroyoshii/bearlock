@@ -7,6 +7,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         for application: ApplicationToken,
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
+        DiagnosticsLogger.shared.record("ShieldAction.application", detail: action.diagnosticsText)
         completionHandler(.defer)
     }
 
@@ -15,6 +16,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         for webDomain: WebDomainToken,
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
+        DiagnosticsLogger.shared.record("ShieldAction.webDomain", detail: action.diagnosticsText)
         completionHandler(.defer)
     }
 
@@ -23,6 +25,20 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         for category: ActivityCategoryToken,
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
+        DiagnosticsLogger.shared.record("ShieldAction.category", detail: action.diagnosticsText)
         completionHandler(.defer)
+    }
+}
+
+private extension ShieldAction {
+    var diagnosticsText: String {
+        switch self {
+        case .primaryButtonPressed:
+            return "primaryButtonPressed"
+        case .secondaryButtonPressed:
+            return "secondaryButtonPressed"
+        @unknown default:
+            return "unknown"
+        }
     }
 }

@@ -95,7 +95,7 @@ jobs:
             xcrun simctl bootstatus "$udid" -b
             xcrun simctl install "$udid" "$APP_PATH"
 
-            for screen in setup home confirmation activeLock settings; do
+            for screen in setup home confirmation activeLock settings diagnostics; do
               xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
               xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen"
               sleep 3

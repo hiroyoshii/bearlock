@@ -88,6 +88,10 @@ targets:
     platform: iOS
     sources:
       - BearLock/Extensions/ShieldAction
+      - BearLock/Services
+    dependencies:
+      - package: BearLockCore
+        product: BearLockCore
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.shield-action

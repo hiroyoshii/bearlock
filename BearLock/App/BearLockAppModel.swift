@@ -9,6 +9,7 @@ final class BearLockAppModel: ObservableObject {
     @Published private(set) var isCreatingLock = false
     @Published private(set) var isUpdatingLock = false
     @Published var lastErrorMessage: String?
+    @Published private(set) var diagnosticsSnapshot = DiagnosticsSnapshot.empty
 
     let authorizationService: AuthorizationServicing
     let targetSelectionStore: TargetSelectionStoring
@@ -16,6 +17,7 @@ final class BearLockAppModel: ObservableObject {
     let scheduleController: ScheduleControlling
     private let lockStore: LockStore
     private let planner: LockPlanner
+    private let diagnostics = DiagnosticsLogger.shared
 
     init(
         authorizationService: AuthorizationServicing,
@@ -31,6 +33,7 @@ final class BearLockAppModel: ObservableObject {
         self.scheduleController = scheduleController
         self.lockStore = lockStore
         self.planner = planner
+        diagnostics.record("AppModel.initialized")
     }
 
     static func live() -> BearLockAppModel {
@@ -142,16 +145,20 @@ final class BearLockAppModel: ObservableObject {
     }
 
     func refresh() async {
+        diagnostics.record("App.refresh.started")
         let now = Date()
         authorizationStatus = authorizationService.currentStatus()
         lockState = await lockStore.snapshot()
 
         if let completed = try? await lockStore.completeActiveLock(at: now) {
             shieldController.clearShield(for: completed)
+            diagnostics.record("ActiveLock.completed", detail: completed.id.uuidString)
             lockState = await lockStore.snapshot()
         }
 
-        _ = try? await lockStore.completeExpiredOneShotRules(at: now)
+        if let completedRules = try? await lockStore.completeExpiredOneShotRules(at: now), !completedRules.isEmpty {
+            diagnostics.record("Rules.completedExpiredOneShot", detail: "\(completedRules.count)")
+        }
         lockState = await lockStore.snapshot()
 
         if lockState.activeLock == nil,
@@ -161,36 +168,45 @@ final class BearLockAppModel: ObservableObject {
                 try await lockStore.activate(active)
                 shieldController.applyShield(for: active)
                 lockState = await lockStore.snapshot()
+                diagnostics.record("ActiveLock.autoActivated", detail: rule.kind.rawValue)
             } catch {
-                lastErrorMessage = error.localizedDescription
+                recordError("ActiveLock.autoActivate.failed", error)
             }
         }
+        refreshDiagnostics()
     }
 
     func requestAuthorization() async {
+        diagnostics.record("Authorization.request.started")
         do {
             try await authorizationService.requestAuthorization()
             authorizationStatus = authorizationService.currentStatus()
+            diagnostics.record("Authorization.request.succeeded", detail: authorizationStatus.diagnosticsText)
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Authorization.request.failed", error)
             authorizationStatus = authorizationService.currentStatus()
         }
+        refreshDiagnostics()
     }
 
     func saveSelection(_ selection: FamilyActivitySelection) async {
+        diagnostics.record("Selection.save.started")
         do {
             let ref = try targetSelectionStore.save(selection)
             try await lockStore.saveTargetSelection(ref)
             lockState = await lockStore.snapshot()
+            diagnostics.record("Selection.save.succeeded", detail: ref.displayName)
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Selection.save.failed", error)
         }
+        refreshDiagnostics()
     }
 
     @discardableResult
     func createLock(_ request: LockCreationRequest) async -> Bool {
         isCreatingLock = true
         defer { isCreatingLock = false }
+        diagnostics.record("Lock.create.started", detail: request.diagnosticsText)
 
         do {
             let now = Date()
@@ -204,20 +220,24 @@ final class BearLockAppModel: ObservableObject {
 
             switch rule.kind {
             case .immediate:
+                diagnostics.record("Schedule.create.started", detail: rule.kind.rawValue)
                 try scheduleController.schedule(rule)
                 let active = planner.activeLock(from: rule, intervalStart: now)
                 do {
                     try await lockStore.activate(active)
                     shieldController.applyShield(for: active)
+                    diagnostics.record("Lock.create.succeeded", detail: "immediate")
                 } catch {
                     try? scheduleController.cancel(rule)
                     try? await lockStore.clearActiveLock(id: active.id)
                     throw error
                 }
             case .delayed, .fixedDateTime, .recurring:
+                diagnostics.record("Schedule.create.started", detail: rule.kind.rawValue)
                 try scheduleController.schedule(rule)
                 do {
                     try await lockStore.addRule(rule)
+                    diagnostics.record("Lock.create.succeeded", detail: rule.kind.rawValue)
                 } catch {
                     try? scheduleController.cancel(rule)
                     throw error
@@ -225,27 +245,33 @@ final class BearLockAppModel: ObservableObject {
             }
 
             lockState = await lockStore.snapshot()
+            refreshDiagnostics()
             return true
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Lock.create.failed", error)
+            refreshDiagnostics()
             return false
         }
     }
 
     func deleteScheduledRule(_ rule: LockRule) async {
+        diagnostics.record("Schedule.delete.started", detail: rule.kind.rawValue)
         do {
             try await lockStore.deleteRule(id: rule.id, now: Date())
             try scheduleController.cancel(rule)
             lockState = await lockStore.snapshot()
+            diagnostics.record("Schedule.delete.succeeded", detail: rule.kind.rawValue)
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Schedule.delete.failed", error)
         }
+        refreshDiagnostics()
     }
 
     @discardableResult
     func updateScheduledRule(_ original: LockRule, startsAt: Date, duration: TimeInterval) async -> Bool {
         isUpdatingLock = true
         defer { isUpdatingLock = false }
+        diagnostics.record("Schedule.update.started", detail: original.kind.rawValue)
 
         do {
             let now = Date()
@@ -271,9 +297,12 @@ final class BearLockAppModel: ObservableObject {
             }
 
             lockState = await lockStore.snapshot()
+            diagnostics.record("Schedule.update.succeeded", detail: validated.kind.rawValue)
+            refreshDiagnostics()
             return true
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Schedule.update.failed", error)
+            refreshDiagnostics()
             return false
         }
     }
@@ -282,6 +311,7 @@ final class BearLockAppModel: ObservableObject {
     func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule) async -> Bool {
         isUpdatingLock = true
         defer { isUpdatingLock = false }
+        diagnostics.record("Recurring.update.started")
 
         do {
             let now = Date()
@@ -308,9 +338,12 @@ final class BearLockAppModel: ObservableObject {
             }
 
             lockState = await lockStore.snapshot()
+            diagnostics.record("Recurring.update.succeeded")
+            refreshDiagnostics()
             return true
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Recurring.update.failed", error)
+            refreshDiagnostics()
             return false
         }
     }
@@ -319,6 +352,7 @@ final class BearLockAppModel: ObservableObject {
     func setRecurringRule(_ rule: LockRule, enabled: Bool) async -> Bool {
         isUpdatingLock = true
         defer { isUpdatingLock = false }
+        diagnostics.record("Recurring.setEnabled.started", detail: enabled ? "enabled" : "disabled")
 
         do {
             let now = Date()
@@ -339,10 +373,76 @@ final class BearLockAppModel: ObservableObject {
             }
 
             lockState = await lockStore.snapshot()
+            diagnostics.record("Recurring.setEnabled.succeeded", detail: enabled ? "enabled" : "disabled")
+            refreshDiagnostics()
             return true
         } catch {
-            lastErrorMessage = error.localizedDescription
+            recordError("Recurring.setEnabled.failed", error)
+            refreshDiagnostics()
             return false
+        }
+    }
+
+    func refreshDiagnostics() {
+        diagnosticsSnapshot = diagnostics.snapshot()
+    }
+
+    func clearDiagnostics() {
+        diagnostics.clear()
+        refreshDiagnostics()
+    }
+
+    var diagnosticsSummary: DiagnosticsSummary {
+        DiagnosticsSummary(
+            authorizationStatus: authorizationStatus.diagnosticsText,
+            targetSelectionCount: lockState.targetSelections.count,
+            scheduledRuleCount: lockState.rules.filter { $0.status == .scheduled }.count,
+            recurringRuleCount: lockState.rules.filter { $0.kind == .recurring }.count,
+            activeLockStatus: lockState.activeLock.map { "Active until \($0.endsAt.formatted(date: .omitted, time: .shortened))" } ?? "None",
+            lastError: lastErrorMessage ?? "None",
+            appGroupPath: AppGroup.containerURL.path,
+            diagnosticsWritable: diagnostics.isWritable(),
+            bundleIdentifier: Bundle.main.bundleIdentifier ?? "Unknown",
+            appVersion: Self.appVersion
+        )
+    }
+
+    private func recordError(_ name: String, _ error: Error) {
+        lastErrorMessage = error.localizedDescription
+        diagnostics.record(name, level: .error, detail: error.localizedDescription)
+    }
+
+    private static var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        return "\(version) (\(build))"
+    }
+}
+
+private extension AuthorizationState {
+    var diagnosticsText: String {
+        switch self {
+        case .unknown:
+            return "Unknown"
+        case .approved:
+            return "Approved"
+        case .denied:
+            return "Denied"
+        }
+    }
+}
+
+private extension LockCreationRequest {
+    var diagnosticsText: String {
+        switch self {
+        case .now:
+            return "now"
+        case .delayed:
+            return "delayed"
+        case .fixed:
+            return "fixedDateTime"
+        case .recurring:
+            return "recurring"
         }
     }
 }
