@@ -40,7 +40,7 @@ struct RecurringRuleEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("状態") {
+                Section("Status") {
                     Toggle("Enabled", isOn: $isEnabled)
                         .onChange(of: isEnabled) { _, enabled in
                             onSetEnabled(enabled)
@@ -48,11 +48,11 @@ struct RecurringRuleEditorView: View {
                         .accessibilityIdentifier("recurring-rule-enabled-toggle")
                 }
 
-                Section("曜日") {
+                Section("Weekdays") {
                     weekdayGrid
                 }
 
-                Section("時刻") {
+                Section("Time") {
                     timePicker(title: "Starts", components: $startsAt)
                     timePicker(title: "Ends", components: $endsAt)
                     LabeledContent("Next") {
@@ -66,7 +66,7 @@ struct RecurringRuleEditorView: View {
                 }
 
                 Section {
-                    Text("Recurring ruleの変更は次回以降に反映されます。現在実行中のActiveLockは短縮・解除されません。")
+                    Text("Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -105,7 +105,7 @@ struct RecurringRuleEditorView: View {
 
     private var nextIntervalText: String {
         guard let interval = makeRecurrence().nextInterval(after: Date()) else {
-            return "No upcoming hibernation"
+            return L10n.string("No upcoming hibernation")
         }
         return "\(interval.start.formatted(date: .abbreviated, time: .shortened)) -> \(interval.end.formatted(date: .abbreviated, time: .shortened))"
     }
@@ -121,7 +121,7 @@ struct RecurringRuleEditorView: View {
         guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
             return nil
         }
-        return "Debug safety limit: max \(Int(maximumDuration / 60)) min"
+        return L10n.format("Debug safety limit: max %d min", Int(maximumDuration / 60))
     }
 
     private func makeRecurrence() -> RecurrenceRule {
@@ -134,7 +134,7 @@ struct RecurringRuleEditorView: View {
 
     private func timePicker(title: String, components: Binding<DateComponents>) -> some View {
         DatePicker(
-            title,
+            LocalizedStringKey(title),
             selection: Binding(
                 get: { date(from: components.wrappedValue) },
                 set: { components.wrappedValue = Calendar.current.dateComponents([.hour, .minute], from: $0) }

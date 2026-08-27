@@ -17,8 +17,8 @@ struct SettingsView: View {
                 .listRowBackground(AppTheme.background)
             }
 
-            Section("データの扱い") {
-                Text("MVPでは選択アプリとロック予定を端末内のApp Group領域に保存します。アカウント、クラウド同期、利用統計は扱いません。")
+            Section("Data handling") {
+                Text("MVP stores selected apps and lock schedules locally in the App Group container. It does not use accounts, cloud sync, or usage analytics.")
                     .font(.body)
             }
 
@@ -54,7 +54,7 @@ struct DebugDiagnosticsView: View {
             Section("App") {
                 diagnosticRow("Bundle ID", summary.bundleIdentifier)
                 diagnosticRow("Version", summary.appVersion)
-                diagnosticRow("Diagnostics writable", summary.diagnosticsWritable ? "Yes" : "No")
+                diagnosticRow("Diagnostics writable", summary.diagnosticsWritable ? L10n.string("Yes") : L10n.string("No"))
                 Text(summary.appGroupPath)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -119,7 +119,7 @@ struct DebugDiagnosticsView: View {
     }
 
     private func diagnosticRow(_ title: String, _ value: String) -> some View {
-        LabeledContent(title) {
+        LabeledContent(LocalizedStringKey(title)) {
             Text(value)
                 .multilineTextAlignment(.trailing)
                 .textSelection(.enabled)
@@ -127,7 +127,7 @@ struct DebugDiagnosticsView: View {
     }
 
     private func checkRow(_ title: String) -> some View {
-        Label(title, systemImage: "checkmark.circle")
+        Label(LocalizedStringKey(title), systemImage: "checkmark.circle")
             .foregroundStyle(AppTheme.navy)
     }
 

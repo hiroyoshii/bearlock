@@ -23,7 +23,7 @@ struct SetupView: View {
                     compact: false
                 )
 
-                Text("決めた時間まで、選んだアプリを静かに眠らせます。")
+                Text("Quietly hibernate selected apps until the chosen time.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.72))
@@ -35,7 +35,7 @@ struct SetupView: View {
                         await model.requestAuthorization()
                     }
                 } label: {
-                    Label("Screen Timeアクセスを許可", systemImage: "hourglass")
+                    Label("Allow Screen Time access", systemImage: "hourglass")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -44,7 +44,7 @@ struct SetupView: View {
                 Button {
                     isPickerPresented = true
                 } label: {
-                    Label("ブロック対象アプリを選ぶ", systemImage: "app.badge")
+                    Label("Select blocked apps", systemImage: "app.badge")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -52,7 +52,7 @@ struct SetupView: View {
             }
             .controlSize(.large)
 
-            Text("選択内容は端末内とApp Group領域に保存します。MVPではアカウントやクラウド同期は使いません。")
+            Text("Selections are stored on device and in the App Group container. The MVP does not use accounts or cloud sync.")
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(AppTheme.navy.opacity(0.58))

@@ -72,7 +72,7 @@ struct BrandLockup: View {
             }
             .foregroundStyle(AppTheme.navy)
 
-            Text(subtitle)
+            Text(LocalizedStringKey(subtitle))
                 .font(compact ? .subheadline : .title3)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(AppTheme.steel)

@@ -33,6 +33,10 @@ do
   grep -q "com.apple.developer.family-controls" "$file"
 done
 
+while IFS= read -r -d '' file; do
+  plutil -lint "$file" >/dev/null
+done < <(find BearLock -name '*.strings' -print0)
+
 python3 - <<'PY'
 import json
 from pathlib import Path

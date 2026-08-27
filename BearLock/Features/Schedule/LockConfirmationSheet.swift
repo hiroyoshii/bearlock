@@ -21,7 +21,7 @@ struct LockConfirmationSheet: View {
                 BearStateVisual(state: .arming, compact: true)
                     .frame(width: 190, height: 130)
 
-                Text(details.title)
+                Text(LocalizedStringKey(details.title))
                     .font(.title2.bold())
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy)
@@ -49,7 +49,7 @@ struct LockConfirmationSheet: View {
                             .tint(.white)
                             .frame(maxWidth: .infinity)
                     } else {
-                        Label(details.isImmediate ? "Hibernate" : "Schedule Hibernation", systemImage: "lock.fill")
+                        Label(LocalizedStringKey(details.isImmediate ? "Hibernate" : "Schedule Hibernation"), systemImage: "lock.fill")
                             .frame(maxWidth: .infinity)
                     }
                 }
@@ -73,7 +73,7 @@ struct LockConfirmationSheet: View {
 
     private func row(label: String, value: String) -> some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(label)
+            Text(LocalizedStringKey(label))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppTheme.navy.opacity(0.62))
             Spacer(minLength: 20)

@@ -35,7 +35,7 @@ struct LockComposerView: View {
 
             Picker("Start", selection: $mode) {
                 ForEach(LockComposerMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
+                    Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                 }
             }
             .pickerStyle(.segmented)
@@ -63,7 +63,7 @@ struct LockComposerView: View {
             Button {
                 confirmationDetails = makeConfirmationDetails()
             } label: {
-                Label(primaryButtonTitle, systemImage: "lock.fill")
+                Label(LocalizedStringKey(primaryButtonTitle), systemImage: "lock.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -147,7 +147,7 @@ struct LockComposerView: View {
 
     private func timePicker(title: String, components: Binding<DateComponents>) -> some View {
         DatePicker(
-            title,
+            LocalizedStringKey(title),
             selection: Binding(
                 get: { date(from: components.wrappedValue) },
                 set: { components.wrappedValue = Calendar.current.dateComponents([.hour, .minute], from: $0) }
@@ -227,7 +227,7 @@ struct LockComposerView: View {
         guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
             return nil
         }
-        return "Debug safety limit: max \(Int(maximumDuration / 60)) min"
+        return L10n.format("Debug safety limit: max %d min", Int(maximumDuration / 60))
     }
 
     private func applySafetyDefaults() {

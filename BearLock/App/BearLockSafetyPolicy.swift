@@ -16,9 +16,9 @@ enum BearLockSafetyPolicy {
 
     static var diagnosticsText: String {
         if let maximumDuration {
-            return "Debug safety: max \(Int(maximumDuration / 60)) min"
+            return L10n.format("Debug safety: max %d min", Int(maximumDuration / 60))
         }
-        return "Release limits"
+        return L10n.string("Release limits")
     }
 
     static func validate(_ request: LockCreationRequest) throws {
@@ -42,7 +42,7 @@ enum BearLockSafetyError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case let .durationTooLong(maximumMinutes):
-            return "Debug safety limit: ロック時間は最大\(maximumMinutes)分です。"
+            return L10n.format("Debug safety limit: lock duration is max %d min.", maximumMinutes)
         }
     }
 }

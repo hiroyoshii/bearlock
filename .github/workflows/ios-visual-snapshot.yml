@@ -79,9 +79,11 @@ jobs:
             xcrun simctl list devices available -j | python3 -c 'import json, sys; name = sys.argv[1]; data = json.load(sys.stdin); matches = [device["udid"] for devices in data.get("devices", {}).values() for device in devices if device.get("isAvailable") and device.get("name") == name]; print(matches[0] if matches else "")' "$device_name"
           }
 
-          capture_device() {
+          capture_locale() {
             local device_name="$1"
-            local label="$2"
+            local base_label="$2"
+            local locale_label="$3"
+            shift 3
             local udid
             udid="$(find_device_udid "$device_name")"
 
@@ -90,6 +92,7 @@ jobs:
               return 0
             fi
 
+            local label="${base_label}-${locale_label}"
             mkdir -p "$SCREENSHOT_DIR/$label"
             xcrun simctl boot "$udid" || true
             xcrun simctl bootstatus "$udid" -b
@@ -97,7 +100,7 @@ jobs:
 
             for screen in setup home confirmation activeLock settings diagnostics; do
               xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
-              xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen"
+              xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
               sleep 3
               xcrun simctl io "$udid" screenshot "$SCREENSHOT_DIR/$label/$screen.png"
               test -s "$SCREENSHOT_DIR/$label/$screen.png"
@@ -105,10 +108,17 @@ jobs:
             done
           }
 
+          capture_device() {
+            local device_name="$1"
+            local label="$2"
+            capture_locale "$device_name" "$label" "en"
+            capture_locale "$device_name" "$label" "ja" -AppleLanguages "(ja)" -AppleLocale "ja_JP"
+          }
+
           capture_device "iPhone 16" "iphone-16"
 
-          test -s "$SCREENSHOT_DIR/iphone-16/setup.png"
-          cp "$SCREENSHOT_DIR/iphone-16/setup.png" "$SCREENSHOT_PATH"
+          test -s "$SCREENSHOT_DIR/iphone-16-en/setup.png"
+          cp "$SCREENSHOT_DIR/iphone-16-en/setup.png" "$SCREENSHOT_PATH"
           test -s "$SCREENSHOT_PATH"
           file "$SCREENSHOT_PATH"
           shasum -a 256 "$SCREENSHOT_PATH"

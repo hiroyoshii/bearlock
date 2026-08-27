@@ -14,6 +14,7 @@ This repository contains:
 - Mock-driven UI end-to-end tests for the core creation/edit/delete flows.
 - On-device Diagnostics screen for local troubleshooting without external logging.
 - Debug-build safety limit for pre-device testing.
+- English and Japanese app localization strings.
 - Design and implementation docs under `docs/`.
 
 ## Generate The Xcode Project
@@ -58,7 +59,7 @@ The workflow at `.github/workflows/ios-ci.yml` runs on `macos-15` and performs t
 - Run `swift test` for `BearLockCore`.
 - Build the iOS app and extensions for iOS Simulator with signing disabled.
 - Run mock-driven UI end-to-end tests against an iPhone simulator.
-- Export e2e screenshots and static screen snapshots as workflow artifacts.
+- Export e2e screenshots and English/Japanese static screen snapshots as workflow artifacts.
 
 The artifact is named `bearlock-ios-ci-artifacts`.
 

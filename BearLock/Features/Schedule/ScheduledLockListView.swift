@@ -12,7 +12,7 @@ struct ScheduledLockListView: View {
                 .foregroundStyle(AppTheme.navy)
 
             if scheduledRules.isEmpty {
-                Text("予定された冬眠はありません。")
+                Text("No scheduled hibernation.")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.navy.opacity(0.58))
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -120,7 +120,7 @@ private struct ScheduledLockRow: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.subheadline.bold())
                     .foregroundStyle(AppTheme.navy)
                 Text("\(rule.startsAt.formatted(date: .abbreviated, time: .shortened)) -> \(rule.endsAt.formatted(date: .abbreviated, time: .shortened))")

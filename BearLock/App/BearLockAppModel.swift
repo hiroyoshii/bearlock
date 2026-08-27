@@ -406,8 +406,8 @@ final class BearLockAppModel: ObservableObject {
             targetSelectionCount: lockState.targetSelections.count,
             scheduledRuleCount: lockState.rules.filter { $0.status == .scheduled }.count,
             recurringRuleCount: lockState.rules.filter { $0.kind == .recurring }.count,
-            activeLockStatus: lockState.activeLock.map { "Active until \($0.endsAt.formatted(date: .omitted, time: .shortened))" } ?? "None",
-            lastError: lastErrorMessage ?? "None",
+            activeLockStatus: lockState.activeLock.map { L10n.format("Active until %@", $0.endsAt.formatted(date: .omitted, time: .shortened)) } ?? L10n.string("None"),
+            lastError: lastErrorMessage ?? L10n.string("None"),
             safetyPolicy: BearLockSafetyPolicy.diagnosticsText,
             appGroupPath: AppGroup.containerURL.path,
             diagnosticsWritable: diagnosticsWritable,
@@ -432,11 +432,11 @@ private extension AuthorizationState {
     var diagnosticsText: String {
         switch self {
         case .unknown:
-            return "Unknown"
+            return L10n.string("Unknown")
         case .approved:
-            return "Approved"
+            return L10n.string("Approved")
         case .denied:
-            return "Denied"
+            return L10n.string("Denied")
         }
     }
 }

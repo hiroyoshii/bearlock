@@ -13,7 +13,7 @@ enum TargetSelectionStoreError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptySelection:
-            return "ブロック対象アプリが選択されていません。"
+            return L10n.string("No blocked apps are selected.")
         }
     }
 }
@@ -42,7 +42,7 @@ struct FamilyActivityTargetSelectionStore: TargetSelectionStoring {
         try data.write(to: AppGroup.selectionURL, options: [.atomic])
 
         return LockTargetSelectionRef(
-            displayName: "\(count) targets",
+            displayName: L10n.format("%d targets", count),
             tokenData: data
         )
     }

@@ -50,7 +50,7 @@ struct HomeView: View {
                     Text("Distractions stay outside.")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(AppTheme.navy)
-                    Text(summaryText)
+                    summaryView
                         .font(.caption)
                         .foregroundStyle(AppTheme.navy.opacity(0.62))
                 }
@@ -61,10 +61,12 @@ struct HomeView: View {
         }
     }
 
-    private var summaryText: String {
+    @ViewBuilder
+    private var summaryView: some View {
         if model.lockState.targetSelections.isEmpty {
-            return "まずはブロック対象アプリを選びます。"
+            Text("Select blocked apps first.")
+        } else {
+            Text(model.lockState.targetSelections.last?.displayName ?? L10n.string("Selected apps"))
         }
-        return model.lockState.targetSelections.last?.displayName ?? "Selected apps"
     }
 }

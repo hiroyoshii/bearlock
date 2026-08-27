@@ -30,12 +30,12 @@ struct ScheduledLockEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("予定") {
+                Section("Schedule") {
                     DatePicker("Starts", selection: $startsAt, displayedComponents: [.date, .hourAndMinute])
                     Stepper("\(Int(durationMinutes)) min", value: $durationMinutes, in: minimumDurationMinutes...maximumDurationMinutes, step: 5)
                 }
 
-                Section("確認") {
+                Section("Confirmation") {
                     LabeledContent("Wakes") {
                         Text(endsAt.formatted(date: .abbreviated, time: .shortened))
                     }
@@ -44,7 +44,7 @@ struct ScheduledLockEditorView: View {
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(AppTheme.steel)
                     }
-                    Text("開始前の予定だけ編集できます。開始後は短縮、削除、対象アプリ削減はできません。")
+                    Text("Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -88,6 +88,6 @@ struct ScheduledLockEditorView: View {
         guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
             return nil
         }
-        return "Debug safety limit: max \(Int(maximumDuration / 60)) min"
+        return L10n.format("Debug safety limit: max %d min", Int(maximumDuration / 60))
     }
 }

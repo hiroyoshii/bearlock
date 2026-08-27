@@ -102,7 +102,7 @@ struct ScreenshotHostView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     ActiveLockView(activeLock: ScreenshotFixtures.activeLock)
-                    Text("ロック中は短縮、削除、対象アプリの削減はできません。")
+                    Text("During a lock, you cannot shorten it, delete it, or reduce blocked apps.")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(AppTheme.navy.opacity(0.62))
@@ -140,7 +140,7 @@ struct ScreenshotHostView: View {
             HStack(spacing: 10) {
                 Image(systemName: "lock.shield")
                     .foregroundStyle(AppTheme.steel)
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.headline)
                     .foregroundStyle(AppTheme.navy)
             }
