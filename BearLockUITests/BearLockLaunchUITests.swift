@@ -62,7 +62,7 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-delayed-deleted")
     }
 
-    func testCreateAndDisableRecurringLockWithMockServices() throws {
+    func testCreateAndOpenRecurringEditorWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
@@ -80,11 +80,13 @@ final class BearLockLaunchUITests: XCTestCase {
         tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
         captureScreenshot(named: "e2e-recurring-disabled-editor")
         app.buttons["Cancel"].tap()
-        app.terminate()
+    }
 
-        let disabledApp = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
-        scrollToStaticText("Repeats", in: disabledApp)
-        scrollToStaticText("Off", in: disabledApp)
+    func testDisabledRecurringSeedShowsOffStateWithMockServices() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
+
+        scrollToStaticText("Repeats", in: app)
+        scrollToStaticText("Off", in: app)
         captureScreenshot(named: "e2e-recurring-disabled-list")
     }
 
