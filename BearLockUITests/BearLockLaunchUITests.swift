@@ -80,6 +80,7 @@ final class BearLockLaunchUITests: XCTestCase {
         tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
         captureScreenshot(named: "e2e-recurring-disabled-editor")
         app.buttons["Cancel"].tap()
+        app.terminate()
 
         let disabledApp = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
         scrollToStaticText("Repeats", in: disabledApp)
