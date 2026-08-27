@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 
 final class BearLockLaunchUITests: XCTestCase {
@@ -83,9 +84,28 @@ final class BearLockLaunchUITests: XCTestCase {
     }
 
     private func captureScreenshot(named name: String) {
-        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        let screenshot = XCUIScreen.main.screenshot()
+        writeScreenshotIfRequested(screenshot, named: name)
+
+        let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    private func writeScreenshotIfRequested(_ screenshot: XCUIScreenshot, named name: String) {
+        guard let directory = ProcessInfo.processInfo.environment["E2E_SCREENSHOT_DIR"],
+              !directory.isEmpty
+        else {
+            return
+        }
+
+        do {
+            let directoryURL = URL(fileURLWithPath: directory, isDirectory: true)
+            try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+            try screenshot.pngRepresentation.write(to: directoryURL.appending(path: "\(name).png"))
+        } catch {
+            XCTFail("Failed to write e2e screenshot \(name): \(error)")
+        }
     }
 }

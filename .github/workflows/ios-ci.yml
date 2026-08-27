@@ -31,6 +31,7 @@ jobs:
       DERIVED_DATA: DerivedData
       RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
       E2E_RESULT_BUNDLE: artifacts/BearLockE2ETests.xcresult
+      E2E_SCREENSHOT_DIR: artifacts/e2e-screenshots
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
       SCREENSHOT_DIR: artifacts/screenshots
       DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
@@ -89,7 +90,7 @@ jobs:
       - name: Run mock UI e2e tests
         run: |
           set -o pipefail
-          mkdir -p artifacts
+          mkdir -p artifacts "$E2E_SCREENSHOT_DIR"
           xcodebuild \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
