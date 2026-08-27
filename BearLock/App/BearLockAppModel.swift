@@ -131,7 +131,9 @@ final class BearLockAppModel: ObservableObject {
             var existingState = try repository.load()
             if existingState.targetSelections.isEmpty {
                 existingState.targetSelections = state.targetSelections
+                existingState.rules = state.rules
                 existingState.activeLock = state.activeLock
+                existingState.completedLocks = state.completedLocks
                 try repository.save(existingState)
             }
         } catch {
