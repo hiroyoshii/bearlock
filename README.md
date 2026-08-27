@@ -71,3 +71,5 @@ Pushes to the repository are expected to start this workflow automatically.
 ## Remaining Work
 
 Active pre-release tasks are tracked in `todo.md`.
+
+Launch preparation drafts are under `docs/launch/`.

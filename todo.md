@@ -4,43 +4,43 @@
 
 ## 実機前に進める
 
-- [ ] App Store / entitlement審査向けのプロダクト説明を作る。
+- [x] App Store / entitlement審査向けのプロダクト説明を作る。
   - Bear Lockが何をするアプリか。
   - Screen Time / Family Controls APIを使う理由。
   - 早期解除できない設計の意図と、安全上の制限。
   - 収集しないデータ、端末内保存、クラウド非利用。
-- [ ] Family Controls entitlement申請用メモを作る。
+- [x] Family Controls entitlement申請用メモを作る。
   - 想定ユーザー。
   - 利用シナリオ。
   - ブロック対象選択、スケジュール、Shield表示の流れ。
   - 保護者監視ではなく、本人の自己制御アプリとしての位置づけ。
-- [ ] Privacy Policy草案を作る。
+- [x] Privacy Policy草案を作る。
   - アカウントなし。
   - 分析・広告・トラッキングなし。
   - 選択アプリとスケジュールは端末/App Group内保存。
   - Diagnosticsは端末内ログで、ユーザーがスクショ共有する前提。
-- [ ] Support / FAQ草案を作る。
+- [x] Support / FAQ草案を作る。
   - ロックが効かない場合。
   - 権限が出ない場合。
   - ロック終了後も解除されない場合。
   - Diagnostics画面で確認する項目。
-- [ ] アプリ用LPの構成案を作る。
+- [x] アプリ用LPの構成案を作る。
   - First view: Bear Lockの価値とブランドビジュアル。
   - How it works: 選ぶ、時間を決める、眠らせる。
   - Privacy: 端末内完結。
   - FAQ / Contact。
-- [ ] App Store Connect用素材の下書きを作る。
+- [x] App Store Connect用素材の下書きを作る。
   - App name。
   - Subtitle。
   - Promotional text。
   - Description。
   - Keywords。
   - Review notes。
-- [ ] READMEを現状に合わせて更新する。
+- [x] READMEを現状に合わせて更新する。
   - 最新テスト数。
   - Diagnostics / Safety policy。
   - CI screenshot artifact。
-- [ ] CI artifactから申請/LP用スクショ候補を選ぶ。
+- [x] CI artifactから申請/LP用スクショ候補を選ぶ。
   - Setup。
   - Home。
   - Confirmation。
@@ -89,3 +89,4 @@
 - 実装計画: `docs/implementation-plan.md`
 - CI: `.github/workflows/ios-ci.yml`
 - Visual Snapshot CI: `.github/workflows/ios-visual-snapshot.yml`
+- Launch docs: `docs/launch/README.md`
