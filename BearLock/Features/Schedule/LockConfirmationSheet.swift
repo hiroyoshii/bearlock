@@ -18,8 +18,8 @@ struct LockConfirmationSheet: View {
     var body: some View {
         VStack(spacing: 22) {
             VStack(spacing: 10) {
-                BearDenArt(compact: true)
-                    .frame(width: 180, height: 112)
+                BearStateVisual(state: .arming, compact: true)
+                    .frame(width: 190, height: 130)
 
                 Text(details.title)
                     .font(.title2.bold())

@@ -5,9 +5,7 @@ struct SettingsView: View {
         List {
             Section {
                 VStack(spacing: 12) {
-                    Image("BrandBear")
-                        .resizable()
-                        .scaledToFit()
+                    BearStateVisual(state: .ready, compact: true)
                         .frame(height: 108)
                     BrandLockup(
                         subtitle: "A private space that protects your time and energy.",

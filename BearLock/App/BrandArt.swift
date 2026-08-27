@@ -1,24 +1,47 @@
 import SwiftUI
 
+enum BearVisualState {
+    case ready
+    case arming
+    case locked
+
+    var assetName: String {
+        switch self {
+        case .ready:
+            return "BearVisualReady"
+        case .arming:
+            return "BearVisualArming"
+        case .locked:
+            return "BearVisualLocked"
+        }
+    }
+}
+
+struct BearStateVisual: View {
+    var state: BearVisualState
+    var compact: Bool = false
+
+    var body: some View {
+        Image(state.assetName)
+            .resizable()
+            .scaledToFit()
+            .clipShape(RoundedRectangle(cornerRadius: compact ? 8 : 10))
+            .accessibilityHidden(true)
+    }
+}
+
 struct BearDenArt: View {
     var sleeping: Bool = true
     var compact: Bool = false
 
     var body: some View {
-        Image("BrandDen")
-            .resizable()
-            .scaledToFit()
-            .padding(compact ? 0 : 4)
-        .accessibilityHidden(true)
+        BearStateVisual(state: sleeping ? .locked : .ready, compact: compact)
     }
 }
 
 struct BearHeroArt: View {
     var body: some View {
-        Image("BrandHero")
-            .resizable()
-            .scaledToFit()
-            .accessibilityHidden(true)
+        BearStateVisual(state: .ready)
     }
 }
 
