@@ -4,6 +4,7 @@ enum BearVisualState {
     case ready
     case arming
     case locked
+    case sleeping
 
     var assetName: String {
         switch self {
@@ -13,6 +14,8 @@ enum BearVisualState {
             return "BearVisualArming"
         case .locked:
             return "BearVisualLocked"
+        case .sleeping:
+            return "BearVisualSleeping"
         }
     }
 }
@@ -35,13 +38,20 @@ struct BearDenArt: View {
     var compact: Bool = false
 
     var body: some View {
-        BearStateVisual(state: sleeping ? .locked : .ready, compact: compact)
+        Image("BrandDen")
+            .resizable()
+            .scaledToFit()
+            .padding(compact ? 0 : 4)
+            .accessibilityHidden(true)
     }
 }
 
 struct BearHeroArt: View {
     var body: some View {
-        BearStateVisual(state: .ready)
+        Image("BrandHero")
+            .resizable()
+            .scaledToFit()
+            .accessibilityHidden(true)
     }
 }
 

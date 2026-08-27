@@ -83,6 +83,7 @@ check_image_size BearLock/App/Assets.xcassets/BrandAppIcon.imageset/BrandAppIcon
 check_image_size BearLock/App/Assets.xcassets/BearVisualReady.imageset/BearVisualReady.png 1448 1086
 check_image_size BearLock/App/Assets.xcassets/BearVisualArming.imageset/BearVisualArming.png 1448 1086
 check_image_size BearLock/App/Assets.xcassets/BearVisualLocked.imageset/BearVisualLocked.png 1448 1086
+check_image_size BearLock/App/Assets.xcassets/BearVisualSleeping.imageset/BearVisualSleeping.png 1448 1086
 check_image_size BearLock/Extensions/ShieldConfiguration/Assets.xcassets/ShieldBrandDen.imageset/ShieldBrandDen.png 1254 1254
 check_image_size BearLock/Extensions/ShieldConfiguration/Assets.xcassets/ShieldBearVisualLocked.imageset/ShieldBearVisualLocked.png 1448 1086
 
