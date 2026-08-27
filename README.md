@@ -12,6 +12,8 @@ This repository contains:
 - OS-independent core domain logic under `Sources/BearLockCore`.
 - XCTest coverage for lock planning, recurrence, overlap rejection, and active lock immutability.
 - Mock-driven UI end-to-end tests for the core creation/edit/delete flows.
+- On-device Diagnostics screen for local troubleshooting without external logging.
+- Debug-build safety limit for pre-device testing.
 - Design and implementation docs under `docs/`.
 
 ## Generate The Xcode Project
@@ -43,7 +45,7 @@ swift test
 Current WSL validation:
 
 - Swift 6.3.3 installed with Swiftly.
-- `swift test` passes for `BearLockCore`.
+- `swift test` passes for `BearLockCore` with 23 tests.
 
 Real Screen Time behavior must be verified on a physical iOS device. Simulator-only validation is not enough for this app.
 
@@ -60,6 +62,12 @@ The workflow at `.github/workflows/ios-ci.yml` runs on `macos-15` and performs t
 
 The artifact is named `bearlock-ios-ci-artifacts`.
 
+The visual snapshot workflow at `.github/workflows/ios-visual-snapshot.yml` builds the screenshot app and exports static screenshots as `bearlock-ios-visual-snapshots`.
+
 The mock e2e tests currently cover setup launch, immediate lock creation, delayed lock creation, delayed lock edit/delete, recurring lock creation/disable, and active-lock immutability controls. This CI can catch Swift/package regressions, Xcode project generation failures, iOS compile errors, extension compile errors, and the main mock UI workflows. It cannot prove real Screen Time enforcement, Shield display over third-party apps, Family Controls authorization behavior, or DeviceActivity background callback behavior. Those still require a signed build on a physical iOS device with the Family Controls entitlement.
 
 Pushes to the repository are expected to start this workflow automatically.
+
+## Remaining Work
+
+Active pre-release tasks are tracked in `todo.md`.
