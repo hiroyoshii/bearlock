@@ -80,7 +80,11 @@ final class BearLockLaunchUITests: XCTestCase {
         tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
         captureScreenshot(named: "e2e-recurring-disabled-editor")
 
+        Thread.sleep(forTimeInterval: 1)
         app.buttons["Cancel"].tap()
+        if !app.staticTexts["Off"].waitForExistence(timeout: 5) {
+            app.swipeUp()
+        }
         XCTAssertTrue(app.staticTexts["Off"].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-recurring-disabled-list")
     }
