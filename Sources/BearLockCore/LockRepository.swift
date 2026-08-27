@@ -43,8 +43,13 @@ public final class JSONFileLockRepository: LockRepository {
             return LockState()
         }
 
-        let data = try Data(contentsOf: fileURL)
-        return try decoder.decode(LockState.self, from: data)
+        do {
+            let data = try Data(contentsOf: fileURL)
+            return try decoder.decode(LockState.self, from: data)
+        } catch {
+            try quarantineCorruptedState()
+            return LockState()
+        }
     }
 
     public func save(_ state: LockState) throws {
@@ -52,6 +57,21 @@ public final class JSONFileLockRepository: LockRepository {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let data = try encoder.encode(state)
         try data.write(to: fileURL, options: [.atomic])
+    }
+
+    private func quarantineCorruptedState() throws {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            return
+        }
+
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let timestamp = formatter.string(from: Date())
+            .replacingOccurrences(of: ":", with: "-")
+        let backupURL = fileURL.deletingPathExtension()
+            .appendingPathExtension("corrupt-\(timestamp)")
+            .appendingPathExtension(fileURL.pathExtension.isEmpty ? "json" : fileURL.pathExtension)
+        try FileManager.default.moveItem(at: fileURL, to: backupURL)
     }
 }
 

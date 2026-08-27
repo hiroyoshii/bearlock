@@ -10,6 +10,7 @@ final class BearLockAppModel: ObservableObject {
     @Published private(set) var isUpdatingLock = false
     @Published var lastErrorMessage: String?
     @Published private(set) var diagnosticsSnapshot = DiagnosticsSnapshot.empty
+    @Published private(set) var diagnosticsWritable = false
 
     let authorizationService: AuthorizationServicing
     let targetSelectionStore: TargetSelectionStoring
@@ -209,6 +210,8 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("Lock.create.started", detail: request.diagnosticsText)
 
         do {
+            try BearLockSafetyPolicy.validate(request)
+
             let now = Date()
             let state = await lockStore.snapshot()
             let rule = try planner.makeRule(
@@ -274,6 +277,8 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("Schedule.update.started", detail: original.kind.rawValue)
 
         do {
+            try BearLockSafetyPolicy.validateDuration(duration)
+
             let now = Date()
             let state = await lockStore.snapshot()
             var replacement = original
@@ -314,6 +319,8 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("Recurring.update.started")
 
         do {
+            try BearLockSafetyPolicy.validateDuration(recurrence.duration)
+
             let now = Date()
             let state = await lockStore.snapshot()
             var replacement = original
@@ -385,6 +392,7 @@ final class BearLockAppModel: ObservableObject {
 
     func refreshDiagnostics() {
         diagnosticsSnapshot = diagnostics.snapshot()
+        diagnosticsWritable = diagnostics.isWritable()
     }
 
     func clearDiagnostics() {
@@ -400,8 +408,9 @@ final class BearLockAppModel: ObservableObject {
             recurringRuleCount: lockState.rules.filter { $0.kind == .recurring }.count,
             activeLockStatus: lockState.activeLock.map { "Active until \($0.endsAt.formatted(date: .omitted, time: .shortened))" } ?? "None",
             lastError: lastErrorMessage ?? "None",
+            safetyPolicy: BearLockSafetyPolicy.diagnosticsText,
             appGroupPath: AppGroup.containerURL.path,
-            diagnosticsWritable: diagnostics.isWritable(),
+            diagnosticsWritable: diagnosticsWritable,
             bundleIdentifier: Bundle.main.bundleIdentifier ?? "Unknown",
             appVersion: Self.appVersion
         )

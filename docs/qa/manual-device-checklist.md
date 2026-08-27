@@ -2,9 +2,10 @@
 
 ## 前提
 
-- 実機iPhone。
+- 実機iPhoneまたはiPad。
 - Family Controls entitlementが有効なApple Developer Team。
 - App Group、bundle identifier、provisioning profileが一致している。
+- Macがない場合は、トラブル時に `Settings > Diagnostics` のスクショを確認する。
 
 ## Smoke Test
 
@@ -12,6 +13,8 @@
 - 権限拒否時にSetupへ戻る。
 - `FamilyActivityPicker` で対象アプリを選択できる。
 - 選択後、Homeに選択数が表示される。
+- 空の対象選択ではlockを開始できない。
+- Debug buildでは長時間lockがSafety policyで拒否される。
 
 ## Immediate Lock
 
@@ -39,6 +42,16 @@
 - scheduled中にapp restartして予定が復元される。
 - active中にapp restartしてActive画面が復元される。
 - Screen Time権限を取り消した場合、Setup/recovery状態へ戻る。
+- 終了時刻後にBear Lockを起動すると、expired active lockが完了し、Shield clear eventがDiagnosticsに残る。
+
+## Diagnostics
+
+- `Settings > Diagnostics` が開ける。
+- Authorization、Target selections、Scheduled rules、Recurring rules、Active lock、Safety policyが表示される。
+- Diagnostics writableが `Yes` になっている。
+- Recent Eventsに操作ログが新しい順で表示される。
+- `Clear Diagnostics` でイベント履歴を消せる。
+- トラブル時はDiagnostics画面と該当操作直後の画面をスクショする。
 
 ## Known Limitations To Confirm
 

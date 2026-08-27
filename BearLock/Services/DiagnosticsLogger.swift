@@ -42,6 +42,7 @@ struct DiagnosticsSummary: Equatable {
     var recurringRuleCount: Int
     var activeLockStatus: String
     var lastError: String
+    var safetyPolicy: String
     var appGroupPath: String
     var diagnosticsWritable: Bool
     var bundleIdentifier: String

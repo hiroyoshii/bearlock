@@ -24,6 +24,15 @@ struct LockComposerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
+            if let safetyLimitText {
+                Label(safetyLimitText, systemImage: "exclamationmark.shield")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.steel)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
+            }
+
             Picker("Start", selection: $mode) {
                 ForEach(LockComposerMode.allCases) { mode in
                     Text(mode.rawValue).tag(mode)
@@ -65,6 +74,9 @@ struct LockComposerView: View {
         }
         .padding(16)
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
+        .onAppear {
+            applySafetyDefaults()
+        }
         .sheet(item: confirmationBinding) { details in
             LockConfirmationSheet(
                 details: details,
@@ -88,7 +100,7 @@ struct LockComposerView: View {
         VStack(alignment: .leading) {
             Text("Duration")
                 .font(.headline)
-            Stepper("\(Int(durationMinutes)) min", value: $durationMinutes, in: 15...720, step: 15)
+            Stepper("\(Int(durationMinutes)) min", value: $durationMinutes, in: minimumDurationMinutes...maximumDurationMinutes, step: 5)
         }
     }
 
@@ -153,6 +165,11 @@ struct LockComposerView: View {
             return false
         }
 
+        if let maximumDuration = BearLockSafetyPolicy.maximumDuration,
+           requestDuration > maximumDuration {
+            return false
+        }
+
         if mode == .recurring {
             return !selectedWeekdays.isEmpty
         }
@@ -179,6 +196,48 @@ struct LockComposerView: View {
                 targetSelectionID: targetID
             )
         }
+    }
+
+    private var minimumDurationMinutes: Double {
+        BearLockSafetyPolicy.maximumDuration == nil ? 15 : 5
+    }
+
+    private var maximumDurationMinutes: Double {
+        if let maximumDuration = BearLockSafetyPolicy.maximumDuration {
+            return max(5, maximumDuration / 60)
+        }
+        return 720
+    }
+
+    private var requestDuration: TimeInterval {
+        switch mode {
+        case .now, .delayed, .fixedDateTime:
+            return durationMinutes * 60
+        case .recurring:
+            let recurrence = RecurrenceRule(
+                weekdays: selectedWeekdays,
+                startsAt: TimeOfDay(hour: recurringStart.hour ?? 23, minute: recurringStart.minute ?? 0),
+                endsAt: TimeOfDay(hour: recurringEnd.hour ?? 7, minute: recurringEnd.minute ?? 0)
+            )
+            return recurrence.duration
+        }
+    }
+
+    private var safetyLimitText: String? {
+        guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
+            return nil
+        }
+        return "Debug safety limit: max \(Int(maximumDuration / 60)) min"
+    }
+
+    private func applySafetyDefaults() {
+        guard BearLockSafetyPolicy.maximumDuration != nil else {
+            return
+        }
+        durationMinutes = min(durationMinutes, maximumDurationMinutes)
+        let startDate = date(from: recurringStart)
+        let cappedEnd = startDate.addingTimeInterval(maximumDurationMinutes * 60)
+        recurringEnd = Calendar.current.dateComponents([.hour, .minute], from: cappedEnd)
     }
 
     private func makeConfirmationDetails() -> LockConfirmationDetails {

@@ -58,6 +58,11 @@ struct RecurringRuleEditorView: View {
                     LabeledContent("Next") {
                         Text(nextIntervalText)
                     }
+                    if let safetyLimitText {
+                        Label(safetyLimitText, systemImage: "exclamationmark.shield")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(AppTheme.steel)
+                    }
                 }
 
                 Section {
@@ -76,7 +81,7 @@ struct RecurringRuleEditorView: View {
                     Button("Save") {
                         onSave(makeRecurrence())
                     }
-                    .disabled(isSaving || selectedWeekdays.isEmpty)
+                    .disabled(isSaving || selectedWeekdays.isEmpty || isOverSafetyLimit)
                 }
             }
         }
@@ -103,6 +108,20 @@ struct RecurringRuleEditorView: View {
             return "No upcoming hibernation"
         }
         return "\(interval.start.formatted(date: .abbreviated, time: .shortened)) -> \(interval.end.formatted(date: .abbreviated, time: .shortened))"
+    }
+
+    private var isOverSafetyLimit: Bool {
+        guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
+            return false
+        }
+        return makeRecurrence().duration > maximumDuration
+    }
+
+    private var safetyLimitText: String? {
+        guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
+            return nil
+        }
+        return "Debug safety limit: max \(Int(maximumDuration / 60)) min"
     }
 
     private func makeRecurrence() -> RecurrenceRule {

@@ -53,6 +53,21 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         ])
     }
 
+    func testCorruptedStateIsQuarantinedAndLoadsEmptyState() throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let stateURL = directory.appending(path: "state.json")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try "{ broken json".write(to: stateURL, atomically: true, encoding: .utf8)
+
+        let state = try JSONFileLockRepository(fileURL: stateURL).load()
+        let quarantinedFiles = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+
+        XCTAssertEqual(state, LockState())
+        XCTAssertFalse(FileManager.default.fileExists(atPath: stateURL.path))
+        XCTAssertTrue(quarantinedFiles.contains { $0.hasPrefix("state.corrupt-") && $0.hasSuffix(".json") })
+    }
+
     private func uniqueTemporaryDirectory() -> URL {
         FileManager.default.temporaryDirectory
             .appending(path: "bearlock-tests-\(UUID().uuidString)", directoryHint: .isDirectory)

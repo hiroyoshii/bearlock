@@ -48,6 +48,7 @@ struct DebugDiagnosticsView: View {
                 diagnosticRow("Recurring rules", "\(summary.recurringRuleCount)")
                 diagnosticRow("Active lock", summary.activeLockStatus)
                 diagnosticRow("Last error", summary.lastError)
+                diagnosticRow("Safety policy", summary.safetyPolicy)
             }
 
             Section("App") {
@@ -58,6 +59,16 @@ struct DebugDiagnosticsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)
+            }
+
+            Section("Device Check") {
+                checkRow("Authorize Screen Time")
+                checkRow("Choose at least one target")
+                checkRow("Create a short lock")
+                checkRow("Open a blocked app")
+                checkRow("Confirm shield appears")
+                checkRow("Wait for wake time")
+                checkRow("Confirm shield clears")
             }
 
             Section("Recent Events") {
@@ -113,6 +124,11 @@ struct DebugDiagnosticsView: View {
                 .multilineTextAlignment(.trailing)
                 .textSelection(.enabled)
         }
+    }
+
+    private func checkRow(_ title: String) -> some View {
+        Label(title, systemImage: "checkmark.circle")
+            .foregroundStyle(AppTheme.navy)
     }
 
     private func color(for level: DiagnosticLevel) -> Color {

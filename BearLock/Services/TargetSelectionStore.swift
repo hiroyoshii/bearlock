@@ -7,6 +7,17 @@ protocol TargetSelectionStoring {
     func save(_ selection: FamilyActivitySelection) throws -> LockTargetSelectionRef
 }
 
+enum TargetSelectionStoreError: LocalizedError {
+    case emptySelection
+
+    var errorDescription: String? {
+        switch self {
+        case .emptySelection:
+            return "ブロック対象アプリが選択されていません。"
+        }
+    }
+}
+
 struct FamilyActivityTargetSelectionStore: TargetSelectionStoring {
     private let encoder = PropertyListEncoder()
     private let decoder = PropertyListDecoder()
@@ -21,13 +32,17 @@ struct FamilyActivityTargetSelectionStore: TargetSelectionStoring {
     }
 
     func save(_ selection: FamilyActivitySelection) throws -> LockTargetSelectionRef {
+        let count = selection.applicationTokens.count + selection.categoryTokens.count
+        guard count > 0 else {
+            throw TargetSelectionStoreError.emptySelection
+        }
+
         let data = try encoder.encode(selection)
         try FileManager.default.createDirectory(at: AppGroup.containerURL, withIntermediateDirectories: true)
         try data.write(to: AppGroup.selectionURL, options: [.atomic])
 
-        let count = selection.applicationTokens.count + selection.categoryTokens.count
         return LockTargetSelectionRef(
-            displayName: count == 0 ? "No apps selected" : "\(count) targets",
+            displayName: "\(count) targets",
             tokenData: data
         )
     }
