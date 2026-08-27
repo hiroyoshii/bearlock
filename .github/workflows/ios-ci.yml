@@ -51,6 +51,9 @@ jobs:
           brew install xcodegen
           xcodegen --version
 
+      - name: Validate project metadata
+        run: bash Scripts/validate-ios-project.sh
+
       - name: Generate Xcode project
         run: xcodegen generate
 
@@ -98,31 +101,49 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts "$SCREENSHOT_DIR"
-          UDID="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 16/ { print $2; exit }')"
           APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name BearLockScreenshot.app -type d | head -n 1)"
-
-          if [ -z "$UDID" ]; then
-            echo "No available iPhone 16 simulator found."
-            exit 1
-          fi
 
           if [ -z "$APP_PATH" ]; then
             echo "BearLock.app was not found in DerivedData."
             exit 1
           fi
 
-          xcrun simctl boot "$UDID" || true
-          xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl install "$UDID" "$APP_PATH"
-          for SCREEN in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock scheduledEditor recurringEditor settings; do
-            xcrun simctl terminate "$UDID" "$SCREENSHOT_BUNDLE_ID" || true
-            xcrun simctl launch "$UDID" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$SCREEN"
-            sleep 3
-            xcrun simctl io "$UDID" screenshot "$SCREENSHOT_DIR/$SCREEN.png"
-            test -s "$SCREENSHOT_DIR/$SCREEN.png"
-            file "$SCREENSHOT_DIR/$SCREEN.png"
-          done
-          cp "$SCREENSHOT_DIR/setup.png" "$SCREENSHOT_PATH"
+          find_device_udid() {
+            local device_name="$1"
+            xcrun simctl list devices available | awk -F '[()]' -v name="$device_name" 'index($0, name) > 0 { print $2; exit }'
+          }
+
+          capture_device() {
+            local device_name="$1"
+            local label="$2"
+            local udid
+            udid="$(find_device_udid "$device_name")"
+
+            if [ -z "$udid" ]; then
+              echo "Simulator not found, skipping screenshots for $device_name."
+              return 0
+            fi
+
+            mkdir -p "$SCREENSHOT_DIR/$label"
+            xcrun simctl boot "$udid" || true
+            xcrun simctl bootstatus "$udid" -b
+            xcrun simctl install "$udid" "$APP_PATH"
+
+            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock scheduledEditor recurringEditor settings; do
+              xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
+              xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen"
+              sleep 3
+              xcrun simctl io "$udid" screenshot "$SCREENSHOT_DIR/$label/$screen.png"
+              test -s "$SCREENSHOT_DIR/$label/$screen.png"
+              file "$SCREENSHOT_DIR/$label/$screen.png"
+            done
+          }
+
+          capture_device "iPhone 16" "iphone-16"
+          capture_device "iPhone SE (3rd generation)" "iphone-se"
+
+          test -s "$SCREENSHOT_DIR/iphone-16/setup.png"
+          cp "$SCREENSHOT_DIR/iphone-16/setup.png" "$SCREENSHOT_PATH"
           test -s "$SCREENSHOT_PATH"
           file "$SCREENSHOT_PATH"
           shasum -a 256 "$SCREENSHOT_PATH"

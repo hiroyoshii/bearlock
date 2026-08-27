@@ -23,7 +23,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
         ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterialLight,
             backgroundColor: UIColor(red: 0.83, green: 0.90, blue: 0.97, alpha: 1.0),
-            icon: UIImage(systemName: "lock.fill"),
+            icon: UIImage(named: "ShieldBrandDen") ?? UIImage(systemName: "lock.fill"),
             title: ShieldConfiguration.Label(
                 text: "Bear is sleeping.",
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0)
