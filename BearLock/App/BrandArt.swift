@@ -17,7 +17,7 @@ struct BearHeroArt: View {
     var body: some View {
         Image("BrandHero")
             .resizable()
-            .scaledToFill()
+            .scaledToFit()
             .accessibilityHidden(true)
     }
 }

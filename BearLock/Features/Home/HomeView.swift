@@ -37,26 +37,28 @@ struct HomeView: View {
     }
 
     private var header: some View {
-        ZStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 10) {
             BearHeroArt()
-                .frame(height: 132)
-                .clipped()
-                .opacity(0.92)
+                .frame(maxWidth: .infinity)
+                .background(AppTheme.snow)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Do not wake the bear.")
-                    .font(.title3.bold())
-                    .foregroundStyle(AppTheme.navy)
-                Text(summaryText)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(AppTheme.navy.opacity(0.70))
+            HStack(spacing: 8) {
+                Image(systemName: "shield.lefthalf.filled")
+                    .foregroundStyle(AppTheme.steel)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Distractions stay outside.")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(AppTheme.navy)
+                    Text(summaryText)
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.navy.opacity(0.62))
+                }
+                Spacer()
             }
-            .padding(.leading, 20)
-            .padding(.trailing, 160)
+            .padding(12)
+            .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
         }
-        .frame(maxWidth: .infinity)
-        .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private var summaryText: String {
