@@ -140,7 +140,6 @@ jobs:
           }
 
           capture_device "iPhone 16" "iphone-16"
-          capture_device "iPhone SE (3rd generation)" "iphone-se"
 
           test -s "$SCREENSHOT_DIR/iphone-16/setup.png"
           cp "$SCREENSHOT_DIR/iphone-16/setup.png" "$SCREENSHOT_PATH"
