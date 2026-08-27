@@ -3,8 +3,10 @@ import FamilyControls
 import Foundation
 
 struct PreviewAuthorizationService: AuthorizationServicing {
+    var status: AuthorizationState = .unknown
+
     func currentStatus() -> AuthorizationState {
-        .unknown
+        status
     }
 
     func requestAuthorization() async throws {}

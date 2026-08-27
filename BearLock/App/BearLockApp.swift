@@ -6,11 +6,15 @@ struct BearLockApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(model)
-                .task {
-                    await model.refresh()
-                }
+            if let screenshotScreen = ScreenshotScreen.current() {
+                ScreenshotHostView(screen: screenshotScreen)
+            } else {
+                RootView()
+                    .environmentObject(model)
+                    .task {
+                        await model.refresh()
+                    }
+            }
         }
     }
 }
