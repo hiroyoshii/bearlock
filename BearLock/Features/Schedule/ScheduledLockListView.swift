@@ -143,6 +143,7 @@ private struct ScheduledLockRow: View {
                 }
                 .disabled(!canEdit)
                 .accessibilityLabel("Edit scheduled lock")
+                .accessibilityIdentifier("scheduled-lock-edit-button")
 
                 Button(role: .destructive) {
                     onDelete()
@@ -150,6 +151,7 @@ private struct ScheduledLockRow: View {
                     Image(systemName: "trash")
                 }
                 .accessibilityLabel("Delete scheduled lock")
+                .accessibilityIdentifier("scheduled-lock-delete-button")
             }
         }
         .padding(14)

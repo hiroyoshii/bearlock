@@ -30,6 +30,7 @@ struct LockComposerView: View {
                 }
             }
             .pickerStyle(.segmented)
+            .accessibilityIdentifier("lock-composer-mode-picker")
 
             Group {
                 switch mode {
@@ -60,6 +61,7 @@ struct LockComposerView: View {
             .controlSize(.large)
             .tint(AppTheme.navy)
             .disabled(!canSubmit)
+            .accessibilityIdentifier("lock-composer-primary-button")
         }
         .padding(16)
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))

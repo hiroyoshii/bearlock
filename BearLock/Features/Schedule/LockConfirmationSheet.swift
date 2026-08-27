@@ -57,6 +57,7 @@ struct LockConfirmationSheet: View {
                 .controlSize(.large)
                 .tint(AppTheme.navy)
                 .disabled(isSubmitting)
+                .accessibilityIdentifier("lock-confirmation-confirm-button")
 
                 Button("Cancel") {
                     onCancel()

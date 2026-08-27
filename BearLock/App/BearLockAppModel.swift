@@ -36,7 +36,8 @@ final class BearLockAppModel: ObservableObject {
     static func live() -> BearLockAppModel {
         let repository: JSONFileLockRepository
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
-            repository = JSONFileLockRepository(fileURL: FileManager.default.temporaryDirectory.appending(path: "bearlock-ui-test-state.json"))
+            repository = JSONFileLockRepository(fileURL: uiTestingRepositoryURL)
+            seedUITestingStateIfNeeded(repository: repository)
         } else {
             repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
         }
@@ -51,7 +52,7 @@ final class BearLockAppModel: ObservableObject {
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
             let selectionStore = PreviewTargetSelectionStore()
             return BearLockAppModel(
-                authorizationService: PreviewAuthorizationService(),
+                authorizationService: PreviewAuthorizationService(status: uiTestingAuthorizationStatus),
                 targetSelectionStore: selectionStore,
                 shieldController: NoopShieldController(),
                 scheduleController: NoopScheduleController(),
@@ -66,6 +67,41 @@ final class BearLockAppModel: ObservableObject {
             scheduleController: DeviceActivityScheduleController(),
             lockStore: lockStore
         )
+    }
+
+    private static var uiTestingRepositoryURL: URL {
+        FileManager.default.temporaryDirectory.appending(path: "bearlock-ui-test-state.json")
+    }
+
+    private static var uiTestingAuthorizationStatus: AuthorizationState {
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-approved") ? .approved : .unknown
+    }
+
+    private static func seedUITestingStateIfNeeded(repository: JSONFileLockRepository) {
+        let arguments = ProcessInfo.processInfo.arguments
+
+        if arguments.contains("--reset-ui-testing-state") {
+            try? FileManager.default.removeItem(at: uiTestingRepositoryURL)
+        }
+
+        guard arguments.contains("--ui-testing-seeded") else {
+            return
+        }
+
+        let target = LockTargetSelectionRef(
+            id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
+            displayName: "SNS, Video, Games"
+        )
+
+        do {
+            var state = try repository.load()
+            if state.targetSelections.isEmpty {
+                state.targetSelections = [target]
+                try repository.save(state)
+            }
+        } catch {
+            try? repository.save(LockState(targetSelections: [target]))
+        }
     }
 
     func refresh() async {

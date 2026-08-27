@@ -30,6 +30,7 @@ jobs:
       SCREENSHOT_BUNDLE_ID: com.example.bearlock.screenshot
       DERIVED_DATA: DerivedData
       RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
+      E2E_RESULT_BUNDLE: artifacts/BearLockE2ETests.xcresult
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
       SCREENSHOT_DIR: artifacts/screenshots
       DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
@@ -84,6 +85,19 @@ jobs:
             -resultBundlePath "$RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
             build-for-testing | tee artifacts/xcodebuild-ui-test-build.log
+
+      - name: Run mock UI e2e tests
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "$E2E_RESULT_BUNDLE" \
+            CODE_SIGNING_ALLOWED=NO \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e.log
 
       - name: Build screenshot app for simulator
         run: |
