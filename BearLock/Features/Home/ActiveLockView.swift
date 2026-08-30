@@ -13,29 +13,26 @@ struct ActiveLockView: View {
 
             Text("Bear is sleeping.")
                 .font(.title.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(AppTheme.navy)
 
             Text("Do not wake the bear.")
-                .foregroundStyle(.white.opacity(0.82))
+                .foregroundStyle(AppTheme.navy.opacity(0.72))
 
             Text(remainingText)
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(.white)
+                .foregroundStyle(AppTheme.navy)
 
             Text("Wakes at \(activeLock.endsAt.formatted(date: .omitted, time: .shortened))")
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.82))
+                .foregroundStyle(AppTheme.navy.opacity(0.72))
         }
         .frame(maxWidth: .infinity)
         .padding(28)
-        .background(
-            LinearGradient(
-                colors: [AppTheme.steel, AppTheme.navy],
-                startPoint: .top,
-                endPoint: .bottom
-            ),
-            in: RoundedRectangle(cornerRadius: 8)
+        .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(AppTheme.navy.opacity(0.16), lineWidth: 1)
         )
         .onReceive(timer) { date in
             now = date
