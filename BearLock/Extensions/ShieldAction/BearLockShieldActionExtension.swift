@@ -37,8 +37,6 @@ private extension ShieldAction {
             return "primaryButtonPressed"
         case .secondaryButtonPressed:
             return "secondaryButtonPressed"
-        case .none:
-            return "none"
         @unknown default:
             return "unknown"
         }
