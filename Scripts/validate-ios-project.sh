@@ -52,7 +52,14 @@ from pathlib import Path
 
 for path in Path("BearLock").glob("**/*.xcassets/**/Contents.json"):
     with path.open() as handle:
-        json.load(handle)
+        contents = json.load(handle)
+    for image in contents.get("images", []):
+        filename = image.get("filename")
+        if not filename:
+            continue
+        referenced_file = path.parent / filename
+        if not referenced_file.is_file():
+            raise SystemExit(f"Asset catalog references missing file: {referenced_file}")
 print("asset catalog json ok")
 PY
 
@@ -67,6 +74,28 @@ check_image_size() {
 
   if [[ "$actual_width" != "$width" || "$actual_height" != "$height" ]]; then
     echo "Unexpected image size for $file: ${actual_width}x${actual_height}, expected ${width}x${height}"
+    exit 1
+  fi
+}
+
+check_image_max_size() {
+  local file="$1"
+  local max_width="$2"
+  local max_height="$3"
+  local max_bytes="$4"
+  local actual_width
+  local actual_height
+  local actual_bytes
+  actual_width="$(sips -g pixelWidth "$file" | awk '/pixelWidth/ { print $2 }')"
+  actual_height="$(sips -g pixelHeight "$file" | awk '/pixelHeight/ { print $2 }')"
+  if stat -f '%z' "$file" >/dev/null 2>&1; then
+    actual_bytes="$(stat -f '%z' "$file")"
+  else
+    actual_bytes="$(stat -c '%s' "$file")"
+  fi
+
+  if (( actual_width > max_width || actual_height > max_height || actual_bytes > max_bytes )); then
+    echo "Image exceeds limit for $file: ${actual_width}x${actual_height}, ${actual_bytes} bytes; max ${max_width}x${max_height}, ${max_bytes} bytes"
     exit 1
   fi
 }
@@ -89,15 +118,6 @@ check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-76@1x.png 
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-76@2x.png 152 152
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ipad-83_5@2x.png 167 167
 check_image_size BearLock/App/Assets.xcassets/AppIcon.appiconset/ios-marketing-1024.png 1024 1024
-check_image_size BearLock/App/Assets.xcassets/BrandHero.imageset/BrandHero.png 1672 941
-check_image_size BearLock/App/Assets.xcassets/BrandDen.imageset/BrandDen.png 1254 1254
-check_image_size BearLock/App/Assets.xcassets/BrandBear.imageset/BrandBear.png 1254 1254
-check_image_size BearLock/App/Assets.xcassets/BrandAppIcon.imageset/BrandAppIcon.png 1254 1254
-check_image_size BearLock/App/Assets.xcassets/BearVisualReady.imageset/BearVisualReady.png 1448 1086
-check_image_size BearLock/App/Assets.xcassets/BearVisualArming.imageset/BearVisualArming.png 1448 1086
-check_image_size BearLock/App/Assets.xcassets/BearVisualLocked.imageset/BearVisualLocked.png 1448 1086
-check_image_size BearLock/App/Assets.xcassets/BearVisualSleeping.imageset/BearVisualSleeping.png 1448 1086
-check_image_size BearLock/Extensions/ShieldConfiguration/Assets.xcassets/ShieldBrandDen.imageset/ShieldBrandDen.png 1254 1254
-check_image_size BearLock/Extensions/ShieldConfiguration/Assets.xcassets/ShieldBearVisualLocked.imageset/ShieldBearVisualLocked.png 1448 1086
+check_image_max_size BearLock/Extensions/ShieldConfiguration/Assets.xcassets/ShieldBearVisualLocked.imageset/ShieldBearVisualLocked.png 256 256 102400
 
 echo "iOS project static validation passed"
