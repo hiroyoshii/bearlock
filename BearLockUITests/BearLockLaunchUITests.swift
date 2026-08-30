@@ -57,7 +57,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        app.buttons["lock-composer-mode-delayed"].tap()
+        app.buttons["In"].tap()
         XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
@@ -82,7 +82,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        app.buttons["lock-composer-mode-recurring"].tap()
+        app.buttons["Repeat"].tap()
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-recurring-confirmation")
@@ -114,7 +114,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Do not wake the bear."].exists)
         XCTAssertFalse(app.staticTexts["Now"].exists)
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].exists)
-        XCTAssertTrue(app.buttons["lock-composer-mode-delayed"].exists)
+        XCTAssertTrue(app.buttons["In"].exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
         captureScreenshot(named: "e2e-active-lock-constraints")
