@@ -12,6 +12,8 @@ struct HomeView: View {
 
                 if model.lockState.targetSelections.isEmpty {
                     targetSelectionPrompt
+                } else {
+                    selectedTargetSummary
                 }
 
                 if let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
@@ -51,7 +53,7 @@ struct HomeView: View {
                 Image(systemName: "shield.lefthalf.filled")
                     .foregroundStyle(AppTheme.steel)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Distractions stay outside.")
+                    Text("Lock selected apps until the end time.")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(AppTheme.navy)
                     summaryView
@@ -80,12 +82,21 @@ struct HomeView: View {
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
     }
 
+    private var selectedTargetSummary: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            TargetSelectionSummaryView()
+            TargetSelectionButton(prominent: false)
+        }
+        .padding(16)
+        .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
+    }
+
     @ViewBuilder
     private var summaryView: some View {
         if model.lockState.targetSelections.isEmpty {
             Text("Select blocked apps first.")
         } else {
-            Text(model.lockState.targetSelections.last?.displayName ?? L10n.string("Selected apps"))
+            Text(model.lockState.targetSelections.last?.displayName ?? L10n.string("Selected targets"))
         }
     }
 }

@@ -8,7 +8,7 @@ struct SettingsView: View {
                     BearStateVisual(state: .ready, compact: true)
                         .frame(height: 108)
                     BrandLockup(
-                        subtitle: "A private space that protects your time and energy.",
+                        subtitle: "Set app locks that end automatically at the chosen time.",
                         compact: true
                     )
                 }
@@ -18,11 +18,12 @@ struct SettingsView: View {
             }
 
             Section("Data handling") {
-                Text("MVP stores selected apps and lock schedules locally in the App Group container. It does not use accounts, cloud sync, or usage analytics.")
+                Text("Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking.")
                     .font(.body)
             }
 
             Section("Apps") {
+                TargetSelectionSummaryView()
                 TargetSelectionButton(prominent: false)
             }
 

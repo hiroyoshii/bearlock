@@ -7,12 +7,12 @@ struct ScheduledLockListView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Scheduled Hibernation")
+            Text("Scheduled Locks")
                 .font(.headline)
                 .foregroundStyle(AppTheme.navy)
 
             if scheduledRules.isEmpty {
-                Text("No scheduled hibernation.")
+                Text("No scheduled locks.")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.navy.opacity(0.58))
                     .frame(maxWidth: .infinity, alignment: .leading)

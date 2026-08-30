@@ -32,7 +32,11 @@ struct ScheduledLockEditorView: View {
             Form {
                 Section("Schedule") {
                     DatePicker("Starts", selection: $startsAt, displayedComponents: [.date, .hourAndMinute])
-                    Stepper("\(Int(durationMinutes)) min", value: $durationMinutes, in: minimumDurationMinutes...maximumDurationMinutes, step: 5)
+                    DurationPickerControl(
+                        minutes: $durationMinutes,
+                        minimumMinutes: minimumDurationMinutes,
+                        maximumMinutes: maximumDurationMinutes
+                    )
                 }
 
                 Section("Confirmation") {
@@ -49,7 +53,7 @@ struct ScheduledLockEditorView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("Edit Hibernation")
+            .navigationTitle("Edit Lock")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onCancel)

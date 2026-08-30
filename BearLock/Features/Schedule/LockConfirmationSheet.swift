@@ -26,7 +26,7 @@ struct LockConfirmationSheet: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy)
 
-                Text("Once Bear falls asleep, you can't wake him early.")
+                Text("After this starts, Bear Lock cannot shorten or end it early.")
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.68))
@@ -49,7 +49,7 @@ struct LockConfirmationSheet: View {
                             .tint(.white)
                             .frame(maxWidth: .infinity)
                     } else {
-                        Label(LocalizedStringKey(details.isImmediate ? "Hibernate" : "Schedule Hibernation"), systemImage: "lock.fill")
+                        Label(LocalizedStringKey(details.isImmediate ? "Start Lock" : "Schedule Lock"), systemImage: "lock.fill")
                             .frame(maxWidth: .infinity)
                     }
                 }

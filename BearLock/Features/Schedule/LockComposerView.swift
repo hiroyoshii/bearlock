@@ -97,11 +97,11 @@ struct LockComposerView: View {
     }
 
     private var durationControl: some View {
-        VStack(alignment: .leading) {
-            Text("Duration")
-                .font(.headline)
-            Stepper("\(Int(durationMinutes)) min", value: $durationMinutes, in: minimumDurationMinutes...maximumDurationMinutes, step: 5)
-        }
+        DurationPickerControl(
+            minutes: $durationMinutes,
+            minimumMinutes: minimumDurationMinutes,
+            maximumMinutes: maximumDurationMinutes
+        )
     }
 
     private var delayControl: some View {
@@ -157,7 +157,7 @@ struct LockComposerView: View {
     }
 
     private var primaryButtonTitle: String {
-        mode == .now ? "Hibernate" : "Schedule Hibernation"
+        mode == .now ? "Start Lock" : "Schedule Lock"
     }
 
     private var canSubmit: Bool {
@@ -266,7 +266,7 @@ struct LockComposerView: View {
         }
 
         return LockConfirmationDetails(
-            title: mode == .now ? "Bear will sleep now." : "Schedule Bear's sleep.",
+            title: mode == .now ? "Start this lock?" : "Schedule this lock?",
             targetSummary: model.lockState.targetSelections.last?.displayName ?? "Selected apps",
             startsAt: startsAt,
             endsAt: endsAt,

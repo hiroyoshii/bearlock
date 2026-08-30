@@ -33,7 +33,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 0.72)
             ),
             primaryButtonLabel: ShieldConfiguration.Label(
-                text: localized("Come back later"),
+                text: localized("OK"),
                 color: .white
             ),
             primaryButtonBackgroundColor: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0)

@@ -16,11 +16,11 @@ struct SetupView: View {
                     .shadow(color: AppTheme.navy.opacity(0.12), radius: 16, y: 10)
 
                 BrandLockup(
-                    subtitle: "Disappear for a while.",
+                    subtitle: "Choose apps. Set a time. Keep the lock.",
                     compact: false
                 )
 
-                Text("Quietly hibernate selected apps until the chosen time.")
+                Text("Bear Lock blocks selected apps until the scheduled end time.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.72))
@@ -42,7 +42,7 @@ struct SetupView: View {
             }
             .controlSize(.large)
 
-            Text("Selections are stored on device and in the App Group container. The MVP does not use accounts or cloud sync.")
+            Text("Your selections and schedules stay on this device. Bear Lock does not use accounts, cloud sync, ads, analytics, or tracking.")
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(AppTheme.navy.opacity(0.58))

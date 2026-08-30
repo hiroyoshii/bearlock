@@ -32,7 +32,7 @@ struct FamilyActivityTargetSelectionStore: TargetSelectionStoring {
     }
 
     func save(_ selection: FamilyActivitySelection) throws -> LockTargetSelectionRef {
-        let count = selection.applicationTokens.count + selection.categoryTokens.count
+        let count = selection.applicationTokens.count + selection.categoryTokens.count + selection.webDomainTokens.count
         guard count > 0 else {
             throw TargetSelectionStoreError.emptySelection
         }

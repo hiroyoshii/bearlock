@@ -8,7 +8,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         DiagnosticsLogger.shared.record("ShieldAction.application", detail: action.diagnosticsText)
-        completionHandler(.defer)
+        completionHandler(.close)
     }
 
     override func handle(
@@ -17,7 +17,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         DiagnosticsLogger.shared.record("ShieldAction.webDomain", detail: action.diagnosticsText)
-        completionHandler(.defer)
+        completionHandler(.close)
     }
 
     override func handle(
@@ -26,7 +26,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         DiagnosticsLogger.shared.record("ShieldAction.category", detail: action.diagnosticsText)
-        completionHandler(.defer)
+        completionHandler(.close)
     }
 }
 

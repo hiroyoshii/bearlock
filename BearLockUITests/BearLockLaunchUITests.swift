@@ -31,7 +31,7 @@ final class BearLockLaunchUITests: XCTestCase {
         ]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Select blocked apps first."].exists)
         XCTAssertTrue(app.buttons["Select blocked apps"].exists)
     }
@@ -39,11 +39,12 @@ final class BearLockLaunchUITests: XCTestCase {
     func testCreateImmediateLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["SNS, Video, Games"].exists)
+        XCTAssertTrue(app.sliders["duration-slider"].exists)
 
         app.buttons["lock-composer-primary-button"].tap()
-        XCTAssertTrue(app.staticTexts["Bear will sleep now."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Start this lock?"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-immediate-confirmation")
 
         app.buttons["lock-confirmation-confirm-button"].tap()
@@ -55,10 +56,10 @@ final class BearLockLaunchUITests: XCTestCase {
     func testScheduleEditAndDeleteDelayedLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
         app.buttons["In"].tap()
         app.buttons["lock-composer-primary-button"].tap()
-        XCTAssertTrue(app.staticTexts["Schedule Bear's sleep."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-delayed-confirmation")
 
         app.buttons["lock-confirmation-confirm-button"].tap()
@@ -66,23 +67,23 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-delayed-scheduled")
 
         tapFirstButton(app, identifier: "scheduled-lock-edit-button")
-        XCTAssertTrue(app.navigationBars["Edit Hibernation"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Edit Lock"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-delayed-editor")
         app.buttons["Save"].tap()
         XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
 
         tapFirstButton(app, identifier: "scheduled-lock-delete-button")
-        XCTAssertTrue(app.staticTexts["No scheduled hibernation."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-delayed-deleted")
     }
 
     func testCreateAndOpenRecurringEditorWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
         app.buttons["Repeat"].tap()
         app.buttons["lock-composer-primary-button"].tap()
-        XCTAssertTrue(app.staticTexts["Schedule Bear's sleep."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-recurring-confirmation")
 
         app.buttons["lock-confirmation-confirm-button"].tap()
@@ -99,7 +100,7 @@ final class BearLockLaunchUITests: XCTestCase {
     func testDisabledRecurringSeedShowsOffStateWithMockServices() throws {
         let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
 
-        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
         scrollToStaticText("Repeats", in: app)
         scrollToStaticText("Off", in: app)
         captureScreenshot(named: "e2e-recurring-disabled-list")
