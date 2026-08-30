@@ -11,7 +11,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: ios-ci-${{ github.ref }}
+  group: ios-ci-v2-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -90,6 +90,7 @@ jobs:
           rm -rf /tmp/bearlock-e2e-screenshots
 
       - name: Run setup screen UI e2e
+        timeout-minutes: 5
         continue-on-error: true
         run: |
           set -o pipefail
@@ -104,6 +105,7 @@ jobs:
             test-without-building | tee artifacts/xcodebuild-ui-e2e-setup.log || touch artifacts/e2e-setup.failed
 
       - name: Run immediate lock UI e2e
+        timeout-minutes: 5
         continue-on-error: true
         run: |
           set -o pipefail
@@ -118,6 +120,7 @@ jobs:
             test-without-building | tee artifacts/xcodebuild-ui-e2e-immediate.log || touch artifacts/e2e-immediate.failed
 
       - name: Run delayed lock UI e2e
+        timeout-minutes: 5
         continue-on-error: true
         run: |
           set -o pipefail
@@ -132,6 +135,7 @@ jobs:
             test-without-building | tee artifacts/xcodebuild-ui-e2e-delayed.log || touch artifacts/e2e-delayed.failed
 
       - name: Run recurring lock UI e2e
+        timeout-minutes: 5
         continue-on-error: true
         run: |
           set -o pipefail
@@ -146,6 +150,7 @@ jobs:
             test-without-building | tee artifacts/xcodebuild-ui-e2e-recurring.log || touch artifacts/e2e-recurring.failed
 
       - name: Run disabled recurring UI e2e
+        timeout-minutes: 5
         continue-on-error: true
         run: |
           set -o pipefail
@@ -160,6 +165,7 @@ jobs:
             test-without-building | tee artifacts/xcodebuild-ui-e2e-disabled-recurring.log || touch artifacts/e2e-disabled-recurring.failed
 
       - name: Run active lock constraint UI e2e
+        timeout-minutes: 5
         continue-on-error: true
         run: |
           set -o pipefail
