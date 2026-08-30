@@ -23,13 +23,6 @@ jobs:
       EXPORT_PATH: artifacts/export
       DERIVED_DATA: DerivedData
       DESTINATION: generic/platform=iOS
-      APP_STORE_CONNECT_API_KEY_PATH: ${{ runner.temp }}/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
-      APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
-      APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
-      BEARLOCK_APPSTORE_PROFILE_APP_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_APP_BASE64 }}
-      BEARLOCK_APPSTORE_PROFILE_MONITOR_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_MONITOR_BASE64 }}
-      BEARLOCK_APPSTORE_PROFILE_SHIELDCONFIGURATION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDCONFIGURATION_BASE64 }}
-      BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64 }}
 
     steps:
       - name: Checkout
@@ -51,24 +44,34 @@ jobs:
         run: bash Scripts/validate-ios-project.sh
 
       - name: Install signing assets
+        env:
+          APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          BEARLOCK_APPSTORE_PROFILE_APP_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_APP_BASE64 }}
+          BEARLOCK_APPSTORE_PROFILE_MONITOR_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_MONITOR_BASE64 }}
+          BEARLOCK_APPSTORE_PROFILE_SHIELDCONFIGURATION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDCONFIGURATION_BASE64 }}
+          BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64 }}
         run: bash Scripts/install-apple-signing-assets.sh
 
       - name: Generate App Store Connect API key file
         env:
           APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           if [[ -z "$APP_STORE_CONNECT_API_KEY_P8" ]]; then
             echo "Missing APP_STORE_CONNECT_API_KEY_P8"
             exit 1
           fi
-          if [[ -z "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" ]]; then
+          if [[ -z "$APP_STORE_CONNECT_KEY_ID" ]]; then
             echo "Missing APP_STORE_CONNECT_KEY_ID"
             exit 1
           fi
-          if [[ -z "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" ]]; then
+          if [[ -z "$APP_STORE_CONNECT_ISSUER_ID" ]]; then
             echo "Missing APP_STORE_CONNECT_ISSUER_ID"
             exit 1
           fi
+          APP_STORE_CONNECT_API_KEY_PATH="$RUNNER_TEMP/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
           mkdir -p "$(dirname "$APP_STORE_CONNECT_API_KEY_PATH")"
           printf '%s' "$APP_STORE_CONNECT_API_KEY_P8" > "$APP_STORE_CONNECT_API_KEY_PATH"
           chmod 600 "$APP_STORE_CONNECT_API_KEY_PATH"
