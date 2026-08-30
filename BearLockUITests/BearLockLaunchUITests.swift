@@ -13,7 +13,7 @@ final class BearLockLaunchUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Bear Lock"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Allow Screen Time access"].exists)
-        XCTAssertTrue(app.buttons["Select blocked apps"].exists)
+        XCTAssertTrue(app.buttons["Select targets"].exists)
 
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
@@ -33,7 +33,7 @@ final class BearLockLaunchUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Select blocked apps first."].exists)
-        XCTAssertTrue(app.buttons["Select blocked apps"].exists)
+        XCTAssertTrue(app.buttons["Select targets"].exists)
     }
 
     func testCreateImmediateLockWithMockServices() throws {
