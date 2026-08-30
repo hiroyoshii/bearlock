@@ -276,6 +276,9 @@ jobs:
         with:
           name: bearlock-ios-ci-artifacts
           path: |
-            artifacts
-            DerivedData/Logs/Test
+            artifacts/*.failed
+            artifacts/*.log
+            artifacts/*.png
+            artifacts/e2e-screenshots/*.png
+            artifacts/screenshots/**/*.png
           if-no-files-found: warn
