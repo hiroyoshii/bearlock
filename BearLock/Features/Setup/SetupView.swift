@@ -8,11 +8,8 @@ struct SetupView: View {
             Spacer()
 
             VStack(spacing: 12) {
-                Image("BrandAppIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: 230)
-                    .clipShape(RoundedRectangle(cornerRadius: 38))
+                BearStateVisual(state: .sleeping)
+                    .frame(maxWidth: 280)
                     .shadow(color: AppTheme.navy.opacity(0.12), radius: 16, y: 10)
 
                 BrandLockup(
