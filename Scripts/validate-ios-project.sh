@@ -22,6 +22,15 @@ do
   required_plist_key "$file" CFBundleVersion
 done
 
+required_plist_key BearLock/App/Info.plist UISupportedInterfaceOrientations
+required_plist_key BearLock/Extensions/DeviceActivityMonitor/Info.plist CFBundleDisplayName
+required_plist_key BearLock/Extensions/ShieldAction/Info.plist CFBundleDisplayName
+required_plist_key BearLock/Extensions/ShieldConfiguration/Info.plist CFBundleDisplayName
+
+/usr/libexec/PlistBuddy -c "Print :NSExtension:NSExtensionPointIdentifier" \
+  BearLock/Extensions/ShieldAction/Info.plist \
+  | grep -q "com.apple.ManagedSettings.shield-action-service"
+
 for file in \
   BearLock/App/BearLock.entitlements \
   BearLock/Extensions/DeviceActivityMonitor/BearLockMonitorExtension.entitlements \

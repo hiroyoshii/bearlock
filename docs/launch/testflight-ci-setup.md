@@ -146,3 +146,6 @@ The workflow:
 5. Archives `BearLock`.
 6. Exports an App Store `.ipa`.
 7. Uploads the `.ipa` to App Store Connect/TestFlight with the API key.
+
+The upload workflow uses the `macos-26` GitHub-hosted runner so App Store
+Connect validation sees an iOS 26 SDK build.
