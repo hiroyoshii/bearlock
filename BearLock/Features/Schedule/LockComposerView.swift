@@ -124,10 +124,45 @@ struct LockComposerView: View {
     }
 
     private var delayControl: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Starts in")
                 .font(.headline)
-            Stepper("\(Int(delayMinutes)) min", value: $delayMinutes, in: 5...240, step: 5)
+                .foregroundStyle(AppTheme.navy)
+
+            HStack(spacing: 12) {
+                Button {
+                    delayMinutes = max(5, delayMinutes - 5)
+                } label: {
+                    Image(systemName: "minus")
+                        .frame(width: 42, height: 42)
+                }
+                .buttonStyle(.bordered)
+                .tint(AppTheme.steel)
+                .disabled(delayMinutes <= 5)
+                .accessibilityLabel("Decrease start delay")
+
+                VStack(spacing: 2) {
+                    Text(L10n.format("%d min", Int(delayMinutes)))
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(AppTheme.navy)
+                        .monospacedDigit()
+                    Text("Start delay")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.navy.opacity(0.62))
+                }
+                .frame(maxWidth: .infinity, minHeight: 54)
+
+                Button {
+                    delayMinutes = min(240, delayMinutes + 5)
+                } label: {
+                    Image(systemName: "plus")
+                        .frame(width: 42, height: 42)
+                }
+                .buttonStyle(.bordered)
+                .tint(AppTheme.steel)
+                .disabled(delayMinutes >= 240)
+                .accessibilityLabel("Increase start delay")
+            }
         }
     }
 

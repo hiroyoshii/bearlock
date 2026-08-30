@@ -57,7 +57,8 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
-        app.buttons["In"].tap()
+        app.buttons["lock-composer-mode-delayed"].tap()
+        XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-delayed-confirmation")
@@ -81,7 +82,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
-        app.buttons["Repeat"].tap()
+        app.buttons["lock-composer-mode-recurring"].tap()
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-recurring-confirmation")

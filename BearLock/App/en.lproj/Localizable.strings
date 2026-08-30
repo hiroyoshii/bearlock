@@ -106,6 +106,9 @@
 "Settings" = "Settings";
 "Start" = "Start";
 "Start later" = "Start later";
+"Start delay" = "Start delay";
+"Decrease start delay" = "Decrease start delay";
+"Increase start delay" = "Increase start delay";
 "Start now" = "Start now";
 "Starts" = "Starts";
 "Starts %@" = "Starts %@";

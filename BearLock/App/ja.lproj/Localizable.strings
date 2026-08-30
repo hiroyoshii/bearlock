@@ -106,6 +106,9 @@
 "Settings" = "設定";
 "Start" = "開始";
 "Start later" = "あとで開始";
+"Start delay" = "開始までの時間";
+"Decrease start delay" = "開始までの時間を短くする";
+"Increase start delay" = "開始までの時間を長くする";
 "Start now" = "今すぐ開始";
 "Starts" = "開始";
 "Starts %@" = "開始 %@";
