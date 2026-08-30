@@ -12,6 +12,7 @@ struct ManagedSettingsShieldController: ShieldControlling {
     private let store = ManagedSettingsStore(named: .bearLock)
     private let selectionStore: TargetSelectionStoring
     private let diagnostics = DiagnosticsLogger.shared
+    private let decoder = PropertyListDecoder()
 
     init(selectionStore: TargetSelectionStoring) {
         self.selectionStore = selectionStore
@@ -20,7 +21,7 @@ struct ManagedSettingsShieldController: ShieldControlling {
     func applyShield(for activeLock: ActiveLock) {
         let selection: FamilyActivitySelection
         do {
-            selection = try selectionStore.load()
+            selection = try selection(for: activeLock)
         } catch {
             diagnostics.record("Shield.apply.selectionLoad.failed", level: .error, detail: error.localizedDescription)
             return
@@ -36,7 +37,7 @@ struct ManagedSettingsShieldController: ShieldControlling {
         store.shield.applications = selection.applicationTokens.isEmpty ? nil : selection.applicationTokens
         store.shield.applicationCategories = selection.categoryTokens.isEmpty ? nil : .specific(selection.categoryTokens)
         store.shield.webDomains = selection.webDomainTokens.isEmpty ? nil : selection.webDomainTokens
-        diagnostics.record("Shield.apply.succeeded", detail: "\(targetCount) targets")
+        diagnostics.record("Shield.apply.succeeded", detail: "active=\(activeLock.id.uuidString) targets=\(targetCount)")
     }
 
     func clearShield(for activeLock: ActiveLock) {
@@ -44,6 +45,17 @@ struct ManagedSettingsShieldController: ShieldControlling {
         store.shield.applicationCategories = nil
         store.shield.webDomains = nil
         diagnostics.record("Shield.clear.succeeded", detail: activeLock.id.uuidString)
+    }
+
+    private func selection(for activeLock: ActiveLock) throws -> FamilyActivitySelection {
+        let state = try JSONFileLockRepository(fileURL: AppGroup.lockStateURL).load()
+        if let selectionRef = state.targetSelections.last(where: { $0.id == activeLock.targetSelectionID }),
+           let tokenData = selectionRef.tokenData {
+            return try decoder.decode(FamilyActivitySelection.self, from: tokenData)
+        }
+
+        diagnostics.record("Shield.apply.fallbackToLatestSelection", level: .warning, detail: activeLock.targetSelectionID.uuidString)
+        return try selectionStore.load()
     }
 }
 

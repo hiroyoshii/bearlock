@@ -42,11 +42,36 @@ struct DiagnosticsSummary: Equatable {
     var recurringRuleCount: Int
     var activeLockStatus: String
     var lastError: String
+    var lastWarning: String
+    var lastSelectionEvent: String
+    var lastLockEvent: String
+    var lastDeviceActivityEvent: String
+    var lastShieldEvent: String
+    var lastShieldConfigurationEvent: String
     var safetyPolicy: String
     var appGroupPath: String
     var diagnosticsWritable: Bool
     var bundleIdentifier: String
     var appVersion: String
+}
+
+extension DiagnosticEvent {
+    var summary: String {
+        if let detail, !detail.isEmpty {
+            return "\(name): \(detail)"
+        }
+        return name
+    }
+}
+
+extension DiagnosticsSnapshot {
+    func lastEvent(named prefix: String) -> DiagnosticEvent? {
+        events.first { $0.name.hasPrefix(prefix) }
+    }
+
+    func lastEvent(level: DiagnosticLevel) -> DiagnosticEvent? {
+        events.first { $0.level == level }
+    }
 }
 
 final class DiagnosticsLogger: @unchecked Sendable {

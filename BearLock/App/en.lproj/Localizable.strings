@@ -83,6 +83,7 @@
 "Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking." = "Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking.";
 "Bear Lock blocks selected apps until the scheduled end time." = "Bear Lock blocks selected apps until the scheduled end time.";
 "Choose apps. Set a time. Keep the lock." = "Choose apps. Set a time. Keep the lock.";
+"Cannot change during lock" = "Cannot change during lock";
 "Set app locks that end automatically at the chosen time." = "Set app locks that end automatically at the chosen time.";
 "Start Lock" = "Start Lock";
 "Start this lock?" = "Start this lock?";
@@ -93,6 +94,8 @@
 "%d min" = "%d min";
 "Locks start at 15 minutes or longer." = "Locks start at 15 minutes or longer.";
 "iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection." = "iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection.";
+"Target apps cannot be changed during an active lock." = "Target apps cannot be changed during an active lock.";
+"+%d more" = "+%d more";
 "Selected apps" = "Selected apps";
 "Settings" = "Settings";
 "Start" = "Start";

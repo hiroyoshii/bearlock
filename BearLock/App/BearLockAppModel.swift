@@ -198,10 +198,15 @@ final class BearLockAppModel: ObservableObject {
     func saveSelection(_ selection: FamilyActivitySelection) async {
         diagnostics.record("Selection.save.started")
         do {
+            let state = await lockStore.snapshot()
+            if let active = state.activeLock, active.isActive(at: Date()) {
+                throw TargetSelectionStoreError.activeLockInProgress
+            }
+
             let ref = try targetSelectionStore.save(selection)
             try await lockStore.saveTargetSelection(ref)
             lockState = await lockStore.snapshot()
-            diagnostics.record("Selection.save.succeeded", detail: ref.displayName)
+            diagnostics.record("Selection.save.succeeded", detail: "\(ref.displayName) id=\(ref.id.uuidString)")
         } catch {
             recordError("Selection.save.failed", error)
         }
@@ -229,14 +234,21 @@ final class BearLockAppModel: ObservableObject {
             switch rule.kind {
             case .immediate:
                 diagnostics.record("Schedule.create.started", detail: rule.kind.rawValue)
-                try scheduleController.schedule(rule)
+                try await lockStore.addRule(rule)
+                do {
+                    try scheduleController.schedule(rule)
+                } catch {
+                    try? await lockStore.deleteRule(id: rule.id, now: now)
+                    throw error
+                }
                 let active = planner.activeLock(from: rule, intervalStart: now)
                 do {
                     try await lockStore.activate(active)
                     shieldController.applyShield(for: active)
-                    diagnostics.record("Lock.create.succeeded", detail: "immediate")
+                    diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule, active: active))
                 } catch {
                     try? scheduleController.cancel(rule)
+                    try? await lockStore.deleteRule(id: rule.id, now: now)
                     try? await lockStore.clearActiveLock(id: active.id)
                     throw error
                 }
@@ -245,7 +257,7 @@ final class BearLockAppModel: ObservableObject {
                 try scheduleController.schedule(rule)
                 do {
                     try await lockStore.addRule(rule)
-                    diagnostics.record("Lock.create.succeeded", detail: rule.kind.rawValue)
+                    diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule))
                 } catch {
                     try? scheduleController.cancel(rule)
                     throw error
@@ -408,11 +420,17 @@ final class BearLockAppModel: ObservableObject {
     var diagnosticsSummary: DiagnosticsSummary {
         DiagnosticsSummary(
             authorizationStatus: authorizationStatus.diagnosticsText,
-            targetSelectionCount: lockState.targetSelections.count,
+            targetSelectionCount: latestTargetSelectionCount,
             scheduledRuleCount: lockState.rules.filter { $0.status == .scheduled }.count,
             recurringRuleCount: lockState.rules.filter { $0.kind == .recurring }.count,
             activeLockStatus: lockState.activeLock.map { L10n.format("Active until %@", $0.endsAt.formatted(date: .omitted, time: .shortened)) } ?? L10n.string("None"),
             lastError: lastErrorMessage ?? L10n.string("None"),
+            lastWarning: diagnosticsSnapshot.lastEvent(level: .warning)?.summary ?? L10n.string("None"),
+            lastSelectionEvent: diagnosticsSnapshot.lastEvent(named: "Selection.")?.summary ?? L10n.string("None"),
+            lastLockEvent: diagnosticsSnapshot.lastEvent(named: "Lock.")?.summary ?? L10n.string("None"),
+            lastDeviceActivityEvent: diagnosticsSnapshot.lastEvent(named: "DeviceActivity.")?.summary ?? L10n.string("None"),
+            lastShieldEvent: diagnosticsSnapshot.lastEvent(named: "Shield.")?.summary ?? L10n.string("None"),
+            lastShieldConfigurationEvent: diagnosticsSnapshot.lastEvent(named: "ShieldConfiguration.")?.summary ?? L10n.string("None"),
             safetyPolicy: BearLockSafetyPolicy.diagnosticsText,
             appGroupPath: AppGroup.containerURL.path,
             diagnosticsWritable: diagnosticsWritable,
@@ -424,6 +442,21 @@ final class BearLockAppModel: ObservableObject {
     private func recordError(_ name: String, _ error: Error) {
         lastErrorMessage = error.localizedDescription
         diagnostics.record(name, level: .error, detail: error.localizedDescription)
+    }
+
+    private func lockDetail(for rule: LockRule, active: ActiveLock? = nil) -> String {
+        let activeID = active.map { " active=\($0.id.uuidString)" } ?? ""
+        return "\(rule.kind.rawValue) rule=\(rule.id.uuidString) start=\(rule.startsAt.ISO8601Format()) end=\(rule.endsAt.ISO8601Format())\(activeID)"
+    }
+
+    private var latestTargetSelectionCount: Int {
+        guard let tokenData = lockState.targetSelections.last?.tokenData,
+              let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: tokenData)
+        else {
+            return lockState.targetSelections.isEmpty ? 0 : 1
+        }
+
+        return selection.applicationTokens.count + selection.categoryTokens.count + selection.webDomainTokens.count
     }
 
     private static var appVersion: String {

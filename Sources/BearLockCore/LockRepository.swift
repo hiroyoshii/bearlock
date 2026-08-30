@@ -94,6 +94,10 @@ public actor LockStore {
         try repository.save(state)
     }
 
+    public func targetSelection(id: UUID) -> LockTargetSelectionRef? {
+        state.targetSelections.last { $0.id == id }
+    }
+
     public func addRule(_ rule: LockRule) throws {
         state.rules.removeAll { $0.id == rule.id }
         state.rules.append(rule)

@@ -19,7 +19,8 @@ struct LockConfirmationSheet: View {
         VStack(spacing: 22) {
             VStack(spacing: 10) {
                 BearStateVisual(state: .arming, compact: true)
-                    .frame(width: 190, height: 130)
+                    .frame(width: 168, height: 118)
+                    .padding(.top, 10)
 
                 Text(LocalizedStringKey(details.title))
                     .font(.title2.bold())
@@ -68,7 +69,7 @@ struct LockConfirmationSheet: View {
             }
         }
         .padding(24)
-        .presentationDetents([.medium])
+        .presentationDetents([.height(560), .large])
     }
 
     private func row(label: String, value: String) -> some View {

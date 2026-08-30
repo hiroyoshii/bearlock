@@ -83,6 +83,7 @@
 "Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking." = "選択したアプリ、予定、診断ログはこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。";
 "Bear Lock blocks selected apps until the scheduled end time." = "選んだアプリを終了時刻までロックします。";
 "Choose apps. Set a time. Keep the lock." = "アプリを選び、時間を決めて、ロックします。";
+"Cannot change during lock" = "ロック中は変更できません";
 "Set app locks that end automatically at the chosen time." = "選んだ時刻に自動で終わるアプリロックを設定します。";
 "Start Lock" = "ロック開始";
 "Start this lock?" = "このロックを開始しますか？";
@@ -93,6 +94,8 @@
 "%d min" = "%d分";
 "Locks start at 15 minutes or longer." = "ロック時間は15分以上から設定できます。";
 "iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection." = "iOSのプライバシー保護により、Bear Lock内ではアプリ名ではなく件数で表示します。";
+"Target apps cannot be changed during an active lock." = "ロック中は対象アプリを変更できません。";
+"+%d more" = "他%d件";
 "Selected apps" = "選択済みアプリ";
 "Settings" = "設定";
 "Start" = "開始";

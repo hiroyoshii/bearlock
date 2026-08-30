@@ -53,7 +53,16 @@ struct DebugDiagnosticsView: View {
                 diagnosticRow("Recurring rules", "\(summary.recurringRuleCount)")
                 diagnosticRow("Active lock", summary.activeLockStatus)
                 diagnosticRow("Last error", summary.lastError)
+                diagnosticRow("Last warning", summary.lastWarning)
                 diagnosticRow("Safety policy", summary.safetyPolicy)
+            }
+
+            Section("Trace") {
+                diagnosticRow("Selection", summary.lastSelectionEvent)
+                diagnosticRow("Lock", summary.lastLockEvent)
+                diagnosticRow("DeviceActivity", summary.lastDeviceActivityEvent)
+                diagnosticRow("Shield", summary.lastShieldEvent)
+                diagnosticRow("Shield UI", summary.lastShieldConfigurationEvent)
             }
 
             Section("App") {

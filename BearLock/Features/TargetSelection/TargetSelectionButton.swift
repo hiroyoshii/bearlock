@@ -10,6 +10,7 @@ struct TargetSelectionButton: View {
 
     var body: some View {
         baseButton
+            .disabled(isLocked)
             .familyActivityPicker(isPresented: $isPickerPresented, selection: $selection)
             .onChange(of: isPickerPresented) { _, presented in
                 guard !presented else { return }
@@ -29,7 +30,7 @@ struct TargetSelectionButton: View {
             }
             isPickerPresented = true
         } label: {
-            Label("Select blocked apps", systemImage: "app.badge")
+            Label(isLocked ? "Cannot change during lock" : "Select blocked apps", systemImage: "app.badge")
                 .frame(maxWidth: .infinity)
         }
 
@@ -43,11 +44,16 @@ struct TargetSelectionButton: View {
                 .tint(AppTheme.steel)
         }
     }
+
+    private var isLocked: Bool {
+        model.lockState.activeLock?.isActive(at: Date()) == true
+    }
 }
 
 struct TargetSelectionSummaryView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var summary = TargetSelectionSummary.empty
+    @State private var loadedSelection: FamilyActivitySelection?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -78,9 +84,9 @@ struct TargetSelectionSummaryView: View {
                     summaryPill(title: "Categories", count: summary.categories)
                     summaryPill(title: "Websites", count: summary.webDomains)
                 }
-                Text("iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection.")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.navy.opacity(0.62))
+                if let loadedSelection {
+                    TokenSelectionListView(selection: loadedSelection)
+                }
             }
         }
         .onAppear(perform: refresh)
@@ -120,10 +126,48 @@ struct TargetSelectionSummaryView: View {
 
     private func refresh() {
         do {
-            summary = TargetSelectionSummary(selection: try model.targetSelectionStore.load())
+            let selection = try model.targetSelectionStore.load()
+            loadedSelection = selection
+            summary = TargetSelectionSummary(selection: selection)
         } catch {
+            loadedSelection = nil
             summary = .empty
         }
+    }
+}
+
+private struct TokenSelectionListView: View {
+    let selection: FamilyActivitySelection
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(Array(selection.applicationTokens.prefix(5)), id: \.self) { token in
+                Label(token)
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.navy)
+            }
+            ForEach(Array(selection.categoryTokens.prefix(5)), id: \.self) { token in
+                Label(token)
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.navy)
+            }
+            ForEach(Array(selection.webDomainTokens.prefix(5)), id: \.self) { token in
+                Label(token)
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.navy)
+            }
+            if overflowCount > 0 {
+                Text(L10n.format("+%d more", overflowCount))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.navy.opacity(0.62))
+            }
+        }
+    }
+
+    private var overflowCount: Int {
+        max(0, selection.applicationTokens.count - 5)
+            + max(0, selection.categoryTokens.count - 5)
+            + max(0, selection.webDomainTokens.count - 5)
     }
 }
 

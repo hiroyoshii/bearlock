@@ -9,11 +9,14 @@ protocol TargetSelectionStoring {
 
 enum TargetSelectionStoreError: LocalizedError {
     case emptySelection
+    case activeLockInProgress
 
     var errorDescription: String? {
         switch self {
         case .emptySelection:
             return L10n.string("No blocked apps are selected.")
+        case .activeLockInProgress:
+            return L10n.string("Target apps cannot be changed during an active lock.")
         }
     }
 }
