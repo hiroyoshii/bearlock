@@ -78,6 +78,10 @@ After Family Controls Distribution is approved, create App Store provisioning pr
 
 Download the 4 `.mobileprovision` files.
 
+If GitHub Actions reports missing Family Controls or App Groups entitlements, check the App ID
+capabilities again, then recreate and re-download the provisioning profiles. Existing profiles
+do not reliably pick up capability changes made after the profile was generated.
+
 ## Convert Files For GitHub Secrets
 
 From the directory containing the downloaded files:

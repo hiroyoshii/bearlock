@@ -34,3 +34,37 @@ for profile in "$PROFILE_DIR"/*.mobileprovision; do
     echo "---"
   } | tee -a artifacts/provisioning-profile-summary.log
 done
+
+expected_profiles=(
+  "BearLock AppStore App|3M4M7DRUZY.com.hiyozoo.bearlock"
+  "BearLock AppStore Monitor|3M4M7DRUZY.com.hiyozoo.bearlock.monitor"
+  "BearLock AppStore ShieldConfiguration|3M4M7DRUZY.com.hiyozoo.bearlock.shieldconfiguration"
+  "BearLock AppStore ShieldAction|3M4M7DRUZY.com.hiyozoo.bearlock.shieldaction"
+)
+
+for expected in "${expected_profiles[@]}"; do
+  IFS='|' read -r expected_name expected_app_id <<< "$expected"
+  found="false"
+
+  for profile in "$PROFILE_DIR"/*.mobileprovision; do
+    [[ -e "$profile" ]] || continue
+    plist="$RUNNER_TEMP/validate-$(basename "$profile").plist"
+    security cms -D -i "$profile" > "$plist"
+
+    name="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$plist" 2>/dev/null || true)"
+    app_id="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$plist" 2>/dev/null || true)"
+    [[ "$name" == "$expected_name" && "$app_id" == "$expected_app_id" ]] || continue
+
+    found="true"
+    /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.family-controls' "$plist" >/dev/null
+    /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.security.application-groups' "$plist" \
+      | grep -q "group.com.hiyozoo.bearlock"
+  done
+
+  if [[ "$found" != "true" ]]; then
+    echo "Expected provisioning profile not found: $expected_name ($expected_app_id)"
+    exit 1
+  fi
+done
+
+echo "Provisioning profile entitlement validation passed."
