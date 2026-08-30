@@ -22,6 +22,10 @@ struct SettingsView: View {
                     .font(.body)
             }
 
+            Section("Apps") {
+                TargetSelectionButton(prominent: false)
+            }
+
             Section("Debug") {
                 NavigationLink {
                     DebugDiagnosticsView()

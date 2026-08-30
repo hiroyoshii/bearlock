@@ -22,6 +22,20 @@ final class BearLockLaunchUITests: XCTestCase {
         add(attachment)
     }
 
+    func testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--ui-testing",
+            "--ui-testing-approved",
+            "--reset-ui-testing-state"
+        ]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Distractions stay outside."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Select blocked apps first."].exists)
+        XCTAssertTrue(app.buttons["Select blocked apps"].exists)
+    }
+
     func testCreateImmediateLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 

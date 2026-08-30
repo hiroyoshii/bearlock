@@ -10,6 +10,10 @@ struct HomeView: View {
             VStack(spacing: 20) {
                 header
 
+                if model.lockState.targetSelections.isEmpty {
+                    targetSelectionPrompt
+                }
+
                 if let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
                     ActiveLockView(activeLock: activeLock)
                 } else {
@@ -59,6 +63,21 @@ struct HomeView: View {
             .padding(12)
             .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
         }
+    }
+
+    private var targetSelectionPrompt: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Select blocked apps first.")
+                .font(.headline)
+                .foregroundStyle(AppTheme.navy)
+            Text("Choose at least one target")
+                .font(.subheadline)
+                .foregroundStyle(AppTheme.navy.opacity(0.62))
+            TargetSelectionButton(prominent: true)
+                .controlSize(.large)
+        }
+        .padding(16)
+        .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder

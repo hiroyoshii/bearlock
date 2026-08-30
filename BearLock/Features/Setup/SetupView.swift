@@ -1,10 +1,7 @@
-import FamilyControls
 import SwiftUI
 
 struct SetupView: View {
     @EnvironmentObject private var model: BearLockAppModel
-    @State private var selection = FamilyActivitySelection()
-    @State private var isPickerPresented = false
 
     var body: some View {
         VStack(spacing: 28) {
@@ -41,14 +38,7 @@ struct SetupView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(AppTheme.navy)
 
-                Button {
-                    isPickerPresented = true
-                } label: {
-                    Label("Select blocked apps", systemImage: "app.badge")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .tint(AppTheme.steel)
+                TargetSelectionButton(prominent: false)
             }
             .controlSize(.large)
 
@@ -60,12 +50,5 @@ struct SetupView: View {
             Spacer()
         }
         .padding(24)
-        .familyActivityPicker(isPresented: $isPickerPresented, selection: $selection)
-        .onChange(of: isPickerPresented) { _, presented in
-            guard !presented else { return }
-            Task {
-                await model.saveSelection(selection)
-            }
-        }
     }
 }
