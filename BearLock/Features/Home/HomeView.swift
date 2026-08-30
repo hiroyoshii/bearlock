@@ -8,8 +8,6 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                header
-
                 if model.lockState.targetSelections.isEmpty {
                     targetSelectionPrompt
                 } else {
@@ -38,15 +36,6 @@ struct HomeView: View {
         }
         .task {
             await model.refresh()
-        }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            BearHeroArt()
-                .frame(maxWidth: .infinity)
-                .background(AppTheme.snow)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
