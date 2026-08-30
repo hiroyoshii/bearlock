@@ -140,27 +140,56 @@ private struct TokenSelectionListView: View {
     let selection: FamilyActivitySelection
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(Array(selection.applicationTokens.prefix(5)), id: \.self) { token in
-                Label(token)
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.navy)
-            }
-            ForEach(Array(selection.categoryTokens.prefix(5)), id: \.self) { token in
-                Label(token)
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.navy)
-            }
-            ForEach(Array(selection.webDomainTokens.prefix(5)), id: \.self) { token in
-                Label(token)
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.navy)
-            }
+        VStack(alignment: .leading, spacing: 10) {
+            tokenGroup("Apps", tokens: Array(selection.applicationTokens.prefix(5)))
+            tokenGroup("Categories", tokens: Array(selection.categoryTokens.prefix(5)))
+            tokenGroup("Websites", tokens: Array(selection.webDomainTokens.prefix(5)))
             if overflowCount > 0 {
                 Text(L10n.format("+%d more", overflowCount))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(AppTheme.navy.opacity(0.62))
             }
+        }
+    }
+
+    private func tokenGroup<Token: Hashable>(_ title: String, tokens: [Token]) -> some View {
+        Group {
+            if !tokens.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(LocalizedStringKey(title))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.navy.opacity(0.62))
+                    ForEach(tokens, id: \.self) { token in
+                        tokenRow(token)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func tokenRow<Token>(_ token: Token) -> some View {
+        HStack(spacing: 10) {
+            label(for: token)
+                .labelStyle(.titleAndIcon)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.navy)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .background(AppTheme.background, in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private func label<Token>(for token: Token) -> some View {
+        if let token = token as? ApplicationToken {
+            Label(token)
+        } else if let token = token as? ActivityCategoryToken {
+            Label(token)
+        } else if let token = token as? WebDomainToken {
+            Label(token)
         }
     }
 
