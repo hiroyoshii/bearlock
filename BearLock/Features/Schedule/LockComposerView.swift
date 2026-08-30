@@ -8,6 +8,24 @@ enum LockComposerMode: String, CaseIterable, Identifiable {
     case recurring = "Repeat"
 
     var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .now: return "Now"
+        case .delayed: return "In"
+        case .fixedDateTime: return "Date & Time"
+        case .recurring: return "Repeat"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .now: return "bolt.fill"
+        case .delayed: return "timer"
+        case .fixedDateTime: return "calendar"
+        case .recurring: return "repeat"
+        }
+    }
 }
 
 struct LockComposerView: View {
@@ -34,13 +52,7 @@ struct LockComposerView: View {
                     .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
             }
 
-            Picker("Start", selection: $mode) {
-                ForEach(availableModes) { mode in
-                    Text(LocalizedStringKey(mode.rawValue)).tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-            .accessibilityIdentifier("lock-composer-mode-picker")
+            modeTabs
 
             Group {
                 switch mode {
@@ -51,6 +63,8 @@ struct LockComposerView: View {
                     durationControl
                     scheduleSummary
                 case .fixedDateTime:
+                    Text("Date & Time")
+                        .font(.headline)
                     DatePicker("Starts", selection: $fixedStart, displayedComponents: [.date, .hourAndMinute])
                     durationControl
                     scheduleSummary
@@ -115,6 +129,31 @@ struct LockComposerView: View {
                 .font(.headline)
             Stepper("\(Int(delayMinutes)) min", value: $delayMinutes, in: 5...240, step: 5)
         }
+    }
+
+    private var modeTabs: some View {
+        HStack(spacing: 8) {
+            ForEach(availableModes) { tabMode in
+                Button {
+                    mode = tabMode
+                } label: {
+                    Label(LocalizedStringKey(tabMode.title), systemImage: tabMode.iconName)
+                        .font(.caption.weight(.bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
+                        .frame(maxWidth: .infinity, minHeight: 38)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(mode == tabMode ? AppTheme.snow : AppTheme.navy)
+                .background(mode == tabMode ? AppTheme.navy : AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(mode == tabMode ? AppTheme.navy : AppTheme.steel.opacity(0.35), lineWidth: 1)
+                )
+                .accessibilityIdentifier("lock-composer-mode-\(tabMode.id)")
+            }
+        }
+        .accessibilityIdentifier("lock-composer-mode-picker")
     }
 
     private var weekdayControl: some View {
