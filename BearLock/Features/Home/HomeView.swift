@@ -23,8 +23,16 @@ struct HomeView: View {
             }
             .padding(20)
         }
-        .navigationTitle("Bear Lock")
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Image("BrandHeaderLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 142, height: 50, alignment: .leading)
+                    .accessibilityLabel("Bear Lock")
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     SettingsView()

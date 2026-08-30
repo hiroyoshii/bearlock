@@ -191,12 +191,18 @@ private struct TokenSelectionListView: View {
                 .labelStyle(.titleAndIcon)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppTheme.navy)
+                .foregroundColor(AppTheme.navy)
+                .environment(\.colorScheme, .light)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 10)
-        .background(AppTheme.background, in: RoundedRectangle(cornerRadius: 8))
+        .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(AppTheme.navy.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private var overflowCount: Int {
