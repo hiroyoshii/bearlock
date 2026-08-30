@@ -26,7 +26,7 @@ struct ManagedSettingsShieldController: ShieldControlling {
             return
         }
 
-        let targetCount = selection.applicationTokens.count + selection.categoryTokens.count
+        let targetCount = selection.applicationTokens.count + selection.categoryTokens.count + selection.webDomainTokens.count
         guard targetCount > 0 else {
             diagnostics.record("Shield.apply.skippedEmptySelection", level: .warning)
             clearShield(for: activeLock)
@@ -35,12 +35,14 @@ struct ManagedSettingsShieldController: ShieldControlling {
 
         store.shield.applications = selection.applicationTokens.isEmpty ? nil : selection.applicationTokens
         store.shield.applicationCategories = selection.categoryTokens.isEmpty ? nil : .specific(selection.categoryTokens)
+        store.shield.webDomains = selection.webDomainTokens.isEmpty ? nil : selection.webDomainTokens
         diagnostics.record("Shield.apply.succeeded", detail: "\(targetCount) targets")
     }
 
     func clearShield(for activeLock: ActiveLock) {
         store.shield.applications = nil
         store.shield.applicationCategories = nil
+        store.shield.webDomains = nil
         diagnostics.record("Shield.clear.succeeded", detail: activeLock.id.uuidString)
     }
 }

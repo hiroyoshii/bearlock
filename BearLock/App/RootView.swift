@@ -2,15 +2,21 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject private var model: BearLockAppModel
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
             Group {
-                switch model.authorizationStatus {
-                case .approved:
-                    HomeView()
-                case .denied, .unknown:
-                    SetupView()
+                if model.hasLoadedInitialState {
+                    switch model.authorizationStatus {
+                    case .approved:
+                        HomeView()
+                    case .denied, .unknown:
+                        SetupView()
+                    }
+                } else {
+                    ProgressView()
+                        .tint(AppTheme.navy)
                 }
             }
             .background(AppTheme.background.ignoresSafeArea())
@@ -20,6 +26,12 @@ struct RootView: View {
                 }
             } message: {
                 Text(model.lastErrorMessage ?? "")
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task {
+                await model.refresh()
             }
         }
     }

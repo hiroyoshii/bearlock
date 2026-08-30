@@ -6,6 +6,7 @@ import FamilyControls
 final class BearLockAppModel: ObservableObject {
     @Published private(set) var authorizationStatus: AuthorizationState = .unknown
     @Published private(set) var lockState = LockState()
+    @Published private(set) var hasLoadedInitialState = false
     @Published private(set) var isCreatingLock = false
     @Published private(set) var isUpdatingLock = false
     @Published var lastErrorMessage: String?
@@ -162,8 +163,11 @@ final class BearLockAppModel: ObservableObject {
         }
         lockState = await lockStore.snapshot()
 
-        if lockState.activeLock == nil,
-           let rule = planner.scheduledRuleContaining(now, in: lockState.rules) {
+        if let active = lockState.activeLock, active.isActive(at: now) {
+            shieldController.applyShield(for: active)
+            diagnostics.record("ActiveLock.refreshAppliedShield", detail: active.id.uuidString)
+        } else if lockState.activeLock == nil,
+                  let rule = planner.scheduledRuleContaining(now, in: lockState.rules) {
             let active = planner.activeLock(from: rule, intervalStart: rule.startsAt)
             do {
                 try await lockStore.activate(active)
@@ -175,6 +179,7 @@ final class BearLockAppModel: ObservableObject {
             }
         }
         refreshDiagnostics()
+        hasLoadedInitialState = true
     }
 
     func requestAuthorization() async {
