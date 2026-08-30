@@ -26,6 +26,7 @@ jobs:
       EXPORT_PATH: artifacts/export
       DERIVED_DATA: DerivedData
       DESTINATION: generic/platform=iOS
+      BUILD_NUMBER: ${{ github.run_number }}
 
     steps:
       - name: Checkout
@@ -91,6 +92,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p artifacts
+          echo "Archiving build number $BUILD_NUMBER"
           xcodebuild \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
@@ -98,6 +100,7 @@ jobs:
             -destination "$DESTINATION" \
             -archivePath "$ARCHIVE_PATH" \
             -derivedDataPath "$DERIVED_DATA" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             archive | tee artifacts/xcodebuild-archive.log
