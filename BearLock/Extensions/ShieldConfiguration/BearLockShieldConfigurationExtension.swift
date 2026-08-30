@@ -5,22 +5,22 @@ import UIKit
 final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource {
     override func configuration(shielding application: Application) -> ShieldConfiguration {
         ShieldConfigurationDiagnostics.record("ShieldConfiguration.application")
-        configuration()
+        return configuration()
     }
 
     override func configuration(shielding application: Application, in category: ActivityCategory) -> ShieldConfiguration {
         ShieldConfigurationDiagnostics.record("ShieldConfiguration.applicationInCategory")
-        configuration()
+        return configuration()
     }
 
     override func configuration(shielding webDomain: WebDomain) -> ShieldConfiguration {
         ShieldConfigurationDiagnostics.record("ShieldConfiguration.webDomain")
-        configuration()
+        return configuration()
     }
 
     override func configuration(shielding webDomain: WebDomain, in category: ActivityCategory) -> ShieldConfiguration {
         ShieldConfigurationDiagnostics.record("ShieldConfiguration.webDomainInCategory")
-        configuration()
+        return configuration()
     }
 
     private func configuration() -> ShieldConfiguration {
