@@ -31,7 +31,7 @@ final class BearLockLaunchUITests: XCTestCase {
         ]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Select targets"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Select blocked apps first."].exists)
         XCTAssertTrue(app.buttons["Select targets"].exists)
     }
@@ -39,7 +39,7 @@ final class BearLockLaunchUITests: XCTestCase {
     func testCreateImmediateLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["SNS, Video, Games"].exists)
         XCTAssertTrue(app.sliders["duration-slider"].exists)
 
@@ -56,7 +56,7 @@ final class BearLockLaunchUITests: XCTestCase {
     func testScheduleEditAndDeleteDelayedLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
         app.buttons["lock-composer-mode-delayed"].tap()
         XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
         app.buttons["lock-composer-primary-button"].tap()
@@ -81,7 +81,7 @@ final class BearLockLaunchUITests: XCTestCase {
     func testCreateAndOpenRecurringEditorWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
         app.buttons["lock-composer-mode-recurring"].tap()
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
@@ -101,7 +101,7 @@ final class BearLockLaunchUITests: XCTestCase {
     func testDisabledRecurringSeedShowsOffStateWithMockServices() throws {
         let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
 
-        XCTAssertTrue(app.staticTexts["Lock selected apps until the end time."].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
         scrollToStaticText("Repeats", in: app)
         scrollToStaticText("Off", in: app)
         captureScreenshot(named: "e2e-recurring-disabled-list")
@@ -113,7 +113,8 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Bear is sleeping."].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Do not wake the bear."].exists)
         XCTAssertFalse(app.staticTexts["Now"].exists)
-        XCTAssertFalse(app.buttons["lock-composer-primary-button"].exists)
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].exists)
+        XCTAssertTrue(app.buttons["lock-composer-mode-delayed"].exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
         captureScreenshot(named: "e2e-active-lock-constraints")
