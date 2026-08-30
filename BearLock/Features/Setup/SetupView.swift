@@ -4,23 +4,19 @@ struct SetupView: View {
     @EnvironmentObject private var model: BearLockAppModel
 
     var body: some View {
-        VStack(spacing: 28) {
+        VStack(spacing: 24) {
             Spacer()
 
-            VStack(spacing: 12) {
-                BearStateVisual(state: .sleeping)
-                    .frame(maxWidth: 280)
+            VStack(spacing: 16) {
+                BearHeroArt()
+                    .frame(maxWidth: 310)
                     .shadow(color: AppTheme.navy.opacity(0.12), radius: 16, y: 10)
+                    .accessibilityLabel("Bear Lock")
 
-                BrandLockup(
-                    subtitle: "Choose apps. Set a time. Keep the lock.",
-                    compact: false
-                )
-
-                Text("Selected apps stay locked until the scheduled end time.")
-                    .font(.body)
+                Text("Choose apps. Set a time. Keep the lock.")
+                    .font(.title3.weight(.semibold))
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(AppTheme.navy.opacity(0.72))
+                    .foregroundStyle(AppTheme.steel)
             }
 
             VStack(spacing: 12) {
@@ -38,11 +34,6 @@ struct SetupView: View {
                 TargetSelectionButton(prominent: false)
             }
             .controlSize(.large)
-
-            Text("Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking.")
-                .font(.footnote)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(AppTheme.navy.opacity(0.58))
 
             Spacer()
         }

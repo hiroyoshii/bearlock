@@ -11,8 +11,7 @@ final class BearLockLaunchUITests: XCTestCase {
         app.launchArguments = ["--ui-testing"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["Bear Lock"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Allow Screen Time access"].exists)
+        XCTAssertTrue(app.buttons["Allow Screen Time access"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Select targets"].exists)
 
         let screenshot = XCUIScreen.main.screenshot()
