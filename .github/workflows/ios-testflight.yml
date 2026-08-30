@@ -53,6 +53,9 @@ jobs:
           BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64 }}
         run: bash Scripts/install-apple-signing-assets.sh
 
+      - name: Inspect installed provisioning profiles
+        run: bash Scripts/inspect-provisioning-profiles.sh
+
       - name: Generate App Store Connect API key file
         env:
           APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
@@ -93,6 +96,7 @@ jobs:
             -archivePath "$ARCHIVE_PATH" \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             archive | tee artifacts/xcodebuild-archive.log
 
       - name: Export ipa

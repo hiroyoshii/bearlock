@@ -47,6 +47,7 @@ targets:
       configs:
         Release:
           CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
           PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore App
   BearLockScreenshot:
     type: application
@@ -80,6 +81,7 @@ targets:
       configs:
         Release:
           CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
           PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore Monitor
   BearLockShieldConfigurationExtension:
     type: app-extension
@@ -94,6 +96,7 @@ targets:
       configs:
         Release:
           CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
           PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore ShieldConfiguration
   BearLockShieldActionExtension:
     type: app-extension
@@ -112,6 +115,7 @@ targets:
       configs:
         Release:
           CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
           PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore ShieldAction
   BearLockUITests:
     type: bundle.ui-testing
