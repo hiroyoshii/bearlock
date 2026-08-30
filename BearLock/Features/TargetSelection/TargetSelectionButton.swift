@@ -141,9 +141,36 @@ private struct TokenSelectionListView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            tokenGroup("Apps", tokens: Array(selection.applicationTokens.prefix(5)))
-            tokenGroup("Categories", tokens: Array(selection.categoryTokens.prefix(5)))
-            tokenGroup("Websites", tokens: Array(selection.webDomainTokens.prefix(5)))
+            if !selection.applicationTokens.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    tokenGroupTitle("Apps")
+                    ForEach(Array(selection.applicationTokens.prefix(5)), id: \.self) { token in
+                        tokenRow {
+                            Label(token)
+                        }
+                    }
+                }
+            }
+            if !selection.categoryTokens.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    tokenGroupTitle("Categories")
+                    ForEach(Array(selection.categoryTokens.prefix(5)), id: \.self) { token in
+                        tokenRow {
+                            Label(token)
+                        }
+                    }
+                }
+            }
+            if !selection.webDomainTokens.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    tokenGroupTitle("Websites")
+                    ForEach(Array(selection.webDomainTokens.prefix(5)), id: \.self) { token in
+                        tokenRow {
+                            Label(token)
+                        }
+                    }
+                }
+            }
             if overflowCount > 0 {
                 Text(L10n.format("+%d more", overflowCount))
                     .font(.caption.weight(.semibold))
@@ -152,25 +179,15 @@ private struct TokenSelectionListView: View {
         }
     }
 
-    private func tokenGroup<Token: Hashable>(_ title: String, tokens: [Token]) -> some View {
-        Group {
-            if !tokens.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(LocalizedStringKey(title))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(AppTheme.navy.opacity(0.62))
-                    ForEach(tokens, id: \.self) { token in
-                        tokenRow(token)
-                    }
-                }
-            }
-        }
+    private func tokenGroupTitle(_ title: String) -> some View {
+        Text(LocalizedStringKey(title))
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(AppTheme.navy.opacity(0.62))
     }
 
-    @ViewBuilder
-    private func tokenRow<Token>(_ token: Token) -> some View {
+    private func tokenRow<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         HStack(spacing: 10) {
-            label(for: token)
+            content()
                 .labelStyle(.titleAndIcon)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppTheme.navy)
@@ -180,17 +197,6 @@ private struct TokenSelectionListView: View {
         .padding(.vertical, 8)
         .padding(.horizontal, 10)
         .background(AppTheme.background, in: RoundedRectangle(cornerRadius: 8))
-    }
-
-    @ViewBuilder
-    private func label<Token>(for token: Token) -> some View {
-        if let token = token as? ApplicationToken {
-            Label(token)
-        } else if let token = token as? ActivityCategoryToken {
-            Label(token)
-        } else if let token = token as? WebDomainToken {
-            Label(token)
-        }
     }
 
     private var overflowCount: Int {
