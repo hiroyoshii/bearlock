@@ -9,7 +9,19 @@ struct TargetSelectionButton: View {
     let prominent: Bool
 
     var body: some View {
-        Button {
+        baseButton
+            .familyActivityPicker(isPresented: $isPickerPresented, selection: $selection)
+            .onChange(of: isPickerPresented) { _, presented in
+                guard !presented else { return }
+                Task {
+                    await model.saveSelection(selection)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var baseButton: some View {
+        let button = Button {
             do {
                 selection = try model.targetSelectionStore.load()
             } catch {
@@ -20,14 +32,15 @@ struct TargetSelectionButton: View {
             Label("Select blocked apps", systemImage: "app.badge")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(prominent ? .borderedProminent : .bordered)
-        .tint(prominent ? AppTheme.navy : AppTheme.steel)
-        .familyActivityPicker(isPresented: $isPickerPresented, selection: $selection)
-        .onChange(of: isPickerPresented) { _, presented in
-            guard !presented else { return }
-            Task {
-                await model.saveSelection(selection)
-            }
+
+        if prominent {
+            button
+                .buttonStyle(.borderedProminent)
+                .tint(AppTheme.navy)
+        } else {
+            button
+                .buttonStyle(.bordered)
+                .tint(AppTheme.steel)
         }
     }
 }

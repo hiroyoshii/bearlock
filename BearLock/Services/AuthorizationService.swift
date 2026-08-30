@@ -19,6 +19,10 @@ struct FamilyControlsAuthorizationService: AuthorizationServicing {
         switch status {
         case .approved:
             return .approved
+#if compiler(>=6.2)
+        case .approvedWithDataAccess:
+            return .approved
+#endif
         case .denied:
             return .denied
         case .notDetermined:
