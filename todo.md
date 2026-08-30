@@ -29,6 +29,7 @@
   - 権限が出ない場合。
   - ロック終了後も解除されない場合。
   - Diagnostics画面で確認する項目。
+- [x] TestFlight CI署名素材とGitHub Secrets登録手順を作る。
 - [x] アプリ用LPの構成案を作る。
   - First view: Bear Lockの価値とブランドビジュアル。
   - How it works: 選ぶ、時間を決める、眠らせる。
@@ -54,14 +55,17 @@
 
 ## Macが来たら進める
 
-- [ ] `project.yml` の本番識別子を決めて置き換える。
-  - `DEVELOPMENT_TEAM`
-  - `PRODUCT_BUNDLE_IDENTIFIER`
-  - App Group ID
+- [x] `project.yml` にApple Developer Team IDを設定する。
+  - `DEVELOPMENT_TEAM`: `3M4M7DRUZY`
+- [x] `project.yml` / entitlements / App Group serviceの本番識別子を決めて置き換える。
+  - `PRODUCT_BUNDLE_IDENTIFIER`: `com.hiyozoo.bearlock*`
+  - App Group ID: `group.com.hiyozoo.bearlock`
 - [ ] XcodeGenで `BearLock.xcodeproj` を生成する。
 - [ ] XcodeでSigning & Capabilitiesを確認する。
 - [ ] Apple DeveloperでFamily Controls entitlementを申請する。
 - [ ] entitlement承認後、実機向けprovisioning profileでビルドする。
+- [ ] TestFlight upload用のGitHub Secretsを登録する。
+- [x] GitHub ActionsでTestFlight upload workflowを追加する。
 - [ ] iPadへインストールして手動QAを実施する。
 - [ ] App Store Connectにアプリ情報、スクショ、Privacy Nutrition Labelsを登録する。
 

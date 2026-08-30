@@ -29,7 +29,7 @@ for file in \
   BearLock/Extensions/ShieldConfiguration/BearLockShieldConfigurationExtension.entitlements
 do
   plutil -lint "$file" >/dev/null
-  grep -q "group.com.example.bearlock" "$file"
+  grep -q "group.com.hiyozoo.bearlock" "$file"
   grep -q "com.apple.developer.family-controls" "$file"
 done
 

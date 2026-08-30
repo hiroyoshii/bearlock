@@ -23,7 +23,7 @@ jobs:
     env:
       PROJECT: BearLock.xcodeproj
       SCREENSHOT_SCHEME: BearLockScreenshot
-      SCREENSHOT_BUNDLE_ID: com.example.bearlock.screenshot
+      SCREENSHOT_BUNDLE_ID: com.hiyozoo.bearlock.screenshot
       DERIVED_DATA: DerivedData
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
       SCREENSHOT_DIR: artifacts/screenshots

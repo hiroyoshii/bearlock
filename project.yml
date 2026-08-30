@@ -1,12 +1,12 @@
 name: BearLock
 options:
-  bundleIdPrefix: com.example
+  bundleIdPrefix: com.hiyozoo
   deploymentTarget:
     iOS: "17.0"
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "3M4M7DRUZY"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 packages:
@@ -40,10 +40,14 @@ targets:
       - target: BearLockShieldActionExtension
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock
         CODE_SIGN_ENTITLEMENTS: BearLock/App/BearLock.entitlements
         INFOPLIST_FILE: BearLock/App/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore App
   BearLockScreenshot:
     type: application
     platform: iOS
@@ -56,7 +60,7 @@ targets:
         product: BearLockCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.screenshot
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.screenshot
         INFOPLIST_FILE: BearLock/App/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
   BearLockMonitorExtension:
@@ -70,9 +74,13 @@ targets:
         product: BearLockCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.monitor
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.monitor
         CODE_SIGN_ENTITLEMENTS: BearLock/Extensions/DeviceActivityMonitor/BearLockMonitorExtension.entitlements
         INFOPLIST_FILE: BearLock/Extensions/DeviceActivityMonitor/Info.plist
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore Monitor
   BearLockShieldConfigurationExtension:
     type: app-extension
     platform: iOS
@@ -80,9 +88,13 @@ targets:
       - BearLock/Extensions/ShieldConfiguration
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.shield-configuration
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.shieldconfiguration
         CODE_SIGN_ENTITLEMENTS: BearLock/Extensions/ShieldConfiguration/BearLockShieldConfigurationExtension.entitlements
         INFOPLIST_FILE: BearLock/Extensions/ShieldConfiguration/Info.plist
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore ShieldConfiguration
   BearLockShieldActionExtension:
     type: app-extension
     platform: iOS
@@ -94,9 +106,13 @@ targets:
         product: BearLockCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.shield-action
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.shieldaction
         CODE_SIGN_ENTITLEMENTS: BearLock/Extensions/ShieldAction/BearLockShieldActionExtension.entitlements
         INFOPLIST_FILE: BearLock/Extensions/ShieldAction/Info.plist
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          PROVISIONING_PROFILE_SPECIFIER: BearLock AppStore ShieldAction
   BearLockUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -106,6 +122,6 @@ targets:
       - target: BearLock
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.bearlock.uitests
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.uitests
         INFOPLIST_FILE: BearLockUITests/Info.plist
         TEST_TARGET_NAME: BearLock

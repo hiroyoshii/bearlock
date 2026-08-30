@@ -1,0 +1,146 @@
+name: iOS TestFlight Upload
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-testflight-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  upload-testflight:
+    name: Archive and Upload to TestFlight
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    env:
+      PROJECT: BearLock.xcodeproj
+      SCHEME: BearLock
+      ARCHIVE_PATH: artifacts/BearLock.xcarchive
+      EXPORT_PATH: artifacts/export
+      DERIVED_DATA: DerivedData
+      DESTINATION: generic/platform=iOS
+      APP_STORE_CONNECT_API_KEY_PATH: ${{ runner.temp }}/.appstoreconnect/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8
+      APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+      APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+      BEARLOCK_APPSTORE_PROFILE_APP_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_APP_BASE64 }}
+      BEARLOCK_APPSTORE_PROFILE_MONITOR_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_MONITOR_BASE64 }}
+      BEARLOCK_APPSTORE_PROFILE_SHIELDCONFIGURATION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDCONFIGURATION_BASE64 }}
+      BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64: ${{ secrets.BEARLOCK_APPSTORE_PROFILE_SHIELDACTION_BASE64 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen
+        run: |
+          brew update
+          brew install xcodegen
+          xcodegen --version
+
+      - name: Validate project metadata
+        run: bash Scripts/validate-ios-project.sh
+
+      - name: Install signing assets
+        run: bash Scripts/install-apple-signing-assets.sh
+
+      - name: Generate App Store Connect API key file
+        env:
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+        run: |
+          if [[ -z "$APP_STORE_CONNECT_API_KEY_P8" ]]; then
+            echo "Missing APP_STORE_CONNECT_API_KEY_P8"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.APP_STORE_CONNECT_KEY_ID }}" ]]; then
+            echo "Missing APP_STORE_CONNECT_KEY_ID"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}" ]]; then
+            echo "Missing APP_STORE_CONNECT_ISSUER_ID"
+            exit 1
+          fi
+          mkdir -p "$(dirname "$APP_STORE_CONNECT_API_KEY_PATH")"
+          printf '%s' "$APP_STORE_CONNECT_API_KEY_P8" > "$APP_STORE_CONNECT_API_KEY_PATH"
+          chmod 600 "$APP_STORE_CONNECT_API_KEY_PATH"
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          cp "$APP_STORE_CONNECT_API_KEY_PATH" "$HOME/.appstoreconnect/private_keys/"
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Archive app
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination "$DESTINATION" \
+            -archivePath "$ARCHIVE_PATH" \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGN_STYLE=Manual \
+            archive | tee artifacts/xcodebuild-archive.log
+
+      - name: Export ipa
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist BearLockExportOptions.plist | tee artifacts/xcodebuild-export.log
+          find "$EXPORT_PATH" -maxdepth 2 -type f -print
+
+      - name: Validate ipa with App Store Connect
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          IPA_PATH="$(find "$EXPORT_PATH" -name '*.ipa' -type f | head -n 1)"
+          if [[ -z "$IPA_PATH" ]]; then
+            echo "No .ipa found in $EXPORT_PATH"
+            exit 1
+          fi
+          xcrun altool --validate-app \
+            -f "$IPA_PATH" \
+            -t ios \
+            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+      - name: Upload ipa to TestFlight
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          IPA_PATH="$(find "$EXPORT_PATH" -name '*.ipa' -type f | head -n 1)"
+          xcrun altool --upload-app \
+            -f "$IPA_PATH" \
+            -t ios \
+            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+      - name: Cleanup signing assets
+        if: always()
+        run: bash Scripts/cleanup-apple-signing-assets.sh
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bearlock-testflight-artifacts
+          path: |
+            artifacts/**/*.log
+            artifacts/export/**/*.ipa
+            artifacts/export/**/*.plist
+          if-no-files-found: ignore

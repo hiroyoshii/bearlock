@@ -27,7 +27,7 @@ jobs:
       PROJECT: BearLock.xcodeproj
       SCHEME: BearLock
       SCREENSHOT_SCHEME: BearLockScreenshot
-      SCREENSHOT_BUNDLE_ID: com.example.bearlock.screenshot
+      SCREENSHOT_BUNDLE_ID: com.hiyozoo.bearlock.screenshot
       DERIVED_DATA: DerivedData
       RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
       E2E_RESULT_BUNDLE: artifacts/BearLockE2ETests.xcresult

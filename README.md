@@ -29,9 +29,9 @@ open BearLock.xcodeproj
 
 Before building, replace placeholder identifiers:
 
-- `DEVELOPMENT_TEAM` in `project.yml`
-- `com.example.bearlock*` bundle identifiers
-- `group.com.example.bearlock` App Group in entitlements and `BearLock/Services/AppGroup.swift`
+- `DEVELOPMENT_TEAM` in `project.yml` is set to `3M4M7DRUZY`.
+- Bundle identifiers are set to `com.hiyozoo.bearlock*`.
+- App Group is set to `group.com.hiyozoo.bearlock` in entitlements and `BearLock/Services/AppGroup.swift`.
 
 The app requires Apple's Family Controls capability and the corresponding development/distribution entitlement.
 

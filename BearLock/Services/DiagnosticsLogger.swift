@@ -52,7 +52,7 @@ struct DiagnosticsSummary: Equatable {
 final class DiagnosticsLogger: @unchecked Sendable {
     static let shared = DiagnosticsLogger()
 
-    private let logger = Logger(subsystem: "com.example.bearlock", category: "diagnostics")
+    private let logger = Logger(subsystem: "com.hiyozoo.bearlock", category: "diagnostics")
     private let queue = DispatchQueue(label: "bearlock.diagnostics")
     private let maxEvents = 50
     private let encoder: JSONEncoder
