@@ -20,7 +20,7 @@ struct SetupView: View {
                     compact: false
                 )
 
-                Text("Bear Lock blocks selected apps until the scheduled end time.")
+                Text("Selected apps stay locked until the scheduled end time.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.72))
@@ -42,7 +42,7 @@ struct SetupView: View {
             }
             .controlSize(.large)
 
-            Text("Your selections and schedules stay on this device. Bear Lock does not use accounts, cloud sync, ads, analytics, or tracking.")
+            Text("Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking.")
                 .font(.footnote)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(AppTheme.navy.opacity(0.58))

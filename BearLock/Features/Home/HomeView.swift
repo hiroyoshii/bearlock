@@ -18,10 +18,9 @@ struct HomeView: View {
 
                 if let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
                     ActiveLockView(activeLock: activeLock)
-                } else {
-                    LockComposerView(mode: $composerMode)
                 }
 
+                LockComposerView(mode: $composerMode, allowsImmediateLock: !hasActiveLock)
                 ScheduledLockListView()
             }
             .padding(20)
@@ -48,22 +47,6 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity)
                 .background(AppTheme.snow)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-
-            HStack(spacing: 8) {
-                Image(systemName: "shield.lefthalf.filled")
-                    .foregroundStyle(AppTheme.steel)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Lock selected apps until the end time.")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(AppTheme.navy)
-                    summaryView
-                        .font(.caption)
-                        .foregroundStyle(AppTheme.navy.opacity(0.62))
-                }
-                Spacer()
-            }
-            .padding(12)
-            .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -91,12 +74,7 @@ struct HomeView: View {
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
     }
 
-    @ViewBuilder
-    private var summaryView: some View {
-        if model.lockState.targetSelections.isEmpty {
-            Text("Select blocked apps first.")
-        } else {
-            Text(model.lockState.targetSelections.last?.displayName ?? L10n.string("Selected targets"))
-        }
+    private var hasActiveLock: Bool {
+        model.lockState.activeLock?.isActive(at: Date()) == true
     }
 }

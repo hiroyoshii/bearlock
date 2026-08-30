@@ -13,6 +13,7 @@ enum LockComposerMode: String, CaseIterable, Identifiable {
 struct LockComposerView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @Binding var mode: LockComposerMode
+    var allowsImmediateLock = true
 
     @State private var delayMinutes = 30.0
     @State private var durationMinutes = 120.0
@@ -34,7 +35,7 @@ struct LockComposerView: View {
             }
 
             Picker("Start", selection: $mode) {
-                ForEach(LockComposerMode.allCases) { mode in
+                ForEach(availableModes) { mode in
                     Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                 }
             }
@@ -76,6 +77,10 @@ struct LockComposerView: View {
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
         .onAppear {
             applySafetyDefaults()
+            applyAllowedMode()
+        }
+        .onChange(of: allowsImmediateLock) { _, _ in
+            applyAllowedMode()
         }
         .sheet(item: confirmationBinding) { details in
             LockConfirmationSheet(
@@ -160,6 +165,10 @@ struct LockComposerView: View {
         mode == .now ? "Start Lock" : "Schedule Lock"
     }
 
+    private var availableModes: [LockComposerMode] {
+        allowsImmediateLock ? LockComposerMode.allCases : LockComposerMode.allCases.filter { $0 != .now }
+    }
+
     private var canSubmit: Bool {
         guard model.lockState.targetSelections.last != nil else {
             return false
@@ -238,6 +247,12 @@ struct LockComposerView: View {
         let startDate = date(from: recurringStart)
         let cappedEnd = startDate.addingTimeInterval(maximumDurationMinutes * 60)
         recurringEnd = Calendar.current.dateComponents([.hour, .minute], from: cappedEnd)
+    }
+
+    private func applyAllowedMode() {
+        if !allowsImmediateLock, mode == .now {
+            mode = .delayed
+        }
     }
 
     private func makeConfirmationDetails() -> LockConfirmationDetails {

@@ -30,7 +30,7 @@ struct TargetSelectionButton: View {
             }
             isPickerPresented = true
         } label: {
-            Label(isLocked ? "Cannot change during lock" : "Select blocked apps", systemImage: "app.badge")
+            Label(isLocked ? "Cannot change during lock" : "Select targets", systemImage: "app.badge")
                 .frame(maxWidth: .infinity)
         }
 
@@ -58,7 +58,7 @@ struct TargetSelectionSummaryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("Selected apps", systemImage: "checkmark.circle")
+                Label("Selected targets", systemImage: "checkmark.circle")
                     .font(.headline)
                     .foregroundStyle(AppTheme.navy)
                 Spacer()
@@ -75,7 +75,7 @@ struct TargetSelectionSummaryView: View {
                     .font(.caption)
                     .foregroundStyle(AppTheme.navy.opacity(0.62))
             } else if summary.total == 0 {
-                Text("No blocked apps are selected.")
+                Text("No targets are selected.")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.navy.opacity(0.62))
             } else {

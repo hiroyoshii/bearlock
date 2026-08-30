@@ -54,8 +54,8 @@
 "None" = "なし";
 "OK" = "OK";
 "Off" = "オフ";
-"Once Bear falls asleep, you can't wake him early." = "開始後は、Bear Lock から短縮・解除できません。";
-"After this starts, Bear Lock cannot shorten or end it early." = "開始後は、Bear Lock から短縮・解除できません。";
+"Once Bear falls asleep, you can't wake him early." = "開始後は短縮・解除できません。";
+"After this starts, Bear Lock cannot shorten or end it early." = "開始後は短縮・解除できません。";
 "Open a blocked app" = "対象アプリを開く";
 "Quietly hibernate selected apps until the chosen time." = "選んだアプリを終了時刻までロックします。";
 "Recent Events" = "最近のイベント";
@@ -82,6 +82,9 @@
 "Select blocked apps first." = "まずはブロック対象アプリを選びます。";
 "Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking." = "選択したアプリ、予定、診断ログはこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。";
 "Bear Lock blocks selected apps until the scheduled end time." = "選んだアプリを終了時刻までロックします。";
+"Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking." = "選択したアプリ、予定、診断ログはこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。";
+"Selected apps stay locked until the scheduled end time." = "選んだアプリを終了時刻までロックします。";
+"Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking." = "選択と予定はこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。";
 "Choose apps. Set a time. Keep the lock." = "アプリを選び、時間を決めて、ロックします。";
 "Cannot change during lock" = "ロック中は変更できません";
 "Set app locks that end automatically at the chosen time." = "選んだ時刻に自動で終わるアプリロックを設定します。";
@@ -89,12 +92,15 @@
 "Start this lock?" = "このロックを開始しますか？";
 "Schedule this lock?" = "このロックを予約しますか？";
 "Selected targets" = "選択済み対象";
+"Select targets" = "ロック対象を選ぶ";
+"No targets are selected." = "ロック対象が選択されていません。";
 "Categories" = "カテゴリ";
 "Websites" = "Webサイト";
 "%d min" = "%d分";
 "Locks start at 15 minutes or longer." = "ロック時間は15分以上から設定できます。";
-"iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection." = "iOSのプライバシー保護により、Bear Lock内ではアプリ名ではなく件数で表示します。";
+"iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection." = "iOSのプライバシー保護により、アプリ名ではなく件数で表示します。";
 "Target apps cannot be changed during an active lock." = "ロック中は対象アプリを変更できません。";
+"After this starts, it cannot be shortened or ended early." = "開始後は短縮・解除できません。";
 "+%d more" = "他%d件";
 "Selected apps" = "選択済みアプリ";
 "Settings" = "設定";

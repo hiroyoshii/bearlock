@@ -61,28 +61,28 @@ struct ScreenshotHostView: View {
                     LockComposerView(mode: .constant(.now))
                 }
             }
-            .navigationTitle("Bear Lock")
+            .navigationTitle("Start now")
         case .composeDelayed:
             ScrollView {
                 screenshotStack(title: "Start later") {
                     LockComposerView(mode: .constant(.delayed))
                 }
             }
-            .navigationTitle("Bear Lock")
+            .navigationTitle("Start later")
         case .composeDate:
             ScrollView {
                 screenshotStack(title: "Date & Time") {
                     LockComposerView(mode: .constant(.fixedDateTime))
                 }
             }
-            .navigationTitle("Bear Lock")
+            .navigationTitle("Date & Time")
         case .composeRepeat:
             ScrollView {
                 screenshotStack(title: "Repeat") {
                     LockComposerView(mode: .constant(.recurring))
                 }
             }
-            .navigationTitle("Bear Lock")
+            .navigationTitle("Repeat")
         case .confirmation:
             LockConfirmationSheet(
                 details: ScreenshotFixtures.confirmationDetails,

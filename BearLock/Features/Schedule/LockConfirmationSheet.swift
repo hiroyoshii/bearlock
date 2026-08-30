@@ -27,7 +27,7 @@ struct LockConfirmationSheet: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy)
 
-                Text("After this starts, Bear Lock cannot shorten or end it early.")
+                Text("After this starts, it cannot be shortened or ended early.")
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.68))

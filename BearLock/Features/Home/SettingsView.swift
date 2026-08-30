@@ -7,10 +7,10 @@ struct SettingsView: View {
                 VStack(spacing: 12) {
                     BearStateVisual(state: .ready, compact: true)
                         .frame(height: 108)
-                    BrandLockup(
-                        subtitle: "Set app locks that end automatically at the chosen time.",
-                        compact: true
-                    )
+                    Text("Set app locks that end automatically at the chosen time.")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(AppTheme.steel)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -18,13 +18,8 @@ struct SettingsView: View {
             }
 
             Section("Data handling") {
-                Text("Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking.")
+                Text("Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking.")
                     .font(.body)
-            }
-
-            Section("Apps") {
-                TargetSelectionSummaryView()
-                TargetSelectionButton(prominent: false)
             }
 
             Section("Debug") {
