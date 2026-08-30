@@ -21,7 +21,7 @@ struct ManagedSettingsShieldController: ShieldControlling {
     func applyShield(for activeLock: ActiveLock) {
         let selection: FamilyActivitySelection
         do {
-            selection = try selection(for: activeLock)
+            selection = try loadSelection(for: activeLock)
         } catch {
             diagnostics.record("Shield.apply.selectionLoad.failed", level: .error, detail: error.localizedDescription)
             return
@@ -47,7 +47,7 @@ struct ManagedSettingsShieldController: ShieldControlling {
         diagnostics.record("Shield.clear.succeeded", detail: activeLock.id.uuidString)
     }
 
-    private func selection(for activeLock: ActiveLock) throws -> FamilyActivitySelection {
+    private func loadSelection(for activeLock: ActiveLock) throws -> FamilyActivitySelection {
         let state = try JSONFileLockRepository(fileURL: AppGroup.lockStateURL).load()
         if let selectionRef = state.targetSelections.last(where: { $0.id == activeLock.targetSelectionID }),
            let tokenData = selectionRef.tokenData {
