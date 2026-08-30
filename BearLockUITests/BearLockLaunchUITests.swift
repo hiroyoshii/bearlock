@@ -111,6 +111,7 @@ final class BearLockLaunchUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Bear is sleeping."].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Do not wake the bear."].exists)
+        XCTAssertFalse(app.staticTexts["Now"].exists)
         XCTAssertFalse(app.buttons["lock-composer-primary-button"].exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)

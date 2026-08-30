@@ -83,8 +83,15 @@ struct ScheduledLockListView: View {
     }
 
     private var scheduledRules: [LockRule] {
+        let activeSourceRuleID = model.lockState.activeLock?.sourceRuleID
+
         model.lockState.rules
-            .filter { $0.status == .scheduled || $0.status == .disabled }
+            .filter { rule in
+                guard rule.id != activeSourceRuleID else {
+                    return false
+                }
+                return rule.status == .scheduled || rule.status == .disabled
+            }
             .sorted { $0.startsAt < $1.startsAt }
     }
 
