@@ -85,7 +85,7 @@ struct ScheduledLockListView: View {
     private var scheduledRules: [LockRule] {
         let activeSourceRuleID = model.lockState.activeLock?.sourceRuleID
 
-        model.lockState.rules
+        return model.lockState.rules
             .filter { rule in
                 guard rule.id != activeSourceRuleID else {
                     return false
