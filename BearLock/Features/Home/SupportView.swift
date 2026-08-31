@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SupportView: View {
     @StateObject private var store = SupportStore()
+    private let showsScreenshotPreview = ProcessInfo.processInfo.arguments.contains("--screenshot")
 
     var body: some View {
         List {
@@ -46,11 +47,12 @@ struct SupportView: View {
                         SupportProductRow(
                             supportProduct: supportProduct,
                             product: store.product(for: supportProduct),
+                            isAvailable: showsScreenshotPreview || store.product(for: supportProduct) != nil,
                             isPurchasing: store.purchasingProductID == supportProduct.productID
                         )
                     }
                     .buttonStyle(.plain)
-                    .disabled(store.isLoading || store.product(for: supportProduct) == nil || store.purchasingProductID != nil)
+                    .disabled(store.isLoading || (!showsScreenshotPreview && store.product(for: supportProduct) == nil) || store.purchasingProductID != nil)
                 }
             }
 
@@ -75,6 +77,7 @@ struct SupportView: View {
 private struct SupportProductRow: View {
     let supportProduct: SupportProduct
     let product: Product?
+    let isAvailable: Bool
     let isPurchasing: Bool
 
     var body: some View {
@@ -101,7 +104,7 @@ private struct SupportProductRow: View {
             } else {
                 Text(product?.displayPrice ?? supportProduct.fallbackPrice)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(product == nil ? AppTheme.steel : AppTheme.navy)
+                    .foregroundStyle(isAvailable ? AppTheme.navy : AppTheme.steel)
             }
         }
         .contentShape(Rectangle())
@@ -109,7 +112,7 @@ private struct SupportProductRow: View {
     }
 
     private var subtitle: LocalizedStringKey {
-        product == nil ? "Available after App Store setup" : "One-time optional support"
+        isAvailable ? "One-time optional support" : "Available after App Store setup"
     }
 
     private var iconName: String {
