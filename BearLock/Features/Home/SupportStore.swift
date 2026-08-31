@@ -50,6 +50,7 @@ final class SupportStore: ObservableObject {
     @Published var message: String?
 
     func loadProducts() async {
+        guard !ProcessInfo.processInfo.arguments.contains("--screenshot") else { return }
         guard products.isEmpty else { return }
         isLoading = true
         defer { isLoading = false }
