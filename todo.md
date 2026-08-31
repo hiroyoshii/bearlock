@@ -1,6 +1,6 @@
 # Bear Lock TODO
 
-2026-08-27時点の残タスク。実機が来る前に進められるものと、Mac / iPad / Apple Developer環境が必要なものを分ける。
+2026-08-31時点の残タスク。TestFlight経由の実機インストール、Family Controls Distribution承認、CIでのbuild / mock e2e / screenshot取得までは完了済み。ここには、リリース前にまだ判断または確認が必要なものだけを残す。
 
 ## 実機前に進める
 
@@ -9,6 +9,7 @@
   - 現在のアプリアイコンより小サイズで潰れにくい形にする。
   - SVGまたは高解像度PNGを用意する。
   - favicon用に正方形、単色/2色、背景あり/なしを検討する。
+  - アプリ本体のBrandHeroとは別に、Web/LP/小サイズ表示で使える記号として作る。
 - [x] App Store / entitlement審査向けのプロダクト説明を作る。
   - Bear Lockが何をするアプリか。
   - Screen Time / Family Controls APIを使う理由。
@@ -52,6 +53,10 @@
   - Confirmation。
   - Active Lock。
   - Settings / Diagnostics。
+- [x] 日本語/英語の基本ローカライズを入れる。
+- [x] Setup画面をBrandHero中心のシンプルな構成にする。
+- [x] ロック設定画面の余白、タブ選択状態、文字コントラストを調整する。
+- [x] Shield画像をextensionのメモリ制限に合わせて軽量化する。
 
 ## Macが来たら進める
 
@@ -60,43 +65,55 @@
 - [x] `project.yml` / entitlements / App Group serviceの本番識別子を決めて置き換える。
   - `PRODUCT_BUNDLE_IDENTIFIER`: `com.hiyozoo.bearlock*`
   - App Group ID: `group.com.hiyozoo.bearlock`
-- [ ] XcodeGenで `BearLock.xcodeproj` を生成する。
-- [ ] XcodeでSigning & Capabilitiesを確認する。
-- [ ] Apple DeveloperでFamily Controls entitlementを申請する。
-- [ ] entitlement承認後、実機向けprovisioning profileでビルドする。
-- [ ] TestFlight upload用のGitHub Secretsを登録する。
+- [x] XcodeGenで `BearLock.xcodeproj` を生成する。
+- [x] XcodeでSigning & Capabilitiesを確認する。
+- [x] Apple DeveloperでFamily Controls entitlementを申請する。
+- [x] Family Controls Distribution承認を確認する。
+- [x] entitlement承認後、実機向けprovisioning profileでビルドする。
+- [x] TestFlight upload用のGitHub Secretsを登録する。
 - [x] GitHub ActionsでTestFlight upload workflowを追加する。
-- [ ] iPadへインストールして手動QAを実施する。
+- [x] TestFlightでiPadへインストールする。
+- [ ] iPadで手動QAを完了する。
 - [ ] App Store Connectにアプリ情報、スクショ、Privacy Nutrition Labelsを登録する。
 
 ## 実機/iPadで確認する
 
-- [ ] Family Controls権限要求が表示される。
-- [ ] `FamilyActivityPicker` で対象アプリを選べる。
+- [x] Family Controls権限要求が表示される。
+- [x] `FamilyActivityPicker` で対象アプリを選べる。
 - [ ] 空選択で保存/ロック開始できない。
-- [ ] 1から2分のNow lockで対象アプリにShieldが出る。
+- [x] 1から2分のNow lockで対象アプリにShieldが出る。
+- [x] カスタムShield画像が表示される。
+- [ ] カスタムShield画像の表示サイズ、文言、余白が自然か確認する。
+- [ ] Shield側に「解除予定時刻」を明確に表示する。
 - [ ] ロック中にBear Lock側から早期解除できない。
 - [ ] 終了時刻後にShieldが解除される。
 - [ ] Delayed lockがバックグラウンド中に開始する。
 - [ ] Recurring lockが指定時刻に開始する。
 - [ ] active中の親recurring編集で現在のlockが解除されない。
 - [ ] 権限取消時のrecovery表示が破綻しない。
-- [ ] `Settings > Diagnostics` に必要な状態とログが残る。
+- [ ] `Settings > Diagnostics` に必要な状態とログが残り、実機トラブル時に原因追跡できる。
+- [ ] Webサイトロックを実機で確認する。
 
 ## リリース前の判断事項
 
 - [ ] ブランド画像の利用権・最終版を確定する。
-- [ ] アプリ名を `Bear Lock` で確定するか判断する。
+- [ ] アプリ名を `Bear Lock` で最終確定する。
 - [ ] 初回リリースでiPhoneのみか、iPad表示も正式サポートするか決める。
-- [ ] 初回リリースの主要言語を日本語/英語の両対応で進めるか確定する。
+- [x] 初回リリースの主要言語を日本語/英語の両対応で進める方針にする。
 - [ ] Debug安全制限をReleaseで外す前提でよいか、Releaseにも最大時間を設けるか決める。
-- [ ] ログを端末内Diagnosticsだけにするか、将来のCrashlytics等を入れるか決める。
-- [ ] MVPは無料、広告なし、アカウントなし、クラウド同期なしで進めるか確定する。
-- [ ] v0.2以降の任意サポートを検討する。
+- [x] ログはMVPでは端末内Diagnosticsだけにする。
+- [x] MVPは無料、広告なし、アカウントなし、クラウド同期なしで進める方針にする。
+- [x] v0.2以降の任意サポートを検討する。
   - Settingsに邪魔にならない支援導線を置く。
   - 機能差は付けず、支援後はありがとう表示だけにする。
-  - 実装する場合はStoreKit / Consumable In-App Purchaseで `Small Tip`, `Medium Tip`, `Large Tip` を検討する。
+  - StoreKit / Consumable In-App Purchaseで `Coffee`, `Lunch`, `Dinner` を使う。
+  - 価格はおおよそ `¥500`, `¥1,000`, `¥2,000`。
+  - 案A: 無料 + 任意サポート Consumableを第一候補にする。
+  - 100件の外部ベンチマーク: `docs/launch/support-iap-research.md`
+  - Bear Lockのブランドに合わせて「コーヒーをおごる」ではなく、静かな熊/休息/巣ごもりのイメージに寄せた支援名を検討する。
+  - 候補: `Small Rest`, `Cozy Den`, `Deep Sleep` / `小さな休息`, `巣ごもり支援`, `深い眠り支援`。
   - MVP初回には入れない前提にする。
+- [ ] App Store審査前に「寄付」ではなく「任意サポート」表現に統一する。
 
 ## 参考リンク
 

@@ -15,6 +15,7 @@ enum ScreenshotScreen: String, CaseIterable {
     case scheduledEditor
     case recurringEditor
     case settings
+    case support
     case diagnostics
 
     static func current(from arguments: [String] = ProcessInfo.processInfo.arguments) -> ScreenshotScreen? {
@@ -127,6 +128,8 @@ struct ScreenshotHostView: View {
             )
         case .settings:
             SettingsView()
+        case .support:
+            SupportView()
         case .diagnostics:
             DebugDiagnosticsView()
         }

@@ -243,7 +243,7 @@ jobs:
             xcrun simctl bootstatus "$udid" -b
             xcrun simctl install "$udid" "$APP_PATH"
 
-            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock scheduledEditor recurringEditor settings diagnostics; do
+            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock scheduledEditor recurringEditor settings support diagnostics; do
               xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
               xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
               sleep 3

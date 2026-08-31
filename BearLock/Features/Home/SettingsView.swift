@@ -22,6 +22,14 @@ struct SettingsView: View {
                     .font(.body)
             }
 
+            Section("Support") {
+                NavigationLink {
+                    SupportView()
+                } label: {
+                    Label("Support Bear Lock", systemImage: "heart")
+                }
+            }
+
             Section("Debug") {
                 NavigationLink {
                     DebugDiagnosticsView()
