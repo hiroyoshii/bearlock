@@ -106,15 +106,12 @@
 "Settings" = "設定";
 "Support" = "サポート";
 "Support Bear Lock" = "Bear Lockを支える";
-"Optional support" = "任意サポート";
 "Bear Lock is free. No ads, accounts, or subscriptions." = "Bear Lockは無料で使えます。広告も、アカウントも、サブスクもありません。";
-"If you like it, you can support development. Bear Lock works the same either way, and support never changes how locks behave." = "気に入ったら、開発を支援できます。支援してもしなくてもBear Lockは同じように動き、ロックの挙動も変わりません。";
+"If you like it, Coffee, Lunch, or Dinner helps development continue. Bear Lock works the same either way." = "気に入ったら、Coffee、Lunch、Dinnerで開発を支えられます。Bear Lockの動作は変わりません。";
 "Choose support" = "支援を選ぶ";
 "Coffee" = "Coffee";
 "Lunch" = "Lunch";
 "Dinner" = "Dinner";
-"One-time optional support" = "一度きりの任意サポート";
-"Available after App Store setup" = "App Store設定後に利用可能";
 "Support items are not available yet." = "支援項目はまだ利用できません。";
 "Support items could not be loaded." = "支援項目を読み込めませんでした。";
 "Thank you. This helps Bear Lock keep growing quietly." = "ありがとう。Bear Lockを静かに育てる力になります。";

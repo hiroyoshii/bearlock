@@ -20,9 +20,6 @@ struct SupportView: View {
                             Text("Support Bear Lock")
                                 .font(.title3.weight(.semibold))
                                 .foregroundStyle(AppTheme.navy)
-                            Text("Optional support")
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(AppTheme.steel)
                         }
                     }
 
@@ -30,7 +27,7 @@ struct SupportView: View {
                         .font(.body)
                         .foregroundStyle(AppTheme.navy)
 
-                    Text("If you like it, you can support development. Bear Lock works the same either way, and support never changes how locks behave.")
+                    Text("If you like it, Coffee, Lunch, or Dinner helps development continue. Bear Lock works the same either way.")
                         .font(.subheadline)
                         .foregroundStyle(AppTheme.steel)
                 }
@@ -47,7 +44,6 @@ struct SupportView: View {
                         SupportProductRow(
                             supportProduct: supportProduct,
                             product: store.product(for: supportProduct),
-                            isAvailable: showsScreenshotPreview || store.product(for: supportProduct) != nil,
                             isPurchasing: store.purchasingProductID == supportProduct.productID
                         )
                     }
@@ -77,7 +73,6 @@ struct SupportView: View {
 private struct SupportProductRow: View {
     let supportProduct: SupportProduct
     let product: Product?
-    let isAvailable: Bool
     let isPurchasing: Bool
 
     var body: some View {
@@ -92,9 +87,6 @@ private struct SupportProductRow: View {
                 Text(LocalizedStringKey(supportProduct.titleKey))
                     .font(.body.weight(.semibold))
                     .foregroundStyle(AppTheme.navy)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.steel)
             }
 
             Spacer(minLength: 12)
@@ -104,15 +96,11 @@ private struct SupportProductRow: View {
             } else {
                 Text(product?.displayPrice ?? supportProduct.fallbackPrice)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(isAvailable ? AppTheme.navy : AppTheme.steel)
+                    .foregroundStyle(AppTheme.navy)
             }
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-    }
-
-    private var subtitle: LocalizedStringKey {
-        isAvailable ? "One-time optional support" : "Available after App Store setup"
     }
 
     private var iconName: String {
