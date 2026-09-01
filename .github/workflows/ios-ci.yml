@@ -72,16 +72,7 @@ jobs:
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGNING_ALLOWED=NO \
-            build | tee artifacts/xcodebuild-build.log || {
-              mkdir -p ci-screenshots
-              tail -n 240 artifacts/xcodebuild-build.log > ci-screenshots/latest-build-failure.log
-              git config user.name "github-actions[bot]"
-              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-              git add ci-screenshots/latest-build-failure.log
-              git commit -m "Update latest build failure log [skip ci]" || true
-              git push || true
-              exit 1
-            }
+            build | tee artifacts/xcodebuild-build.log
 
       - name: Compile UI test bundle
         run: |
@@ -341,22 +332,6 @@ jobs:
           if compgen -G "artifacts/e2e-*.failed" > /dev/null || compgen -G "artifacts/missing-*.failed" > /dev/null; then
             echo "Mock UI e2e failures:"
             ls -1 artifacts/*.failed
-            mkdir -p ci-screenshots
-            {
-              echo "Mock UI e2e failures:"
-              ls -1 artifacts/*.failed
-              echo
-              for log in artifacts/xcodebuild-ui-e2e-*.log; do
-                echo "===== $log ====="
-                tail -n 120 "$log"
-                echo
-              done
-            } > ci-screenshots/latest-e2e-failure.log
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add ci-screenshots/latest-e2e-failure.log
-            git commit -m "Update latest e2e failure log [skip ci]" || true
-            git push || true
             exit 1
           fi
 
