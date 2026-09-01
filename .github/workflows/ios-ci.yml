@@ -72,7 +72,16 @@ jobs:
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGNING_ALLOWED=NO \
-            build | tee artifacts/xcodebuild-build.log
+            build | tee artifacts/xcodebuild-build.log || {
+              mkdir -p ci-screenshots
+              tail -n 240 artifacts/xcodebuild-build.log > ci-screenshots/latest-build-failure.log
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add ci-screenshots/latest-build-failure.log
+              git commit -m "Update latest build failure log [skip ci]" || true
+              git push || true
+              exit 1
+            }
 
       - name: Compile UI test bundle
         run: |
