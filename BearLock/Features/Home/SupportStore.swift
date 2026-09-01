@@ -50,7 +50,7 @@ final class SupportStore: ObservableObject {
     @Published var message: String?
 
     func loadProducts() async {
-        guard !ProcessInfo.processInfo.arguments.contains("--screenshot") else { return }
+        guard !usesStaticSupportProducts else { return }
         guard products.isEmpty else { return }
         isLoading = true
         defer { isLoading = false }
@@ -98,5 +98,10 @@ final class SupportStore: ObservableObject {
         } catch {
             message = L10n.string("The purchase could not be completed.")
         }
+    }
+
+    private var usesStaticSupportProducts: Bool {
+        ProcessInfo.processInfo.arguments.contains("--screenshot")
+            || ProcessInfo.processInfo.arguments.contains("--ui-testing")
     }
 }
