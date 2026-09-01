@@ -6,7 +6,6 @@ struct ShieldActiveLockReader {
 
     func unlockText(now: Date = Date()) -> String? {
         guard let activeLock = activeLock(now: now) else {
-            ShieldConfigurationDiagnostics.recordOnce("ShieldConfiguration.activeLock.missing")
             return nil
         }
 
@@ -14,9 +13,9 @@ struct ShieldActiveLockReader {
             format: localized("Unlocks at %@"),
             formattedUnlockTime(activeLock.endsAt)
         )
-        ShieldConfigurationDiagnostics.recordOnce(
+        ShieldConfigurationDiagnostics.record(
             "ShieldConfiguration.activeLock.loaded",
-            detail: activeLock.endsAt.ISO8601Format()
+            detail: iso8601String(from: activeLock.endsAt)
         )
         return text
     }
@@ -39,7 +38,7 @@ struct ShieldActiveLockReader {
             }
             return activeLock
         } catch {
-            ShieldConfigurationDiagnostics.recordOnce(
+            ShieldConfigurationDiagnostics.record(
                 "ShieldConfiguration.activeLock.readFailed",
                 detail: error.localizedDescription
             )
@@ -53,6 +52,10 @@ struct ShieldActiveLockReader {
         formatter.dateStyle = Calendar.current.isDateInToday(date) ? .none : .short
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+
+    private func iso8601String(from date: Date) -> String {
+        ISO8601DateFormatter().string(from: date)
     }
 
     private func localized(_ key: String) -> String {
