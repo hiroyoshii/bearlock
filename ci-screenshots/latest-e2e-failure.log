@@ -1,0 +1,428 @@
+Mock UI e2e failures:
+artifacts/e2e-delayed.failed
+artifacts/e2e-recurring.failed
+artifacts/missing-e2e-delayed-deleted.png.failed
+artifacts/missing-e2e-immediate-active-lock.png.failed
+
+===== artifacts/xcodebuild-ui-e2e-active-lock.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-active-lock.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-active-lock.xcresult
+
+Resolve Package Graph
+
+2026-09-01 16:32:50.113885+0000 BearLockUITests-Runner[43365:127829] [UIKit App Config] `UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+2026-09-01 16:32:50.123715+0000 BearLockUITests-Runner[43365:127829] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-09-01 16:33:19.159.
+Test Suite 'BearLockUITests.xctest' started at 2026-09-01 16:33:19.159.
+Test Suite 'BearLockLaunchUITests' started at 2026-09-01 16:33:19.160.
+Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveLockHidesMutableControlsWithMockServices]' started.
+    t =     0.00s Start Test at 2026-09-01 16:33:19.160
+    t =     1.11s Set Up
+    t =     1.14s Open com.hiyozoo.bearlock
+    t =     1.14s     Launch com.hiyozoo.bearlock
+Resolve Package Graph
+
+    t =    37.08s         Setting up automation session
+    t =    37.20s         Wait for com.hiyozoo.bearlock to idle
+    t =    38.22s Waiting 10.0s for "Bear is sleeping." StaticText to exist
+    t =    39.27s     Checking `Expect predicate `existsNoRetry == 1` for object "Bear is sleeping." StaticText`
+    t =    39.29s         Checking existence of `"Bear is sleeping." StaticText`
+    t =    39.59s Checking existence of `"Do not wake the bear." StaticText`
+    t =    39.66s Checking existence of `"Now" StaticText`
+    t =    39.71s Checking existence of `"lock-composer-primary-button" Button`
+    t =    39.78s Checking existence of `"In" Button`
+    t =    39.85s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    41.72s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    43.20s Added attachment named 'e2e-active-lock-constraints'
+    t =    43.20s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveLockHidesMutableControlsWithMockServices]' passed (47.982 seconds).
+Test Suite 'BearLockLaunchUITests' passed at 2026-09-01 16:34:07.144.
+	 Executed 1 test, with 0 failures (0 unexpected) in 47.982 (47.985) seconds
+Test Suite 'BearLockUITests.xctest' passed at 2026-09-01 16:34:07.147.
+	 Executed 1 test, with 0 failures (0 unexpected) in 47.982 (47.987) seconds
+Test Suite 'Selected tests' passed at 2026-09-01 16:34:07.147.
+	 Executed 1 test, with 0 failures (0 unexpected) in 47.982 (47.989) seconds
+Resolve Package Graph
+
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-active-lock.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+
+===== artifacts/xcodebuild-ui-e2e-delayed.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-delayed.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+
+===== artifacts/xcodebuild-ui-e2e-disabled-recurring.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-disabled-recurring.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-disabled-recurring.xcresult
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+2026-09-01 16:30:34.026060+0000 BearLockUITests-Runner[39297:115333] [UIKit App Config] `UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+2026-09-01 16:30:34.040256+0000 BearLockUITests-Runner[39297:115333] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-09-01 16:30:42.765.
+Test Suite 'BearLockUITests.xctest' started at 2026-09-01 16:30:42.766.
+Test Suite 'BearLockLaunchUITests' started at 2026-09-01 16:30:42.766.
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringSeedShowsOffStateWithMockServices]' started.
+    t =     0.00s Start Test at 2026-09-01 16:30:42.767
+    t =     0.86s Set Up
+    t =     0.88s Open com.hiyozoo.bearlock
+    t =     0.88s     Launch com.hiyozoo.bearlock
+    t =    13.70s         Setting up automation session
+    t =    15.23s         Wait for com.hiyozoo.bearlock to idle
+    t =    17.33s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =    18.39s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =    18.39s         Checking existence of `"lock-composer-primary-button" Button`
+    t =    18.82s Checking existence of `"Repeats" StaticText`
+    t =    18.88s Checking existence of `"Repeats" StaticText`
+    t =    18.96s Checking existence of `"Repeats" StaticText`
+    t =    19.03s Checking existence of `"Repeats" StaticText`
+    t =    19.08s Waiting 5.0s for "Repeats" StaticText to exist
+    t =    20.09s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeats" StaticText`
+    t =    20.09s         Checking existence of `"Repeats" StaticText`
+    t =    20.14s Checking existence of `"Off" StaticText`
+    t =    20.19s Checking existence of `"Off" StaticText`
+    t =    20.24s Checking existence of `"Off" StaticText`
+    t =    20.30s Checking existence of `"Off" StaticText`
+    t =    20.37s Waiting 5.0s for "Off" StaticText to exist
+    t =    21.37s     Checking `Expect predicate `existsNoRetry == 1` for object "Off" StaticText`
+    t =    21.37s         Checking existence of `"Off" StaticText`
+    t =    21.65s Added attachment named 'e2e-recurring-disabled-list'
+    t =    21.65s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringSeedShowsOffStateWithMockServices]' passed (21.922 seconds).
+Test Suite 'BearLockLaunchUITests' passed at 2026-09-01 16:31:04.689.
+	 Executed 1 test, with 0 failures (0 unexpected) in 21.922 (21.923) seconds
+Test Suite 'BearLockUITests.xctest' passed at 2026-09-01 16:31:04.690.
+	 Executed 1 test, with 0 failures (0 unexpected) in 21.922 (21.924) seconds
+Test Suite 'Selected tests' passed at 2026-09-01 16:31:04.690.
+	 Executed 1 test, with 0 failures (0 unexpected) in 21.922 (21.925) seconds
+Resolve Package Graph
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-disabled-recurring.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+
+===== artifacts/xcodebuild-ui-e2e-empty-home.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-empty-home.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-empty-home.xcresult
+
+Resolve Package Graph
+
+2026-09-01 16:25:11.463889+0000 BearLockUITests-Runner[29546:87528] [UIKit App Config] `UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+2026-09-01 16:25:11.469809+0000 BearLockUITests-Runner[29546:87528] [Default] Running tests...
+2026-09-01 16:25:11.512830+0000 BearLockUITests-Runner[29546:87686] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-09-01 16:25:11.557058+0000 BearLockUITests-Runner[29546:87682] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-09-01 16:25:28.556.
+Test Suite 'BearLockUITests.xctest' started at 2026-09-01 16:25:28.559.
+Test Suite 'BearLockLaunchUITests' started at 2026-09-01 16:25:28.560.
+Test Case '-[BearLockUITests.BearLockLaunchUITests testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint]' started.
+    t =     0.00s Start Test at 2026-09-01 16:25:28.562
+    t =     0.89s Set Up
+    t =     0.93s Open com.hiyozoo.bearlock
+    t =     0.93s     Launch com.hiyozoo.bearlock
+Resolve Package Graph
+    t =     8.31s         Setting up automation session
+
+    t =     9.63s         Wait for com.hiyozoo.bearlock to idle
+    t =    12.63s Waiting 10.0s for "Select targets" Button to exist
+Resolve Package Graph
+
+    t =    13.67s     Checking `Expect predicate `existsNoRetry == 1` for object "Select targets" Button`
+    t =    13.67s         Checking existence of `"Select targets" Button`
+    t =    13.77s Checking existence of `"Select blocked apps first." StaticText`
+    t =    13.80s Checking existence of `"Select targets" Button`
+    t =    13.84s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint]' passed (14.631 seconds).
+Test Suite 'BearLockLaunchUITests' passed at 2026-09-01 16:25:43.192.
+	 Executed 1 test, with 0 failures (0 unexpected) in 14.631 (14.632) seconds
+Test Suite 'BearLockUITests.xctest' passed at 2026-09-01 16:25:43.192.
+	 Executed 1 test, with 0 failures (0 unexpected) in 14.631 (14.633) seconds
+Test Suite 'Selected tests' passed at 2026-09-01 16:25:43.192.
+	 Executed 1 test, with 0 failures (0 unexpected) in 14.631 (14.636) seconds
+Resolve Package Graph
+
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-empty-home.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+
+===== artifacts/xcodebuild-ui-e2e-immediate.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-immediate.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-immediate.xcresult
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-immediate.xcresult
+
+Testing started
+
+===== artifacts/xcodebuild-ui-e2e-recurring.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-recurring.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+
+===== artifacts/xcodebuild-ui-e2e-setup.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-setup.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-setup.xcresult
+
+Resolve Package Graph
+
+2026-09-01 16:16:00.610462+0000 BearLockUITests-Runner[9868:33197] [UIKit App Config] `UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+2026-09-01 16:16:00.632906+0000 BearLockUITests-Runner[9868:33197] [Default] Running tests...
+2026-09-01 16:16:00.730158+0000 BearLockUITests-Runner[9868:34734] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-09-01 16:16:00.771937+0000 BearLockUITests-Runner[9868:34734] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-09-01 16:16:19.011.
+Test Suite 'BearLockUITests.xctest' started at 2026-09-01 16:16:19.013.
+Test Suite 'BearLockLaunchUITests' started at 2026-09-01 16:16:19.013.
+Test Case '-[BearLockUITests.BearLockLaunchUITests testLaunchSetupScreenAndCaptureScreenshot]' started.
+    t =     0.00s Start Test at 2026-09-01 16:16:19.014
+    t =     1.24s Set Up
+    t =     1.25s Open com.hiyozoo.bearlock
+    t =     1.25s     Launch com.hiyozoo.bearlock
+Resolve Package Graph
+
+    t =    32.81s         Setting up automation session
+    t =    33.07s         Wait for com.hiyozoo.bearlock to idle
+    t =    34.61s Waiting 10.0s for "Allow Screen Time access" Button to exist
+    t =    35.67s     Checking `Expect predicate `existsNoRetry == 1` for object "Allow Screen Time access" Button`
+    t =    35.67s         Checking existence of `"Allow Screen Time access" Button`
+    t =    35.86s Checking existence of `"Select targets" Button`
+    t =    36.21s Added attachment named 'bearlock-setup-screen'
+    t =    36.23s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testLaunchSetupScreenAndCaptureScreenshot]' passed (46.881 seconds).
+Test Suite 'BearLockLaunchUITests' passed at 2026-09-01 16:17:05.902.
+	 Executed 1 test, with 0 failures (0 unexpected) in 46.881 (46.888) seconds
+Test Suite 'BearLockUITests.xctest' passed at 2026-09-01 16:17:05.902.
+	 Executed 1 test, with 0 failures (0 unexpected) in 46.881 (46.889) seconds
+Test Suite 'Selected tests' passed at 2026-09-01 16:17:05.903.
+	 Executed 1 test, with 0 failures (0 unexpected) in 46.881 (46.891) seconds
+Resolve Package Graph
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-setup.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+
+===== artifacts/xcodebuild-ui-e2e-support.log =====
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2E-support.xcresult CODE_SIGNING_ALLOWED=NO "-only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen" test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-support.xcresult
+
+Resolve Package Graph
+
+2026-09-01 16:35:57.138499+0000 BearLockUITests-Runner[46960:140117] [UIKit App Config] `UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+2026-09-01 16:35:57.148868+0000 BearLockUITests-Runner[46960:140117] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-09-01 16:36:16.243.
+Test Suite 'BearLockUITests.xctest' started at 2026-09-01 16:36:16.244.
+Test Suite 'BearLockLaunchUITests' started at 2026-09-01 16:36:16.244.
+Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' started.
+    t =     0.00s Start Test at 2026-09-01 16:36:16.245
+    t =     0.77s Set Up
+    t =     0.78s Open com.hiyozoo.bearlock
+    t =     0.78s     Launch com.hiyozoo.bearlock
+Resolve Package Graph
+
+    t =    17.95s         Setting up automation session
+    t =    19.97s         Wait for com.hiyozoo.bearlock to idle
+    t =    21.91s Waiting 10.0s for "Settings" Button to exist
+    t =    22.92s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" Button`
+    t =    22.93s         Checking existence of `"Settings" Button`
+    t =    23.45s Tap "Settings" Button
+    t =    23.45s     Wait for com.hiyozoo.bearlock to idle
+    t =    23.48s     Find the "Settings" Button
+    t =    23.53s     Check for interrupting elements affecting "gearshape" Button
+    t =    23.64s     Synthesize event
+    t =    24.14s     Wait for com.hiyozoo.bearlock to idle
+    t =    24.38s Waiting 5.0s for "Settings" NavigationBar to exist
+    t =    25.43s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" NavigationBar`
+    t =    25.43s         Checking existence of `"Settings" NavigationBar`
+    t =    25.55s Checking existence of `"Support Bear Lock" StaticText`
+    t =    25.58s Checking existence of `"Support Bear Lock" StaticText`
+    t =    25.62s Checking existence of `"Support Bear Lock" StaticText`
+    t =    25.64s Checking existence of `"Support Bear Lock" StaticText`
+    t =    25.67s Waiting 5.0s for "Support Bear Lock" StaticText to exist
+    t =    26.69s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" StaticText`
+    t =    26.69s         Checking existence of `"Support Bear Lock" StaticText`
+    t =    26.73s Tap "settings-support-link" Button
+    t =    26.73s     Wait for com.hiyozoo.bearlock to idle
+    t =    26.74s     Find the "settings-support-link" Button
+    t =    26.79s     Check for interrupting elements affecting "settings-support-link" Button
+    t =    26.84s     Synthesize event
+    t =    27.16s     Wait for com.hiyozoo.bearlock to idle
+    t =    27.67s Waiting 5.0s for "Support Bear Lock" NavigationBar to exist
+    t =    28.69s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" NavigationBar`
+    t =    28.69s         Checking existence of `"Support Bear Lock" NavigationBar`
+    t =    28.76s Checking existence of `"Bear Lock is free. No ads, accounts, or subscriptions." StaticText`
+    t =    28.79s Checking existence of `"Coffee" StaticText`
+    t =    28.84s Checking existence of `"Lunch" StaticText`
+    t =    28.88s Checking existence of `"Dinner" StaticText`
+    t =    29.17s Added attachment named 'e2e-settings-support'
+    t =    29.17s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' passed (29.457 seconds).
+Test Suite 'BearLockLaunchUITests' passed at 2026-09-01 16:36:45.703.
+	 Executed 1 test, with 0 failures (0 unexpected) in 29.457 (29.458) seconds
+Test Suite 'BearLockUITests.xctest' passed at 2026-09-01 16:36:45.704.
+	 Executed 1 test, with 0 failures (0 unexpected) in 29.457 (29.459) seconds
+Test Suite 'Selected tests' passed at 2026-09-01 16:36:45.704.
+	 Executed 1 test, with 0 failures (0 unexpected) in 29.457 (29.461) seconds
+Resolve Package Graph
+
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2E-support.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started
+
