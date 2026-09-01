@@ -9,32 +9,18 @@ struct SupportView: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 14) {
-                    HStack(spacing: 12) {
-                        Image("BrandAppIcon")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 56, height: 56)
-                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Support Bear Lock")
-                                .font(.title3.weight(.semibold))
-                                .foregroundStyle(AppTheme.navy)
-                        }
-                    }
-
                     Text("Bear Lock is free. No ads, accounts, or subscriptions.")
                         .font(.body)
                         .foregroundStyle(AppTheme.navy)
 
-                    Text("If you like it, Coffee, Lunch, or Dinner helps development continue. Bear Lock works the same either way.")
+                    Text("If you like it, you can help development continue. Bear Lock works the same either way.")
                         .font(.subheadline)
                         .foregroundStyle(AppTheme.steel)
                 }
                 .padding(.vertical, 8)
             }
 
-            Section("Choose support") {
+            Section {
                 ForEach(SupportProduct.allCases) { supportProduct in
                     Button {
                         Task {
