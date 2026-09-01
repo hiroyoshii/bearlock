@@ -7,7 +7,7 @@ enum ShieldConfigurationDiagnostics {
     static func record(_ name: String, detail: String? = nil) {
         let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
             ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let url = containerURL.appending(path: "diagnostics.json")
+        let url = containerURL.appendingPathComponent("diagnostics.json")
 
         do {
             try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)

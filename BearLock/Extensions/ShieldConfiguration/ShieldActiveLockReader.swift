@@ -23,7 +23,7 @@ struct ShieldActiveLockReader {
     private func activeLock(now: Date) -> ShieldActiveLock? {
         let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
             ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let url = containerURL.appending(path: fileName)
+        let url = containerURL.appendingPathComponent(fileName)
 
         guard FileManager.default.fileExists(atPath: url.path) else {
             return nil
@@ -59,7 +59,7 @@ struct ShieldActiveLockReader {
     }
 
     private func localized(_ key: String) -> String {
-        NSLocalizedString(key, bundle: Bundle(for: BearLockShieldConfigurationExtension.self), comment: "")
+        NSLocalizedString(key, comment: "")
     }
 }
 
