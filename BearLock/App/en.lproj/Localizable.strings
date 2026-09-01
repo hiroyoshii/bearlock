@@ -80,6 +80,13 @@
 "Screen Timeアクセスを許可" = "Allow Screen Time access";
 "Select blocked apps" = "Select blocked apps";
 "Select blocked apps first." = "Select blocked apps first.";
+"Choose a lock duration longer than zero." = "Choose a lock duration longer than zero.";
+"Choose a start time in the future." = "Choose a start time in the future.";
+"Choose at least one weekday." = "Choose at least one weekday.";
+"This overlaps an existing lock. Edit the schedule or choose a different time." = "This overlaps an existing lock. Edit the schedule or choose a different time.";
+"This lock is already active and cannot be changed." = "This lock is already active and cannot be changed.";
+"This lock has already started and cannot be changed." = "This lock has already started and cannot be changed.";
+"Only repeating locks can be changed here." = "Only repeating locks can be changed here.";
 "Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking." = "Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking.";
 "Bear Lock blocks selected apps until the scheduled end time." = "Selected apps stay locked until the scheduled end time.";
 "Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking." = "Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking.";

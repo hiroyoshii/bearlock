@@ -5,18 +5,32 @@ struct TargetSelectionButton: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var selection = FamilyActivitySelection()
     @State private var isPickerPresented = false
+    @State private var shouldSaveSelectionOnDismiss = false
 
     let prominent: Bool
 
     var body: some View {
         baseButton
             .disabled(isLocked)
-            .familyActivityPicker(isPresented: $isPickerPresented, selection: $selection)
-            .onChange(of: isPickerPresented) { _, presented in
-                guard !presented else { return }
-                Task {
-                    await model.saveSelection(selection)
+            .sheet(isPresented: $isPickerPresented, onDismiss: {
+                if shouldSaveSelectionOnDismiss {
+                    Task {
+                        await model.saveSelection(selection)
+                    }
+                    shouldSaveSelectionOnDismiss = false
                 }
+            }) {
+                TargetSelectionPickerSheet(
+                    selection: $selection,
+                    onCancel: {
+                        shouldSaveSelectionOnDismiss = false
+                        isPickerPresented = false
+                    },
+                    onSave: {
+                        shouldSaveSelectionOnDismiss = true
+                        isPickerPresented = false
+                    }
+                )
             }
     }
 
@@ -47,6 +61,55 @@ struct TargetSelectionButton: View {
 
     private var isLocked: Bool {
         model.lockState.activeLock?.isActive(at: Date()) == true
+    }
+}
+
+private struct TargetSelectionPickerSheet: View {
+    @Binding var selection: FamilyActivitySelection
+
+    let onCancel: () -> Void
+    let onSave: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            FamilyActivityPicker(selection: $selection)
+                .navigationTitle("Select targets")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", action: onCancel)
+                    }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    VStack(spacing: 8) {
+                        Text(selectionHint)
+                            .font(.caption)
+                            .foregroundStyle(AppTheme.navy.opacity(0.62))
+                            .multilineTextAlignment(.center)
+
+                        Button(action: onSave) {
+                            Label("Save", systemImage: "checkmark.circle.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .tint(AppTheme.navy)
+                        .disabled(selectionCount == 0)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, 10)
+                    .background(.regularMaterial)
+                }
+        }
+    }
+
+    private var selectionHint: LocalizedStringKey {
+        selectionCount == 0 ? "No targets are selected." : LocalizedStringKey(L10n.format("%d targets", selectionCount))
+    }
+
+    private var selectionCount: Int {
+        selection.applicationTokens.count + selection.categoryTokens.count + selection.webDomainTokens.count
     }
 }
 
@@ -188,10 +251,8 @@ private struct TokenSelectionListView: View {
     private func tokenRow<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         HStack(spacing: 10) {
             content()
-                .labelStyle(.titleAndIcon)
+                .labelStyle(TargetTokenLabelStyle())
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(AppTheme.navy)
-                .foregroundColor(AppTheme.navy)
                 .environment(\.colorScheme, .light)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -209,6 +270,16 @@ private struct TokenSelectionListView: View {
         max(0, selection.applicationTokens.count - 5)
             + max(0, selection.categoryTokens.count - 5)
             + max(0, selection.webDomainTokens.count - 5)
+    }
+}
+
+private struct TargetTokenLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 10) {
+            configuration.icon
+            configuration.title
+                .foregroundStyle(AppTheme.navy)
+        }
     }
 }
 

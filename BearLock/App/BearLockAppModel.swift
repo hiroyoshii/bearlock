@@ -440,8 +440,38 @@ final class BearLockAppModel: ObservableObject {
     }
 
     private func recordError(_ name: String, _ error: Error) {
-        lastErrorMessage = error.localizedDescription
-        diagnostics.record(name, level: .error, detail: error.localizedDescription)
+        lastErrorMessage = userFacingMessage(for: error)
+        diagnostics.record(name, level: .error, detail: diagnosticDetail(for: error))
+    }
+
+    private func userFacingMessage(for error: Error) -> String {
+        if let validationError = error as? LockValidationError {
+            switch validationError {
+            case .nonPositiveDuration:
+                return L10n.string("Choose a lock duration longer than zero.")
+            case .startDateInPast:
+                return L10n.string("Choose a start time in the future.")
+            case .emptyWeekdays:
+                return L10n.string("Choose at least one weekday.")
+            case .overlappingLock:
+                return L10n.string("This overlaps an existing lock. Edit the schedule or choose a different time.")
+            case .activeLockIsImmutable:
+                return L10n.string("This lock is already active and cannot be changed.")
+            case .ruleAlreadyStarted:
+                return L10n.string("This lock has already started and cannot be changed.")
+            case .notRecurringRule:
+                return L10n.string("Only repeating locks can be changed here.")
+            }
+        }
+
+        return error.localizedDescription
+    }
+
+    private func diagnosticDetail(for error: Error) -> String {
+        if let validationError = error as? LockValidationError {
+            return "LockValidationError.\(validationError)"
+        }
+        return error.localizedDescription
     }
 
     private func lockDetail(for rule: LockRule, active: ActiveLock? = nil) -> String {

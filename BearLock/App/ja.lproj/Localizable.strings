@@ -80,6 +80,13 @@
 "Screen Timeアクセスを許可" = "Screen Timeアクセスを許可";
 "Select blocked apps" = "ブロック対象アプリを選ぶ";
 "Select blocked apps first." = "まずはブロック対象アプリを選びます。";
+"Choose a lock duration longer than zero." = "ロック時間を1分以上にしてください。";
+"Choose a start time in the future." = "未来の開始時刻を選んでください。";
+"Choose at least one weekday." = "曜日を1つ以上選んでください。";
+"This overlaps an existing lock. Edit the schedule or choose a different time." = "既存のロック予定と時間が重なっています。予定を編集するか、重ならない時間を選んでください。";
+"This lock is already active and cannot be changed." = "このロックは実行中のため変更できません。";
+"This lock has already started and cannot be changed." = "このロックは開始済みのため変更できません。";
+"Only repeating locks can be changed here." = "ここで変更できるのは繰り返しロックだけです。";
 "Bear Lock stores selected app tokens, schedules, and diagnostics on this device. It does not use accounts, cloud sync, ads, analytics, or tracking." = "選択したアプリ、予定、診断ログはこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。";
 "Bear Lock blocks selected apps until the scheduled end time." = "選んだアプリを終了時刻までロックします。";
 "Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking." = "選択したアプリ、予定、診断ログはこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。";
