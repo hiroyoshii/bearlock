@@ -3,6 +3,8 @@ import ManagedSettingsUI
 import UIKit
 
 final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource {
+    private let activeLockReader = ShieldActiveLockReader()
+
     override func configuration(shielding application: Application) -> ShieldConfiguration {
         return configuration()
     }
@@ -20,6 +22,8 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     }
 
     private func configuration() -> ShieldConfiguration {
+        let subtitle = activeLockReader.unlockText() ?? localized("Locked until the scheduled time.")
+
         ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterialLight,
             backgroundColor: UIColor(red: 0.83, green: 0.90, blue: 0.97, alpha: 1.0),
@@ -29,7 +33,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0)
             ),
             subtitle: ShieldConfiguration.Label(
-                text: localized("Do not wake the bear."),
+                text: subtitle,
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 0.72)
             ),
             primaryButtonLabel: ShieldConfiguration.Label(

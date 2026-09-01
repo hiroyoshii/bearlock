@@ -1,4 +1,6 @@
 "Bear is sleeping." = "熊は眠っています。";
 "Do not wake the bear." = "熊を起こさないでください。";
+"Locked until the scheduled time." = "予定した時刻までロックします。";
+"Unlocks at %@" = "解除予定 %@";
 "Come back later" = "あとで戻る";
 "OK" = "OK";

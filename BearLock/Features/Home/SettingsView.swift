@@ -28,6 +28,7 @@ struct SettingsView: View {
                 } label: {
                     Label("Support Bear Lock", systemImage: "heart")
                 }
+                .accessibilityIdentifier("settings-support-link")
             }
 
             Section("Debug") {

@@ -143,9 +143,8 @@ Recommended screen copy:
 ```text
 Bear Lockを支える
 
-Bear Lockは無料・広告なし・アカウントなしで使えます。
-気に入ったら、開発を静かに支援できます。
-支援しても機能差はありません。ロックの挙動も変わりません。
+Bear Lockは無料です。広告、アカウント、サブスクリプションはありません。
+気に入ったら、開発を続ける手助けができます。Bear Lockの機能は変わりません。
 ```
 
 Recommended product-name style:
@@ -154,7 +153,7 @@ Recommended product-name style:
 - This avoids making the first tier feel like a "small" or lesser contribution while keeping the purchase meaning easy to understand.
 - Product IDs: `com.hiyozoo.bearlock.support.coffee`, `com.hiyozoo.bearlock.support.lunch`, `com.hiyozoo.bearlock.support.dinner`.
 - App Store Connect reference names: `Bear Lock Support - Coffee`, `Bear Lock Support - Lunch`, `Bear Lock Support - Dinner`.
-- Avoid using `寄付` as the main term in product metadata; use `任意サポート` or `開発支援`.
+- Avoid using `寄付` as the main term in product metadata; use `Support` / `任意サポート` / `開発支援`.
 
 ## Source Links
 

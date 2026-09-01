@@ -31,7 +31,7 @@ jobs:
       RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
       E2E_RESULT_BUNDLE: artifacts/BearLockE2ETests.xcresult
       E2E_SCREENSHOT_DIR: artifacts/e2e-screenshots
-      RUN_MOCK_E2E: "false"
+      RUN_MOCK_E2E: "true"
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
       SCREENSHOT_DIR: artifacts/screenshots
       DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
@@ -125,6 +125,22 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
             test-without-building | tee artifacts/xcodebuild-ui-e2e-immediate.log || touch artifacts/e2e-immediate.failed
 
+      - name: Run empty home UI e2e
+        if: env.RUN_MOCK_E2E == 'true'
+        timeout-minutes: 5
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-empty-home.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-empty-home.log || touch artifacts/e2e-empty-home.failed
+
       - name: Run delayed lock UI e2e
         if: env.RUN_MOCK_E2E == 'true'
         timeout-minutes: 5
@@ -189,6 +205,22 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
             test-without-building | tee artifacts/xcodebuild-ui-e2e-active-lock.log || touch artifacts/e2e-active-lock.failed
 
+      - name: Run support screen UI e2e
+        if: env.RUN_MOCK_E2E == 'true'
+        timeout-minutes: 5
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath "artifacts/BearLockE2E-support.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
+            test-without-building | tee artifacts/xcodebuild-ui-e2e-support.log || touch artifacts/e2e-support.failed
+
       - name: Collect mock UI e2e screenshots
         if: env.RUN_MOCK_E2E == 'true'
         run: |
@@ -199,7 +231,8 @@ jobs:
             e2e-immediate-active-lock.png \
             e2e-delayed-deleted.png \
             e2e-recurring-disabled-list.png \
-            e2e-active-lock-constraints.png
+            e2e-active-lock-constraints.png \
+            e2e-settings-support.png
           do
             if [ ! -s "$E2E_SCREENSHOT_DIR/$screenshot" ]; then
               echo "Missing e2e screenshot: $screenshot"

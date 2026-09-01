@@ -3,6 +3,7 @@ import Foundation
 enum ShieldConfigurationDiagnostics {
     private static let appGroupIdentifier = "group.com.hiyozoo.bearlock"
     private static let maxEvents = 50
+    private static var lastRecordedEvent: String?
 
     static func record(_ name: String, detail: String? = nil) {
         let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
@@ -23,6 +24,15 @@ enum ShieldConfigurationDiagnostics {
         } catch {
             return
         }
+    }
+
+    static func recordOnce(_ name: String, detail: String? = nil) {
+        let key = [name, detail].compactMap { $0 }.joined(separator: ":")
+        guard lastRecordedEvent != key else {
+            return
+        }
+        lastRecordedEvent = key
+        record(name, detail: detail)
     }
 
     private static func load(from url: URL) throws -> Snapshot {

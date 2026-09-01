@@ -1,4 +1,6 @@
 "Bear is sleeping." = "Bear is sleeping.";
 "Do not wake the bear." = "Do not wake the bear.";
+"Locked until the scheduled time." = "Locked until the scheduled time.";
+"Unlocks at %@" = "Unlocks at %@";
 "Come back later" = "Come back later";
 "OK" = "OK";
