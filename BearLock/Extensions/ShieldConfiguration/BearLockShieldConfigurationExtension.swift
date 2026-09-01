@@ -24,7 +24,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     private func configuration() -> ShieldConfiguration {
         let subtitle = activeLockReader.unlockText() ?? localized("Locked until the scheduled time.")
 
-        ShieldConfiguration(
+        return ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterialLight,
             backgroundColor: UIColor(red: 0.83, green: 0.90, blue: 0.97, alpha: 1.0),
             icon: UIImage(named: "ShieldBearVisualLocked") ?? UIImage(systemName: "lock.fill"),
