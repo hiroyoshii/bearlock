@@ -1,75 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bear Lock サポート</title>
-    <meta name="description" content="Bear LockのサポートとFAQ。">
+    <title>サポート・よくある質問 | Bear Lock</title>
+    <meta name="description" content="Bear Lockの使い方、トラブル解決方法、問い合わせ先をご案内します。">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
     <header class="site-header">
       <a class="brand" href="/">Bear Lock</a>
-      <nav class="nav" aria-label="Primary">
+      <nav class="nav" aria-label="メインナビゲーション">
         <a href="/privacy/">プライバシー</a>
-        <a href="/en/support/">English</a>
+        <a href="/en/support/" lang="en">English</a>
       </nav>
     </header>
-    <main>
+    <main id="main-content">
       <p class="eyebrow">Support</p>
-      <h1>サポート / FAQ</h1>
+      <h1>サポート・よくある質問</h1>
+      <p>Bear Lockの設定や動作で困ったときは、以下をご確認ください。</p>
 
-      <h2>Bear Lockとは？</h2>
-      <p>Bear Lockは、使いすぎてしまうアプリ、カテゴリ、Webサイトを選び、指定した時間だけiOSのScreen Timeシールドでブロックする自己制御アプリです。ロック開始後、Bear Lock内に早期解除ボタンはありません。</p>
+      <h2>Bear Lockでできること</h2>
+      <p>選択したアプリ、カテゴリ、Webサイトを、指定した時間中にiOSのScreen Time機能でブロックできます。ロック開始後は、Bear Lock内から終了時刻を早めたり、途中で解除したりすることはできません。</p>
+
+      <h2>対応環境</h2>
+      <ul>
+        <li>iOS 17以降を搭載したiPhone</li>
+        <li>Screen Time / Family Controlsを利用できる端末設定</li>
+      </ul>
 
       <h2>アプリがブロックされない</h2>
-      <p>次を確認してください。</p>
+      <ol>
+        <li>Bear LockにScreen Timeアクセスが許可されていることを確認します。</li>
+        <li>ロック対象のアプリ、カテゴリ、またはWebサイトが1つ以上選択されていることを確認します。</li>
+        <li>ロックの開始時刻と終了時刻を確認します。</li>
+        <li>Bear Lockを一度開き、状態が更新されるまで待ちます。</li>
+        <li>改善しない場合はiPhoneを再起動します。</li>
+      </ol>
+      <p>カテゴリを選択した場合、iOSによるカテゴリ分類によって対象が想定と異なることがあります。</p>
+
+      <h2>Screen Timeアクセスを許可できない</h2>
+      <ol>
+        <li>iPhoneの「設定」でScreen Timeが利用可能か確認します。</li>
+        <li>Bear Lockを終了して、もう一度開きます。</li>
+        <li>必要に応じてiPhoneを再起動します。</li>
+      </ol>
+      <p>ファミリーや組織によって管理されている端末では、Screen Time設定の変更が制限されている場合があります。</p>
+
+      <h2>ロック終了後もブロックされたままになる</h2>
+      <ol>
+        <li>Bear Lockを開き、状態が更新されるまで待ちます。</li>
+        <li>予定の終了時刻を過ぎていることを確認します。</li>
+        <li>iPhoneを再起動します。</li>
+        <li>それでも解除されない場合は、iOSの設定からBear LockのScreen Timeアクセスをいったん取り消します。その後Bear Lockを開き、アクセスを再度許可します。</li>
+      </ol>
+      <p>Screen Timeアクセスを取り消している間は、Bear Lockによるブロックは動作しません。</p>
+
+      <h2>ロックを途中で解除できない</h2>
+      <p>途中解除できないことはBear Lockの仕様です。開始前に、対象と終了時刻を必ず確認してください。iOSの設定変更やアプリの削除など、Bear Lock外の操作はiOSが管理します。</p>
+
+      <h2>任意のアプリ内購入</h2>
+      <p>開発支援のための購入は任意で、購入しなくてもすべてのロック機能を利用できます。サブスクリプションではなく、購入後に機能やコンテンツが追加されるものでもありません。購入はAppleのアプリ内購入として処理されます。</p>
+      <p>購入や返金については、<a href="https://reportaproblem.apple.com/" rel="noreferrer">Appleの「問題を報告する」ページ</a>をご利用ください。</p>
+
+      <h2>プライバシー</h2>
+      <p>選択したアプリやロック予定は端末内に保存され、Hiyozooへ自動送信されません。詳しくは<a href="/privacy/">プライバシーポリシー</a>をご確認ください。</p>
+
+      <h2>問い合わせ</h2>
+      <p>解決しない場合は、<a href="mailto:support@hiyozoo.com">support@hiyozoo.com</a>までご連絡ください。次の情報があると確認がスムーズです。</p>
       <ul>
-        <li>Screen Time / Family Controls権限が許可されている。</li>
-        <li>少なくとも1つのアプリ、カテゴリ、またはWebサイトが選択されている。</li>
-        <li>現在時刻がロック時間内である。</li>
-        <li>開こうとしているアプリが直接選択されている、または選択カテゴリに含まれている。</li>
-        <li><code>設定 > 診断</code> で診断ログが書き込める状態になっている。</li>
+        <li>Bear Lockのバージョン</li>
+        <li>iPhoneのモデルとiOSのバージョン</li>
+        <li>問題が発生した日時</li>
+        <li>期待していた動作と、実際に起きたこと</li>
+        <li>必要に応じて、問題が分かる画面のスクリーンショット</li>
       </ul>
-      <p>ロック中のはずなのに対象アプリが開ける場合は、Active Lock画面と <code>設定 > 診断</code> のスクリーンショットを残してください。</p>
-
-      <h2>権限ダイアログが出ない</h2>
-      <ul>
-        <li>iOS設定でScreen Timeが利用可能か確認する。</li>
-        <li>Bear Lockを再起動する。</li>
-        <li>TestFlightまたは開発ビルドの場合はアプリを再インストールする。</li>
-        <li>インストールしたビルドにFamily Controls entitlementが含まれているか確認する。</li>
-      </ul>
-      <p>この機能はSimulatorだけでは完全に確認できません。初回リリースはiPhone向けに設計し、正式サポートもiPhoneのみとします。端末確認はFamily Controls entitlementが有効な実機iPhoneで行います。</p>
-      <p>iPadではiPhone互換表示で動作する場合がありますが、iPad専用レイアウトは初回リリースの正式サポート対象外です。</p>
-
-      <h2>ロック終了後もアプリがブロックされたまま</h2>
-      <ul>
-        <li>Bear Lockを開いて更新を待つ。</li>
-        <li>Active Lockの終了時刻が過ぎているか確認する。</li>
-        <li><code>設定 > 診断</code> で <code>ActiveLock.completed</code> と <code>Shield.clear.succeeded</code> を探す。</li>
-        <li>テスト中で解除されない場合は、iOS設定からScreen Time権限を取り消して再許可する。</li>
-      </ul>
-
-      <h2>なぜ解除ボタンがない？</h2>
-      <p>Bear Lockは、ロック開始前に決めた約束を守るためのアプリです。アプリ内に早期解除ボタンを置かないことが、中心的な機能です。</p>
-      <p>ただし、iOS設定の変更、アプリ削除、アカウント側の操作など、Bear Lock外のシステム操作はiOSの管理下にあります。</p>
-
-      <h2>Bear Lockはどんなデータを送信する？</h2>
-      <p>データ送信を行いません。アカウント、クラウド同期、分析、広告、トラッキングはありません。ロック予定、アプリ選択トークン、Diagnosticsは端末内に保存されます。</p>
-
-      <h2>問い合わせ時に必要な情報</h2>
-      <ul>
-        <li>期待していた動作。</li>
-        <li>実際に起きたこと。</li>
-        <li>端末モデルとiOSバージョン。</li>
-        <li>該当画面のスクリーンショット。</li>
-        <li><code>設定 > 診断</code> のスクリーンショット。</li>
-      </ul>
-      <p>サポート連絡先: <a href="mailto:support@hiyozoo.com">support@hiyozoo.com</a></p>
+      <p>スクリーンショットを送る前に、不要な個人情報が写っていないことをご確認ください。</p>
     </main>
     <footer class="site-footer">
-      <p><a href="/">Bear Lock</a></p>
+      <p>© Hiyozoo</p>
     </footer>
   </body>
 </html>

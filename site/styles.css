@@ -29,6 +29,26 @@ a {
   text-underline-offset: 0.18em;
 }
 
+a:focus-visible {
+  outline: 3px solid var(--steel);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 2px solid var(--navy);
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 .site-header,
 .site-footer {
   max-width: var(--max);
@@ -111,6 +131,11 @@ p {
 ul {
   margin: 0 0 18px;
   padding-left: 1.3rem;
+}
+
+ol {
+  margin: 0 0 18px;
+  padding-left: 1.4rem;
 }
 
 li {

@@ -120,6 +120,10 @@
 "Selected apps" = "選択済みアプリ";
 "Settings" = "設定";
 "Support" = "サポート";
+"Information" = "情報";
+"Privacy Policy" = "プライバシーポリシー";
+"Support and FAQ" = "サポート・よくある質問";
+"Optional support" = "任意の開発支援";
 "Support Bear Lock" = "サポート";
 "Bear Lock is free. No ads, accounts, or subscriptions." = "無料で使えます。広告も、アカウントも、サブスクもありません。";
 "If you like it, you can help development continue. Bear Lock works the same either way." = "気に入ったら、開発を支えられます。アプリの動作は変わりません。";
@@ -128,7 +132,7 @@
 "Dinner" = "Dinner";
 "Support items are not available yet." = "支援項目はまだ利用できません。";
 "Support items could not be loaded." = "支援項目を読み込めませんでした。";
-"Thank you. This helps Bear Lock keep growing quietly." = "ありがとう。Bear Lockを静かに育てる力になります。";
+"Thank you. This helps Bear Lock keep growing quietly." = "Bear Lockへのご支援ありがとうございます。";
 "The purchase could not be verified." = "購入を確認できませんでした。";
 "The purchase is pending." = "購入は保留中です。";
 "The purchase could not be completed." = "購入を完了できませんでした。";

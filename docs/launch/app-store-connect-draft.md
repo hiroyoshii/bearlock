@@ -45,7 +45,6 @@ Core features:
 - Create recurring weekday locks.
 - See active lock status and wake time.
 - No in-app early unlock once a lock starts.
-- Local Diagnostics for troubleshooting.
 
 Privacy:
 
@@ -97,7 +96,6 @@ Local-only data:
 
 - Screen Time selection tokens.
 - Lock schedules.
-- Local Diagnostics events.
 
 ## Review Notes
 
@@ -105,7 +103,6 @@ Bear Lock uses Screen Time APIs for voluntary self-control app blocking. To test
 
 The app intentionally does not include an in-app early unlock button after a lock starts. This is the main commitment feature.
 
-Diagnostics are available in the app at `Settings > Diagnostics`.
 
 ## Screenshot Candidates
 
@@ -113,4 +110,4 @@ Diagnostics are available in the app at `Settings > Diagnostics`.
 - Home / composer.
 - Confirmation sheet.
 - Active lock screen.
-- Settings / Diagnostics.
+- Settings.

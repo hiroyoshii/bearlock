@@ -8,12 +8,10 @@ The site is deployed as Cloudflare Workers Static Assets. No build step is requi
 
 Use these paths after deployment:
 
-- Privacy Policy URL: `https://<your-domain>/privacy/`
-- Support URL: `https://<your-domain>/support/`
-- English Privacy Policy URL: `https://<your-domain>/en/privacy/`
-- English Support URL: `https://<your-domain>/en/support/`
-
-Replace `<your-domain>` with the workers.dev URL or the custom domain.
+- Privacy Policy URL: `https://bearlock.hiyozoo.com/privacy/`
+- Support URL: `https://bearlock.hiyozoo.com/support/`
+- English Privacy Policy URL: `https://bearlock.hiyozoo.com/en/privacy/`
+- English Support URL: `https://bearlock.hiyozoo.com/en/support/`
 
 ## Cloudflare dashboard setup
 

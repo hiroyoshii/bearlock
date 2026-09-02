@@ -18,11 +18,23 @@ struct SettingsView: View {
             }
 
             Section("Data handling") {
-                Text("Selected app tokens, schedules, and diagnostics stay on this device. No accounts, cloud sync, ads, analytics, or tracking.")
+                Text("Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking.")
                     .font(.body)
             }
 
-            Section("Support") {
+            Section("Information") {
+                Link(destination: AppLinks.privacyPolicy) {
+                    Label("Privacy Policy", systemImage: "hand.raised")
+                }
+
+                Link(destination: AppLinks.support) {
+                    Label("Support and FAQ", systemImage: "questionmark.circle")
+                }
+
+                LabeledContent("Version", value: appVersion)
+            }
+
+            Section("Optional support") {
                 NavigationLink {
                     SupportView()
                 } label: {
@@ -31,6 +43,7 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings-support-link")
             }
 
+#if DEBUG
             Section("Diagnostics") {
                 NavigationLink {
                     DebugDiagnosticsView()
@@ -38,11 +51,17 @@ struct SettingsView: View {
                     Label("Diagnostics", systemImage: "stethoscope")
                 }
             }
+#endif
         }
         .navigationTitle("Settings")
     }
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+    }
 }
 
+#if DEBUG
 struct DebugDiagnosticsView: View {
     @EnvironmentObject private var model: BearLockAppModel
 
@@ -160,3 +179,4 @@ struct DebugDiagnosticsView: View {
         }
     }
 }
+#endif
