@@ -1,0 +1,166 @@
+Mock UI e2e failures:
+artifacts/e2e-ui.failed
+artifacts/missing-e2e-settings-support.png.failed
+
+===== artifacts/xcodebuild-ui-e2e.log =====
+    t =    11.04s     Synthesize event
+    t =    11.36s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.39s Waiting 10.0s for "Starts later" StaticText to exist
+    t =    12.42s     Checking `Expect predicate `existsNoRetry == 1` for object "Starts later" StaticText`
+    t =    12.42s         Checking existence of `"Starts later" StaticText`
+    t =    12.66s Added attachment named 'e2e-delayed-scheduled'
+    t =    12.67s Waiting 3.0s for "scheduled-lock-edit-button" Button to exist
+    t =    13.69s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    13.69s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    13.91s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    14.95s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    14.95s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    15.17s Tap "scheduled-lock-edit-button" Button
+    t =    15.17s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.18s     Find the "scheduled-lock-edit-button" Button
+    t =    15.38s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    15.51s     Synthesize event
+    t =    15.85s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.24s Waiting 5.0s for "Edit Lock" NavigationBar to exist
+    t =    17.32s     Checking `Expect predicate `existsNoRetry == 1` for object "Edit Lock" NavigationBar`
+    t =    17.32s         Checking existence of `"Edit Lock" NavigationBar`
+    t =    17.78s Added attachment named 'e2e-delayed-editor'
+    t =    17.78s Tap "Save" Button
+    t =    17.78s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.79s     Find the "Save" Button
+    t =    17.89s     Check for interrupting elements affecting "Save" Button
+    t =    17.99s     Synthesize event
+    t =    18.32s     Wait for com.hiyozoo.bearlock to idle
+    t =    18.37s Waiting 10.0s for "Starts later" StaticText to exist
+    t =    19.43s     Checking `Expect predicate `existsNoRetry == 1` for object "Starts later" StaticText`
+    t =    19.44s         Checking existence of `"Starts later" StaticText`
+    t =    19.54s Waiting 3.0s for "scheduled-lock-delete-button" Button to exist
+    t =    20.60s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-delete-button" Button`
+    t =    20.60s         Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    20.75s Waiting 5.0s for "scheduled-lock-delete-button" Button to exist
+    t =    21.77s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-delete-button" Button`
+    t =    21.77s         Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    21.97s Tap "scheduled-lock-delete-button" Button
+    t =    21.97s     Wait for com.hiyozoo.bearlock to idle
+    t =    21.97s     Find the "scheduled-lock-delete-button" Button
+    t =    22.11s     Check for interrupting elements affecting "scheduled-lock-delete-button" Button
+    t =    22.23s     Synthesize event
+    t =    22.59s     Wait for com.hiyozoo.bearlock to idle
+    t =    22.60s Waiting 10.0s for "No scheduled locks." StaticText to exist
+    t =    23.62s     Checking `Expect predicate `existsNoRetry == 1` for object "No scheduled locks." StaticText`
+    t =    23.62s         Checking existence of `"No scheduled locks." StaticText`
+    t =    23.87s Added attachment named 'e2e-delayed-deleted'
+    t =    23.87s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testScheduleEditAndDeleteDelayedLockWithMockServices]' passed (24.226 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' started.
+    t =     0.00s Start Test at 2026-09-02 01:17:43.350
+    t =     0.07s Set Up
+    t =     0.07s Open com.hiyozoo.bearlock
+    t =     0.07s     Launch com.hiyozoo.bearlock
+    t =     0.07s         Terminate com.hiyozoo.bearlock:28670
+Resolve Package Graph
+
+    t =    11.00s         Setting up automation session
+    t =    11.07s         Wait for com.hiyozoo.bearlock to idle
+    t =    12.09s Waiting 10.0s for "Settings" Button to exist
+    t =    13.13s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" Button`
+    t =    13.13s         Checking existence of `"Settings" Button`
+    t =    13.30s Tap "Settings" Button
+    t =    13.30s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.31s     Find the "Settings" Button
+    t =    13.41s     Check for interrupting elements affecting "gearshape" Button
+    t =    13.49s     Synthesize event
+    t =    13.82s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.02s Waiting 5.0s for "Settings" NavigationBar to exist
+    t =    15.06s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" NavigationBar`
+    t =    15.06s         Checking existence of `"Settings" NavigationBar`
+    t =    15.17s Checking existence of `"Support Bear Lock" StaticText`
+    t =    15.23s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    15.24s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.24s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    15.29s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    15.35s     Synthesize event
+    t =    15.80s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.28s Checking existence of `"Support Bear Lock" StaticText`
+    t =    16.33s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    16.33s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.33s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    16.37s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    16.43s     Synthesize event
+    t =    16.89s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.36s Checking existence of `"Support Bear Lock" StaticText`
+    t =    17.42s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    17.42s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.42s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    17.52s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    17.58s     Synthesize event
+    t =    18.05s     Wait for com.hiyozoo.bearlock to idle
+    t =    18.53s Checking existence of `"Support Bear Lock" StaticText`
+    t =    18.56s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    18.56s     Wait for com.hiyozoo.bearlock to idle
+    t =    18.57s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    18.60s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    18.64s     Synthesize event
+    t =    19.07s     Wait for com.hiyozoo.bearlock to idle
+    t =    19.55s Waiting 5.0s for "Support Bear Lock" StaticText to exist
+    t =    20.59s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" StaticText`
+    t =    20.59s         Checking existence of `"Support Bear Lock" StaticText`
+    t =    20.63s         Capturing element debug description
+    t =    21.55s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" StaticText`
+    t =    21.55s         Checking existence of `"Support Bear Lock" StaticText`
+    t =    21.63s         Capturing element debug description
+    t =    22.56s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" StaticText`
+    t =    22.56s         Checking existence of `"Support Bear Lock" StaticText`
+    t =    22.64s         Capturing element debug description
+    t =    23.59s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" StaticText`
+    t =    23.60s         Checking existence of `"Support Bear Lock" StaticText`
+    t =    23.65s         Capturing element debug description
+    t =    24.56s     Checking `Expect predicate `existsNoRetry == 1` for object "Support Bear Lock" StaticText`
+    t =    24.56s         Checking existence of `"Support Bear Lock" StaticText`
+    t =    24.60s         Capturing element debug description
+    t =    24.60s     Checking existence of `"Support Bear Lock" StaticText`
+    t =    24.63s Collecting debug information to assist test failure triage
+    t =    24.64s     Requesting snapshot of accessibility hierarchy for app with pid 29613
+/Users/runner/work/bearlock/bearlock/BearLockUITests/BearLockLaunchUITests.swift:178: error: -[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen] : XCTAssertTrue failed - Expected static text Support Bear Lock
+    t =    26.58s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' failed (26.867 seconds).
+Test Suite 'BearLockLaunchUITests' failed at 2026-09-02 01:18:10.214.
+	 Executed 8 tests, with 1 failure (0 unexpected) in 146.674 (146.679) seconds
+Test Suite 'BearLockUITests.xctest' failed at 2026-09-02 01:18:10.214.
+	 Executed 8 tests, with 1 failure (0 unexpected) in 146.674 (146.680) seconds
+Test Suite 'Selected tests' failed at 2026-09-02 01:18:10.215.
+	 Executed 8 tests, with 1 failure (0 unexpected) in 146.674 (146.683) seconds
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2ETests.xcresult
+
+Testing started
+
