@@ -1,6 +1,6 @@
 # Bear Lock TODO
 
-2026-08-31時点の残タスク。TestFlight経由の実機インストール、Family Controls Distribution承認、CIでのbuild / mock e2e / screenshot取得までは完了済み。ここには、リリース前にまだ判断または確認が必要なものだけを残す。
+2026-09-02時点の残タスク。TestFlight経由の実機インストール、Family Controls Distribution承認、CIでのbuild / mock e2e / screenshot取得までは完了済み。ここには、リリース前にまだ判断または実機確認が必要なものだけを残す。
 
 ## リリースまでの実行順チェックリスト
 
@@ -8,11 +8,12 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 
 ### 1. リリース対象ビルドを固定する
 
-- [ ] GitHub Actionsの最新 `iOS CI` が成功していることを確認する。
+- [x] GitHub Actionsの最新 `iOS CI` が成功していることを確認する。
   - `swift test` が成功している。
   - simulator buildが成功している。
   - mock UI e2eが成功している。
   - screenshot artifactが生成されている。
+  - 確認: 2026-09-02の最新runで成功。
 - [ ] GitHub Actionsの最新 `iOS TestFlight Upload` が成功していることを確認する。
   - archiveが成功している。
   - ipa exportが成功している。
