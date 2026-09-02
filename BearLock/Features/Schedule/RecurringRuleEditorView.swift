@@ -90,7 +90,7 @@ struct RecurringRuleEditorView: View {
     private var weekdayGrid: some View {
         HStack {
             ForEach(Weekday.allCases, id: \.self) { weekday in
-                Button(shortName(for: weekday)) {
+                Button(weekday.shortName()) {
                     if selectedWeekdays.contains(weekday) {
                         selectedWeekdays.remove(weekday)
                     } else {
@@ -150,15 +150,4 @@ struct RecurringRuleEditorView: View {
         return Calendar.current.date(from: base) ?? Date()
     }
 
-    private func shortName(for weekday: Weekday) -> String {
-        switch weekday {
-        case .sunday: return "S"
-        case .monday: return "M"
-        case .tuesday: return "T"
-        case .wednesday: return "W"
-        case .thursday: return "T"
-        case .friday: return "F"
-        case .saturday: return "S"
-        }
-    }
 }

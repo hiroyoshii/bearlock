@@ -16,6 +16,7 @@
 "Clear Diagnostics" = "Clear Diagnostics";
 "Come back later" = "Come back later";
 "Confirm shield appears" = "Confirm shield appears";
+"Confirm shield clears" = "Confirm shield clears";
 "Confirmation" = "Confirmation";
 "Create a short lock" = "Create a short lock";
 "Date" = "Date";
@@ -43,6 +44,13 @@
 "Hibernate" = "Start Lock";
 "In" = "In";
 "Last error" = "Last error";
+"Last warning" = "Last warning";
+"Trace" = "Trace";
+"Selection" = "Selection";
+"Lock" = "Lock";
+"DeviceActivity" = "DeviceActivity";
+"Shield" = "Shield";
+"Shield UI" = "Shield UI";
 "Next" = "Next";
 "No" = "No";
 "No blocked apps are selected." = "No blocked apps are selected.";
@@ -83,7 +91,7 @@
 "Choose a lock duration longer than zero." = "Choose a lock duration longer than zero.";
 "Choose a start time in the future." = "Choose a start time in the future.";
 "Choose at least one weekday." = "Choose at least one weekday.";
-"This overlaps an existing lock. Edit the schedule or choose a different time." = "This overlaps an existing lock. Edit the schedule or choose a different time.";
+"This overlaps an existing lock. Edit the schedule or choose a different time." = "This overlaps a scheduled lock. Choose a time that does not overlap.";
 "This lock is already active and cannot be changed." = "This lock is already active and cannot be changed.";
 "This lock has already started and cannot be changed." = "This lock has already started and cannot be changed.";
 "Only repeating locks can be changed here." = "Only repeating locks can be changed here.";

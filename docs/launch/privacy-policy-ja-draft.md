@@ -56,7 +56,7 @@ Bear Lockは、アプリブロック機能を提供するためにScreen Time / 
 
 ## 連絡先
 
-サポート連絡先: TBD
+サポート連絡先: support@hiyozoo.com
 
 ## 変更
 

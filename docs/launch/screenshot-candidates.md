@@ -49,7 +49,6 @@ These are better for internal QA and review evidence than polished App Store scr
 
 ## Needed Before Final App Store Screenshots
 
-- Replace placeholder bundle identifiers and sign with the real team.
 - Decide whether iPhone-only screenshots are enough for first submission.
 - Capture final screenshots from a signed build after entitlement approval.
 - Confirm final Japanese/English localization direction.

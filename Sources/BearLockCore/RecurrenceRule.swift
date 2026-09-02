@@ -99,3 +99,29 @@ public enum Weekday: Int, Codable, CaseIterable, Comparable, Sendable {
         lhs.rawValue < rhs.rawValue
     }
 }
+
+public extension Weekday {
+    func shortName(locale: Locale = .current) -> String {
+        if locale.language.languageCode == .japanese {
+            switch self {
+            case .sunday: return "日"
+            case .monday: return "月"
+            case .tuesday: return "火"
+            case .wednesday: return "水"
+            case .thursday: return "木"
+            case .friday: return "金"
+            case .saturday: return "土"
+            }
+        }
+
+        switch self {
+        case .sunday: return "S"
+        case .monday: return "M"
+        case .tuesday: return "T"
+        case .wednesday: return "W"
+        case .thursday: return "T"
+        case .friday: return "F"
+        case .saturday: return "S"
+        }
+    }
+}

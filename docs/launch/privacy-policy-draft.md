@@ -56,7 +56,7 @@ Bear Lock requests Screen Time / Family Controls permission to provide app block
 
 ## Contact
 
-Support contact: TBD
+Support contact: support@hiyozoo.com
 
 ## Changes
 

@@ -6,22 +6,23 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     private let activeLockReader = ShieldActiveLockReader()
 
     override func configuration(shielding application: Application) -> ShieldConfiguration {
-        return configuration()
+        return configuration(title: title(for: application.localizedDisplayName, fallbackKey: "This app is sleeping."))
     }
 
     override func configuration(shielding application: Application, in category: ActivityCategory) -> ShieldConfiguration {
-        return configuration()
+        let displayName = application.localizedDisplayName ?? category.localizedDisplayName
+        return configuration(title: title(for: displayName, fallbackKey: "This app is sleeping."))
     }
 
     override func configuration(shielding webDomain: WebDomain) -> ShieldConfiguration {
-        return configuration()
+        return configuration(title: localized("This website is sleeping."))
     }
 
     override func configuration(shielding webDomain: WebDomain, in category: ActivityCategory) -> ShieldConfiguration {
-        return configuration()
+        return configuration(title: title(for: category.localizedDisplayName, fallbackKey: "This website is sleeping."))
     }
 
-    private func configuration() -> ShieldConfiguration {
+    private func configuration(title: String) -> ShieldConfiguration {
         let subtitle = activeLockReader.unlockText() ?? localized("Locked until the scheduled time.")
 
         return ShieldConfiguration(
@@ -29,7 +30,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
             backgroundColor: UIColor(red: 0.83, green: 0.90, blue: 0.97, alpha: 1.0),
             icon: UIImage(named: "ShieldBearVisualLocked") ?? UIImage(systemName: "lock.fill"),
             title: ShieldConfiguration.Label(
-                text: localized("Bear is sleeping."),
+                text: title,
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0)
             ),
             subtitle: ShieldConfiguration.Label(
@@ -46,5 +47,15 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
 
     private func localized(_ key: String) -> String {
         NSLocalizedString(key, bundle: Bundle(for: Self.self), comment: "")
+    }
+
+    private func title(for displayName: String?, fallbackKey: String) -> String {
+        guard let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !displayName.isEmpty
+        else {
+            return localized(fallbackKey)
+        }
+
+        return String(format: localized("%@ is sleeping."), displayName)
     }
 }

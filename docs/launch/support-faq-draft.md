@@ -57,4 +57,4 @@ Send:
 - Screenshots of the relevant Bear Lock screen.
 - A screenshot of `Settings > Diagnostics`.
 
-Support contact: TBD
+Support contact: support@hiyozoo.com

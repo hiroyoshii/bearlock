@@ -16,6 +16,7 @@
 "Clear Diagnostics" = "診断ログを消去";
 "Come back later" = "あとで戻る";
 "Confirm shield appears" = "シールド表示を確認する";
+"Confirm shield clears" = "シールド解除を確認する";
 "Confirmation" = "確認";
 "Create a short lock" = "短いロックを作成する";
 "Date" = "日時";
@@ -43,6 +44,13 @@
 "Hibernate" = "ロック開始";
 "In" = "後で";
 "Last error" = "最後のエラー";
+"Last warning" = "最後の警告";
+"Trace" = "トレース";
+"Selection" = "選択";
+"Lock" = "ロック";
+"DeviceActivity" = "DeviceActivity";
+"Shield" = "シールド";
+"Shield UI" = "シールドUI";
 "Next" = "次回";
 "No" = "いいえ";
 "No blocked apps are selected." = "ブロック対象アプリが選択されていません。";
@@ -83,7 +91,7 @@
 "Choose a lock duration longer than zero." = "ロック時間を1分以上にしてください。";
 "Choose a start time in the future." = "未来の開始時刻を選んでください。";
 "Choose at least one weekday." = "曜日を1つ以上選んでください。";
-"This overlaps an existing lock. Edit the schedule or choose a different time." = "既存のロック予定と時間が重なっています。予定を編集するか、重ならない時間を選んでください。";
+"This overlaps an existing lock. Edit the schedule or choose a different time." = "予約時間と重なっています。重ならない時間を選んでください。";
 "This lock is already active and cannot be changed." = "このロックは実行中のため変更できません。";
 "This lock has already started and cannot be changed." = "このロックは開始済みのため変更できません。";
 "Only repeating locks can be changed here." = "ここで変更できるのは繰り返しロックだけです。";

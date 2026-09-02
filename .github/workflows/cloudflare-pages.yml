@@ -1,0 +1,51 @@
+name: Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "site/**"
+      - "wrangler.toml"
+      - ".github/workflows/cloudflare-pages.yml"
+  pull_request:
+    paths:
+      - "site/**"
+      - "wrangler.toml"
+      - ".github/workflows/cloudflare-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: cloudflare-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Static Site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static files
+        run: |
+          test -f site/index.html
+          test -f site/privacy/index.html
+          test -f site/support/index.html
+          test -f site/en/index.html
+          test -f site/en/privacy/index.html
+          test -f site/en/support/index.html
+          test -f site/styles.css
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name bearlock --branch ${{ github.head_ref || github.ref_name }}

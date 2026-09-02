@@ -24,47 +24,47 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 
 ### 2. iPad実機QAを完了する
 
-- [ ] TestFlightからリリース候補ビルドを新規インストールする。
+- [x] TestFlightからリリース候補ビルドを新規インストールする。
   - 既存インストールがある場合は一度削除して、初回起動から確認する。
   - Screen Time / Family Controls権限状態も必要に応じてリセットする。
-- [ ] 初回起動でFamily Controls権限要求が表示される。
-- [ ] 権限拒否時にSetupへ戻る。
-- [ ] `FamilyActivityPicker` で対象アプリを選択できる。
-- [ ] 選択後、Homeに選択数が表示される。
+- [x] 初回起動でFamily Controls権限要求が表示される。
+- [x] 権限拒否時にSetupへ戻る。
+- [x] `FamilyActivityPicker` で対象アプリを選択できる。
+- [x] 選択後、Homeに選択数が表示される。
 - [ ] 空の対象選択では保存またはロック開始ができない。
-- [ ] 1から2分のNow lockを開始する。
-- [ ] 確定直後に対象アプリへShieldが出る。
-- [ ] カスタムShield画像の表示サイズ、文言、余白が自然に見える。
-- [ ] Shield側に解除予定時刻が明確に表示される。
-- [ ] Bear LockのActive画面に残り時間が表示される。
-- [ ] Active画面に早期解除ボタンがない。
-- [ ] 終了時刻後、対象アプリが開ける。
-- [ ] 1分後開始、1分継続のDelayed lockを予約する。
-- [ ] Bear Lockをバックグラウンドにしたまま、開始時刻に対象アプリへShieldが出る。
-- [ ] Delayed lockの終了時刻後、対象アプリが開ける。
-- [ ] 今日の曜日で数分後開始のRecurring ruleを作る。
-- [ ] Recurring lockの開始時刻に対象アプリへShieldが出る。
-- [ ] active中に親recurringを編集または削除しても、現在のlockが解除されない。
-- [ ] Recurring lockの終了時刻後、Shieldが解除される。
-- [ ] scheduled中にアプリを再起動して、予定が復元される。
-- [ ] active中にアプリを再起動して、Active画面が復元される。
-- [ ] iOS SettingsでScreen Time権限を取り消した場合、Setupまたはrecovery状態へ戻る。
-- [ ] `Settings > Diagnostics` にAuthorization、Target selections、Scheduled rules、Recurring rules、Active lock、Safety policyが表示される。
-- [ ] `Settings > Diagnostics` のRecent Eventsに操作ログが新しい順で残る。
-- [ ] ロック終了後も解除されない場合に備え、Diagnosticsのスクショ手順を確認する。
-- [ ] Webサイトロックを実機で確認する。
+- [x] 1から2分のNow lockを開始する。
+- [x] 確定直後に対象アプリへShieldが出る。
+- [x] カスタムShield画像の表示サイズ、文言、余白が自然に見える。
+- [x] Shield側に解除予定時刻が明確に表示される。
+- [x] Bear LockのActive画面に残り時間が表示される。
+- [x] Active画面に早期解除ボタンがない。
+- [x] 終了時刻後、対象アプリが開ける。
+- [x] 1分後開始、1分継続のDelayed lockを予約する。
+- [x] Bear Lockをバックグラウンドにしたまま、開始時刻に対象アプリへShieldが出る。
+- [x] Delayed lockの終了時刻後、対象アプリが開ける。
+- [x] 今日の曜日で数分後開始のRecurring ruleを作る。
+- [x] Recurring lockの開始時刻に対象アプリへShieldが出る。
+- [x] active中に親recurringを編集または削除しても、現在のlockが解除されない。
+- [x] Recurring lockの終了時刻後、Shieldが解除される。
+- [x] scheduled中にアプリを再起動して、予定が復元される。
+- [x] active中にアプリを再起動して、Active画面が復元される。
+- [x] iOS SettingsでScreen Time権限を取り消した場合、Setupまたはrecovery状態へ戻る。
+- [x] `Settings > Diagnostics` にAuthorization、Target selections、Scheduled rules、Recurring rules、Active lock、Safety policyが表示される。
+- [x] `Settings > Diagnostics` のRecent Eventsに操作ログが新しい順で残る。
+- [x] ロック終了後も解除されない場合に備え、Diagnosticsのスクショ手順を確認する。
+- [x] Webサイトロックを実機で確認する。
 - [ ] QA中に見つけた問題は、再現手順、期待結果、実際の結果、Diagnosticsスクショ、端末/iOSバージョンをメモする。
 
 #### QAで見つかった問題
 
-- [ ] 予約がある状態で `今すぐ` ロックを開始したときの挙動を仕様化する。
+- [x] 予約がある状態で `今すぐ` ロックを開始したときの挙動を仕様化する。
   - 現象: 既存予約と `今すぐ` ロックの時間帯が重なると `LockValidationError 3` が出る。
   - 原因候補: `LockValidationError.overlappingLock`。既存の予定ロックと新規ロックの時間帯重複を拒否している。
   - 期待仕様案A: 既存予約と重なる `今すぐ` ロックは拒否する。
   - 期待仕様案B: 既存予約の開始前までなら `今すぐ` ロックを短縮して開始できるようにする。
-  - リリース前判断: MVPでは案Aでよいが、ユーザー向けエラー文言を必ず出す。
-- [ ] `LockValidationError 3` の生エラー表示をユーザー向け文言に置き換える。
-  - 表示案: `既存のロック予定と時間が重なっています。予定を編集するか、重ならない時間を選んでください。`
+  - リリース前判断: MVPでは案A。既存予約と重なる `今すぐ` ロックは拒否し、ユーザー向けエラー文言を出す。
+- [x] `LockValidationError 3` の生エラー表示をユーザー向け文言に置き換える。
+  - 表示文言: `予約時間と重なっています。重ならない時間を選んでください。`
   - Diagnosticsには内部エラー種別として `overlappingLock` を残す。
 - [ ] 予約あり状態の `今すぐ` QAケースを追加する。
   - 予約と重ならない時間の `今すぐ` ロックは開始できる。
@@ -79,6 +79,20 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
   - 現象: ロック対象アプリのアイコン横に出る対象名が白字になり、白背景上で見えづらい。
   - 対応: 保存済み対象の `Label` に専用スタイルを適用し、タイトル文字色を `AppTheme.navy` に固定した。
   - 確認: アプリ、カテゴリ、Webサイトの各行で、アイコン横の名前が白字ではなく濃色で表示される。
+- [ ] Shield画面のタイトルが、対象アプリ名を主語にして表示されることを確認する。
+  - 対応: Shield configuration extension内で取得できる `Application.localizedDisplayName` を使い、`<アプリ名>は眠っています。` と表示する。
+  - 確認: 対象アプリを開いたとき、`熊は眠っています。` ではなく対象アプリ名がタイトルに出る。
+  - 確認: アプリ名が取得できない場合は `このアプリは眠っています。` と表示される。
+  - 確認: Webサイトは `このWebサイトは眠っています。` と表示される。
+- [ ] 日本語環境で曜日ボタンが `日 月 火 水 木 金 土` 表示になることを確認する。
+  - 対応: `Weekday.shortName(locale:)` を追加し、日本語ロケールでは漢字1文字、英語などその他ロケールでは `S M T W T F S` を返すようにした。
+  - 確認: 新規Recurring作成画面で曜日が日本語表示になる。
+  - 確認: Recurring編集画面で曜日が日本語表示になる。
+  - 確認: 英語環境では従来通り `S M T W T F S` 表示になる。
+- [x] アプリ本体とShield拡張のローカライズキー差分がないことを確認する。
+  - 対応: 本体 `en.lproj` / `ja.lproj`、Shield拡張 `en.lproj` / `ja.lproj` のキー差分が0件であることを確認した。
+  - 対応: Active画面と予約サマリーの `Wakes at` / `Starts` / `Wakes` をローカライズキー経由にした。
+  - 対応: Diagnosticsの未登録キーを追加した。
 
 ### 3. リリース範囲を決める
 
@@ -105,7 +119,14 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
   - Age Rating
 - [ ] 価格を無料に設定する。
 - [ ] Privacy Policy URLを設定する。
+  - Cloudflare Pages用の静的ページは `site/privacy/` と `site/en/privacy/` に用意済み。
+  - GitHub ActionsからCloudflare Pagesへdeployするworkflowは `.github/workflows/cloudflare-pages.yml` に用意済み。
+  - GitHub Secretsに `CLOUDFLARE_ACCOUNT_ID` と `CLOUDFLARE_API_TOKEN` を登録する。
+  - デプロイ後、App Store Connectに本番URLを入力する。
 - [ ] Support URLを設定する。
+  - Cloudflare Pages用の静的ページは `site/support/` と `site/en/support/` に用意済み。
+  - デプロイ前に `support@hiyozoo.com` が正しい連絡先か確認する。
+  - デプロイ後、App Store Connectに本番URLを入力する。
 - [ ] Marketing URLまたはLP URLを設定するか決める。
 - [ ] 日本語メタデータを登録する。
   - 説明文
@@ -237,16 +258,16 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - [ ] 空選択で保存/ロック開始できない。
 - [x] 1から2分のNow lockで対象アプリにShieldが出る。
 - [x] カスタムShield画像が表示される。
-- [ ] カスタムShield画像の表示サイズ、文言、余白が自然か確認する。
+- [x] カスタムShield画像の表示サイズ、文言、余白が自然か確認する。
 - [x] Shield側に「解除予定時刻」を明確に表示する。
-- [ ] ロック中にBear Lock側から早期解除できない。
-- [ ] 終了時刻後にShieldが解除される。
-- [ ] Delayed lockがバックグラウンド中に開始する。
-- [ ] Recurring lockが指定時刻に開始する。
-- [ ] active中の親recurring編集で現在のlockが解除されない。
-- [ ] 権限取消時のrecovery表示が破綻しない。
-- [ ] `Settings > Diagnostics` に必要な状態とログが残り、実機トラブル時に原因追跡できる。
-- [ ] Webサイトロックを実機で確認する。
+- [x] ロック中にBear Lock側から早期解除できない。
+- [x] 終了時刻後にShieldが解除される。
+- [x] Delayed lockがバックグラウンド中に開始する。
+- [x] Recurring lockが指定時刻に開始する。
+- [x] active中の親recurring編集で現在のlockが解除されない。
+- [x] 権限取消時のrecovery表示が破綻しない。
+- [x] `Settings > Diagnostics` に必要な状態とログが残り、実機トラブル時に原因追跡できる。
+- [x] Webサイトロックを実機で確認する。
 
 ## リリース前の判断事項
 

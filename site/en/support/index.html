@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bear Lock Support</title>
+    <meta name="description" content="Bear Lock support and FAQ.">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/en/">Bear Lock</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="/en/privacy/">Privacy</a>
+        <a href="/support/">日本語</a>
+      </nav>
+    </header>
+    <main>
+      <p class="eyebrow">Support</p>
+      <h1>Support / FAQ</h1>
+
+      <h2>What Is Bear Lock?</h2>
+      <p>Bear Lock helps you choose distracting apps, categories, and websites, then block them with iOS Screen Time shields during a scheduled lock window. Once a lock starts, Bear Lock does not provide an in-app early unlock button.</p>
+
+      <h2>Bear Lock Is Not Blocking Apps</h2>
+      <p>Check the following:</p>
+      <ul>
+        <li>Screen Time / Family Controls permission is granted.</li>
+        <li>At least one app, category, or website has been selected.</li>
+        <li>The current time is inside an active lock window.</li>
+        <li>The app was selected directly or belongs to a selected category.</li>
+        <li><code>Settings > Diagnostics</code> shows diagnostics can be written.</li>
+      </ul>
+      <p>If the lock should be active but apps are still opening, take screenshots of the active lock screen and <code>Settings > Diagnostics</code>.</p>
+
+      <h2>The Permission Prompt Does Not Appear</h2>
+      <ul>
+        <li>Open iOS Settings and confirm Screen Time is available on the device.</li>
+        <li>Restart Bear Lock.</li>
+        <li>Reinstall the app if this is a TestFlight or development build.</li>
+        <li>Confirm the installed build has the Family Controls entitlement.</li>
+      </ul>
+      <p>This feature cannot be fully verified on Simulator. It requires a physical iPhone or iPad with the proper Apple entitlement.</p>
+
+      <h2>The Lock Ended But Apps Are Still Blocked</h2>
+      <ul>
+        <li>Open Bear Lock and wait for it to refresh.</li>
+        <li>Check whether the active lock end time has passed.</li>
+        <li>Open <code>Settings > Diagnostics</code> and look for <code>ActiveLock.completed</code> and <code>Shield.clear.succeeded</code>.</li>
+        <li>If the shield remains during testing, revoke and re-enable Screen Time permission from iOS Settings.</li>
+      </ul>
+
+      <h2>Why Is There No Unlock Button?</h2>
+      <p>Bear Lock is built around pre-commitment. The user chooses the apps and schedule before a lock starts, and Bear Lock protects that choice during the lock. Removing the in-app unlock path is intentional.</p>
+      <p>System-level controls still exist outside Bear Lock, including iOS Settings, app deletion, and account-level changes.</p>
+
+      <h2>What Data Does Bear Lock Send?</h2>
+      <p>Bear Lock sends no data to Bear Lock servers. It has no account, no cloud sync, no analytics, no ads, and no tracking. Lock schedules, app selection tokens, and Diagnostics are local to the device.</p>
+
+      <h2>How Do I Report A Problem?</h2>
+      <ul>
+        <li>What you expected to happen.</li>
+        <li>What happened instead.</li>
+        <li>Device model and iOS version.</li>
+        <li>Screenshots of the relevant Bear Lock screen.</li>
+        <li>A screenshot of <code>Settings > Diagnostics</code>.</li>
+      </ul>
+      <p>Support contact: <a href="mailto:support@hiyozoo.com">support@hiyozoo.com</a></p>
+    </main>
+    <footer class="site-footer">
+      <p><a href="/en/">Bear Lock</a></p>
+    </footer>
+  </body>
+</html>

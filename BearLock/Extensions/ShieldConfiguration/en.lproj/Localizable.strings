@@ -1,5 +1,8 @@
 "Bear is sleeping." = "Bear is sleeping.";
 "Do not wake the bear." = "Do not wake the bear.";
+"%@ is sleeping." = "%@ is sleeping.";
+"This app is sleeping." = "This app is sleeping.";
+"This website is sleeping." = "This website is sleeping.";
 "Locked until the scheduled time." = "Locked until the scheduled time.";
 "Unlocks at %@" = "Unlocks at %@";
 "Come back later" = "Come back later";

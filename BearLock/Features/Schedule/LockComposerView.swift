@@ -198,7 +198,7 @@ struct LockComposerView: View {
 
             HStack {
                 ForEach(Weekday.allCases, id: \.self) { weekday in
-                    Button(shortName(for: weekday)) {
+                    Button(weekday.shortName()) {
                         if selectedWeekdays.contains(weekday) {
                             selectedWeekdays.remove(weekday)
                         } else {
@@ -217,8 +217,8 @@ struct LockComposerView: View {
         let end = start.addingTimeInterval(durationMinutes * 60)
 
         return VStack(alignment: .leading, spacing: 4) {
-            Text("Starts \(start.formatted(date: .abbreviated, time: .shortened))")
-            Text("Wakes \(end.formatted(date: .abbreviated, time: .shortened))")
+            Text(L10n.format("Starts %@", start.formatted(date: .abbreviated, time: .shortened)))
+            Text(L10n.format("Wakes %@", end.formatted(date: .abbreviated, time: .shortened)))
         }
         .font(.subheadline)
         .foregroundStyle(AppTheme.navy.opacity(0.68))
@@ -368,18 +368,6 @@ struct LockComposerView: View {
         base.hour = components.hour
         base.minute = components.minute
         return Calendar.current.date(from: base) ?? Date()
-    }
-
-    private func shortName(for weekday: Weekday) -> String {
-        switch weekday {
-        case .sunday: return "S"
-        case .monday: return "M"
-        case .tuesday: return "T"
-        case .wednesday: return "W"
-        case .thursday: return "T"
-        case .friday: return "F"
-        case .saturday: return "S"
-        }
     }
 
     private var confirmationBinding: Binding<LockConfirmationDetails?> {

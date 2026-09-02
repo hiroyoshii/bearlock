@@ -55,4 +55,4 @@ MVPではデータ送信を行いません。アカウント、クラウド同�
 - 該当画面のスクリーンショット。
 - `Settings > Diagnostics` のスクリーンショット。
 
-サポート連絡先: TBD
+サポート連絡先: support@hiyozoo.com

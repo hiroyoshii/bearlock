@@ -13,6 +13,7 @@
 - `support-faq-ja-draft.md`: Support / FAQ日本語草案。
 - `landing-page-outline.md`: アプリ用LP構成案。
 - `screenshot-candidates.md`: CI artifactから選ぶスクショ候補。
+- `cloudflare-pages.md`: Cloudflare PagesでPrivacy / Supportサイトを公開する手順。
 
 ## Next
 

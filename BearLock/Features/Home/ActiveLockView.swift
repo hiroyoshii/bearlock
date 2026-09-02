@@ -23,7 +23,7 @@ struct ActiveLockView: View {
                 .monospacedDigit()
                 .foregroundStyle(AppTheme.navy)
 
-            Text("Wakes at \(activeLock.endsAt.formatted(date: .omitted, time: .shortened))")
+            Text(L10n.format("Wakes at %@", activeLock.endsAt.formatted(date: .omitted, time: .shortened)))
                 .font(.subheadline)
                 .foregroundStyle(AppTheme.navy.opacity(0.72))
         }
