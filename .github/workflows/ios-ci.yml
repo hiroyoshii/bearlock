@@ -93,9 +93,9 @@ jobs:
           mkdir -p artifacts "$E2E_SCREENSHOT_DIR"
           rm -rf /tmp/bearlock-e2e-screenshots
 
-      - name: Run setup screen UI e2e
+      - name: Run mock UI e2e
         if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
+        timeout-minutes: 25
         continue-on-error: true
         run: |
           set -o pipefail
@@ -104,122 +104,17 @@ jobs:
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-setup.xcresult" \
+            -resultBundlePath "$E2E_RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-setup.log || touch artifacts/e2e-setup.failed
-
-      - name: Run immediate lock UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-immediate.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-immediate.log || touch artifacts/e2e-immediate.failed
-
-      - name: Run empty home UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-empty-home.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-empty-home.log || touch artifacts/e2e-empty-home.failed
-
-      - name: Run delayed lock UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-delayed.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-delayed.log || touch artifacts/e2e-delayed.failed
-
-      - name: Run recurring lock UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-recurring.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-recurring.log || touch artifacts/e2e-recurring.failed
-
-      - name: Run disabled recurring UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-disabled-recurring.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-disabled-recurring.log || touch artifacts/e2e-disabled-recurring.failed
-
-      - name: Run active lock constraint UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-active-lock.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-active-lock.log || touch artifacts/e2e-active-lock.failed
-
-      - name: Run support screen UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
-        timeout-minutes: 5
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          xcodebuild \
-            -project "$PROJECT" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "artifacts/BearLockE2E-support.xcresult" \
-            CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e-support.log || touch artifacts/e2e-support.failed
+            test-without-building | tee artifacts/xcodebuild-ui-e2e.log || touch artifacts/e2e-ui.failed
 
       - name: Collect mock UI e2e screenshots
         if: env.RUN_MOCK_E2E == 'true'
@@ -337,7 +232,7 @@ jobs:
               echo "Mock UI e2e failures:"
               ls -1 artifacts/*.failed
               echo
-              for log in artifacts/xcodebuild-ui-e2e-*.log; do
+              for log in artifacts/xcodebuild-ui-e2e*.log; do
                 echo "===== $log ====="
                 tail -n 160 "$log"
                 echo
