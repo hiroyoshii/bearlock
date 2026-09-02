@@ -42,11 +42,11 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["Settings"].tap()
 
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
-        scrollToStaticText("Support Bear Lock", in: app)
+        scrollToStaticText("Support", in: app)
         app.buttons["settings-support-link"].tap()
 
-        XCTAssertTrue(app.navigationBars["Support Bear Lock"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Bear Lock is free. No ads, accounts, or subscriptions."].exists)
+        XCTAssertTrue(app.navigationBars["Support"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Free to use. No ads, accounts, or subscriptions."].exists)
         XCTAssertTrue(app.staticTexts["Coffee"].exists)
         XCTAssertTrue(app.staticTexts["Lunch"].exists)
         XCTAssertTrue(app.staticTexts["Dinner"].exists)
