@@ -10,7 +10,7 @@ on:
       - "site/**"
       - "todo.md"
       - "wrangler.toml"
-      - ".github/workflows/cloudflare-pages.yml"
+      - ".github/workflows/cloudflare-workers.yml"
   workflow_dispatch:
 
 permissions:

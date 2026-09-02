@@ -1,3 +1,7 @@
 name = "bearlock"
-compatibility_date = "2026-09-01"
-pages_build_output_dir = "site"
+compatibility_date = "2026-09-02"
+workers_dev = true
+
+[assets]
+directory = "./site"
+not_found_handling = "404-page"

@@ -1,4 +1,4 @@
-name: Cloudflare Pages
+name: Cloudflare Workers
 
 on:
   push:
@@ -7,12 +7,12 @@ on:
     paths:
       - "site/**"
       - "wrangler.toml"
-      - ".github/workflows/cloudflare-pages.yml"
+      - ".github/workflows/cloudflare-workers.yml"
   pull_request:
     paths:
       - "site/**"
       - "wrangler.toml"
-      - ".github/workflows/cloudflare-pages.yml"
+      - ".github/workflows/cloudflare-workers.yml"
   workflow_dispatch:
 
 permissions:
@@ -20,12 +20,12 @@ permissions:
   deployments: write
 
 concurrency:
-  group: cloudflare-pages-${{ github.ref }}
+  group: cloudflare-workers-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   deploy:
-    name: Deploy Static Site
+    name: Deploy Static Assets
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -46,14 +46,14 @@ jobs:
           test -f site/en/support/index.html
           test -f site/styles.css
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         if: ${{ env.CLOUDFLARE_API_TOKEN_VALUE != '' && env.CLOUDFLARE_ACCOUNT_ID_VALUE != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN_VALUE }}
           accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID_VALUE }}
-          command: pages deploy site --project-name bearlock --branch ${{ github.head_ref || github.ref_name }}
+          command: deploy
 
       - name: Skip deploy without Cloudflare secrets
         if: ${{ env.CLOUDFLARE_API_TOKEN_VALUE == '' || env.CLOUDFLARE_ACCOUNT_ID_VALUE == '' }}
-        run: echo "Cloudflare Pages deploy skipped because secrets are not configured."
+        run: echo "Cloudflare Workers deploy skipped because secrets are not configured."

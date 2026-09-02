@@ -120,12 +120,12 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
   - Age Rating
 - [ ] 価格を無料に設定する。
 - [ ] Privacy Policy URLを設定する。
-  - Cloudflare Pages用の静的ページは `site/privacy/` と `site/en/privacy/` に用意済み。
-  - GitHub ActionsからCloudflare Pagesへdeployするworkflowは `.github/workflows/cloudflare-pages.yml` に用意済み。
+  - Cloudflare Workers Static Assets用の静的ページは `site/privacy/` と `site/en/privacy/` に用意済み。
+  - GitHub ActionsからCloudflare Workersへdeployするworkflowは `.github/workflows/cloudflare-workers.yml` に用意済み。
   - GitHub Secretsに `CLOUDFLARE_ACCOUNT_ID` と `CLOUDFLARE_API_TOKEN` を登録する。
   - デプロイ後、App Store Connectに本番URLを入力する。
 - [ ] Support URLを設定する。
-  - Cloudflare Pages用の静的ページは `site/support/` と `site/en/support/` に用意済み。
+  - Cloudflare Workers Static Assets用の静的ページは `site/support/` と `site/en/support/` に用意済み。
   - デプロイ前に `support@hiyozoo.com` が正しい連絡先か確認する。
   - デプロイ後、App Store Connectに本番URLを入力する。
 - [ ] Marketing URLまたはLP URLを設定するか決める。
