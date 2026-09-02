@@ -67,6 +67,10 @@ Secondary category candidate:
 
 Health & Fitness
 
+## Device Support
+
+First release: iPhone only. Use iPhone screenshots in App Store Connect.
+
 ## Age Rating Notes
 
 Bear Lock does not contain user-generated content, web browsing, commerce, gambling, or social features. It uses Screen Time permissions to restrict selected apps at the user's request.

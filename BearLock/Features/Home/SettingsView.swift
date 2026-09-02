@@ -31,7 +31,7 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings-support-link")
             }
 
-            Section("Debug") {
+            Section("Diagnostics") {
                 NavigationLink {
                     DebugDiagnosticsView()
                 } label: {

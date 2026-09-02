@@ -47,9 +47,10 @@ Source: `bearlock-ios-ci-artifacts`.
 
 These are better for internal QA and review evidence than polished App Store screenshots.
 
-## Needed Before Final App Store Screenshots
+## Final App Store Screenshot Direction
 
-- Decide whether iPhone-only screenshots are enough for first submission.
+- Use iPhone screenshots for the first submission.
+- Do not submit iPad screenshots for the first release.
 - Capture final screenshots from a signed build after entitlement approval.
 - Confirm final Japanese/English localization direction.
 - Confirm final brand image rights and production assets.

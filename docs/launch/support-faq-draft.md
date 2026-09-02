@@ -26,7 +26,9 @@ Try:
 - Reinstall the app if this is a development build.
 - Confirm the installed build has the Family Controls entitlement.
 
-This feature cannot be fully verified on Simulator. It requires a physical iPhone or iPad with the proper Apple entitlement.
+This feature cannot be fully verified on Simulator. The first release is designed and officially supported for iPhone, and device verification should use a physical iPhone with the proper Apple entitlement.
+
+Bear Lock may run on iPad in iPhone compatibility mode, but iPad-specific layouts are not part of the first release.
 
 ## The Lock Ended But Apps Are Still Blocked
 

@@ -6,6 +6,11 @@ on:
       - main
     paths-ignore:
       - "ci-screenshots/**"
+      - "docs/**"
+      - "site/**"
+      - "todo.md"
+      - "wrangler.toml"
+      - ".github/workflows/cloudflare-pages.yml"
   workflow_dispatch:
 
 permissions:

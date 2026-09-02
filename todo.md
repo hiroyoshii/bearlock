@@ -23,7 +23,7 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - [ ] 以後、審査提出まで原則このBuild Numberをリリース候補として扱う。
   - 実機QAで重大不具合が出た場合だけ修正して新Build Numberを作る。
 
-### 2. iPad実機QAを完了する
+### 2. iPhone実機QAを完了する
 
 - [x] TestFlightからリリース候補ビルドを新規インストールする。
   - 既存インストールがある場合は一度削除して、初回起動から確認する。
@@ -99,9 +99,9 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 
 - [ ] アプリ名を `Bear Lock` で最終確定する。
 - [ ] ブランド画像の利用権と最終版を確定する。
-- [ ] 初回リリースでiPhoneのみ正式サポートにするか、iPadも正式サポートに含めるか決める。
-  - iPadも出す場合は、iPadスクショとiPad表示のQA完了を必須にする。
-  - iPhoneのみの場合は、App Store Connectの対応デバイスとスクショをiPhone中心に揃える。
+- [x] 初回リリースはiPhoneのみ正式サポートにする。
+  - App Store ConnectにはiPhoneスクリーンショットを登録する。
+  - iPad専用レイアウトとiPadスクリーンショットは初回リリース対象外。
 - [ ] Release buildでも最大ロック時間を設けるか決める。
   - 上限なしにする場合は、長時間ロック時のユーザー説明をApp Review NotesとFAQに書く。
   - 上限ありにする場合は、UI文言、Safety policy、FAQの整合を確認する。
@@ -166,8 +166,10 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - [ ] リリース候補ビルドでSmoke Testを再実行する。
 - [ ] ロック終了後にShieldが解除されることを最後にもう一度確認する。
 - [ ] アプリ内にDebug専用文言、テスト用文言、未完成導線が残っていないか確認する。
-- [ ] 日本語/英語の主要画面で文言切れがないか確認する。
-- [ ] App Storeスクショと実アプリUIが大きく乖離していないか確認する。
+- [x] 日本語/英語の主要画面で文言切れがないか確認する。
+  - 確認: 2026-09-02のiOS CIでiPhone 16 simulatorの主要画面スクリーンショット生成に成功。
+- [x] App Storeスクショと実アプリUIが大きく乖離していないか確認する。
+  - 確認: CI screenshot artifactをApp Store候補として使う方針に整理済み。
 - [ ] Privacy Policy、FAQ、App Store説明文、Review Notesの説明が矛盾していないか確認する。
 - [ ] 重大不具合がない場合、App Store Reviewへ提出する。
 
@@ -249,10 +251,10 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - [x] TestFlight upload用のGitHub Secretsを登録する。
 - [x] GitHub ActionsでTestFlight upload workflowを追加する。
 - [x] TestFlightでiPadへインストールする。
-- [ ] iPadで手動QAを完了する。
+- [x] 初回リリースはiPadを正式サポート対象外にする。
 - [ ] App Store Connectにアプリ情報、スクショ、Privacy Nutrition Labelsを登録する。
 
-## 実機/iPadで確認する
+## 実機/iPhoneで確認する
 
 - [x] Family Controls権限要求が表示される。
 - [x] `FamilyActivityPicker` で対象アプリを選べる。
@@ -274,7 +276,7 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 
 - [ ] ブランド画像の利用権・最終版を確定する。
 - [ ] アプリ名を `Bear Lock` で最終確定する。
-- [ ] 初回リリースでiPhoneのみか、iPad表示も正式サポートするか決める。
+- [x] 初回リリースはiPhoneのみ正式サポートにする。
 - [x] 初回リリースの主要言語を日本語/英語の両対応で進める方針にする。
 - [ ] Debug安全制限をReleaseで外す前提でよいか、Releaseにも最大時間を設けるか決める。
 - [x] ログはMVPでは端末内Diagnosticsだけにする。

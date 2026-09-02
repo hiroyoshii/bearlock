@@ -69,7 +69,7 @@
 "Recent Events" = "最近のイベント";
 "Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared." = "繰り返しルールの変更は次回以降に反映されます。現在のロックは短縮・解除されません。";
 "Recurring rules" = "繰り返し予定";
-"Release limits" = "リリース設定";
+"Uses selected schedule" = "選択した予定に従います";
 "Repeat" = "繰り返し";
 "Repeats" = "繰り返し";
 "Save" = "保存";

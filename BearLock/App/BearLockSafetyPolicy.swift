@@ -18,7 +18,7 @@ enum BearLockSafetyPolicy {
         if let maximumDuration {
             return L10n.format("Debug safety: max %d min", Int(maximumDuration / 60))
         }
-        return L10n.string("Release limits")
+        return L10n.string("Uses selected schedule")
     }
 
     static func validate(_ request: LockCreationRequest) throws {

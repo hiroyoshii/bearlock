@@ -67,6 +67,10 @@ Bear Lockの利用にはScreen Time / Family Controls権限が必要です。iOS
 
 ヘルスケア/フィットネス
 
+## 対応デバイス
+
+初回リリースはiPhoneのみ正式対応。App Store ConnectにはiPhoneスクリーンショットを登録する。
+
 ## 審査メモ日本語版
 
 Bear Lockは、ユーザー本人が選んだアプリやカテゴリを、指定した時間だけScreen Timeシールドでブロックする自己制御アプリです。

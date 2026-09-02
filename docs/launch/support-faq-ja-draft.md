@@ -26,7 +26,9 @@ Bear Lockは、使いすぎてしまうアプリやカテゴリを選び、指�
 - 開発ビルドの場合はアプリを再インストールする。
 - インストールしたビルドにFamily Controls entitlementが含まれているか確認する。
 
-この機能はSimulatorだけでは完全に確認できません。Family Controls entitlementが有効な実機iPhoneまたはiPadが必要です。
+この機能はSimulatorだけでは完全に確認できません。初回リリースはiPhone向けに設計し、正式サポートもiPhoneのみとします。端末確認はFamily Controls entitlementが有効な実機iPhoneで行います。
+
+iPadではiPhone互換表示で動作する場合がありますが、iPad専用レイアウトは初回リリースの正式サポート対象外です。
 
 ## ロック終了後もアプリがブロックされたまま
 

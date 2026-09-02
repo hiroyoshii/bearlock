@@ -77,8 +77,12 @@ Questions to include:
 - Why does Bear Lock need Screen Time permission?
 - Can I unlock early?
 - Does Bear Lock see which apps I select?
-- Does it work on iPad?
+- Does Bear Lock support iPad?
 - What if a lock does not end correctly?
+
+Answer direction for iPad:
+
+The first release is designed and officially supported for iPhone. It may run on iPad in iPhone compatibility mode, but iPad-specific layouts are not part of the first release.
 
 ## Tone
 

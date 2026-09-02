@@ -45,6 +45,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: BearLock/App/BearLock.entitlements
         INFOPLIST_FILE: BearLock/App/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
       configs:
         Release:
           CODE_SIGN_STYLE: Manual
@@ -66,6 +67,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.screenshot
         INFOPLIST_FILE: BearLock/App/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
   BearLockMonitorExtension:
     type: app-extension
     platform: iOS
