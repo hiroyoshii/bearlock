@@ -32,9 +32,7 @@ struct SettingsView: View {
                 }
 
                 LabeledContent("Version", value: appVersion)
-            }
 
-            Section("Optional support") {
                 NavigationLink {
                     SupportView()
                 } label: {
