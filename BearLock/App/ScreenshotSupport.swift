@@ -161,17 +161,17 @@ private enum ScreenshotFixtures {
 
     static let target = LockTargetSelectionRef(
         id: targetID,
-        displayName: L10n.string("SNS, Video, Games")
+        displayName: L10n.format("%d targets", 3)
     )
 
     static let workTarget = LockTargetSelectionRef(
         id: workTargetID,
-        displayName: L10n.string("Work distractions")
+        displayName: L10n.format("%d targets", 5)
     )
 
     static let sleepTarget = LockTargetSelectionRef(
         id: sleepTargetID,
-        displayName: L10n.string("Bedtime apps")
+        displayName: L10n.format("%d targets", 2)
     )
 
     static var recentLockTargets: [RecentLockTarget] {

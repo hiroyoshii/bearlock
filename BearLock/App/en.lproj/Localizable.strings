@@ -107,7 +107,9 @@
 "Start this lock?" = "Start this lock?";
 "Schedule this lock?" = "Schedule this lock?";
 "Selected targets" = "Selected targets";
-"Frequently used targets" = "Frequently used targets";
+"Recent targets" = "Recent targets";
+"Show recent targets" = "Show recent targets";
+"Hide recent targets" = "Hide recent targets";
 "SNS, Video, Games" = "SNS, Video, Games";
 "Work distractions" = "Work distractions";
 "Bedtime apps" = "Bedtime apps";
@@ -118,7 +120,8 @@
 "Pin target" = "Pin target";
 "Unpin target" = "Unpin target";
 "Remove target" = "Remove target";
-"Remove from frequent targets?" = "Remove from frequent targets?";
+"Target actions" = "Target actions";
+"Remove from recent targets?" = "Remove from recent targets?";
 "Existing schedules and the active lock will not change." = "Existing schedules and the active lock will not change.";
 "Remove" = "Remove";
 "This saved target is no longer available." = "This saved target is no longer available.";

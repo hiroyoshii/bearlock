@@ -5,48 +5,66 @@ import SwiftUI
 struct FrequentTargetListView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var pendingDeletion: RecentLockTarget?
+    @State private var isExpanded = false
 
     var body: some View {
         if !displayedTargets.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Frequently used targets")
-                    .font(.headline)
-                    .foregroundStyle(AppTheme.navy)
+            VStack(alignment: .leading, spacing: 10) {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Text("Recent targets")
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Text("\(displayedTargets.count)")
+                            .font(.caption.weight(.semibold).monospacedDigit())
+                            .foregroundStyle(AppTheme.navy.opacity(0.55))
+                        Image(systemName: "chevron.down")
+                            .font(.caption.weight(.semibold))
+                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    }
+                    .foregroundStyle(AppTheme.navy.opacity(0.72))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(
+                    Text(LocalizedStringKey(isExpanded ? "Hide recent targets" : "Show recent targets"))
+                )
+                .accessibilityIdentifier("recent-targets-disclosure")
 
-                VStack(spacing: 0) {
-                    ForEach(Array(displayedTargets.enumerated()), id: \.element.id) { index, recentTarget in
-                        if index > 0 {
-                            Divider()
-                                .overlay(AppTheme.navy.opacity(0.1))
-                                .padding(.leading, 14)
-                        }
-
-                        if let selection = selection(for: recentTarget) {
-                            FrequentTargetRow(
-                                recentTarget: recentTarget,
-                                selection: selection,
-                                isSelected: model.lockState.targetSelections.last?.id == selection.id,
-                                onSelect: {
-                                    Task {
-                                        await model.selectRecentLockTarget(recentTarget)
+                if isExpanded {
+                    VStack(spacing: 8) {
+                        ForEach(displayedTargets) { recentTarget in
+                            if let selection = selection(for: recentTarget) {
+                                FrequentTargetRow(
+                                    recentTarget: recentTarget,
+                                    selection: selection,
+                                    isSelected: model.lockState.targetSelections.last?.id == selection.id,
+                                    onSelect: {
+                                        Task {
+                                            await model.selectRecentLockTarget(recentTarget)
+                                        }
+                                    },
+                                    onSetPinned: { pinned in
+                                        Task {
+                                            await model.setRecentLockTargetPinned(recentTarget, pinned: pinned)
+                                        }
+                                    },
+                                    onDelete: {
+                                        pendingDeletion = recentTarget
                                     }
-                                },
-                                onSetPinned: { pinned in
-                                    Task {
-                                        await model.setRecentLockTargetPinned(recentTarget, pinned: pinned)
-                                    }
-                                },
-                                onDelete: {
-                                    pendingDeletion = recentTarget
-                                }
-                            )
+                                )
+                            }
                         }
                     }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
-                .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
             }
             .confirmationDialog(
-                "Remove from frequent targets?",
+                "Remove from recent targets?",
                 isPresented: deletionConfirmationBinding,
                 titleVisibility: .visible,
                 presenting: pendingDeletion
@@ -96,43 +114,60 @@ private struct FrequentTargetRow: View {
                     Spacer(minLength: 8)
 
                     if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(AppTheme.navy)
-                            .accessibilityHidden(true)
+                        Text("Selected")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(AppTheme.snow)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(AppTheme.navy, in: Capsule())
                     }
                 }
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(RecentTargetSelectionButtonStyle())
             .accessibilityValue(isSelected ? Text("Selected") : Text("Not selected"))
             .accessibilityHint("Use this saved target")
             .accessibilityIdentifier("frequent-target-select-\(recentTarget.id.uuidString)")
 
-            Button {
-                onSetPinned(!recentTarget.isPinned)
-            } label: {
-                Image(systemName: recentTarget.isPinned ? "pin.fill" : "pin")
-                    .frame(width: 36, height: 44)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(recentTarget.isPinned ? AppTheme.navy : AppTheme.steel)
-            .accessibilityLabel(
-                Text(LocalizedStringKey(recentTarget.isPinned ? "Unpin target" : "Pin target"))
-            )
-            .accessibilityIdentifier("frequent-target-pin-\(recentTarget.id.uuidString)")
+            Menu {
+                Button {
+                    onSetPinned(!recentTarget.isPinned)
+                } label: {
+                    Label(
+                        recentTarget.isPinned ? "Unpin target" : "Pin target",
+                        systemImage: recentTarget.isPinned ? "pin.slash" : "pin"
+                    )
+                }
 
-            Button(role: .destructive, action: onDelete) {
-                Image(systemName: "trash")
+                Button(role: .destructive, action: onDelete) {
+                    Label("Remove target", systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis")
                     .frame(width: 36, height: 44)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.red)
-            .accessibilityLabel("Remove target")
-            .accessibilityIdentifier("frequent-target-delete-\(recentTarget.id.uuidString)")
+            .foregroundStyle(AppTheme.navy.opacity(0.68))
+            .accessibilityLabel("Target actions")
+            .accessibilityIdentifier("frequent-target-actions-\(recentTarget.id.uuidString)")
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(isSelected ? AppTheme.ice.opacity(0.55) : Color.clear)
+        .background(isSelected ? AppTheme.ice : AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isSelected ? AppTheme.navy : AppTheme.navy.opacity(0.1), lineWidth: isSelected ? 2 : 1)
+        }
+        .animation(.easeInOut(duration: 0.18), value: isSelected)
+    }
+}
+
+private struct RecentTargetSelectionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .opacity(configuration.isPressed ? 0.72 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 

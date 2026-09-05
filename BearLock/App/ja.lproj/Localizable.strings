@@ -107,7 +107,9 @@
 "Start this lock?" = "このロックを開始しますか？";
 "Schedule this lock?" = "このロックを予約しますか？";
 "Selected targets" = "選択済み対象";
-"Frequently used targets" = "よく使う対象";
+"Recent targets" = "最近使った対象";
+"Show recent targets" = "最近使った対象を表示";
+"Hide recent targets" = "最近使った対象を隠す";
 "SNS, Video, Games" = "SNS・動画・ゲーム";
 "Work distractions" = "仕事中の誘惑";
 "Bedtime apps" = "就寝用";
@@ -118,7 +120,8 @@
 "Pin target" = "対象を固定";
 "Unpin target" = "対象の固定を解除";
 "Remove target" = "対象を削除";
-"Remove from frequent targets?" = "よく使う対象から削除しますか？";
+"Target actions" = "対象の操作";
+"Remove from recent targets?" = "最近使った対象から削除しますか？";
 "Existing schedules and the active lock will not change." = "作成済みの予定と実行中のロックは変更されません。";
 "Remove" = "削除";
 "This saved target is no longer available." = "この保存済み対象は利用できません。";

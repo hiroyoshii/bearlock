@@ -95,15 +95,15 @@ final class BearLockAppModel: ObservableObject {
 
         let target = LockTargetSelectionRef(
             id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
-            displayName: L10n.string("SNS, Video, Games")
+            displayName: L10n.format("%d targets", 3)
         )
         let workTarget = LockTargetSelectionRef(
             id: UUID(uuidString: "12121212-1212-1212-1212-121212121212")!,
-            displayName: L10n.string("Work distractions")
+            displayName: L10n.format("%d targets", 5)
         )
         let sleepTarget = LockTargetSelectionRef(
             id: UUID(uuidString: "13131313-1313-1313-1313-131313131313")!,
-            displayName: L10n.string("Bedtime apps")
+            displayName: L10n.format("%d targets", 2)
         )
         let now = Date()
         let targetSelections = [workTarget, sleepTarget, target]

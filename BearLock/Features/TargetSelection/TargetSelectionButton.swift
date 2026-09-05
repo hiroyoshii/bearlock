@@ -122,7 +122,7 @@ struct TargetSelectionSummaryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Label("Selected targets", systemImage: "checkmark.circle")
+                Text("Selected targets")
                     .font(.headline)
                     .foregroundStyle(AppTheme.navy)
                 Spacer()

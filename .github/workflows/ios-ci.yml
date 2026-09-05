@@ -113,7 +113,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testFrequentTargetsCanBeSelectedPinnedAndDeleted \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testRecentTargetsSelectionFeedbackAndActions \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
@@ -129,8 +129,8 @@ jobs:
           fi
           for screenshot in \
             e2e-immediate-active-lock.png \
-            e2e-frequent-targets.png \
-            e2e-frequent-target-deleted.png \
+            e2e-recent-target-selected.png \
+            e2e-recent-target-deleted.png \
             e2e-delayed-deleted.png \
             e2e-recurring-disabled-list.png \
             e2e-active-lock-constraints.png
