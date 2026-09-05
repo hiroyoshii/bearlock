@@ -35,24 +35,6 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Select targets"].exists)
     }
 
-    func testSettingsShowsOptionalSupportScreen() throws {
-        let app = launchApprovedSeededApp()
-
-        XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 10))
-        app.buttons["Settings"].tap()
-
-        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
-        scrollToStaticText("Support", in: app)
-        app.buttons["settings-support-link"].tap()
-
-        XCTAssertTrue(app.navigationBars["Support"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Free to use. No ads, accounts, or subscriptions."].exists)
-        XCTAssertTrue(app.staticTexts["Coffee"].exists)
-        XCTAssertTrue(app.staticTexts["Lunch"].exists)
-        XCTAssertTrue(app.staticTexts["Dinner"].exists)
-        captureScreenshot(named: "e2e-settings-support")
-    }
-
     func testCreateImmediateLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
@@ -68,6 +50,32 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Bear is sleeping."].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Do not wake the bear."].exists)
         captureScreenshot(named: "e2e-immediate-active-lock")
+    }
+
+    func testFrequentTargetsCanBeSelectedPinnedAndDeleted() throws {
+        let app = launchApprovedSeededApp()
+        let recentID = "16161616-1616-1616-1616-161616161616"
+        let selectButton = app.buttons["frequent-target-select-\(recentID)"]
+        let pinButton = app.buttons["frequent-target-pin-\(recentID)"]
+        let deleteButton = app.buttons["frequent-target-delete-\(recentID)"]
+
+        XCTAssertTrue(app.staticTexts["Frequently used targets"].waitForExistence(timeout: 10))
+        XCTAssertTrue(selectButton.exists)
+        selectButton.tap()
+        XCTAssertTrue(app.staticTexts["Bedtime apps"].waitForExistence(timeout: 5))
+
+        XCTAssertEqual(pinButton.label, "Pin target")
+        pinButton.tap()
+        let unpinnedLabel = NSPredicate(format: "label == %@", "Unpin target")
+        expectation(for: unpinnedLabel, evaluatedWith: pinButton)
+        waitForExpectations(timeout: 5)
+        captureScreenshot(named: "e2e-frequent-targets")
+
+        deleteButton.tap()
+        XCTAssertTrue(app.buttons["Remove"].waitForExistence(timeout: 5))
+        app.buttons["Remove"].tap()
+        XCTAssertFalse(selectButton.waitForExistence(timeout: 2))
+        captureScreenshot(named: "e2e-frequent-target-deleted")
     }
 
     func testScheduleEditAndDeleteDelayedLockWithMockServices() throws {

@@ -13,6 +13,14 @@ final class JSONFileLockRepositoryTests: XCTestCase {
             targetSelections: [
                 LockTargetSelectionRef(id: targetID, displayName: "SNS, Video, Games", tokenData: Data([1, 2, 3]))
             ],
+            recentLockTargets: [
+                RecentLockTarget(
+                    id: UUID(uuidString: "44444444-AAAA-BBBB-CCCC-444444444444")!,
+                    targetSelectionID: targetID,
+                    lastUsedAt: date("2026-08-27T22:00:00Z"),
+                    pinnedAt: date("2026-08-27T22:05:00Z")
+                )
+            ],
             rules: [
                 LockRule(
                     id: ruleID,
@@ -35,6 +43,26 @@ final class JSONFileLockRepositoryTests: XCTestCase {
 
         let reloaded = try JSONFileLockRepository(fileURL: directory.appending(path: "state.json")).load()
         XCTAssertEqual(reloaded, state)
+    }
+
+    func testLoadsStateSavedBeforeRecentTargetsWereAdded() throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let stateURL = directory.appending(path: "state.json")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let legacyJSON = """
+        {
+          "targetSelections" : [],
+          "rules" : [],
+          "completedLocks" : []
+        }
+        """
+        try legacyJSON.write(to: stateURL, atomically: true, encoding: .utf8)
+
+        let state = try JSONFileLockRepository(fileURL: stateURL).load()
+
+        XCTAssertEqual(state.recentLockTargets, [])
+        XCTAssertEqual(state, LockState())
     }
 
     func testSaveTargetSelectionReplacesExistingSelectionWithSameID() async throws {

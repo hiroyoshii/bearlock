@@ -15,7 +15,6 @@ enum ScreenshotScreen: String, CaseIterable {
     case scheduledEditor
     case recurringEditor
     case settings
-    case support
 #if DEBUG
     case diagnostics
 #endif
@@ -130,8 +129,6 @@ struct ScreenshotHostView: View {
             )
         case .settings:
             SettingsView()
-        case .support:
-            SupportView()
 #if DEBUG
         case .diagnostics:
             DebugDiagnosticsView()
@@ -159,11 +156,45 @@ struct ScreenshotHostView: View {
 
 private enum ScreenshotFixtures {
     static let targetID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+    static let workTargetID = UUID(uuidString: "12121212-1212-1212-1212-121212121212")!
+    static let sleepTargetID = UUID(uuidString: "13131313-1313-1313-1313-131313131313")!
 
     static let target = LockTargetSelectionRef(
         id: targetID,
-        displayName: "SNS, Video, Games"
+        displayName: L10n.string("SNS, Video, Games")
     )
+
+    static let workTarget = LockTargetSelectionRef(
+        id: workTargetID,
+        displayName: L10n.string("Work distractions")
+    )
+
+    static let sleepTarget = LockTargetSelectionRef(
+        id: sleepTargetID,
+        displayName: L10n.string("Bedtime apps")
+    )
+
+    static var recentLockTargets: [RecentLockTarget] {
+        let now = Date()
+        return [
+            RecentLockTarget(
+                id: UUID(uuidString: "14141414-1414-1414-1414-141414141414")!,
+                targetSelectionID: workTargetID,
+                lastUsedAt: now.addingTimeInterval(-3_600),
+                pinnedAt: now.addingTimeInterval(-3_500)
+            ),
+            RecentLockTarget(
+                id: UUID(uuidString: "15151515-1515-1515-1515-151515151515")!,
+                targetSelectionID: targetID,
+                lastUsedAt: now.addingTimeInterval(-600)
+            ),
+            RecentLockTarget(
+                id: UUID(uuidString: "16161616-1616-1616-1616-161616161616")!,
+                targetSelectionID: sleepTargetID,
+                lastUsedAt: now.addingTimeInterval(-1_800)
+            )
+        ]
+    }
 
     static var activeLock: ActiveLock {
         let now = Date()
@@ -220,7 +251,8 @@ private enum ScreenshotFixtures {
 
     static var state: LockState {
         LockState(
-            targetSelections: [target],
+            targetSelections: [workTarget, sleepTarget, target],
+            recentLockTargets: recentLockTargets,
             rules: [delayedRule, fixedRule, recurringRule, disabledRecurringRule],
             activeLock: nil
         )
@@ -228,7 +260,8 @@ private enum ScreenshotFixtures {
 
     static var activeState: LockState {
         LockState(
-            targetSelections: [target],
+            targetSelections: [workTarget, sleepTarget, target],
+            recentLockTargets: recentLockTargets,
             rules: [recurringRule],
             activeLock: activeLock
         )

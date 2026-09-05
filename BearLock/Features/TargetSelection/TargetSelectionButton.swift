@@ -117,6 +117,7 @@ struct TargetSelectionSummaryView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var summary = TargetSelectionSummary.empty
     @State private var loadedSelection: FamilyActivitySelection?
+    @State private var isTargetListExpanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -148,7 +149,7 @@ struct TargetSelectionSummaryView: View {
                     summaryPill(title: "Websites", count: summary.webDomains)
                 }
                 if let loadedSelection {
-                    TokenSelectionListView(selection: loadedSelection)
+                    targetListDisclosure(selection: loadedSelection)
                 }
             }
         }
@@ -169,6 +170,36 @@ struct TargetSelectionSummaryView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func targetListDisclosure(selection: FamilyActivitySelection) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isTargetListExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Label("Target list", systemImage: "list.bullet")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.caption.weight(.semibold))
+                        .rotationEffect(.degrees(isTargetListExpanded ? 180 : 0))
+                }
+                .foregroundStyle(AppTheme.navy.opacity(0.72))
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(
+                Text(LocalizedStringKey(isTargetListExpanded ? "Hide target list" : "Show target list"))
+            )
+
+            if isTargetListExpanded {
+                TokenSelectionListView(selection: selection)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
     }
 
     private var summaryTitle: String {

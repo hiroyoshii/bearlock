@@ -32,13 +32,6 @@ struct SettingsView: View {
                 }
 
                 LabeledContent("Version", value: appVersion)
-
-                NavigationLink {
-                    SupportView()
-                } label: {
-                    Label("Support Bear Lock", systemImage: "heart")
-                }
-                .accessibilityIdentifier("settings-support-link")
             }
 
 #if DEBUG

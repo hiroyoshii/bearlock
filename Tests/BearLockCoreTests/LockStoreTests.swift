@@ -2,6 +2,136 @@ import XCTest
 @testable import BearLockCore
 
 final class LockStoreTests: XCTestCase {
+    func testRecordingRecentTargetAddsItToHistory() async throws {
+        let repository = InMemoryLockRepository()
+        let store = try LockStore(repository: repository)
+        let target = LockTargetSelectionRef(displayName: "Social", tokenData: Data([1, 2, 3]))
+        let savedTarget = try await store.saveTargetSelection(target)
+        let usedAt = date("2026-08-27T10:00:00Z")
+
+        try await store.recordRecentLockTarget(targetSelectionID: savedTarget.id, usedAt: usedAt)
+
+        let state = await store.snapshot()
+        XCTAssertEqual(state.recentLockTargets.count, 1)
+        XCTAssertEqual(state.recentLockTargets.first?.targetSelectionID, savedTarget.id)
+        XCTAssertEqual(state.recentLockTargets.first?.lastUsedAt, usedAt)
+        XCTAssertFalse(state.recentLockTargets.first?.isPinned ?? true)
+    }
+
+    func testRecordingEquivalentTargetUpdatesExistingHistoryEntry() async throws {
+        let repository = InMemoryLockRepository()
+        let store = try LockStore(repository: repository)
+        let first = try await store.saveTargetSelection(
+            LockTargetSelectionRef(displayName: "First", tokenData: Data([4, 5, 6]))
+        )
+        try await store.recordRecentLockTarget(
+            targetSelectionID: first.id,
+            usedAt: date("2026-08-27T09:00:00Z")
+        )
+        let equivalent = try await store.saveTargetSelection(
+            LockTargetSelectionRef(displayName: "Equivalent", tokenData: Data([4, 5, 6]))
+        )
+
+        try await store.recordRecentLockTarget(
+            targetSelectionID: equivalent.id,
+            usedAt: date("2026-08-27T11:00:00Z")
+        )
+
+        let state = await store.snapshot()
+        XCTAssertEqual(equivalent.id, first.id)
+        XCTAssertEqual(state.recentLockTargets.count, 1)
+        XCTAssertEqual(state.recentLockTargets.first?.lastUsedAt, date("2026-08-27T11:00:00Z"))
+    }
+
+    func testPinnedTargetsDisplayBeforeRecentTargetsWithThreeItemLimit() {
+        let oldPinned = RecentLockTarget(
+            targetSelectionID: UUID(),
+            lastUsedAt: date("2026-08-27T06:00:00Z"),
+            pinnedAt: date("2026-08-27T08:00:00Z")
+        )
+        let newPinned = RecentLockTarget(
+            targetSelectionID: UUID(),
+            lastUsedAt: date("2026-08-27T12:00:00Z"),
+            pinnedAt: date("2026-08-27T09:00:00Z")
+        )
+        let recent = RecentLockTarget(
+            targetSelectionID: UUID(),
+            lastUsedAt: date("2026-08-27T11:00:00Z")
+        )
+        let older = RecentLockTarget(
+            targetSelectionID: UUID(),
+            lastUsedAt: date("2026-08-27T10:00:00Z")
+        )
+        let state = LockState(recentLockTargets: [older, recent, newPinned, oldPinned])
+
+        XCTAssertEqual(
+            state.displayedRecentLockTargets().map(\.id),
+            [oldPinned.id, newPinned.id, recent.id]
+        )
+    }
+
+    func testDeletingRecentTargetDoesNotDeleteSelectionOrRule() async throws {
+        let repository = InMemoryLockRepository()
+        let store = try LockStore(repository: repository)
+        let target = try await store.saveTargetSelection(
+            LockTargetSelectionRef(displayName: "Social", tokenData: Data([7, 8, 9]))
+        )
+        try await store.recordRecentLockTarget(targetSelectionID: target.id, usedAt: date("2026-08-27T09:00:00Z"))
+        let rule = LockRule(
+            kind: .fixedDateTime,
+            startsAt: date("2026-08-28T10:00:00Z"),
+            duration: 60 * 60,
+            targetSelectionID: target.id
+        )
+        try await store.addRule(rule)
+        let stateBeforeDeletion = await store.snapshot()
+        let recentID = try XCTUnwrap(stateBeforeDeletion.recentLockTargets.first?.id)
+
+        try await store.deleteRecentLockTarget(id: recentID)
+
+        let state = await store.snapshot()
+        XCTAssertTrue(state.recentLockTargets.isEmpty)
+        XCTAssertEqual(state.targetSelections, [target])
+        XCTAssertEqual(state.rules, [rule])
+    }
+
+    func testOnlyThreeTargetsCanBePinned() async throws {
+        let repository = InMemoryLockRepository()
+        let store = try LockStore(repository: repository)
+        var recentIDs: [UUID] = []
+
+        for index in 0..<4 {
+            let target = try await store.saveTargetSelection(
+                LockTargetSelectionRef(displayName: "Target \(index)", tokenData: Data([UInt8(index)]))
+            )
+            try await store.recordRecentLockTarget(
+                targetSelectionID: target.id,
+                usedAt: date("2026-08-27T0\(index + 1):00:00Z")
+            )
+            let state = await store.snapshot()
+            recentIDs.append(try XCTUnwrap(state.recentLockTargets.last?.id))
+        }
+
+        for (index, id) in recentIDs.prefix(3).enumerated() {
+            try await store.setRecentLockTargetPinned(
+                id: id,
+                pinned: true,
+                at: date("2026-08-27T1\(index):00:00Z")
+            )
+        }
+
+        do {
+            try await store.setRecentLockTargetPinned(
+                id: recentIDs[3],
+                pinned: true,
+                at: date("2026-08-27T13:00:00Z")
+            )
+            XCTFail("Expected the fourth pinned target to be rejected")
+        } catch {
+            XCTAssertEqual(error as? RecentLockTargetError, .pinnedTargetLimitReached)
+        }
+    }
+
     func testDeletingParentRuleDuringActiveLockIsRejected() async throws {
         let repository = InMemoryLockRepository()
         let store = try LockStore(repository: repository)

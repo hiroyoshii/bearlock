@@ -12,6 +12,29 @@ public struct LockTargetSelectionRef: Codable, Equatable, Sendable {
     }
 }
 
+public struct RecentLockTarget: Codable, Equatable, Identifiable, Sendable {
+    public var id: UUID
+    public var targetSelectionID: UUID
+    public var lastUsedAt: Date
+    public var pinnedAt: Date?
+
+    public init(
+        id: UUID = UUID(),
+        targetSelectionID: UUID,
+        lastUsedAt: Date,
+        pinnedAt: Date? = nil
+    ) {
+        self.id = id
+        self.targetSelectionID = targetSelectionID
+        self.lastUsedAt = lastUsedAt
+        self.pinnedAt = pinnedAt
+    }
+
+    public var isPinned: Bool {
+        pinnedAt != nil
+    }
+}
+
 public struct LockRule: Codable, Equatable, Identifiable, Sendable {
     public var id: UUID
     public var kind: LockRuleKind

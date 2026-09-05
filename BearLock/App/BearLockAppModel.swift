@@ -95,13 +95,41 @@ final class BearLockAppModel: ObservableObject {
 
         let target = LockTargetSelectionRef(
             id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
-            displayName: "SNS, Video, Games"
+            displayName: L10n.string("SNS, Video, Games")
         )
+        let workTarget = LockTargetSelectionRef(
+            id: UUID(uuidString: "12121212-1212-1212-1212-121212121212")!,
+            displayName: L10n.string("Work distractions")
+        )
+        let sleepTarget = LockTargetSelectionRef(
+            id: UUID(uuidString: "13131313-1313-1313-1313-131313131313")!,
+            displayName: L10n.string("Bedtime apps")
+        )
+        let now = Date()
+        let targetSelections = [workTarget, sleepTarget, target]
+        let recentLockTargets = [
+            RecentLockTarget(
+                id: UUID(uuidString: "14141414-1414-1414-1414-141414141414")!,
+                targetSelectionID: workTarget.id,
+                lastUsedAt: now.addingTimeInterval(-3_600),
+                pinnedAt: now.addingTimeInterval(-3_500)
+            ),
+            RecentLockTarget(
+                id: UUID(uuidString: "15151515-1515-1515-1515-151515151515")!,
+                targetSelectionID: target.id,
+                lastUsedAt: now.addingTimeInterval(-600)
+            ),
+            RecentLockTarget(
+                id: UUID(uuidString: "16161616-1616-1616-1616-161616161616")!,
+                targetSelectionID: sleepTarget.id,
+                lastUsedAt: now.addingTimeInterval(-1_800)
+            )
+        ]
         let state: LockState
         if arguments.contains("--ui-testing-active-lock") {
-            let now = Date()
             state = LockState(
-                targetSelections: [target],
+                targetSelections: targetSelections,
+                recentLockTargets: recentLockTargets,
                 activeLock: ActiveLock(
                     sourceRuleID: nil,
                     startedAt: now.addingTimeInterval(-5 * 60),
@@ -116,7 +144,8 @@ final class BearLockAppModel: ObservableObject {
                 endsAt: TimeOfDay(hour: 7, minute: 0)
             )
             state = LockState(
-                targetSelections: [target],
+                targetSelections: targetSelections,
+                recentLockTargets: recentLockTargets,
                 rules: [
                     LockRule(
                         kind: .recurring,
@@ -129,13 +158,17 @@ final class BearLockAppModel: ObservableObject {
                 ]
             )
         } else {
-            state = LockState(targetSelections: [target])
+            state = LockState(
+                targetSelections: targetSelections,
+                recentLockTargets: recentLockTargets
+            )
         }
 
         do {
             var existingState = try repository.load()
             if existingState.targetSelections.isEmpty {
                 existingState.targetSelections = state.targetSelections
+                existingState.recentLockTargets = state.recentLockTargets
                 existingState.rules = state.rules
                 existingState.activeLock = state.activeLock
                 existingState.completedLocks = state.completedLocks
@@ -204,9 +237,9 @@ final class BearLockAppModel: ObservableObject {
             }
 
             let ref = try targetSelectionStore.save(selection)
-            try await lockStore.saveTargetSelection(ref)
+            let savedRef = try await lockStore.saveTargetSelection(ref)
             lockState = await lockStore.snapshot()
-            diagnostics.record("Selection.save.succeeded", detail: "\(ref.displayName) id=\(ref.id.uuidString)")
+            diagnostics.record("Selection.save.succeeded", detail: "\(savedRef.displayName) id=\(savedRef.id.uuidString)")
         } catch {
             recordError("Selection.save.failed", error)
         }
@@ -264,6 +297,16 @@ final class BearLockAppModel: ObservableObject {
                 }
             }
 
+            do {
+                try await lockStore.recordRecentLockTarget(
+                    targetSelectionID: rule.targetSelectionID,
+                    usedAt: now
+                )
+                diagnostics.record("RecentTarget.record.succeeded", detail: rule.targetSelectionID.uuidString)
+            } catch {
+                diagnostics.record("RecentTarget.record.failed", level: .warning, detail: error.localizedDescription)
+            }
+
             lockState = await lockStore.snapshot()
             refreshDiagnostics()
             return true
@@ -283,6 +326,55 @@ final class BearLockAppModel: ObservableObject {
             diagnostics.record("Schedule.delete.succeeded", detail: rule.kind.rawValue)
         } catch {
             recordError("Schedule.delete.failed", error)
+        }
+        refreshDiagnostics()
+    }
+
+    @discardableResult
+    func selectRecentLockTarget(_ recentTarget: RecentLockTarget) async -> Bool {
+        diagnostics.record("RecentTarget.select.started", detail: recentTarget.id.uuidString)
+        do {
+            let state = await lockStore.snapshot()
+            if let active = state.activeLock, active.isActive(at: Date()) {
+                throw TargetSelectionStoreError.activeLockInProgress
+            }
+            guard let selection = state.targetSelections.last(where: { $0.id == recentTarget.targetSelectionID }) else {
+                throw RecentLockTargetError.targetSelectionNotFound
+            }
+
+            try targetSelectionStore.activate(selection)
+            _ = try await lockStore.saveTargetSelection(selection)
+            lockState = await lockStore.snapshot()
+            diagnostics.record("RecentTarget.select.succeeded", detail: recentTarget.id.uuidString)
+            refreshDiagnostics()
+            return true
+        } catch {
+            recordError("RecentTarget.select.failed", error)
+            refreshDiagnostics()
+            return false
+        }
+    }
+
+    func setRecentLockTargetPinned(_ recentTarget: RecentLockTarget, pinned: Bool) async {
+        diagnostics.record("RecentTarget.pin.started", detail: recentTarget.id.uuidString)
+        do {
+            try await lockStore.setRecentLockTargetPinned(id: recentTarget.id, pinned: pinned, at: Date())
+            lockState = await lockStore.snapshot()
+            diagnostics.record("RecentTarget.pin.succeeded", detail: pinned ? "pinned" : "unpinned")
+        } catch {
+            recordError("RecentTarget.pin.failed", error)
+        }
+        refreshDiagnostics()
+    }
+
+    func deleteRecentLockTarget(_ recentTarget: RecentLockTarget) async {
+        diagnostics.record("RecentTarget.delete.started", detail: recentTarget.id.uuidString)
+        do {
+            try await lockStore.deleteRecentLockTarget(id: recentTarget.id)
+            lockState = await lockStore.snapshot()
+            diagnostics.record("RecentTarget.delete.succeeded", detail: recentTarget.id.uuidString)
+        } catch {
+            recordError("RecentTarget.delete.failed", error)
         }
         refreshDiagnostics()
     }
@@ -461,6 +553,15 @@ final class BearLockAppModel: ObservableObject {
                 return L10n.string("This lock has already started and cannot be changed.")
             case .notRecurringRule:
                 return L10n.string("Only repeating locks can be changed here.")
+            }
+        }
+
+        if let recentTargetError = error as? RecentLockTargetError {
+            switch recentTargetError {
+            case .targetSelectionNotFound, .recentTargetNotFound:
+                return L10n.string("This saved target is no longer available.")
+            case .pinnedTargetLimitReached:
+                return L10n.string("You can pin up to three targets.")
             }
         }
 

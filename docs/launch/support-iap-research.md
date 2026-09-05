@@ -126,7 +126,9 @@
 7. Monthly support subscriptions appear in a few apps, but they add more billing complexity than Bear Lock needs for MVP.
 8. Apps in sensitive categories tend to emphasize privacy, no tracking, and no feature differences.
 
-## Bear Lock Direction
+## Future Bear Lock Direction (After Version 1.0)
+
+Version 1.0 ships without In-App Purchases. Keep this research for a future app version after paid-app agreements, tax information, banking information, and StoreKit testing are complete.
 
 Recommended product direction:
 

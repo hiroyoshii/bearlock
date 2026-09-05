@@ -113,12 +113,12 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testFrequentTargetsCanBeSelectedPinnedAndDeleted \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
             test-without-building | tee artifacts/xcodebuild-ui-e2e.log || touch artifacts/e2e-ui.failed
 
       - name: Collect mock UI e2e screenshots
@@ -129,10 +129,11 @@ jobs:
           fi
           for screenshot in \
             e2e-immediate-active-lock.png \
+            e2e-frequent-targets.png \
+            e2e-frequent-target-deleted.png \
             e2e-delayed-deleted.png \
             e2e-recurring-disabled-list.png \
-            e2e-active-lock-constraints.png \
-            e2e-settings-support.png
+            e2e-active-lock-constraints.png
           do
             if [ ! -s "$E2E_SCREENSHOT_DIR/$screenshot" ]; then
               echo "Missing e2e screenshot: $screenshot"
@@ -206,7 +207,7 @@ jobs:
             xcrun simctl bootstatus "$udid" -b
             xcrun simctl install "$udid" "$APP_PATH"
 
-            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock scheduledEditor recurringEditor settings support diagnostics; do
+            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock scheduledEditor recurringEditor settings diagnostics; do
               xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
               xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
               sleep 3
@@ -257,7 +258,7 @@ jobs:
           file "$SCREENSHOT_PATH"
           shasum -a 256 "$SCREENSHOT_PATH"
 
-      - name: Commit latest support screenshot
+      - name: Commit latest App Store screenshots
         run: |
           set -euo pipefail
           mkdir -p ci-screenshots
@@ -267,13 +268,11 @@ jobs:
             cp "$SCREENSHOT_DIR/iphone-app-store-ja/$screen.png" "ci-screenshots/app-store-ja/$screen.png"
             cp "$SCREENSHOT_DIR/iphone-app-store-en/$screen.png" "ci-screenshots/app-store-en/$screen.png"
           done
-          cp "$SCREENSHOT_DIR/iphone-app-store-ja/support.png" ci-screenshots/latest-support-ja.png
-          cp "$SCREENSHOT_DIR/iphone-app-store-en/support.png" ci-screenshots/latest-support-en.png
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ci-screenshots/latest-support-ja.png ci-screenshots/latest-support-en.png ci-screenshots/app-store-ja ci-screenshots/app-store-en
+          git add ci-screenshots/app-store-ja ci-screenshots/app-store-en
           if ! git diff --cached --quiet; then
-            git commit -m "Update latest support screenshots [skip ci]"
+            git commit -m "Update App Store screenshots [skip ci]"
             git push
           fi
 

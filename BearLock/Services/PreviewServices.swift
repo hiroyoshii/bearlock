@@ -20,6 +20,8 @@ struct PreviewTargetSelectionStore: TargetSelectionStoring {
     func save(_ selection: FamilyActivitySelection) throws -> LockTargetSelectionRef {
         LockTargetSelectionRef(displayName: "UI test targets")
     }
+
+    func activate(_ selection: LockTargetSelectionRef) throws {}
 }
 
 struct NoopShieldController: ShieldControlling {

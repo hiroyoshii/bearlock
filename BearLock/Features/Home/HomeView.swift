@@ -14,6 +14,10 @@ struct HomeView: View {
                     selectedTargetSummary
                 }
 
+                if !hasActiveLock {
+                    FrequentTargetListView()
+                }
+
                 if let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
                     ActiveLockView(activeLock: activeLock)
                 }

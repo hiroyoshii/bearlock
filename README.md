@@ -12,6 +12,7 @@ This repository contains:
 - OS-independent core domain logic under `Sources/BearLockCore`.
 - XCTest coverage for lock planning, recurrence, overlap rejection, and active lock immutability.
 - Mock-driven UI end-to-end tests for the core creation/edit/delete flows.
+- Up to three frequently used target selections, recorded automatically with pin and remove controls.
 - On-device Diagnostics screen for local troubleshooting without external logging.
 - Debug-build safety limit for pre-device testing.
 - English and Japanese app localization strings.
@@ -46,7 +47,7 @@ swift test
 Current WSL validation:
 
 - Swift 6.3.3 installed with Swiftly.
-- `swift test` passes for `BearLockCore` with 23 tests.
+- `swift test` passes for `BearLockCore` with 29 tests.
 
 Real Screen Time behavior must be verified on a physical iOS device. Simulator-only validation is not enough for this app.
 
