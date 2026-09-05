@@ -6,6 +6,7 @@ struct TargetSelectionButton: View {
     @State private var selection = FamilyActivitySelection()
     @State private var isPickerPresented = false
     @State private var shouldSaveSelectionOnDismiss = false
+    @State private var uiTestingSelectionCount: Int?
 
     let prominent: Bool
 
@@ -13,24 +14,42 @@ struct TargetSelectionButton: View {
         baseButton
             .disabled(isLocked)
             .sheet(isPresented: $isPickerPresented, onDismiss: {
-                if shouldSaveSelectionOnDismiss {
+                if let uiTestingSelectionCount {
+                    Task {
+                        await model.saveUITestingSelection(count: uiTestingSelectionCount)
+                    }
+                    self.uiTestingSelectionCount = nil
+                } else if shouldSaveSelectionOnDismiss {
                     Task {
                         await model.saveSelection(selection)
                     }
                     shouldSaveSelectionOnDismiss = false
                 }
             }) {
-                TargetSelectionPickerSheet(
-                    selection: $selection,
-                    onCancel: {
-                        shouldSaveSelectionOnDismiss = false
-                        isPickerPresented = false
-                    },
-                    onSave: {
-                        shouldSaveSelectionOnDismiss = true
-                        isPickerPresented = false
-                    }
-                )
+                if usesUITestingPicker {
+                    UITestingTargetSelectionPickerSheet(
+                        onCancel: {
+                            uiTestingSelectionCount = nil
+                            isPickerPresented = false
+                        },
+                        onSave: { count in
+                            uiTestingSelectionCount = count
+                            isPickerPresented = false
+                        }
+                    )
+                } else {
+                    TargetSelectionPickerSheet(
+                        selection: $selection,
+                        onCancel: {
+                            shouldSaveSelectionOnDismiss = false
+                            isPickerPresented = false
+                        },
+                        onSave: {
+                            shouldSaveSelectionOnDismiss = true
+                            isPickerPresented = false
+                        }
+                    )
+                }
             }
     }
 
@@ -61,6 +80,94 @@ struct TargetSelectionButton: View {
 
     private var isLocked: Bool {
         model.lockState.activeLock?.isActive(at: Date()) == true
+    }
+
+    private var usesUITestingPicker: Bool {
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-target-picker")
+    }
+}
+
+private struct UITestingTargetSelectionPickerSheet: View {
+    @State private var selectedAppIDs: Set<String> = []
+
+    let onCancel: () -> Void
+    let onSave: (Int) -> Void
+
+    private let apps = [
+        (id: "messages", name: "Messages", symbol: "message.fill"),
+        (id: "video", name: "Video", symbol: "play.rectangle.fill"),
+        (id: "games", name: "Games", symbol: "gamecontroller.fill")
+    ]
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Apps") {
+                    ForEach(apps, id: \.id) { app in
+                        Button {
+                            if selectedAppIDs.contains(app.id) {
+                                selectedAppIDs.remove(app.id)
+                            } else {
+                                selectedAppIDs.insert(app.id)
+                            }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: app.symbol)
+                                    .frame(width: 28, height: 28)
+                                    .foregroundStyle(AppTheme.navy)
+                                Text(app.name)
+                                    .foregroundStyle(AppTheme.navy)
+                                Spacer()
+                                if selectedAppIDs.contains(app.id) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(AppTheme.navy)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityValue(selectedAppIDs.contains(app.id) ? Text("Selected") : Text("Not selected"))
+                        .accessibilityIdentifier("ui-testing-target-app-\(app.id)")
+                    }
+                }
+            }
+            .navigationTitle("Select targets")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 8) {
+                    Text(selectionHint)
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.navy.opacity(0.62))
+
+                    Button {
+                        onSave(selectedAppIDs.count)
+                    } label: {
+                        Text("Save")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(AppTheme.navy)
+                    .disabled(selectedAppIDs.isEmpty)
+                    .accessibilityIdentifier("ui-testing-target-save")
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 10)
+                .background(.regularMaterial)
+            }
+        }
+    }
+
+    private var selectionHint: String {
+        selectedAppIDs.isEmpty
+            ? L10n.string("No targets are selected.")
+            : L10n.format("%d targets", selectedAppIDs.count)
     }
 }
 
@@ -148,9 +255,10 @@ struct TargetSelectionSummaryView: View {
                     summaryPill(title: "Categories", count: summary.categories)
                     summaryPill(title: "Websites", count: summary.webDomains)
                 }
-                if let loadedSelection {
-                    targetListDisclosure(selection: loadedSelection)
-                }
+            }
+
+            if showsSelectionDetails {
+                targetListDisclosure(selection: loadedSelection)
             }
         }
         .onAppear(perform: refresh)
@@ -172,7 +280,7 @@ struct TargetSelectionSummaryView: View {
         .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
     }
 
-    private func targetListDisclosure(selection: FamilyActivitySelection) -> some View {
+    private func targetListDisclosure(selection: FamilyActivitySelection?) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -194,12 +302,34 @@ struct TargetSelectionSummaryView: View {
             .accessibilityLabel(
                 Text(LocalizedStringKey(isTargetListExpanded ? "Hide target list" : "Show target list"))
             )
+            .accessibilityIdentifier("target-list-disclosure")
 
             if isTargetListExpanded {
-                TokenSelectionListView(selection: selection)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                VStack(alignment: .leading, spacing: 12) {
+                    if let selection, summary.total > 0 {
+                        TokenSelectionListView(selection: selection)
+                    }
+
+                    if showsRecentTargets {
+                        if summary.total > 0 {
+                            Divider()
+                                .overlay(AppTheme.navy.opacity(0.1))
+                        }
+                        FrequentTargetListView()
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
+    }
+
+    private var showsRecentTargets: Bool {
+        model.lockState.activeLock?.isActive(at: Date()) != true
+            && !model.lockState.displayedRecentLockTargets(limit: 3).isEmpty
+    }
+
+    private var showsSelectionDetails: Bool {
+        summary.total > 0 || showsRecentTargets
     }
 
     private var summaryTitle: String {

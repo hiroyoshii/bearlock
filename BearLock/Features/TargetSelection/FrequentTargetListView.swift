@@ -5,62 +5,37 @@ import SwiftUI
 struct FrequentTargetListView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var pendingDeletion: RecentLockTarget?
-    @State private var isExpanded = false
 
     var body: some View {
         if !displayedTargets.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Text("Recent targets")
-                            .font(.subheadline.weight(.semibold))
-                        Spacer()
-                        Text("\(displayedTargets.count)")
-                            .font(.caption.weight(.semibold).monospacedDigit())
-                            .foregroundStyle(AppTheme.navy.opacity(0.55))
-                        Image(systemName: "chevron.down")
-                            .font(.caption.weight(.semibold))
-                            .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    }
-                    .foregroundStyle(AppTheme.navy.opacity(0.72))
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(
-                    Text(LocalizedStringKey(isExpanded ? "Hide recent targets" : "Show recent targets"))
-                )
-                .accessibilityIdentifier("recent-targets-disclosure")
+                Text("Recent targets")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.navy.opacity(0.62))
 
-                if isExpanded {
-                    VStack(spacing: 8) {
-                        ForEach(displayedTargets) { recentTarget in
-                            if let selection = selection(for: recentTarget) {
-                                FrequentTargetRow(
-                                    recentTarget: recentTarget,
-                                    selection: selection,
-                                    isSelected: model.lockState.targetSelections.last?.id == selection.id,
-                                    onSelect: {
-                                        Task {
-                                            await model.selectRecentLockTarget(recentTarget)
-                                        }
-                                    },
-                                    onSetPinned: { pinned in
-                                        Task {
-                                            await model.setRecentLockTargetPinned(recentTarget, pinned: pinned)
-                                        }
-                                    },
-                                    onDelete: {
-                                        pendingDeletion = recentTarget
+                VStack(spacing: 8) {
+                    ForEach(displayedTargets) { recentTarget in
+                        if let selection = selection(for: recentTarget) {
+                            FrequentTargetRow(
+                                recentTarget: recentTarget,
+                                selection: selection,
+                                isSelected: model.lockState.targetSelections.last?.id == selection.id,
+                                onSelect: {
+                                    Task {
+                                        await model.selectRecentLockTarget(recentTarget)
                                     }
-                                )
-                            }
+                                },
+                                onSetPinned: { pinned in
+                                    Task {
+                                        await model.setRecentLockTargetPinned(recentTarget, pinned: pinned)
+                                    }
+                                },
+                                onDelete: {
+                                    pendingDeletion = recentTarget
+                                }
+                            )
                         }
                     }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
             .confirmationDialog(

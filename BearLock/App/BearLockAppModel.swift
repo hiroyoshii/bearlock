@@ -246,6 +246,22 @@ final class BearLockAppModel: ObservableObject {
         refreshDiagnostics()
     }
 
+    func saveUITestingSelection(count: Int) async {
+        guard ProcessInfo.processInfo.arguments.contains("--ui-testing-target-picker"), count > 0 else {
+            return
+        }
+
+        do {
+            let ref = LockTargetSelectionRef(displayName: L10n.format("%d targets", count))
+            _ = try await lockStore.saveTargetSelection(ref)
+            lockState = await lockStore.snapshot()
+            diagnostics.record("Selection.uiTestingSave.succeeded", detail: "count=\(count)")
+        } catch {
+            recordError("Selection.uiTestingSave.failed", error)
+        }
+        refreshDiagnostics()
+    }
+
     @discardableResult
     func createLock(_ request: LockCreationRequest) async -> Bool {
         isCreatingLock = true

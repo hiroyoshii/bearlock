@@ -129,8 +129,13 @@ jobs:
           fi
           for screenshot in \
             e2e-immediate-active-lock.png \
-            e2e-recent-target-selected.png \
-            e2e-recent-target-deleted.png \
+            e2e-target-flow-home.png \
+            e2e-target-picker-open.png \
+            e2e-target-picker-apps-selected.png \
+            e2e-target-flow-saved.png \
+            e2e-target-flow-details.png \
+            e2e-target-flow-recent-selected.png \
+            e2e-target-flow-recent-deleted.png \
             e2e-delayed-deleted.png \
             e2e-recurring-disabled-list.png \
             e2e-active-lock-constraints.png

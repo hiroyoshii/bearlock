@@ -65,11 +65,6 @@ struct HomeView: View {
     private var selectedTargetSummary: some View {
         VStack(alignment: .leading, spacing: 12) {
             TargetSelectionSummaryView()
-            if !hasActiveLock {
-                Divider()
-                    .overlay(AppTheme.navy.opacity(0.1))
-                FrequentTargetListView()
-            }
             TargetSelectionButton(prominent: false)
         }
         .padding(16)

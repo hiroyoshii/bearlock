@@ -53,23 +53,46 @@ final class BearLockLaunchUITests: XCTestCase {
     }
 
     func testRecentTargetsSelectionFeedbackAndActions() throws {
-        let app = launchApprovedSeededApp()
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-target-picker"])
         let recentID = "16161616-1616-1616-1616-161616161616"
         let selectButton = app.buttons["frequent-target-select-\(recentID)"]
         let actionsButton = app.buttons["frequent-target-actions-\(recentID)"]
 
-        let disclosure = app.buttons["recent-targets-disclosure"]
+        captureScreenshot(named: "e2e-target-flow-home")
+
+        app.buttons["Select targets"].tap()
+        XCTAssertTrue(app.navigationBars["Select targets"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-target-picker-open")
+
+        let messages = app.buttons["ui-testing-target-app-messages"]
+        let video = app.buttons["ui-testing-target-app-video"]
+        XCTAssertTrue(messages.waitForExistence(timeout: 5))
+        messages.tap()
+        video.tap()
+        XCTAssertEqual(messages.value as? String, "Selected")
+        XCTAssertEqual(video.value as? String, "Selected")
+        captureScreenshot(named: "e2e-target-picker-apps-selected")
+
+        let saveButton = app.buttons["ui-testing-target-save"]
+        XCTAssertTrue(saveButton.isEnabled)
+        saveButton.tap()
+        XCTAssertFalse(saveButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["2 targets"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-target-flow-saved")
+
+        let disclosure = app.buttons["target-list-disclosure"]
         XCTAssertTrue(disclosure.waitForExistence(timeout: 10))
         XCTAssertFalse(selectButton.exists)
         disclosure.tap()
 
         XCTAssertTrue(selectButton.waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-target-flow-details")
         selectButton.tap()
         let selectedValue = NSPredicate(format: "value == %@", "Selected")
         expectation(for: selectedValue, evaluatedWith: selectButton)
         waitForExpectations(timeout: 5)
         XCTAssertTrue(app.staticTexts["Selected"].exists)
-        captureScreenshot(named: "e2e-recent-target-selected")
+        captureScreenshot(named: "e2e-target-flow-recent-selected")
 
         actionsButton.tap()
         XCTAssertTrue(app.buttons["Pin target"].waitForExistence(timeout: 5))
@@ -82,7 +105,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Remove"].waitForExistence(timeout: 5))
         app.buttons["Remove"].tap()
         XCTAssertFalse(selectButton.waitForExistence(timeout: 2))
-        captureScreenshot(named: "e2e-recent-target-deleted")
+        captureScreenshot(named: "e2e-target-flow-recent-deleted")
     }
 
     func testScheduleEditAndDeleteDelayedLockWithMockServices() throws {
