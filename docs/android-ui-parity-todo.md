@@ -12,3 +12,7 @@ The iOS images use ScreenshotSupport fixtures; Android device verification is se
 - [x] Build, unit tests, lint and emulator interactions / blocking regression.
 - [x] Capture Japanese/English screens; produce iOS/Android side-by-side and pixel diff with limitations.
 - [x] Publish reviewable source, screenshots and comparison in repository branch.
+
+## Follow-up
+
+上記は今回実装・エミュレーター確認した範囲。残る見た目の差の調整は [AND-02](android-implementation-todo.md)、操作性の網羅確認は AND-08 で追跡する。OS固有の表示をピクセル一致したとは扱わない。残作業の正本は [Android製品版TODO](android-implementation-todo.md)。

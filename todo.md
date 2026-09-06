@@ -314,3 +314,10 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 
 - [x] Android UI を iOS の構成・素材・入力操作に揃え、日英5画面のスクショ diff と実ロック回帰結果を repo に掲載する。
   - [比較](ANDROID_SCREENSHOTS.md) / [実装と差分](docs/android-ui-parity.md) / [検証サマリー](docs/qa/android-ui-parity/summary.json)
+
+### Android の残作業
+
+未完了の13項目を優先度・完了条件付きで [Android製品版TODO](docs/android-implementation-todo.md) に集約する。
+
+- [ ] P0: CI・main統合、UI残差、OS互換性、実機継続動作、権限/データ復旧、Android 17、ブラウザ、アクセシビリティ、制限境界（AND-01〜09）
+- [ ] P1: 公開文書、署名付き内部テスト、Play申告・素材、審査・配信（AND-10〜13）
