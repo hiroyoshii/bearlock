@@ -319,5 +319,7 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 
 未完了の13項目を優先度・完了条件付きで [Android製品版TODO](docs/android-implementation-todo.md) に集約する。
 
-- [ ] P0: CI・main統合、UI残差、OS互換性、実機継続動作、権限/データ復旧、Android 17、ブラウザ、アクセシビリティ、制限境界（AND-01〜09）
+- [ ] P0: CI結果確認、UI残差、OS互換性、実機継続動作、権限/データ復旧、Android 17、ブラウザ、アクセシビリティ、制限境界（AND-01〜09）
 - [ ] P1: 公開文書、署名付き内部テスト、Play申告・素材、審査・配信（AND-10〜13）
+
+- [x] Android実装・スクショ比較・残作業TODOをmainに統合する（`3bb50a4`までの変更）。
