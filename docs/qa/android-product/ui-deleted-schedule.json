@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "rules": [],
+  "sessions": [],
+  "completed": [
+    "ab153c94-ee11-40b6-b08a-d9064c30d1b3",
+    "b4d069b0-42cc-4858-be1d-c0896a8ff99c",
+    "ffc426be-0ed3-4322-80a3-744ce5817e38",
+    "562a9623-e564-470b-bed9-421b21e09992",
+    "fc7367bc-6cbf-461c-8bf4-d8a40c5aeed4"
+  ],
+  "recent": [
+    {
+      "targets": {
+        "apps": [],
+        "domains": [
+          "example.com"
+        ],
+        "categories": []
+      },
+      "used": 1788676297545,
+      "pinned": false
+    },
+    {
+      "targets": {
+        "apps": [
+          "com.hiyozoo.bearlock.probe"
+        ],
+        "domains": [],
+        "categories": []
+      },
+      "used": 1788675434939,
+      "pinned": false
+    }
+  ]
+}

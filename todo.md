@@ -306,3 +306,11 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - CI: `.github/workflows/ios-ci.yml`
 - Visual Snapshot CI: `.github/workflows/ios-visual-snapshot.yml`
 - Launch docs: `docs/launch/README.md`
+
+
+## Android 製品版（2026-09-06）
+
+実装・検証の詳細は [Android 実装TODO](docs/android-implementation-todo.md)。iOS の現在の機能を対応目標にし、実装済みと公開前検証を区別する。
+
+- [x] Android UI を iOS の構成・素材・入力操作に揃え、日英5画面のスクショ diff と実ロック回帰結果を repo に掲載する。
+  - [比較](ANDROID_SCREENSHOTS.md) / [実装と差分](docs/android-ui-parity.md) / [検証サマリー](docs/qa/android-ui-parity/summary.json)

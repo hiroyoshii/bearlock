@@ -1,0 +1,527 @@
+{
+  "passed": true,
+  "window": {
+    "key": "eb748a75-05ec-4a6b-ba50-85e556d47843",
+    "rule": "eb748a75-05ec-4a6b-ba50-85e556d47843",
+    "title": "読書の時間",
+    "targets": {
+      "apps": [],
+      "domains": [
+        "example.com"
+      ],
+      "categories": []
+    },
+    "start": 1788681890645,
+    "end": 1788681950645
+  },
+  "blockedTapRequestedAt": 1788681897323,
+  "point": [
+    378,
+    1083
+  ],
+  "afterExpiry": [
+    [
+      "Example Domain",
+      "",
+      "[255,645][1029,732]"
+    ],
+    [
+      "This domain is for use in documentation examples without needing permission. Avoid use in operations.",
+      "",
+      "[255,777][1029,1008]"
+    ],
+    [
+      "",
+      "Learn more",
+      "[255,1053][501,1113]"
+    ],
+    [
+      "Learn more",
+      "",
+      "[255,1053][501,1113]"
+    ],
+    [
+      "",
+      "Open the home page",
+      "[0,72][144,240]"
+    ],
+    [
+      "",
+      "Connection is secure",
+      "[156,120][228,192]"
+    ],
+    [
+      "example.com",
+      "",
+      "[240,72][840,240]"
+    ],
+    [
+      "",
+      "New tab",
+      "[840,72][996,240]"
+    ],
+    [
+      "",
+      "See 4 tabs",
+      "[996,72][1140,240]"
+    ],
+    [
+      "",
+      "Customize and control Google Chrome",
+      "[1140,72][1284,240]"
+    ]
+  ],
+  "afterLink": [
+    [
+      "",
+      "Homepage",
+      "[75,285][603,462]"
+    ],
+    [
+      "",
+      "Homepage",
+      "[75,285][603,447]"
+    ],
+    [
+      "",
+      "Domains",
+      "[75,519][276,609]"
+    ],
+    [
+      "Domains",
+      "",
+      "[75,531][276,597]"
+    ],
+    [
+      "",
+      "Protocols",
+      "[285,519][537,609]"
+    ],
+    [
+      "Protocols",
+      "",
+      "[303,531][519,597]"
+    ],
+    [
+      "",
+      "Numbers",
+      "[546,519][795,609]"
+    ],
+    [
+      "Numbers",
+      "",
+      "[564,531][777,597]"
+    ],
+    [
+      "",
+      "About",
+      "[804,519][978,609]"
+    ],
+    [
+      "About",
+      "",
+      "[822,531][960,597]"
+    ],
+    [
+      "",
+      "← Instructions and Guides",
+      "[75,717][648,792]"
+    ],
+    [
+      "←",
+      "",
+      "[102,726][147,786]"
+    ],
+    [
+      "Instructions and Guides",
+      "",
+      "[159,726][618,786]"
+    ],
+    [
+      "Example Domains",
+      "",
+      "[75,837][1209,933]"
+    ],
+    [
+      "As described in ",
+      "",
+      "[75,987][432,1056]"
+    ],
+    [
+      "",
+      "RFC 2606",
+      "[429,987][639,1056]"
+    ],
+    [
+      "RFC 2606",
+      "",
+      "[429,987][639,1056]"
+    ],
+    [
+      " and ",
+      "",
+      "[636,987][750,1056]"
+    ],
+    [
+      "",
+      "RFC 6761",
+      "[747,987][957,1056]"
+    ],
+    [
+      "RFC 6761",
+      "",
+      "[747,987][957,1056]"
+    ],
+    [
+      ", a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer.",
+      "",
+      "[75,987][1203,1446]"
+    ],
+    [
+      "We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service.",
+      "",
+      "[75,1500][1209,2088]"
+    ],
+    [
+      "Further Reading",
+      "",
+      "[75,2142][1209,2226]"
+    ],
+    [
+      "■ ",
+      "",
+      "[129,2250][150,2319]"
+    ],
+    [
+      "",
+      "IANA-managed Reserved Domains",
+      "[171,2250][951,2319]"
+    ],
+    [
+      "IANA-managed Reserved Domains",
+      "",
+      "[171,2250][951,2319]"
+    ],
+    [
+      "Last revised ",
+      "",
+      "[75,2406][285,2457]"
+    ],
+    [
+      "9 years ago",
+      "",
+      "[282,2406][480,2457]"
+    ],
+    [
+      ".",
+      "",
+      "[477,2406][489,2457]"
+    ],
+    [
+      "Domain Names",
+      "",
+      "[75,2589][447,2706]"
+    ],
+    [
+      "",
+      "Domain Names",
+      "[75,2604][351,2655]"
+    ],
+    [
+      "Domain Names",
+      "",
+      "[75,2604][351,2655]"
+    ],
+    [
+      "Root Zone Registry .INT Registry .ARPA Registry IDN Repository",
+      "",
+      "[444,2589][1209,2706]"
+    ],
+    [
+      "",
+      "Root Zone Registry",
+      "[459,2604][783,2655]"
+    ],
+    [
+      "Root Zone Registry",
+      "",
+      "[459,2604][783,2655]"
+    ],
+    [
+      "",
+      ".INT Registry",
+      "[810,2604][1029,2655]"
+    ],
+    [
+      ".INT Registry",
+      "",
+      "[810,2604][1029,2655]"
+    ],
+    [
+      "",
+      ".ARPA Registry",
+      "[459,2652][708,2706]"
+    ],
+    [
+      ".ARPA Registry",
+      "",
+      "[459,2652][708,2706]"
+    ],
+    [
+      "",
+      "IDN Repository",
+      "[735,2652][993,2706]"
+    ],
+    [
+      "IDN Repository",
+      "",
+      "[735,2652][993,2706]"
+    ],
+    [
+      "Number Resources",
+      "",
+      "[75,2706][447,2706]"
+    ],
+    [
+      "",
+      "Number Resources",
+      "[75,2706][417,2706]"
+    ],
+    [
+      "Number Resources",
+      "",
+      "[75,2706][417,2706]"
+    ],
+    [
+      "Number Registries RIR Allocation Data Abuse Information",
+      "",
+      "[444,2706][1209,2706]"
+    ],
+    [
+      "",
+      "Number Registries",
+      "[459,2706][777,2706]"
+    ],
+    [
+      "Number Registries",
+      "",
+      "[459,2706][777,2706]"
+    ],
+    [
+      "",
+      "RIR Allocation Data",
+      "[804,2706][1131,2706]"
+    ],
+    [
+      "RIR Allocation Data",
+      "",
+      "[804,2706][1131,2706]"
+    ],
+    [
+      "",
+      "Abuse Information",
+      "[459,2706][780,2706]"
+    ],
+    [
+      "Abuse Information",
+      "",
+      "[459,2706][780,2706]"
+    ],
+    [
+      "Protocols",
+      "",
+      "[75,2706][447,2706]"
+    ],
+    [
+      "",
+      "Protocols",
+      "[75,2706][246,2706]"
+    ],
+    [
+      "Protocols",
+      "",
+      "[75,2706][246,2706]"
+    ],
+    [
+      "Protocol Registries Time Zone Database",
+      "",
+      "[444,2706][1209,2706]"
+    ],
+    [
+      "",
+      "Protocol Registries",
+      "[459,2706][777,2706]"
+    ],
+    [
+      "Protocol Registries",
+      "",
+      "[459,2706][777,2706]"
+    ],
+    [
+      "",
+      "Time Zone Database",
+      "[804,2706][1155,2706]"
+    ],
+    [
+      "Time Zone Database",
+      "",
+      "[804,2706][1155,2706]"
+    ],
+    [
+      "About Us",
+      "",
+      "[75,2706][447,2706]"
+    ],
+    [
+      "",
+      "About Us",
+      "[75,2706][240,2706]"
+    ],
+    [
+      "About Us",
+      "",
+      "[75,2706][240,2706]"
+    ],
+    [
+      "News Performance The Organization Archive Contact Us",
+      "",
+      "[444,2706][1209,2706]"
+    ],
+    [
+      "",
+      "News",
+      "[459,2706][555,2706]"
+    ],
+    [
+      "News",
+      "",
+      "[459,2706][555,2706]"
+    ],
+    [
+      "",
+      "Performance",
+      "[582,2706][804,2706]"
+    ],
+    [
+      "Performance",
+      "",
+      "[582,2706][804,2706]"
+    ],
+    [
+      "",
+      "The Organization",
+      "[831,2706][1125,2706]"
+    ],
+    [
+      "The Organization",
+      "",
+      "[831,2706][1125,2706]"
+    ],
+    [
+      "",
+      "Archive",
+      "[459,2706][585,2706]"
+    ],
+    [
+      "Archive",
+      "",
+      "[459,2706][585,2706]"
+    ],
+    [
+      "",
+      "Contact Us",
+      "[612,2706][798,2706]"
+    ],
+    [
+      "Contact Us",
+      "",
+      "[612,2706][798,2706]"
+    ],
+    [
+      "The IANA functions coordinate the Internet’s globally unique identifiers, and are provided by ",
+      "",
+      "[75,2706][1098,2706]"
+    ],
+    [
+      "",
+      "Public Technical Identifiers",
+      "[609,2706][1095,2706]"
+    ],
+    [
+      "Public Technical Identifiers",
+      "",
+      "[609,2706][1095,2706]"
+    ],
+    [
+      ", an affiliate of ",
+      "",
+      "[75,2706][1155,2706]"
+    ],
+    [
+      "",
+      "ICANN",
+      "[252,2706][375,2706]"
+    ],
+    [
+      "ICANN",
+      "",
+      "[252,2706][375,2706]"
+    ],
+    [
+      ".",
+      "",
+      "[372,2706][387,2706]"
+    ],
+    [
+      "",
+      "Privacy Policy",
+      "[75,2706][321,2706]"
+    ],
+    [
+      "Privacy Policy",
+      "",
+      "[75,2706][321,2706]"
+    ],
+    [
+      "",
+      "Terms of Service",
+      "[348,2706][645,2706]"
+    ],
+    [
+      "Terms of Service",
+      "",
+      "[348,2706][645,2706]"
+    ],
+    [
+      "",
+      "Open the home page",
+      "[0,72][144,240]"
+    ],
+    [
+      "",
+      "Connection is secure",
+      "[156,120][228,192]"
+    ],
+    [
+      "iana.org/help/example-domains",
+      "",
+      "[240,72][840,240]"
+    ],
+    [
+      "",
+      "New tab",
+      "[840,72][996,240]"
+    ],
+    [
+      "",
+      "See 4 tabs",
+      "[996,72][1140,240]"
+    ],
+    [
+      "",
+      "Customize and control Google Chrome",
+      "[1140,72][1284,240]"
+    ]
+  ],
+  "scope": "Chrome regular tab only. Positive link control before and after lock; no UI instrumentation during blocked interval."
+}

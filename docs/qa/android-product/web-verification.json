@@ -1,0 +1,521 @@
+{
+  "window": {
+    "key": "fc7367bc-6cbf-461c-8bf4-d8a40c5aeed4",
+    "rule": "fc7367bc-6cbf-461c-8bf4-d8a40c5aeed4",
+    "title": "集中時間",
+    "targets": {
+      "apps": [],
+      "domains": [
+        "example.com"
+      ],
+      "categories": []
+    },
+    "start": 1788676297545,
+    "end": 1788676357545
+  },
+  "afterExpiry": [
+    [
+      "Example Domain",
+      "",
+      "[215,561][866,640]"
+    ],
+    [
+      "This domain is for use in documentation examples without needing permission. Avoid use in operations.",
+      "",
+      "[215,677][866,876]"
+    ],
+    [
+      "",
+      "Learn more",
+      "[215,916][430,968]"
+    ],
+    [
+      "Learn more",
+      "",
+      "[215,916][430,968]"
+    ],
+    [
+      "",
+      "Open the home page",
+      "[0,63][126,210]"
+    ],
+    [
+      "",
+      "Connection is secure",
+      "[137,105][200,168]"
+    ],
+    [
+      "example.com",
+      "",
+      "[211,63][691,210]"
+    ],
+    [
+      "",
+      "New tab",
+      "[691,63][828,210]"
+    ],
+    [
+      "",
+      "See 3 tabs",
+      "[828,63][954,210]"
+    ],
+    [
+      "",
+      "Customize and control Google Chrome",
+      "[954,63][1080,210]"
+    ]
+  ],
+  "afterLink": [
+    [
+      "",
+      "Homepage",
+      "[63,246][527,406]"
+    ],
+    [
+      "",
+      "Homepage",
+      "[63,246][527,393]"
+    ],
+    [
+      "",
+      "Domains",
+      "[63,451][244,532]"
+    ],
+    [
+      "Domains",
+      "",
+      "[63,462][244,522]"
+    ],
+    [
+      "",
+      "Protocols",
+      "[249,451][469,532]"
+    ],
+    [
+      "Protocols",
+      "",
+      "[265,462][454,522]"
+    ],
+    [
+      "",
+      "Numbers",
+      "[477,451][695,532]"
+    ],
+    [
+      "Numbers",
+      "",
+      "[493,462][679,522]"
+    ],
+    [
+      "",
+      "About",
+      "[703,451][858,532]"
+    ],
+    [
+      "About",
+      "",
+      "[719,462][840,522]"
+    ],
+    [
+      "",
+      "← Instructions and Guides",
+      "[63,627][567,693]"
+    ],
+    [
+      "←",
+      "",
+      "[89,632][128,685]"
+    ],
+    [
+      "Instructions and Guides",
+      "",
+      "[139,632][543,685]"
+    ],
+    [
+      "Example Domains",
+      "",
+      "[63,729][1015,813]"
+    ],
+    [
+      "As described in ",
+      "",
+      "[63,861][378,921]"
+    ],
+    [
+      "",
+      "RFC 2606",
+      "[372,861][559,921]"
+    ],
+    [
+      "RFC 2606",
+      "",
+      "[372,861][559,921]"
+    ],
+    [
+      " and ",
+      "",
+      "[553,861][656,921]"
+    ],
+    [
+      "",
+      "RFC 6761",
+      "[653,861][837,921]"
+    ],
+    [
+      "RFC 6761",
+      "",
+      "[653,861][837,921]"
+    ],
+    [
+      ", a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer.",
+      "",
+      "[63,861][1005,1265]"
+    ],
+    [
+      "We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service.",
+      "",
+      "[63,1309][1015,1884]"
+    ],
+    [
+      "Further Reading",
+      "",
+      "[63,1932][1015,2002]"
+    ],
+    [
+      "■ ",
+      "",
+      "[110,2026][131,2086]"
+    ],
+    [
+      "",
+      "IANA-managed Reserved Domains",
+      "[147,2026][832,2086]"
+    ],
+    [
+      "IANA-managed Reserved Domains",
+      "",
+      "[147,2026][832,2086]"
+    ],
+    [
+      "Last revised ",
+      "",
+      "[63,2160][249,2207]"
+    ],
+    [
+      "9 years ago",
+      "",
+      "[246,2160][420,2207]"
+    ],
+    [
+      ".",
+      "",
+      "[417,2160][430,2207]"
+    ],
+    [
+      "Domain Names",
+      "",
+      "[63,2320][391,2361]"
+    ],
+    [
+      "",
+      "Domain Names",
+      "[63,2336][307,2361]"
+    ],
+    [
+      "Domain Names",
+      "",
+      "[63,2336][307,2361]"
+    ],
+    [
+      "Root Zone Registry .INT Registry .ARPA Registry IDN Repository",
+      "",
+      "[388,2320][1015,2361]"
+    ],
+    [
+      "",
+      "Root Zone Registry",
+      "[401,2336][685,2361]"
+    ],
+    [
+      "Root Zone Registry",
+      "",
+      "[401,2336][685,2361]"
+    ],
+    [
+      "",
+      ".INT Registry",
+      "[706,2336][900,2361]"
+    ],
+    [
+      ".INT Registry",
+      "",
+      "[706,2336][900,2361]"
+    ],
+    [
+      "",
+      ".ARPA Registry",
+      "[401,2361][619,2361]"
+    ],
+    [
+      ".ARPA Registry",
+      "",
+      "[401,2361][619,2361]"
+    ],
+    [
+      "",
+      "IDN Repository",
+      "[640,2361][868,2361]"
+    ],
+    [
+      "IDN Repository",
+      "",
+      "[640,2361][868,2361]"
+    ],
+    [
+      "Number Resources",
+      "",
+      "[63,2361][391,2361]"
+    ],
+    [
+      "",
+      "Number Resources",
+      "[63,2361][364,2361]"
+    ],
+    [
+      "Number Resources",
+      "",
+      "[63,2361][364,2361]"
+    ],
+    [
+      "Number Registries RIR Allocation Data Abuse Information",
+      "",
+      "[388,2361][1015,2361]"
+    ],
+    [
+      "",
+      "Number Registries",
+      "[401,2361][682,2361]"
+    ],
+    [
+      "Number Registries",
+      "",
+      "[401,2361][682,2361]"
+    ],
+    [
+      "",
+      "RIR Allocation Data",
+      "[703,2361][989,2361]"
+    ],
+    [
+      "RIR Allocation Data",
+      "",
+      "[703,2361][989,2361]"
+    ],
+    [
+      "",
+      "Abuse Information",
+      "[401,2361][682,2361]"
+    ],
+    [
+      "Abuse Information",
+      "",
+      "[401,2361][682,2361]"
+    ],
+    [
+      "Protocols",
+      "",
+      "[63,2361][391,2361]"
+    ],
+    [
+      "",
+      "Protocols",
+      "[63,2361][215,2361]"
+    ],
+    [
+      "Protocols",
+      "",
+      "[63,2361][215,2361]"
+    ],
+    [
+      "Protocol Registries Time Zone Database",
+      "",
+      "[388,2361][1015,2361]"
+    ],
+    [
+      "",
+      "Protocol Registries",
+      "[401,2361][682,2361]"
+    ],
+    [
+      "Protocol Registries",
+      "",
+      "[401,2361][682,2361]"
+    ],
+    [
+      "",
+      "Time Zone Database",
+      "[401,2361][706,2361]"
+    ],
+    [
+      "Time Zone Database",
+      "",
+      "[401,2361][706,2361]"
+    ],
+    [
+      "About Us",
+      "",
+      "[63,2361][391,2361]"
+    ],
+    [
+      "",
+      "About Us",
+      "[63,2361][210,2361]"
+    ],
+    [
+      "About Us",
+      "",
+      "[63,2361][210,2361]"
+    ],
+    [
+      "News Performance The Organization Archive Contact Us",
+      "",
+      "[388,2361][1015,2361]"
+    ],
+    [
+      "",
+      "News",
+      "[401,2361][485,2361]"
+    ],
+    [
+      "News",
+      "",
+      "[401,2361][485,2361]"
+    ],
+    [
+      "",
+      "Performance",
+      "[506,2361][703,2361]"
+    ],
+    [
+      "Performance",
+      "",
+      "[506,2361][703,2361]"
+    ],
+    [
+      "",
+      "The Organization",
+      "[727,2361][984,2361]"
+    ],
+    [
+      "The Organization",
+      "",
+      "[727,2361][984,2361]"
+    ],
+    [
+      "",
+      "Archive",
+      "[401,2361][514,2361]"
+    ],
+    [
+      "Archive",
+      "",
+      "[401,2361][514,2361]"
+    ],
+    [
+      "",
+      "Contact Us",
+      "[535,2361][700,2361]"
+    ],
+    [
+      "Contact Us",
+      "",
+      "[535,2361][700,2361]"
+    ],
+    [
+      "The IANA functions coordinate the Internet’s globally unique identifiers, and are provided by ",
+      "",
+      "[63,2361][960,2361]"
+    ],
+    [
+      "",
+      "Public Technical Identifiers",
+      "[532,2361][958,2361]"
+    ],
+    [
+      "Public Technical Identifiers",
+      "",
+      "[532,2361][958,2361]"
+    ],
+    [
+      ", an affiliate of ",
+      "",
+      "[63,2361][1010,2361]"
+    ],
+    [
+      "",
+      "ICANN",
+      "[220,2361][328,2361]"
+    ],
+    [
+      "ICANN",
+      "",
+      "[220,2361][328,2361]"
+    ],
+    [
+      ".",
+      "",
+      "[325,2361][338,2361]"
+    ],
+    [
+      "",
+      "Privacy Policy",
+      "[63,2361][283,2361]"
+    ],
+    [
+      "Privacy Policy",
+      "",
+      "[63,2361][283,2361]"
+    ],
+    [
+      "",
+      "Terms of Service",
+      "[304,2361][564,2361]"
+    ],
+    [
+      "Terms of Service",
+      "",
+      "[304,2361][564,2361]"
+    ],
+    [
+      "",
+      "Open the home page",
+      "[0,63][126,210]"
+    ],
+    [
+      "",
+      "Connection is secure",
+      "[137,105][200,168]"
+    ],
+    [
+      "iana.org/help/example-domains",
+      "",
+      "[211,63][691,210]"
+    ],
+    [
+      "",
+      "New tab",
+      "[691,63][828,210]"
+    ],
+    [
+      "",
+      "See 3 tabs",
+      "[828,63][954,210]"
+    ],
+    [
+      "",
+      "Customize and control Google Chrome",
+      "[954,63][1080,210]"
+    ]
+  ],
+  "scope": "Chrome regular-tab example.com visual block and expiry; other versions/private tabs are not certified"
+}

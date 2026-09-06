@@ -1,0 +1,3 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <instrumentation android:name=".QAInstrumentation" android:targetPackage="com.hiyozoo.bearlock.probe" android:label="Bear Lock UI inspection" />
+</manifest>

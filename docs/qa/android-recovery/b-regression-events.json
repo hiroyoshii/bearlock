@@ -1,0 +1,1240 @@
+[
+  {
+    "method": "ACCESSIBILITY",
+    "scenario": "launch-1",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788672776925,
+      "end": 1788672788925,
+      "event": "created",
+      "wallMs": 1788672776939,
+      "elapsedMs": 300939,
+      "uptimeMs": 300939,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788672776925,
+        "end": 1788672788925,
+        "event": "created",
+        "wallMs": 1788672776939,
+        "elapsedMs": 300939,
+        "uptimeMs": 300939,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788672776925,
+        "end": 1788672788925,
+        "event": "phase",
+        "wallMs": 1788672776942,
+        "elapsedMs": 300942,
+        "uptimeMs": 300942,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": true,
+        "sourceWallMs": 1788672777952,
+        "event": "foreground_changed",
+        "wallMs": 1788672777959,
+        "elapsedMs": 301959,
+        "uptimeMs": 301959,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672777952,
+        "eventToAddMs": 75,
+        "event": "overlay_added",
+        "wallMs": 1788672778028,
+        "elapsedMs": 302028,
+        "uptimeMs": 302028,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672779497,
+        "elapsedMs": 303497,
+        "uptimeMs": 303497,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672779790,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672779805,
+        "elapsedMs": 303805,
+        "uptimeMs": 303805,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672788949,
+        "elapsedMs": 312949,
+        "uptimeMs": 312949,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788672776925,
+        "end": 1788672788925,
+        "event": "phase",
+        "wallMs": 1788672788952,
+        "elapsedMs": 312952,
+        "uptimeMs": 312952,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "ended",
+        "event": "overlay_removed",
+        "wallMs": 1788672788969,
+        "elapsedMs": 312969,
+        "uptimeMs": 312969,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "probeEvents": [
+      {
+        "event": "resume",
+        "wallMs": 1788672777900,
+        "uptimeMs": 301900,
+        "taps": 0
+      },
+      {
+        "event": "tap",
+        "wallMs": 1788672791250,
+        "uptimeMs": 315251,
+        "taps": 1
+      }
+    ],
+    "activeTapRequestedAtMs": 1788672780803,
+    "tapsDuringLock": 0,
+    "tapsAfterEnd": 1
+  },
+  {
+    "method": "ACCESSIBILITY",
+    "scenario": "launch-2",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788672796851,
+      "end": 1788672808851,
+      "event": "created",
+      "wallMs": 1788672797014,
+      "elapsedMs": 321014,
+      "uptimeMs": 321015,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788672796851,
+        "end": 1788672808851,
+        "event": "created",
+        "wallMs": 1788672797014,
+        "elapsedMs": 321014,
+        "uptimeMs": 321015,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788672796851,
+        "end": 1788672808851,
+        "event": "phase",
+        "wallMs": 1788672797028,
+        "elapsedMs": 321028,
+        "uptimeMs": 321028,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672777952,
+        "eventToAddMs": 19406,
+        "event": "overlay_added",
+        "wallMs": 1788672797358,
+        "elapsedMs": 321358,
+        "uptimeMs": 321359,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672798480,
+        "elapsedMs": 322480,
+        "uptimeMs": 322480,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "connect_or_schedule",
+        "isTarget": false,
+        "sourceWallMs": 1788672798261,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672798811,
+        "elapsedMs": 322811,
+        "uptimeMs": 322811,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788672798261,
+        "event": "foreground_changed",
+        "wallMs": 1788672798821,
+        "elapsedMs": 322821,
+        "uptimeMs": 322821,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "active",
+        "event": "overlay_removed",
+        "wallMs": 1788672798879,
+        "elapsedMs": 322885,
+        "uptimeMs": 322885,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": true,
+        "sourceWallMs": 1788672800201,
+        "event": "foreground_changed",
+        "wallMs": 1788672800754,
+        "elapsedMs": 324754,
+        "uptimeMs": 324754,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672800201,
+        "eventToAddMs": 1390,
+        "event": "overlay_added",
+        "wallMs": 1788672801591,
+        "elapsedMs": 325591,
+        "uptimeMs": 325591,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672802598,
+        "elapsedMs": 326598,
+        "uptimeMs": 326598,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672802906,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672802946,
+        "elapsedMs": 326946,
+        "uptimeMs": 326946,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672808865,
+        "elapsedMs": 332865,
+        "uptimeMs": 332865,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788672796851,
+        "end": 1788672808851,
+        "event": "phase",
+        "wallMs": 1788672808867,
+        "elapsedMs": 332867,
+        "uptimeMs": 332867,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "ended",
+        "event": "overlay_removed",
+        "wallMs": 1788672808885,
+        "elapsedMs": 332885,
+        "uptimeMs": 332885,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "probeEvents": [
+      {
+        "event": "resume",
+        "wallMs": 1788672800127,
+        "uptimeMs": 324127,
+        "taps": 1
+      },
+      {
+        "event": "tap",
+        "wallMs": 1788672811315,
+        "uptimeMs": 335315,
+        "taps": 2
+      }
+    ],
+    "activeTapRequestedAtMs": 1788672804253,
+    "tapsDuringLock": 0,
+    "tapsAfterEnd": 1
+  },
+  {
+    "method": "ACCESSIBILITY",
+    "scenario": "launch-3",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788672817301,
+      "end": 1788672829301,
+      "event": "created",
+      "wallMs": 1788672817347,
+      "elapsedMs": 341347,
+      "uptimeMs": 341347,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788672817301,
+        "end": 1788672829301,
+        "event": "created",
+        "wallMs": 1788672817347,
+        "elapsedMs": 341347,
+        "uptimeMs": 341347,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788672817301,
+        "end": 1788672829301,
+        "event": "phase",
+        "wallMs": 1788672817358,
+        "elapsedMs": 341358,
+        "uptimeMs": 341358,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672800201,
+        "eventToAddMs": 17634,
+        "event": "overlay_added",
+        "wallMs": 1788672817835,
+        "elapsedMs": 341835,
+        "uptimeMs": 341835,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672819004,
+        "elapsedMs": 343004,
+        "uptimeMs": 343004,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 1,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672819608,
+        "elapsedMs": 343608,
+        "uptimeMs": 343608,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788672819877,
+        "event": "foreground_changed",
+        "wallMs": 1788672820396,
+        "elapsedMs": 344396,
+        "uptimeMs": 344396,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "active",
+        "event": "overlay_removed",
+        "wallMs": 1788672820559,
+        "elapsedMs": 344663,
+        "uptimeMs": 344663,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": true,
+        "sourceWallMs": 1788672820541,
+        "event": "foreground_changed",
+        "wallMs": 1788672822028,
+        "elapsedMs": 346028,
+        "uptimeMs": 346028,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672820541,
+        "eventToAddMs": 1717,
+        "event": "overlay_added",
+        "wallMs": 1788672822258,
+        "elapsedMs": 346258,
+        "uptimeMs": 346258,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672822746,
+        "elapsedMs": 346747,
+        "uptimeMs": 346747,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672822926,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672823015,
+        "elapsedMs": 347015,
+        "uptimeMs": 347015,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672823028,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672823044,
+        "elapsedMs": 347044,
+        "uptimeMs": 347044,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672829335,
+        "elapsedMs": 353335,
+        "uptimeMs": 353335,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788672817301,
+        "end": 1788672829301,
+        "event": "phase",
+        "wallMs": 1788672829337,
+        "elapsedMs": 353337,
+        "uptimeMs": 353337,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "ended",
+        "event": "overlay_removed",
+        "wallMs": 1788672829358,
+        "elapsedMs": 353358,
+        "uptimeMs": 353358,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "probeEvents": [
+      {
+        "event": "resume",
+        "wallMs": 1788672820307,
+        "uptimeMs": 344307,
+        "taps": 2
+      },
+      {
+        "event": "tap",
+        "wallMs": 1788672831284,
+        "uptimeMs": 355284,
+        "taps": 3
+      }
+    ],
+    "activeTapRequestedAtMs": 1788672824557,
+    "tapsDuringLock": 0,
+    "tapsAfterEnd": 1
+  },
+  {
+    "method": "ACCESSIBILITY",
+    "scenario": "scheduled-open",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788672845216,
+      "end": 1788672857216,
+      "event": "created",
+      "wallMs": 1788672837341,
+      "elapsedMs": 361341,
+      "uptimeMs": 361341,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788672845216,
+        "end": 1788672857216,
+        "event": "created",
+        "wallMs": 1788672837341,
+        "elapsedMs": 361341,
+        "uptimeMs": 361341,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "scheduled",
+        "start": 1788672845216,
+        "end": 1788672857216,
+        "event": "phase",
+        "wallMs": 1788672837363,
+        "elapsedMs": 361363,
+        "uptimeMs": 361363,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "connect_or_schedule",
+        "isTarget": false,
+        "sourceWallMs": 1788672837640,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672837924,
+        "elapsedMs": 361924,
+        "uptimeMs": 361924,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788672837640,
+        "event": "foreground_changed",
+        "wallMs": 1788672837930,
+        "elapsedMs": 361933,
+        "uptimeMs": 361933,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": false,
+        "sourceWallMs": 1788672838176,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672838638,
+        "elapsedMs": 362638,
+        "uptimeMs": 362638,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": false,
+        "sourceWallMs": 1788672838894,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672839087,
+        "elapsedMs": 363087,
+        "uptimeMs": 363087,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": false,
+        "sourceWallMs": 1788672839260,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672839286,
+        "elapsedMs": 363286,
+        "uptimeMs": 363286,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672839850,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672840158,
+        "elapsedMs": 364158,
+        "uptimeMs": 364158,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": true,
+        "sourceWallMs": 1788672839850,
+        "event": "foreground_changed",
+        "wallMs": 1788672840186,
+        "elapsedMs": 364186,
+        "uptimeMs": 364189,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672840354,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672840492,
+        "elapsedMs": 364492,
+        "uptimeMs": 364492,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672841069,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672841132,
+        "elapsedMs": 365132,
+        "uptimeMs": 365132,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672841135,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672841176,
+        "elapsedMs": 365176,
+        "uptimeMs": 365176,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672845233,
+        "elapsedMs": 369233,
+        "uptimeMs": 369233,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788672845216,
+        "end": 1788672857216,
+        "event": "phase",
+        "wallMs": 1788672845235,
+        "elapsedMs": 369235,
+        "uptimeMs": 369235,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672839850,
+        "eventToAddMs": 5426,
+        "event": "overlay_added",
+        "wallMs": 1788672845276,
+        "elapsedMs": 369276,
+        "uptimeMs": 369276,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672845502,
+        "elapsedMs": 369502,
+        "uptimeMs": 369502,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "connect_or_schedule",
+        "isTarget": true,
+        "sourceWallMs": 1788672845535,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672845582,
+        "elapsedMs": 369582,
+        "uptimeMs": 369582,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672845747,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672845757,
+        "elapsedMs": 369757,
+        "uptimeMs": 369757,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672857248,
+        "elapsedMs": 381248,
+        "uptimeMs": 381248,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788672845216,
+        "end": 1788672857216,
+        "event": "phase",
+        "wallMs": 1788672857252,
+        "elapsedMs": 381252,
+        "uptimeMs": 381252,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "ended",
+        "event": "overlay_removed",
+        "wallMs": 1788672857268,
+        "elapsedMs": 381269,
+        "uptimeMs": 381269,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "probeEvents": [
+      {
+        "event": "resume",
+        "wallMs": 1788672839425,
+        "uptimeMs": 363425,
+        "taps": 3
+      },
+      {
+        "event": "tap",
+        "wallMs": 1788672859143,
+        "uptimeMs": 383143,
+        "taps": 4
+      }
+    ],
+    "activeTapRequestedAtMs": 1788672850751,
+    "tapsDuringLock": 0,
+    "tapsAfterEnd": 1
+  },
+  {
+    "method": "ACCESSIBILITY",
+    "scenario": "screen-off",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788672872585,
+      "end": 1788672884585,
+      "event": "created",
+      "wallMs": 1788672864677,
+      "elapsedMs": 388678,
+      "uptimeMs": 388680,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788672872585,
+        "end": 1788672884585,
+        "event": "created",
+        "wallMs": 1788672864677,
+        "elapsedMs": 388678,
+        "uptimeMs": 388680,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "scheduled",
+        "start": 1788672872585,
+        "end": 1788672884585,
+        "event": "phase",
+        "wallMs": 1788672864688,
+        "elapsedMs": 388688,
+        "uptimeMs": 388688,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788672865237,
+        "event": "foreground_changed",
+        "wallMs": 1788672865568,
+        "elapsedMs": 389568,
+        "uptimeMs": 389568,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": false,
+        "sourceWallMs": 1788672865774,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672865810,
+        "elapsedMs": 389810,
+        "uptimeMs": 389811,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672866954,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672867008,
+        "elapsedMs": 391008,
+        "uptimeMs": 391008,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": true,
+        "sourceWallMs": 1788672866954,
+        "event": "foreground_changed",
+        "wallMs": 1788672867009,
+        "elapsedMs": 391009,
+        "uptimeMs": 391010,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672867697,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672867881,
+        "elapsedMs": 391882,
+        "uptimeMs": 391882,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672872605,
+        "elapsedMs": 396605,
+        "uptimeMs": 396605,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788672872585,
+        "end": 1788672884585,
+        "event": "phase",
+        "wallMs": 1788672872615,
+        "elapsedMs": 396615,
+        "uptimeMs": 396615,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 1,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672872739,
+        "elapsedMs": 396739,
+        "uptimeMs": 396739,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 2,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672873000,
+        "elapsedMs": 397001,
+        "uptimeMs": 397001,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 3,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672873518,
+        "elapsedMs": 397518,
+        "uptimeMs": 397519,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 4,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672874295,
+        "elapsedMs": 398295,
+        "uptimeMs": 398295,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 5,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672875307,
+        "elapsedMs": 399307,
+        "uptimeMs": 399307,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 6,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672876574,
+        "elapsedMs": 400574,
+        "uptimeMs": 400574,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "attempt": 7,
+        "reason": "connect_or_schedule",
+        "event": "snapshot_retry",
+        "wallMs": 1788672878090,
+        "elapsedMs": 402090,
+        "uptimeMs": 402090,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672866954,
+        "eventToAddMs": 13210,
+        "event": "overlay_added",
+        "wallMs": 1788672880164,
+        "elapsedMs": 404165,
+        "uptimeMs": 404165,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672880889,
+        "elapsedMs": 404889,
+        "uptimeMs": 404890,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672881218,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672881436,
+        "elapsedMs": 405436,
+        "uptimeMs": 405436,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672881938,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672881991,
+        "elapsedMs": 405991,
+        "uptimeMs": 405991,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672884611,
+        "elapsedMs": 408611,
+        "uptimeMs": 408611,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788672872585,
+        "end": 1788672884585,
+        "event": "phase",
+        "wallMs": 1788672884618,
+        "elapsedMs": 408618,
+        "uptimeMs": 408618,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "ended",
+        "event": "overlay_removed",
+        "wallMs": 1788672884626,
+        "elapsedMs": 408626,
+        "uptimeMs": 408626,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "probeEvents": [
+      {
+        "event": "resume",
+        "wallMs": 1788672866276,
+        "uptimeMs": 390276,
+        "taps": 4
+      },
+      {
+        "event": "pause",
+        "wallMs": 1788672870041,
+        "uptimeMs": 394042,
+        "taps": 4
+      },
+      {
+        "event": "resume",
+        "wallMs": 1788672879470,
+        "uptimeMs": 403471,
+        "taps": 4
+      },
+      {
+        "event": "tap",
+        "wallMs": 1788672886909,
+        "uptimeMs": 410909,
+        "taps": 5
+      }
+    ],
+    "activeTapRequestedAtMs": 1788672883099,
+    "tapsDuringLock": 0,
+    "tapsAfterEnd": 1
+  },
+  {
+    "method": "ACCESSIBILITY",
+    "scenario": "reject-overlay",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788672894579,
+      "end": 1788672906579,
+      "event": "created",
+      "wallMs": 1788672894666,
+      "elapsedMs": 418666,
+      "uptimeMs": 418666,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788672894579,
+        "end": 1788672906579,
+        "event": "created",
+        "wallMs": 1788672894666,
+        "elapsedMs": 418666,
+        "uptimeMs": 418666,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788672894579,
+        "end": 1788672906579,
+        "event": "phase",
+        "wallMs": 1788672894671,
+        "elapsedMs": 418671,
+        "uptimeMs": 418671,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672866954,
+        "eventToAddMs": 28167,
+        "event": "overlay_added",
+        "wallMs": 1788672895121,
+        "elapsedMs": 419121,
+        "uptimeMs": 419121,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788672893168,
+        "event": "foreground_changed",
+        "wallMs": 1788672895373,
+        "elapsedMs": 419373,
+        "uptimeMs": 419374,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "active",
+        "event": "overlay_removed",
+        "wallMs": 1788672895382,
+        "elapsedMs": 419382,
+        "uptimeMs": 419382,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": false,
+        "sourceWallMs": 1788672896862,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672896969,
+        "elapsedMs": 420969,
+        "uptimeMs": 420969,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": true,
+        "sourceWallMs": 1788672897543,
+        "event": "foreground_changed",
+        "wallMs": 1788672898197,
+        "elapsedMs": 422197,
+        "uptimeMs": 422197,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "sourceWallMs": 1788672897543,
+        "eventToAddMs": 1545,
+        "event": "overlay_added",
+        "wallMs": 1788672899088,
+        "elapsedMs": 423088,
+        "uptimeMs": 423088,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "event": "overlay_frame",
+        "wallMs": 1788672900080,
+        "elapsedMs": 424080,
+        "uptimeMs": 424080,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "window_changed",
+        "isTarget": true,
+        "sourceWallMs": 1788672900327,
+        "event": "foreground_snapshot",
+        "wallMs": 1788672900395,
+        "elapsedMs": 424395,
+        "uptimeMs": 424395,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788672906593,
+        "elapsedMs": 430593,
+        "uptimeMs": 430593,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788672894579,
+        "end": 1788672906579,
+        "event": "phase",
+        "wallMs": 1788672906606,
+        "elapsedMs": 430606,
+        "uptimeMs": 430606,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "reason": "ended",
+        "event": "overlay_removed",
+        "wallMs": 1788672906622,
+        "elapsedMs": 430622,
+        "uptimeMs": 430622,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "probeEvents": [
+      {
+        "event": "resume",
+        "wallMs": 1788672897337,
+        "uptimeMs": 421337,
+        "taps": 5
+      },
+      {
+        "event": "tap",
+        "wallMs": 1788672908373,
+        "uptimeMs": 432373,
+        "taps": 6
+      }
+    ],
+    "activeTapRequestedAtMs": 1788672901607,
+    "tapsDuringLock": 0,
+    "tapsAfterEnd": 1
+  }
+]

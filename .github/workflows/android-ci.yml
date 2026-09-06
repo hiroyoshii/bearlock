@@ -1,0 +1,33 @@
+name: Android CI
+on:
+  pull_request:
+    paths: ['android-lab/**', '.github/workflows/android-ci.yml']
+  push:
+    paths: ['android-lab/**', '.github/workflows/android-ci.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  product:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build and check
+        working-directory: android-lab
+        run: ./gradlew :product:assembleDebug :product:assembleRelease :product:bundleRelease :product:testDebugUnitTest :product:lintDebug :app:testDebugUnitTest :probe:assembleDebug :probe:lintDebug
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bearlock-android
+          path: |
+            android-lab/product/build/outputs/apk/
+            android-lab/product/build/outputs/bundle/
+            android-lab/product/build/reports/
+            android-lab/product/build/test-results/
+            android-lab/probe/build/outputs/apk/debug/

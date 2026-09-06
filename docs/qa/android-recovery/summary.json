@@ -1,0 +1,64 @@
+{
+  "date": "2026-09-06",
+  "device": "Pixel_9a AVD Android 15 API 35 x86_64",
+  "compileSdk": 36,
+  "targetSdk": 36,
+  "appApkSha256": "e8677cf666d76a319df1a53af251b71a840842d8cd281d9cf030c35970b24742",
+  "reconnectPassed": true,
+  "rebootPassed": false,
+  "rebootLimitation": "System UI ANR; post-expiry positive control failed. Overlay addition is not proof of continuous enforcement.",
+  "bRegression": [
+    {
+      "scenario": "launch-1",
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1
+    },
+    {
+      "scenario": "launch-2",
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1
+    },
+    {
+      "scenario": "launch-3",
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1
+    },
+    {
+      "scenario": "scheduled-open",
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1
+    },
+    {
+      "scenario": "screen-off",
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1
+    },
+    {
+      "scenario": "reject-overlay",
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1
+    }
+  ],
+  "unitTests": [
+    {
+      "name": "com.hiyozoo.bearlock.lab.LockWindowTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-06T05:22:20.201Z",
+      "hostname": "hiroyoshii",
+      "time": "0.096"
+    },
+    {
+      "name": "com.hiyozoo.bearlock.lab.SnapshotGateTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-06T05:22:20.301Z",
+      "hostname": "hiroyoshii",
+      "time": "0.003"
+    }
+  ]
+}

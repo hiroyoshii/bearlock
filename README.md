@@ -75,3 +75,24 @@ Pushes to the repository are expected to start this workflow automatically.
 Active pre-release tasks are tracked in `todo.md`.
 
 Launch preparation drafts are under `docs/launch/`.
+
+## Android Comparison Lab
+
+`android-lab/` contains a bounded Android experiment comparing UsageStats with Accessibility-based app blocking, plus a separate target app and repeatable emulator scripts. It is not the Android release.
+
+- [Build and run the experiment](android-lab/README.md)
+- [Comparison results](docs/android-comparison-results.md)
+- [iOS feature parity goals](docs/android-feature-parity.md)
+- [Android 復帰処理の修正と追試](docs/android-recovery-results.md)
+
+## Android Product
+
+`android-lab/product` contains the Android app UI, schedule planner, local storage and Accessibility blocking implementation. It builds as `com.hiyozoo.bearlock`; the comparison lab remains separate.
+
+- [Build and product behavior](android-lab/product/README.md)
+- [Implementation TODO](docs/android-implementation-todo.md)
+- [Implementation results and screenshots](docs/android-product-results.md)
+- [Play release preparation](docs/android-release-preparation.md)
+
+- [Android / iOS スクショ比較](ANDROID_SCREENSHOTS.md)
+- [iOS UIへの整合と差分](docs/android-ui-parity.md)

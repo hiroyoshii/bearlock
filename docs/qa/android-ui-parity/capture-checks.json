@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "Delay 30\u219235\u219230 minutes",
+    "Date picker opens and cancels",
+    "Japanese and English fixtures",
+    "320dp / 150% font images inspected separately"
+  ]
+}

@@ -1,0 +1,8 @@
+<resources>
+    <string name="access_description">Bear Lock checks the foreground app and, only in supported browsers when website locks are active, the address bar. It uses these locally to show your scheduled block screen. Page contents, passwords and browsing history are not stored or sent.</string>
+    <style name="BearTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item><item name="android:colorAccent">#25496D</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#F2FAFF</item><item name="android:navigationBarColor">#F2FAFF</item>
+    </style>
+</resources>

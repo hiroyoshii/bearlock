@@ -1,0 +1,9 @@
+<resources>
+    <string name="access_description">Uses app-display events and the current window root’s package identifier to restore local blocking after restart. Requires window-content access for that metadata, but does not inspect text, input, or child nodes or send data. Enable only for method B.</string>
+    <style name="LabTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#294B60</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#F3F8FA</item>
+    </style>
+</resources>

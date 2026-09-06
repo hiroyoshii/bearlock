@@ -1,0 +1,140 @@
+[
+  {
+    "method": "ACCESSIBILITY",
+    "window": {
+      "method": "ACCESSIBILITY",
+      "target": "com.hiyozoo.bearlock.probe",
+      "start": 1788671433901,
+      "end": 1788671613901,
+      "event": "created",
+      "wallMs": 1788671434011,
+      "elapsedMs": 232661,
+      "uptimeMs": 232661,
+      "sdk": 35,
+      "device": "Google sdk_gphone64_x86_64"
+    },
+    "observedAtMs": 1788671547152,
+    "events": [
+      {
+        "method": "ACCESSIBILITY",
+        "target": "com.hiyozoo.bearlock.probe",
+        "start": 1788671433901,
+        "end": 1788671613901,
+        "event": "created",
+        "wallMs": 1788671434011,
+        "elapsedMs": 232661,
+        "uptimeMs": 232661,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788671433901,
+        "end": 1788671613901,
+        "event": "phase",
+        "wallMs": 1788671434026,
+        "elapsedMs": 232675,
+        "uptimeMs": 232675,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "event": "access_service_connected",
+        "wallMs": 1788671551029,
+        "elapsedMs": 104773,
+        "uptimeMs": 104773,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "active",
+        "start": 1788671433901,
+        "end": 1788671613901,
+        "event": "phase",
+        "wallMs": 1788671551163,
+        "elapsedMs": 104908,
+        "uptimeMs": 104908,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788671555754,
+        "event": "foreground_changed",
+        "wallMs": 1788671555914,
+        "elapsedMs": 109659,
+        "uptimeMs": 109659,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788671565752,
+        "event": "foreground_changed",
+        "wallMs": 1788671566075,
+        "elapsedMs": 119820,
+        "uptimeMs": 119820,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788671573176,
+        "event": "foreground_changed",
+        "wallMs": 1788671573202,
+        "elapsedMs": 126946,
+        "uptimeMs": 126946,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "isTarget": false,
+        "sourceWallMs": 1788671583577,
+        "event": "foreground_changed",
+        "wallMs": 1788671583631,
+        "elapsedMs": 137375,
+        "uptimeMs": 137375,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "android.intent.action.BOOT_COMPLETED",
+        "event": "schedule_receiver",
+        "wallMs": 1788671587299,
+        "elapsedMs": 141044,
+        "uptimeMs": 141044,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "action": "com.hiyozoo.bearlock.lab.BOUNDARY",
+        "event": "schedule_receiver",
+        "wallMs": 1788671614046,
+        "elapsedMs": 167791,
+        "uptimeMs": 167791,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      },
+      {
+        "method": "ACCESSIBILITY",
+        "phase": "ended",
+        "start": 1788671433901,
+        "end": 1788671613901,
+        "event": "phase",
+        "wallMs": 1788671614581,
+        "elapsedMs": 168326,
+        "uptimeMs": 168326,
+        "sdk": 35,
+        "device": "Google sdk_gphone64_x86_64"
+      }
+    ],
+    "afterBootEvents": [],
+    "persistedWindow": "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n<map>\n    <string name=\"window\">{&quot;method&quot;:&quot;ACCESSIBILITY&quot;,&quot;target&quot;:&quot;com.hiyozoo.bearlock.probe&quot;,&quot;start&quot;:1788671433901,&quot;end&quot;:1788671613901}</string>\n</map>"
+  }
+]

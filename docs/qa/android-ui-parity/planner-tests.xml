@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.hiyozoo.bearlock.PlannerTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-09-06T08:03:24.195Z" hostname="hiroyoshii" time="0.193">
+  <properties/>
+  <testcase name="recentKeepsThreePlusPins" classname="com.hiyozoo.bearlock.PlannerTest" time="0.054"/>
+  <testcase name="futureRecurringConflictRejected" classname="com.hiyozoo.bearlock.PlannerTest" time="0.017"/>
+  <testcase name="dailyCrossMidnightAndDstUseSavedZone" classname="com.hiyozoo.bearlock.PlannerTest" time="0.01"/>
+  <testcase name="pendingCanBeEditedAndDeleted" classname="com.hiyozoo.bearlock.PlannerTest" time="0.001"/>
+  <testcase name="reenableRecurringRechecksConflicts" classname="com.hiyozoo.bearlock.PlannerTest" time="0.004"/>
+  <testcase name="exactEndAndMultipleTargets" classname="com.hiyozoo.bearlock.PlannerTest" time="0.0"/>
+  <testcase name="adjacentAllowedOverlappingRejectedWithoutMutation" classname="com.hiyozoo.bearlock.PlannerTest" time="0.001"/>
+  <testcase name="invalidEmptyOrLongLockRejected" classname="com.hiyozoo.bearlock.PlannerTest" time="0.001"/>
+  <testcase name="editingRecurringParentPreservesActiveSnapshot" classname="com.hiyozoo.bearlock.PlannerTest" time="0.005"/>
+  <testcase name="domainMatchingIsBoundaryAware" classname="com.hiyozoo.bearlock.PlannerTest" time="0.09"/>
+  <testcase name="activeCannotBeEditedOrDeleted" classname="com.hiyozoo.bearlock.PlannerTest" time="0.002"/>
+  <testcase name="missedExpiredOccurrenceDoesNotCreateLock" classname="com.hiyozoo.bearlock.PlannerTest" time="0.0"/>
+  <testcase name="disablingRecurringPreservesActiveAndSkipsFutureBoundaries" classname="com.hiyozoo.bearlock.PlannerTest" time="0.001"/>
+  <testcase name="endedSessionDoesNotReplayOnClockRollback" classname="com.hiyozoo.bearlock.PlannerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

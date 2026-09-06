@@ -1,0 +1,161 @@
+{
+  "date": "2026-09-06",
+  "avd": "Pixel_9a",
+  "api": 35,
+  "android": "15",
+  "targetSdk": 36,
+  "appApkSha256": "10bfac63a55fb7a061aecac9b1b64f53ecfab58f97d3e94b0a01572686bcbd75",
+  "scope": "Exploratory emulator tests; one active tap and one post-end tap per trial; no physical-device battery or reliability claims.",
+  "trials": [
+    {
+      "method": "USAGE",
+      "scenario": "launch-1",
+      "start": 1788670898077,
+      "end": 1788670910077,
+      "activeTapRequestedAtMs": 1788670904065,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": 1139,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 197
+    },
+    {
+      "method": "USAGE",
+      "scenario": "launch-2",
+      "start": 1788670917903,
+      "end": 1788670929903,
+      "activeTapRequestedAtMs": 1788670923480,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": 218,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 92
+    },
+    {
+      "method": "USAGE",
+      "scenario": "launch-3",
+      "start": 1788670937528,
+      "end": 1788670949528,
+      "activeTapRequestedAtMs": 1788670942489,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": 283,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 219
+    },
+    {
+      "method": "USAGE",
+      "scenario": "scheduled-open",
+      "start": 1788670965430,
+      "end": 1788670977430,
+      "activeTapRequestedAtMs": 1788670969689,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": null,
+      "scheduledStartToAddMs": 164,
+      "endToRemovalMs": 242
+    },
+    {
+      "method": "USAGE",
+      "scenario": "screen-off",
+      "start": 1788670992014,
+      "end": 1788671004014,
+      "activeTapRequestedAtMs": 1788670999790,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": null,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 229
+    },
+    {
+      "method": "USAGE",
+      "scenario": "reject-overlay",
+      "start": 1788671012332,
+      "end": 1788671024332,
+      "activeTapRequestedAtMs": 1788671017182,
+      "tapsDuringLock": 1,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": null,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 190
+    },
+    {
+      "method": "ACCESSIBILITY",
+      "scenario": "launch-1",
+      "start": 1788671035475,
+      "end": 1788671047475,
+      "activeTapRequestedAtMs": 1788671039593,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": 227,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 31
+    },
+    {
+      "method": "ACCESSIBILITY",
+      "scenario": "launch-2",
+      "start": 1788671054423,
+      "end": 1788671066423,
+      "activeTapRequestedAtMs": 1788671057758,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": 377,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 31
+    },
+    {
+      "method": "ACCESSIBILITY",
+      "scenario": "launch-3",
+      "start": 1788671073388,
+      "end": 1788671085388,
+      "activeTapRequestedAtMs": 1788671077494,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": 461,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 34
+    },
+    {
+      "method": "ACCESSIBILITY",
+      "scenario": "scheduled-open",
+      "start": 1788671101104,
+      "end": 1788671113104,
+      "activeTapRequestedAtMs": 1788671105141,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": null,
+      "scheduledStartToAddMs": 35,
+      "endToRemovalMs": 36
+    },
+    {
+      "method": "ACCESSIBILITY",
+      "scenario": "screen-off",
+      "start": 1788671128952,
+      "end": 1788671140952,
+      "activeTapRequestedAtMs": 1788671136600,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": null,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 36
+    },
+    {
+      "method": "ACCESSIBILITY",
+      "scenario": "reject-overlay",
+      "start": 1788671150299,
+      "end": 1788671162299,
+      "activeTapRequestedAtMs": 1788671155086,
+      "tapsDuringLock": 0,
+      "tapsAfterEnd": 1,
+      "resumeToAddMs": null,
+      "scheduledStartToAddMs": null,
+      "endToRemovalMs": 30
+    }
+  ],
+  "finalApkSha256": "9a49f05510c77ade22f3d8cb76c91cdbf3c3a1fcc8d5d2865ad6e71d3f089888",
+  "finalApkDifference": "After measurement, MainActivity was changed to restore the saved method/target in the selectors while a window is pending. Blocking engine unchanged.",
+  "reboot": {
+    "USAGE": "Inconclusive: 90-second experiment could not observe an active window after slow emulator boot.",
+    "ACCESSIBILITY": "180-second experiment: window persisted, service reconnected after target launch; no blocking overlay at initial observation or later during the remaining window. Recovery gap remains."
+  }
+}
