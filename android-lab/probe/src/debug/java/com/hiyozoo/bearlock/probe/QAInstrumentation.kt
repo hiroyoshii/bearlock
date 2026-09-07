@@ -14,7 +14,13 @@ class QAInstrumentation: Instrumentation() {
     override fun onStart() {
         try {
             val automation=getUiAutomation(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
-            val root=automation.rootInActiveWindow ?: error("No active window")
+            var candidate=automation.rootInActiveWindow
+            for(attempt in 0 until 20) {
+                if(candidate!=null) break
+                android.os.SystemClock.sleep(100)
+                candidate=automation.rootInActiveWindow
+            }
+            val root=candidate ?: error("No active window after accessibility connection")
             val output=StringWriter(); val xml=Xml.newSerializer(); xml.setOutput(output)
             xml.startTag(null,"hierarchy")
             fun write(node: AccessibilityNodeInfo) {

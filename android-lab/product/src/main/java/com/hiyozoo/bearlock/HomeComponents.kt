@@ -9,18 +9,23 @@ class SelectionSummary(private val a: MainActivity) {
     fun show(parent: LinearLayout, locked: Boolean) {
         val c=u.card(); val top=u.row()
         top.addView(u.label(a.t("選択済み対象","Selected targets"),17f,true),LinearLayout.LayoutParams(0,-2,1f))
-        top.addView(u.label(if(a.draft.empty) a.t("未選択","None") else a.t("保存済み","Saved"),14f,true,true))
-        u.add(c,top,12)
+        top.addView(u.label(if(a.draft.empty) a.t("未選択","None") else a.t("保存済み","Saved"),13f,false,true))
+        u.add(c,top,8)
         if(a.draft.empty) u.add(c,u.label(a.t("ロックする対象を選んでください。","Choose the targets you want to lock."),15f,muted=true),12)
         else {
-            u.add(c,u.label(a.t("${a.draft.count}件の対象","${a.draft.count} targets"),15f,muted=true),10)
-            val counts=u.row()
-            for((label,count) in listOf(a.t("アプリ","Apps") to a.draft.apps.size,a.t("カテゴリ","Categories") to a.draft.categories.size,a.t("Web","Web") to a.draft.domains.size)) {
-                counts.addView(u.label("$label $count",12f,true,true).apply { gravity=Gravity.CENTER; setPadding(u.dp(4),u.dp(6),u.dp(4),u.dp(6)); background=u.bg(Palette.background) },LinearLayout.LayoutParams(0,-2,1f).apply { rightMargin=u.dp(4) })
+            val total=u.label(a.t("${a.draft.count}件の対象","${a.draft.count} targets"),14f,muted=true)
+            val counts=u.column()
+            val entries=listOf(a.t("アプリ","Apps") to a.draft.apps.size,a.t("カテゴリ","Categories") to a.draft.categories.size,a.t("Web","Web") to a.draft.domains.size).filter { it.second>0 }
+            u.choices(counts,entries.map { (label,count) -> u.label("$label $count",12f,false,true).apply { gravity=Gravity.CENTER; setPadding(u.dp(8),u.dp(5),u.dp(8),u.dp(5)); background=u.bg(Palette.background) } },if(u.compact) 1 else entries.size.coerceAtLeast(1),4)
+            if(u.compact) { u.add(c,total,8); u.add(c,counts,0) }
+            else {
+                val summary=u.row(); summary.addView(total,LinearLayout.LayoutParams(-2,-2).apply { rightMargin=u.dp(12) }); summary.addView(counts,LinearLayout.LayoutParams(0,-2,1f)); u.add(c,summary,0)
             }
-            u.add(c,counts,6)
         }
-        u.add(c,u.textButton(a.t("☷  対象一覧","☷  Target list")+if(a.expandedTargets) "  ⌃" else "  ⌄") { a.expandedTargets=!a.expandedTargets; a.render() }.apply { minHeight=u.dp(32); gravity=Gravity.START or Gravity.CENTER_VERTICAL; contentDescription=a.t("対象一覧","Target list"); setTypeface(typeface,android.graphics.Typeface.BOLD) },8)
+        val disclosure=u.row().apply { minimumHeight=u.dp(44); isClickable=true; isFocusable=true; contentDescription=a.t("対象一覧","Target list"); setOnClickListener { a.expandedTargets=!a.expandedTargets; a.render() } }
+        disclosure.addView(u.label(a.t("対象一覧","Target list"),14f,false,true),LinearLayout.LayoutParams(0,-2,1f))
+        disclosure.addView(ImageView(a).apply { setImageDrawable(LineIcon(if(a.expandedTargets) "up" else "down",Palette.muted)); importantForAccessibility=android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(u.dp(18),u.dp(18)))
+        u.add(c,disclosure,4)
         if(a.expandedTargets) {
             if(!a.draft.empty) u.add(c,u.label(a.catalog.summary(a.draft),14f,muted=true),12)
             if(!locked && a.state.recent.isNotEmpty()) {
@@ -55,11 +60,11 @@ class ActiveCard(private val u: Ui) {
     fun show(parent: LinearLayout, remaining: String, wakes: String): TextView {
         val c=u.card().apply { background=u.bg(Palette.ice,8,true); setPadding(u.dp(28),u.dp(28),u.dp(28),u.dp(28)); gravity=Gravity.CENTER_HORIZONTAL }
         u.add(c,u.asset(R.drawable.bear_sleep,220),18)
-        u.add(c,u.label(tr(u.c,"熊は眠っています。","Bear is sleeping."),28f,true).apply { gravity=Gravity.CENTER },10)
-        u.add(c,u.label(tr(u.c,"熊を起こさないでください。","Please do not wake the bear."),15f,muted=true).apply { gravity=Gravity.CENTER },16)
+        u.add(c,u.label(tr(u.c,"熊は眠っています。","Bear is sleeping."),26f,true).apply { gravity=Gravity.CENTER },16)
+        u.add(c,u.label(tr(u.c,"熊を起こさないでください。","Please do not wake the bear."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
         val countdown=u.label(remaining,44f,true).apply { gravity=Gravity.CENTER; typeface=android.graphics.Typeface.create("sans-serif-rounded",android.graphics.Typeface.BOLD) }
-        u.add(c,countdown,10)
-        u.add(c,u.label(tr(u.c,"${wakes}に起床","Wakes at $wakes"),16f).apply { gravity=Gravity.CENTER },0)
+        u.add(c,countdown,20)
+        u.add(c,u.label(tr(u.c,"${wakes}に起床","Wakes at $wakes"),15f,muted=true).apply { gravity=Gravity.CENTER },0)
         u.add(parent,c,20); return countdown
     }
 }
@@ -76,7 +81,7 @@ class ScheduleList(private val a: MainActivity) {
             r.addView(ImageView(a).apply { setImageDrawable(LineIcon(if(rule.recurring) "repeat" else "calendar",Palette.steel)) },LinearLayout.LayoutParams(u.dp(22),u.dp(22)).apply { rightMargin=u.dp(12) })
             val info=u.column(); u.add(info,u.label(if(rule.recurring) a.t("繰り返し","Repeats") else rule.title,15f,true),4)
             val next=rule.copy(enabled=true).occurrences(now,now+8*Planner.DAY).firstOrNull()
-            u.add(info,u.label(next?.let { dateText(it.start)+" → "+dateText(it.end) } ?: a.t("次の予定はありません","No upcoming lock"),12f,muted=true),0)
+            u.add(info,u.label(next?.let { dateText(it.start)+"\n→ "+dateText(it.end) } ?: a.t("次の予定はありません","No upcoming lock"),12f,muted=true),0)
             if(!rule.enabled) u.add(info,u.label(a.t("オフ","Off"),11f,true,true),0)
             r.addView(info,LinearLayout.LayoutParams(0,-2,1f))
             r.addView(u.iconButton("✎",a.t("予約を編集","Edit scheduled lock")) { a.edit(rule) })

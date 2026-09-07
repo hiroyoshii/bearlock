@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Preset buttons retain bounds across four changes",
+    "Weekday buttons retain bounds when toggled off/on",
+    "設定 title is horizontally centered",
+    "ロック対象 title is horizontally centered",
+    "All four modes fit horizontally at 320dp and 150% text",
+    "Actual confirmation can be cancelled at 150% text",
+    "Actual confirmation can be cancelled in landscape at 150% text",
+    "Long domain plus app name: confirmation scroll and cancel at 150% text"
+  ],
+  "note": "Video records actual controls. android/ images are read-only visual fixtures. Large text images require visual inspection."
+}

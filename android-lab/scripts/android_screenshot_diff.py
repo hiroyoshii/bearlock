@@ -4,9 +4,11 @@ Pixel changes describe images, not feature parity or a pass/fail quality score.
 """
 from pathlib import Path
 from PIL import Image,ImageChops,ImageDraw,ImageFont
-import hashlib,json
+import hashlib,json,argparse
 ROOT=Path(__file__).resolve().parents[2]
-OUT=ROOT/'docs/qa/android-ui-parity'
+parser=argparse.ArgumentParser()
+parser.add_argument('--directory',type=Path,default=ROOT/'docs/qa/android-ui-parity')
+OUT=parser.parse_args().directory
 RESAMPLE=getattr(Image,'Resampling',Image)
 SCREENS=['home','setup','composeRepeat','activeLock','confirmation']
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',18)

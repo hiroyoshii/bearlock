@@ -13,10 +13,10 @@ class SettingsScreen(private val a: MainActivity) {
     private fun link(path: String) = a.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://bearlock.hiyozoo.com/"+t("","en/")+path+"/")))
     private fun row(parent: LinearLayout, label: String, action: ()->Unit) = u.add(parent,u.textButton(label,action).apply { gravity=Gravity.START or Gravity.CENTER_VERTICAL; setTextColor(Palette.steel) },0)
     fun show(parent: LinearLayout) {
-        u.add(parent,u.asset(R.drawable.bear_ready,108),12)
-        u.add(parent,u.label(t("指定した時間だけアプリをロックし、自動で解除します。","Set app locks that end automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },24)
+        u.add(parent,u.asset(R.drawable.bear_ready,80),12)
+        u.add(parent,u.label(t("指定時間が終わると、自動でロックを解除します。","Set app locks that end automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.START; setTextColor(Palette.muted) },24)
         u.add(parent,u.label(t("データの扱い","Data handling"),13f,true,true),8)
-        val data=u.card(); u.add(data,u.label(t("選択対象と予約はこの端末に保存されます。アカウント、クラウド同期、広告、分析、トラッキングはありません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),16f),0); u.add(parent,data,24)
+        val data=u.card(); u.add(data,u.label(t("選択対象と予約はこの端末に保存されます。アカウント、クラウド同期、広告、分析、トラッキングはありません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),15f),0); u.add(parent,data,24)
         u.add(parent,u.label(t("情報","Information"),13f,true,true),8)
         val info=u.card()
         row(info,t("プライバシーポリシー","Privacy Policy")) { link("privacy") }

@@ -31,6 +31,8 @@ open class MainActivity : Activity() {
     var title = ""
     var state = State()
     private lateinit var body: LinearLayout
+    private var renderedPage: String? = null
+    private var contentScroll: ScrollView? = null
     private val handler = Handler(Looper.getMainLooper())
     var pickerCount: TextView? = null
     var pickerSave: Button? = null
@@ -121,6 +123,8 @@ open class MainActivity : Activity() {
         navigate("compose")
     }
     open fun render() {
+        val previousY=if(renderedPage==page) contentScroll?.scrollY ?: 0 else 0
+        renderedPage=page
         countdown=null; pickerCount=null; pickerSave=null; load(); lastStatus=statusKey()
         val root=ui.column().apply { setBackgroundColor(Palette.background) }
         root.setOnApplyWindowInsetsListener { v,ins -> v.setPadding(ins.systemWindowInsetLeft,ins.systemWindowInsetTop,ins.systemWindowInsetRight,ins.systemWindowInsetBottom); ins }
@@ -131,14 +135,19 @@ open class MainActivity : Activity() {
                 bar.addView(View(this),LinearLayout.LayoutParams(0,1,1f))
                 bar.addView(ui.iconButton("⚙",t("設定","Settings")) { navigate("settings") })
             } else {
-                bar.addView(ui.textButton(t("キャンセル","Cancel")) { goBack() },LinearLayout.LayoutParams(-2,-2))
+                val toolbar=android.widget.RelativeLayout(this)
+                val cancel=ui.textButton(t("キャンセル","Cancel")) { goBack() }.apply { id=View.generateViewId(); textSize=14f }
+                val save=ui.textButton(if(page=="compose") t("保存","Save") else "") { if(page=="compose") Composer(this).saveEdit() }.apply { id=View.generateViewId(); textSize=14f; visibility=if(page=="compose") View.VISIBLE else View.INVISIBLE }
+                val side=ui.dp(if(ui.compact) 132 else 96)
+                toolbar.addView(cancel,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_START) })
+                toolbar.addView(save,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_END) })
                 val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロックを編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); else->t("設定","Settings") }
-                bar.addView(ui.label(name,17f,true).apply { gravity=Gravity.CENTER },LinearLayout.LayoutParams(0,-2,1f))
-                if(page=="compose") bar.addView(ui.textButton(t("保存","Save")) { Composer(this).saveEdit() })
+                toolbar.addView(ui.label(name,17f,true).apply { gravity=Gravity.CENTER; minHeight=ui.dp(50) },android.widget.RelativeLayout.LayoutParams(-1,-2).apply { if(ui.compact) addRule(android.widget.RelativeLayout.BELOW,cancel.id) else { addRule(android.widget.RelativeLayout.END_OF,cancel.id); addRule(android.widget.RelativeLayout.START_OF,save.id) } })
+                bar.addView(toolbar,LinearLayout.LayoutParams(-1,-2))
             }
             root.addView(bar)
         }
-        val scroll=ScrollView(this).apply { isFillViewport=true; clipToPadding=false }
+        val scroll=ScrollView(this).apply { isFillViewport=true; clipToPadding=false }; contentScroll=scroll
         body=ui.column().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(24)) }
         scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
         when(page) {
@@ -154,6 +163,7 @@ open class MainActivity : Activity() {
             ui.add(footer,pickerSave!!,0); root.addView(footer)
         }
         setContentView(root); root.requestApplyInsets()
+        scroll.post { scroll.scrollTo(0,previousY) }
         if(Build.VERSION.SDK_INT>=30) window.insetsController?.setSystemBarsAppearance(
             android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
             android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)

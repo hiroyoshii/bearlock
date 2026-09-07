@@ -10,32 +10,32 @@ class TargetPicker(private val a: MainActivity) {
     fun show(parent: LinearLayout) {
 
         val count=u.label(t("${a.draft.count} 件を選択中","${a.draft.count} selected"),17f,true)
-        u.add(parent,count,12)
+        // Selection count is shown once in the fixed footer.
         fun update() {
             count.text=t("${a.draft.count} 件を選択中","${a.draft.count} selected")
             a.pickerCount?.text=t("${a.draft.count}件を選択中","${a.draft.count} selected")
             a.pickerSave?.apply { isEnabled=!a.draft.empty; alpha=if(isEnabled) 1f else .5f }
         }
         val tabIds=List(3) { android.view.View.generateViewId() }
-        val tabs=RadioGroup(a).apply { orientation=RadioGroup.HORIZONTAL }
-        for((i,name) in listOf(t("アプリ","Apps"),t("Web","Web"),t("カテゴリ","Categories")).withIndex()) tabs.addView(RadioButton(a).apply { id=tabIds[i]; text=name; setTextColor(Palette.navy) },RadioGroup.LayoutParams(0,-2,1f))
+        val tabs=RadioGroup(a).apply { orientation=if(u.compact) RadioGroup.VERTICAL else RadioGroup.HORIZONTAL }
+        for((i,name) in listOf(t("アプリ","Apps"),t("Web","Web"),t("カテゴリ","Categories")).withIndex()) tabs.addView(RadioButton(a).apply { id=tabIds[i]; text=name; setTextColor(Palette.navy) },if(u.compact) RadioGroup.LayoutParams(-1,-2) else RadioGroup.LayoutParams(0,-2,1f))
         u.add(parent,tabs,16)
         val content=u.column(); u.add(parent,content)
         fun apps() {
             content.removeAllViews()
             val search=u.input(t("アプリを検索","Search apps")).apply { isSingleLine=true }
             u.add(content,search,12)
-            val list=u.column(); u.add(content,list)
+            val list=u.column().apply { background=u.bg(Palette.white) }; u.add(content,list)
             val entries=a.catalog.apps()
             fun showApps(query: String) {
                 list.removeAllViews()
                 for(app in entries.filter { it.name.contains(query,true) || it.pkg.contains(query,true) }) {
-                    val row=u.row().apply { setPadding(u.dp(8),u.dp(6),u.dp(8),u.dp(6)); background=u.bg(Palette.white,12) }
+                    val row=u.row().apply { setPadding(u.dp(8),u.dp(2),u.dp(8),u.dp(2)); background=u.bg(Palette.white,12) }
                     row.addView(ImageView(a).apply { setImageDrawable(app.icon); importantForAccessibility=android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(u.dp(36),u.dp(36)).apply { rightMargin=u.dp(12) })
                     val check=CheckBox(a).apply { text=app.name; textSize=16f; setTextColor(Palette.navy); minHeight=u.dp(52); isChecked=app.pkg in a.draft.apps
                         setOnCheckedChangeListener { _,on -> a.draft=a.draft.copy(apps=if(on) a.draft.apps+app.pkg else a.draft.apps-app.pkg); update() }
                     }
-                    row.addView(check,LinearLayout.LayoutParams(0,-2,1f)); u.add(list,row,8)
+                    row.addView(check,LinearLayout.LayoutParams(0,-2,1f)); u.add(list,row,0)
                 }
                 if(list.childCount==0) u.add(list,u.label(t("該当するアプリがありません。","No matching apps."),15f,muted=true))
             }

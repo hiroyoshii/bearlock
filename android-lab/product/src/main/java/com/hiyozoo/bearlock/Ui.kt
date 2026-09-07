@@ -27,6 +27,7 @@ object Palette {
     val warning = Color.rgb(123,65,20); val white = Color.WHITE
 }
 class Ui(val c: Context) {
+    val compact get() = c.resources.configuration.screenWidthDp < 360 || c.resources.configuration.fontScale > 1.2f
     fun dp(n: Int) = (n*c.resources.displayMetrics.density).toInt()
     fun bg(color: Int, radius: Int = 8, border: Boolean = false) = GradientDrawable().apply {
         setColor(color); cornerRadius = dp(radius).toFloat(); if (border) setStroke(dp(1),Palette.line)
@@ -42,7 +43,7 @@ class Ui(val c: Context) {
     fun button(value: String, primary: Boolean = false, action: () -> Unit) = Button(c).apply {
         contentDescription=value
         text = if(value in listOf("ロック開始","ロックを予約","Start lock","Schedule lock")) android.text.SpannableString("  $value").apply {
-            setSpan(android.text.style.ImageSpan(LineIcon("lock",Palette.white).apply { setBounds(0,0,dp(18),dp(18)) },android.text.style.ImageSpan.ALIGN_BASELINE),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(android.text.style.ImageSpan(LineIcon("lock",Palette.white).apply { setBounds(0,0,dp(16),dp(16)) },android.text.style.ImageSpan.ALIGN_CENTER),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         } else value
         isAllCaps = false; textSize = 16f; minHeight = dp(50); minimumHeight=0; minimumWidth=0; includeFontPadding=false
         setPadding(dp(16),dp(8),dp(16),dp(8)); setTextColor(if (primary) Palette.white else Palette.navy)
@@ -70,12 +71,15 @@ class Ui(val c: Context) {
     fun iconButton(symbol: String, description: String, action: () -> Unit) = textButton(symbol,action).apply {
         contentDescription=description
         val name=when(symbol) { "⚙"->"gear"; "✎"->"edit"; "♜"->"trash"; else->"more" }
-        text=""; setCompoundDrawables(LineIcon(name,if(name=="trash") 0xFFFF3B30.toInt() else Palette.steel).apply { setBounds(0,0,dp(24),dp(24)) },null,null,null)
-        setPadding(dp(10),dp(12),dp(10),dp(12)); layoutParams=LinearLayout.LayoutParams(dp(44),dp(48))
+        text=""; setCompoundDrawables(LineIcon(name,if(name=="trash") 0xFFFF3B30.toInt() else Palette.steel).apply { setBounds(0,0,dp(20),dp(20)) },null,null,null)
+        setPadding(dp(12),dp(14),dp(12),dp(14)); layoutParams=LinearLayout.LayoutParams(dp(44),dp(48))
     }
     fun pair(parent: LinearLayout, name: String, value: String, gap: Int = 12) {
-        val r=row(); r.addView(label(name,15f,true,true),LinearLayout.LayoutParams(0,-2,1f))
-        r.addView(label(value,15f,true).apply { gravity=Gravity.END },LinearLayout.LayoutParams(0,-2,2f)); add(parent,r,gap)
+        if(compact) {
+            val group=column(); add(group,label(name,14f,false,true),4); add(group,label(value,15f),0); add(parent,group,gap); return
+        }
+        val r=row(); r.addView(label(name,14f,false,true),LinearLayout.LayoutParams(0,-2,1f))
+        r.addView(label(value,15f,false).apply { gravity=Gravity.END },LinearLayout.LayoutParams(0,-2,2f)); add(parent,r,gap)
     }
     fun art(sleep: Boolean = false, height: Int = 180) = ImageView(c).apply {
         setImageResource(if(sleep) R.drawable.bear_sleep else R.drawable.bear_ready)
@@ -85,6 +89,16 @@ class Ui(val c: Context) {
     fun add(parent: LinearLayout, child: View, gap: Int = 12) {
         val p = child.layoutParams as? LinearLayout.LayoutParams ?: LinearLayout.LayoutParams(-1,-2)
         p.bottomMargin = dp(gap); parent.addView(child,p)
+    }
+    fun choices(parent: LinearLayout, items: List<View>, columns: Int, gap: Int = 8) {
+        for (chunk in items.chunked(columns)) {
+            val row=row()
+            chunk.forEachIndexed { index, view ->
+                row.addView(view,LinearLayout.LayoutParams(0,-2,1f).apply { if(index<columns-1) rightMargin=dp(8) })
+            }
+            repeat(columns-chunk.size) { row.addView(View(c),LinearLayout.LayoutParams(0,1,1f)) }
+            add(parent,row,gap)
+        }
     }
     fun heading(parent: LinearLayout, title: String, sub: String? = null) {
         add(parent,label(title,28f,true),8); sub?.let { add(parent,label(it,15f,muted=true),24) }
