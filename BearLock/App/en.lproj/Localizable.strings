@@ -3,7 +3,6 @@
 "Active lock" = "Active lock";
 "App" = "App";
 "Apps" = "Apps";
-"Allow Screen Time access" = "Allow Screen Time access";
 "Approved" = "Approved";
 "Authorization" = "Authorization";
 "Authorize Screen Time" = "Authorize Screen Time";
@@ -18,6 +17,7 @@
 "Confirm shield appears" = "Confirm shield appears";
 "Confirm shield clears" = "Confirm shield clears";
 "Confirmation" = "Confirmation";
+"Continue" = "Continue";
 "Create a short lock" = "Create a short lock";
 "Date" = "Date";
 "Date & Time" = "Date & Time";
@@ -85,7 +85,7 @@
 "Scheduled rules" = "Scheduled rules";
 "Schedules" = "Schedules";
 "Safety policy" = "Safety policy";
-"Screen Timeアクセスを許可" = "Allow Screen Time access";
+"Screen Time access is used to select and lock apps on this device." = "Screen Time access is used to select and lock apps on this device.";
 "Select blocked apps" = "Select blocked apps";
 "Select blocked apps first." = "Select blocked apps first.";
 "Choose a lock duration longer than zero." = "Choose a lock duration longer than zero.";

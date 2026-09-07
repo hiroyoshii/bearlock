@@ -3,7 +3,6 @@
 "Active lock" = "ロック中";
 "App" = "アプリ";
 "Apps" = "対象アプリ";
-"Allow Screen Time access" = "Screen Timeアクセスを許可";
 "Approved" = "許可済み";
 "Authorization" = "権限";
 "Authorize Screen Time" = "Screen Timeを許可";
@@ -18,6 +17,7 @@
 "Confirm shield appears" = "シールド表示を確認する";
 "Confirm shield clears" = "シールド解除を確認する";
 "Confirmation" = "確認";
+"Continue" = "続ける";
 "Create a short lock" = "短いロックを作成する";
 "Date" = "日時";
 "Date & Time" = "日時指定";
@@ -85,7 +85,7 @@
 "Scheduled rules" = "予定数";
 "Schedules" = "予定";
 "Safety policy" = "安全ポリシー";
-"Screen Timeアクセスを許可" = "Screen Timeアクセスを許可";
+"Screen Time access is used to select and lock apps on this device." = "Screen Timeアクセスは、この端末で対象アプリを選び、ロックするために使用します。";
 "Select blocked apps" = "ブロック対象アプリを選ぶ";
 "Select blocked apps first." = "まずはブロック対象アプリを選びます。";
 "Choose a lock duration longer than zero." = "ロック時間を1分以上にしてください。";

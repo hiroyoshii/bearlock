@@ -109,6 +109,9 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - [x] Version 1.0から任意サポートIAPを外し、次版以降へ延期する。
   - アプリ内導線、StoreKit実装、ローカライズ、公開中のPrivacy Policy / SupportページからIAP記述を削除する。
   - App Store ConnectのIAP商品は「提出準備中」のまま保持し、Version 1.0の提出物には追加しない。
+- [x] App Review Guideline 5.1.1(iv) の指摘に対応し、Screen Time権限要求前のボタンを中立的な「続ける / Continue」に変更する。
+- [ ] IAPを含まない新しいReleaseビルドをアップロードし、Version 1.0の審査対象ビルドを差し替える。
+- [ ] App Store ConnectでVersion 1.0の提出物にIAPが追加されていないことを確認して再提出する。
 
 ### 4. App Store Connectを入力する
 

@@ -20,12 +20,17 @@ struct SetupView: View {
             }
 
             VStack(spacing: 12) {
+                Text("Screen Time access is used to select and lock apps on this device.")
+                    .font(.footnote)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+
                 Button {
                     Task {
                         await model.requestAuthorization()
                     }
                 } label: {
-                    Label("Allow Screen Time access", systemImage: "hourglass")
+                    Label("Continue", systemImage: "arrow.right")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
