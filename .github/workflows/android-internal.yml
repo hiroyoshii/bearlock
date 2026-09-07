@@ -1,0 +1,83 @@
+name: Android Internal Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_play:
+        description: 'Upload to Google Play internal testing (first release: leave off)'
+        type: boolean
+        default: false
+      release_status:
+        description: 'draft: save in Console / completed: release to internal testers'
+        type: choice
+        options: [draft, completed]
+        default: draft
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-internal-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: android-internal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Restore upload key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.BEARLOCK_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_BASE64" || { echo 'Missing BEARLOCK_KEYSTORE_BASE64'; exit 1; }
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/bearlock-upload.jks"
+      - name: Check, build and verify signed AAB
+        working-directory: android-lab
+        env:
+          BEARLOCK_KEYSTORE: ${{ runner.temp }}/bearlock-upload.jks
+          BEARLOCK_STORE_PASSWORD: ${{ secrets.BEARLOCK_STORE_PASSWORD }}
+          BEARLOCK_KEY_ALIAS: ${{ secrets.BEARLOCK_KEY_ALIAS }}
+          BEARLOCK_KEY_PASSWORD: ${{ secrets.BEARLOCK_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$BEARLOCK_STORE_PASSWORD"
+          test -n "$BEARLOCK_KEY_ALIAS"
+          test -n "$BEARLOCK_KEY_PASSWORD"
+          ./gradlew :product:testDebugUnitTest :product:lintRelease :product:bundleRelease --console=plain
+          jarsigner -verify -strict -keystore "$BEARLOCK_KEYSTORE" -storepass:env BEARLOCK_STORE_PASSWORD product/build/outputs/bundle/release/product-release.aab "$BEARLOCK_KEY_ALIAS"
+          sha256sum product/build/outputs/bundle/release/product-release.aab
+      - name: Save signed AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: bearlock-signed-aab-${{ github.run_number }}
+          path: android-lab/product/build/outputs/bundle/release/product-release.aab
+          if-no-files-found: error
+          retention-days: 30
+      - name: Check Play credentials
+        if: inputs.upload_to_play
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: test -n "$PLAY_JSON" || { echo 'Missing PLAY_SERVICE_ACCOUNT_JSON'; exit 1; }
+      - name: Upload to internal testing
+        if: inputs.upload_to_play
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.hiyozoo.bearlock
+          releaseFiles: android-lab/product/build/outputs/bundle/release/product-release.aab
+          tracks: internal
+          status: ${{ inputs.release_status }}
+      - name: Remove temporary upload key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/bearlock-upload.jks"
