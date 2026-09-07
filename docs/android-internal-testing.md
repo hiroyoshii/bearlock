@@ -134,6 +134,7 @@ pushだけでは配布は走らない。Run workflowが配布の開始操作で�
 | Actions一覧にworkflowがない | workflowがmainにpushされているか |
 | main以外の実行がSkipped | mainを選んで再実行する |
 | Missing secret / 鍵の復元失敗 | Environment名、Secret名、Base64全文を確認 |
+| Gradle ZIPのDownload timeout | Wrapperの待ち時間は120秒に設定。修正後のmainを選んでRun workflowで新規実行する。古い実行のRe-runは古い設定を使う |
 | keystore password incorrect / key alias not found | STORE_PASSWORD、KEY_PASSWORD、aliasを確認 |
 | version code already used | Playの最大versionCodeより大きくして新規実行 |
 | Package not found | 初回の手動AABアップロード、アプリ権限を確認 |
