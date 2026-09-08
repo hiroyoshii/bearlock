@@ -36,9 +36,7 @@ struct DeviceActivityScheduleController: ScheduleControlling {
         // natural end callback. Keep a separate one-shot monitor for this snapshot.
         let name = DeviceActivityName("bearlock.completion.\(active.id.uuidString)")
         guard !center.activities.contains(name) else { return }
-        let snapshot = LockRule(kind: .fixedDateTime, startsAt: active.startedAt,
-                                duration: (active.scheduledEndsAt ?? active.endsAt).timeIntervalSince(active.startedAt),
-                                targetSelectionID: active.targetSelectionID)
+        let snapshot = active.completionMonitoringRule
         let components = snapshot.monitoringComponents(calendar: calendar)
         try center.startMonitoring(name, during: DeviceActivitySchedule(
             intervalStart: components.start, intervalEnd: components.end, repeats: false

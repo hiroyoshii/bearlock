@@ -31,3 +31,12 @@ public extension LockRule {
         return occurrence
     }
 }
+
+public extension ActiveLock {
+    /// Keeps the current occurrence's end independent of edits to its parent rule.
+    var completionMonitoringRule: LockRule {
+        LockRule(kind: .fixedDateTime, startsAt: startedAt,
+                 duration: (scheduledEndsAt ?? endsAt).timeIntervalSince(startedAt),
+                 targetSelectionID: targetSelectionID)
+    }
+}

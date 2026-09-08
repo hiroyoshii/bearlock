@@ -23,7 +23,7 @@ concurrency:
 jobs:
   lifecycle:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Unit tests
@@ -52,6 +52,17 @@ jobs:
           xcodebuild -project BearLock.xcodeproj -scheme BearLockScreenshot \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO build 2>&1 | tee artifacts/screenshot-build.log
+      - name: Mock UI regression tests
+        timeout-minutes: 15
+        run: |
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLock \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -resultBundlePath artifacts/lock-ui-tests.xcresult \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/ui-tests.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

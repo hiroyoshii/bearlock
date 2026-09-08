@@ -22,6 +22,7 @@ final class BearLockMonitorExtension: DeviceActivityMonitor {
         do {
             let repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
             let ruleID: UUID
+            let completionID: UUID?
             if activity.rawValue.hasPrefix("bearlock.completion.") {
                 // This monitor only preserves an active occurrence's end when its parent
                 // is edited/stopped. Its immediate start callback must not activate anything.
@@ -34,6 +35,7 @@ final class BearLockMonitorExtension: DeviceActivityMonitor {
                     return
                 }
                 ruleID = source
+                completionID = activeID
             } else {
                 guard activity.rawValue.hasPrefix("bearlock."),
                       let source = UUID(uuidString: String(activity.rawValue.dropFirst("bearlock.".count))) else {
@@ -41,10 +43,11 @@ final class BearLockMonitorExtension: DeviceActivityMonitor {
                     return
                 }
                 ruleID = source
+                completionID = nil
             }
             // No unstructured Task: finish reconciliation before returning to the OS.
             try LockLifecycle(repository: repository).reconcile(
-                event: starting ? .intervalStarted(ruleID: ruleID) : .intervalEnded(ruleID: ruleID),
+                event: starting ? .intervalStarted(ruleID: ruleID) : .intervalEnded(ruleID: ruleID, activeID: completionID),
                 at: Date(),
                 apply: { try self.shieldController.applyShield(for: $0, selection: $1) },
                 clear: { self.shieldController.clearShield() },

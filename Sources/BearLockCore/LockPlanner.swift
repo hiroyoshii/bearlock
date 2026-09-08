@@ -69,9 +69,9 @@ public struct LockPlanner: Sendable {
         return rule
     }
 
-    public func activeLock(from rule: LockRule, intervalStart: Date? = nil) -> ActiveLock {
-        // intervalStart is retained for source compatibility; callback delivery must not
-        // move the deadline. Recurring callers pass an occurrence-specific rule.
+    public func activeLock(from rule: LockRule) -> ActiveLock {
+        // Callback delivery must not move the deadline. Recurring callers pass an
+        // occurrence-specific rule.
         return ActiveLock(
             sourceRuleID: rule.id,
             startedAt: rule.startsAt,
@@ -104,11 +104,13 @@ public struct LockPlanner: Sendable {
         normalized.id = original.id
         normalized.status = .scheduled
 
+        normalized = normalized.normalizedForMonitoring()
+
         if overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
         }
 
-        return normalized.normalizedForMonitoring()
+        return normalized
     }
 
     public func validateRecurringReplacement(
@@ -137,11 +139,13 @@ public struct LockPlanner: Sendable {
         normalized.duration = interval.duration
         normalized.status = original.status == .disabled ? .disabled : .scheduled
 
+        normalized = normalized.normalizedForMonitoring()
+
         if overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
         }
 
-        return normalized.normalizedForMonitoring()
+        return normalized
     }
 
     public func recurringRule(_ rule: LockRule, enabled: Bool, now: Date) throws -> LockRule {

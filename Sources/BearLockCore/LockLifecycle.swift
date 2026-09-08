@@ -3,12 +3,12 @@ import Foundation
 public enum LockLifecycleEvent: Equatable, Sendable {
     case refresh
     case intervalStarted(ruleID: UUID)
-    case intervalEnded(ruleID: UUID)
+    case intervalEnded(ruleID: UUID, activeID: UUID? = nil)
 
     var ruleID: UUID? {
         switch self {
         case .refresh: return nil
-        case let .intervalStarted(id), let .intervalEnded(id): return id
+        case let .intervalStarted(id), let .intervalEnded(id, _): return id
         }
     }
 }
@@ -42,8 +42,9 @@ public struct LockLifecycle {
                 return state
             }
 
-            if case let .intervalEnded(ruleID) = event,
-               let active = state.activeLock, active.sourceRuleID != ruleID {
+            if case let .intervalEnded(ruleID, activeID) = event,
+               let active = state.activeLock,
+               active.sourceRuleID != ruleID || (activeID != nil && activeID != active.id) {
                 record("skip=activityMismatch")
                 return state
             }
@@ -56,7 +57,13 @@ public struct LockLifecycle {
                 let expired = active.endsAt <= now || (scheduledEnd.map { $0 <= now } ?? false)
                 record("scheduledEnd=\(scheduledEnd?.ISO8601Format() ?? "unknown") expired=\(expired)")
                 if !expired {
-                    if event == .refresh {
+                    let matchingStart: Bool
+                    if case let .intervalStarted(ruleID) = event {
+                        matchingStart = ruleID == active.sourceRuleID
+                    } else {
+                        matchingStart = false
+                    }
+                    if event == .refresh || matchingStart {
                         try apply(active, state.targetSelections.last { $0.id == active.targetSelectionID })
                     }
                     record("keep=unexpiredOccurrence")
@@ -78,7 +85,17 @@ public struct LockLifecycle {
             if let rule = LockPlanner().scheduledRuleContaining(now, in: state.rules) {
                 let active = LockPlanner().activeLock(from: rule)
                 state.activeLock = active
-                try persist(state, replacing: original, record: record)
+                do {
+                    try persist(state, replacing: original, record: record)
+                } catch {
+                    // The previous occurrence is already over. A failure to start the
+                    // next one must not leave its predecessor's targets blocked forever.
+                    if completedActive {
+                        clear()
+                        record("clear=expiredTransitionSaveFailed")
+                    }
+                    throw error
+                }
                 try apply(active, state.targetSelections.last { $0.id == active.targetSelectionID })
                 record("apply=scheduledOccurrence rule=\(rule.id) end=\(active.endsAt.ISO8601Format())")
                 return state

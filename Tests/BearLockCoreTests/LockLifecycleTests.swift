@@ -43,7 +43,7 @@ final class LockLifecycleTests: XCTestCase {
         let harness = Harness(state: LockState(rules: [rule], activeLock: active))
         try harness.run(.intervalStarted(ruleID: rule.id), at: start.addingTimeInterval(600))
         XCTAssertEqual(harness.repository.state.activeLock, active)
-        XCTAssertTrue(harness.applied.isEmpty)
+        XCTAssertEqual(harness.applied, [active])
     }
 
     func testEarlyEndFromStopMonitoringDoesNotUnlock() throws {
@@ -194,6 +194,51 @@ final class LockLifecycleTests: XCTestCase {
         harness.repository.failSave = true
         XCTAssertThrowsError(try harness.run(.intervalStarted(ruleID: rule.id), at: start))
         XCTAssertTrue(harness.applied.isEmpty)
+    }
+
+    func testFailedStoreMutationCannotLeakIntoLaterSuccessfulSave() async throws {
+        let repository = FaultRepository(state: LockState())
+        let store = try LockStore(repository: repository)
+        repository.failSave = true
+        do {
+            try await store.activate(LockPlanner().activeLock(from: makeRule()))
+            XCTFail("Expected save failure")
+        } catch { }
+        repository.failSave = false
+        _ = try await store.saveTargetSelection(LockTargetSelectionRef())
+        XCTAssertNil(repository.state.activeLock)
+        XCTAssertEqual(repository.state.targetSelections.count, 1)
+    }
+
+    func testCompletionCallbackMatchesExactSnapshotEvenForSameRule() throws {
+        let rule = makeRule()
+        let harness = activeHarness(rule)
+        try harness.run(.intervalEnded(ruleID: rule.id, activeID: UUID()), at: rule.endsAt)
+        XCTAssertEqual(harness.clears, 0)
+        XCTAssertNotNil(harness.repository.state.activeLock)
+    }
+
+    func testCompletionMonitorRetainsImmutableDeadline() throws {
+        let rule = makeRule()
+        var active = LockPlanner().activeLock(from: rule)
+        active.endsAt = rule.endsAt.addingTimeInterval(300)
+        let preserved = active.completionMonitoringRule
+        XCTAssertEqual(preserved.endsAt, rule.endsAt)
+        XCTAssertEqual(utcCalendar.date(from: preserved.monitoringComponents(calendar: utcCalendar).end), rule.endsAt)
+        XCTAssertFalse(preserved.kind == .recurring)
+    }
+
+    func testNextOccurrenceSaveFailureDoesNotLeaveExpiredPredecessorShield() throws {
+        let first = makeRule()
+        let next = LockRule(kind: .fixedDateTime, startsAt: first.endsAt, duration: 1800, targetSelectionID: UUID())
+        let harness = activeHarness(first, otherRules: [next])
+        harness.repository.failSave = true
+        XCTAssertThrowsError(try harness.run(.intervalEnded(ruleID: first.id), at: first.endsAt))
+        XCTAssertEqual(harness.clears, 1)
+        XCTAssertTrue(harness.applied.isEmpty)
+        harness.repository.failSave = false
+        try harness.run(.refresh, at: first.endsAt)
+        XCTAssertEqual(harness.repository.state.activeLock?.sourceRuleID, next.id)
     }
 
     private func makeRule() -> LockRule {

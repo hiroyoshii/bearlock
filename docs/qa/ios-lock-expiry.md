@@ -11,7 +11,7 @@ This change fixes reproducible paths that leave a shield behind. It does **not**
 - Legacy one-shot locks can recover a shifted end from their immutable source rule. Legacy recurring locks without an occurrence deadline retain their active deadline, because the parent may have been edited.
 - An expired shield is cleared before completion-history persistence. If history saving fails, the clear request has still occurred; another invocation can retry without duplicating history.
 - Already completed state and expired one-shot rules provide evidence to clear a residual primary shield, provided no current occurrence needs it.
-- New shields are only applied after their active snapshot is saved. Applying/releasing shields and updating state occur inside the same repository transaction, preventing cross-process interleaving.
+- New shields are only applied after their active snapshot is saved. If saving the next occurrence fails at a boundary, the expired predecessor is cleared and the failure is reported; enforcing the next window then requires a successful later reconciliation. Applying/releasing shields and updating state occur inside the same repository transaction, preventing cross-process interleaving.
 - The extension finishes this work synchronously; it does not leave an unstructured `Task` after the OS callback returns.
 - Parent schedule replacement/stopping preserves a separate one-shot completion monitor for an unexpired active snapshot. This prevents an early stop callback from being the last opportunity to unlock. Registration failure is surfaced rather than silently removing the end monitor.
 - The repository reloads on every operation. A stable sidecar file with `flock` serializes read/modify/write across app and extension processes, including atomic JSON replacements.
@@ -25,8 +25,17 @@ The `iOS Lock Lifecycle` GitHub Actions workflow runs:
 1. `swift test`: schedule precision; delayed/duplicate/out-of-order callbacks; hours-late end; stop before deadline; different rule and later recurring occurrence; app refresh without callback; persistence/read failures; legacy shifted deadline; residual shield; current next rule; overnight recurrence; stale Store snapshots; concurrent repository instances; corrupted and unreadable files.
 2. `python3 Scripts/test-lock-repository-processes.py`: compiles the production repository and launches four independent OS processes. All 160 mutations must survive with distinct IDs.
 3. Xcode project validation and Simulator builds of the app, monitor, shield configuration, shield action, and screenshot app.
+4. Simulator mock UI tests for immediate creation, delayed schedule edit/delete, and active-lock immutability controls.
 
 A mocked `clear` call proves the code reaches the API adapter. It does not prove that iOS removed a real restriction. The process test proves participating writers serialize; it does not simulate iOS suspension or Data Protection.
+
+## 実機で必ず確認すること（未実施）
+
+- Bear Lockを閉じ、画面オフのまま終了時刻を十分過ぎてから端末を使用する。**Bear Lockを開く前に対象アプリを試し、解除されるか確認する。**
+- 起きたまま終了をまたぐ場合、予約開始中にスリープしていた場合、繰り返し予定をロック中に変更・無効化した場合も確認する。
+- `DeviceActivity.intervalDidEnd` → 判定理由 → `Shield.clear.requested` → `.finished` を確認する。`requested` はAPI呼び出しの記録であり、実際の制限解除の保証ではない。
+- 本体を開いた後の `ActiveLock.reconcile` による復旧と、extensionによる解除を区別する。
+- 終了通知の配信、extensionの実行寿命、画面ロック・再起動後のファイルアクセス、実際のScreen Time解除はCIでは確認できない。
 
 ## Physical iPhone checklist (still required)
 

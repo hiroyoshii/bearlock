@@ -18,7 +18,7 @@
 
 ## Immediate Lock
 
-- 1分のNow lockを開始する。
+- Release/TestFlightで30分のNow lockを開始する（DeviceActivityが受理する継続時間を使う）。
 - 確定直後に対象アプリへShieldが出る。
 - Bear LockのActive画面に残り時間が出る。
 - Active画面に早期解除ボタンがない。
@@ -26,7 +26,7 @@
 
 ## Delayed Lock
 
-- 1分後開始、1分継続で予約する。
+- Release/TestFlightで1分後開始、30分継続で予約する。
 - Bear Lockをbackgroundにする。
 - 開始時刻に対象アプリへShieldが出る。
 - 終了時刻後、対象アプリが開ける。
