@@ -173,3 +173,19 @@
 "時刻" = "Time";
 "決めた時間まで、選んだアプリを静かに眠らせます。" = "Quietly hibernate selected apps until the chosen time.";
 "%d targets" = "%d targets";
+
+"Support" = "Support";
+"Optional support" = "Optional support";
+"Support Bear Lock" = "Support";
+"Bear Lock is free. No ads, accounts, or subscriptions." = "Free to use. No ads, accounts, or subscriptions.";
+"If you like it, you can help development continue. Bear Lock works the same either way." = "If you like it, you can help development continue. The app works the same either way.";
+"Coffee" = "Coffee";
+"Lunch" = "Lunch";
+"Dinner" = "Dinner";
+"Support items are not available yet." = "Support items are not available yet.";
+"Support items could not be loaded." = "Support items could not be loaded.";
+"Thank you. This helps Bear Lock keep growing quietly." = "Thank you for supporting Bear Lock.";
+"The purchase could not be verified." = "The purchase could not be verified.";
+"The purchase is pending." = "The purchase is pending.";
+"The purchase could not be completed." = "The purchase could not be completed.";
+"Reload support items" = "Reload support items";

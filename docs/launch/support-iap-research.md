@@ -128,7 +128,17 @@
 
 ## Future Bear Lock Direction (After Version 1.0)
 
-Version 1.0 ships without In-App Purchases. Keep this research for a future app version after paid-app agreements, tax information, banking information, and StoreKit testing are complete.
+Version 1.1 restores optional support purchases on iOS only. Version 1.0 shipped without In-App Purchases. App Store Connect product availability, agreements, tax and banking setup must be checked separately; restoring the client does not configure them.
+
+### Validation for the restored iOS implementation
+
+- GitHub Actions builds the StoreKit code and checks Settings → Support, the free-use explanation, all three items, disabled purchasing when products are unavailable, and retry. Mock UI runs never contact StoreKit. Existing lock regression tests remain enabled.
+- On an iPhone using StoreKit Sandbox/TestFlight, verify all three existing IDs below are configured as **consumable** products and show the storefront's actual localized price. Production never substitutes the screenshot prices.
+- Purchase each item, confirm the thank-you message, and repeat a purchase. Confirm cancellation, purchase failure and unverified transactions never show success.
+- Test pending approval and completion while the Support screen is closed; also terminate/relaunch with an unfinished transaction. The app listens for updates and processes unfinished verified support transactions at launch.
+- Test offline product loading, missing/partially available products, reconnection and reload. Available products should remain usable, and missing products must stay disabled.
+- Confirm buying, declining, cancelling or refunding support does not change any lock, schedule or feature access. Android is unchanged.
+- Simulator mock UI tests do not prove payment authorization, receipt verification, pending delivery, refund behavior or App Store Connect readiness; those require StoreKit testing and device/Sandbox verification.
 
 Recommended product direction:
 

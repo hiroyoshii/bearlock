@@ -15,6 +15,7 @@ enum ScreenshotScreen: String, CaseIterable {
     case scheduledEditor
     case recurringEditor
     case settings
+    case support
 #if DEBUG
     case diagnostics
 #endif
@@ -129,6 +130,8 @@ struct ScreenshotHostView: View {
             )
         case .settings:
             SettingsView()
+        case .support:
+            SupportView()
 #if DEBUG
         case .diagnostics:
             DebugDiagnosticsView()

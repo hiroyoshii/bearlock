@@ -35,6 +35,28 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Select targets"].exists)
     }
 
+    func testSettingsShowsOptionalSupportScreen() throws {
+        let app = launchApprovedSeededApp()
+
+        XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 10))
+        app.buttons["Settings"].tap()
+
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        scrollToStaticText("Support", in: app)
+        app.buttons["settings-support-link"].tap()
+
+        XCTAssertTrue(app.navigationBars["Support"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Free to use. No ads, accounts, or subscriptions."].exists)
+        XCTAssertTrue(app.staticTexts["Coffee"].exists)
+        XCTAssertTrue(app.staticTexts["Lunch"].exists)
+        XCTAssertTrue(app.staticTexts["Dinner"].exists)
+        XCTAssertFalse(app.buttons["support-purchase-coffee"].isEnabled)
+        XCTAssertTrue(app.buttons["support-reload"].exists)
+        app.buttons["support-reload"].tap()
+        XCTAssertTrue(app.staticTexts["Support items are not available yet."].exists)
+        captureScreenshot(named: "e2e-settings-support")
+    }
+
     func testCreateImmediateLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
