@@ -253,6 +253,16 @@ final class LockLifecycleTests: XCTestCase {
         XCTAssertEqual(counter.value, 1)
     }
 
+    func testRoundingFutureStartDoesNotShortenFractionalDuration() {
+        let original = LockRule(kind: .fixedDateTime, startsAt: start.addingTimeInterval(0.1),
+                                duration: 1800.1, targetSelectionID: UUID())
+        let normalized = original.normalizedForMonitoring()
+        XCTAssertGreaterThanOrEqual(normalized.startsAt, original.startsAt)
+        XCTAssertGreaterThanOrEqual(normalized.duration, original.duration)
+        XCTAssertGreaterThanOrEqual(normalized.endsAt, original.endsAt)
+        XCTAssertEqual(utcCalendar.date(from: normalized.monitoringComponents(calendar: utcCalendar).end), normalized.endsAt)
+    }
+
     private func makeRule() -> LockRule {
         LockRule(kind: .immediate, startsAt: start, duration: 1800, targetSelectionID: UUID())
     }

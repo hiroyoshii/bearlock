@@ -5,8 +5,8 @@ public extension LockRule {
     /// End dates always round up so the promised duration is never shortened.
     func normalizedForMonitoring() -> LockRule {
         var rule = self
-        let end = ceil(endsAt.timeIntervalSince1970)
         let start = kind == .immediate ? floor(startsAt.timeIntervalSince1970) : ceil(startsAt.timeIntervalSince1970)
+        let end = ceil(max(endsAt.timeIntervalSince1970, start + duration))
         rule.startsAt = Date(timeIntervalSince1970: start)
         rule.duration = max(1, end - start)
         return rule
