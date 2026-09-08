@@ -18,7 +18,7 @@
 
 ## Immediate Lock
 
-- 1分のNow lockを開始する。
+- Release/TestFlightで30分のNow lockを開始する（DeviceActivityが受理する継続時間を使う）。
 - 確定直後に対象アプリへShieldが出る。
 - Bear LockのActive画面に残り時間が出る。
 - Active画面に早期解除ボタンがない。
@@ -26,7 +26,7 @@
 
 ## Delayed Lock
 
-- 1分後開始、1分継続で予約する。
+- Release/TestFlightで1分後開始、30分継続で予約する。
 - Bear Lockをbackgroundにする。
 - 開始時刻に対象アプリへShieldが出る。
 - 終了時刻後、対象アプリが開ける。
@@ -57,3 +57,7 @@
 
 - iOS Settingsで権限を取り消す回避経路は完全には防げない。
 - アプリ削除などOS/account levelの操作はBear Lockだけでは防げない。
+
+## ロック終了の回帰確認
+
+長時間の画面オフ、終了後の端末使用再開、本体未起動での解除、親予定の変更、実機ログの確認は [ios-lock-expiry.md](ios-lock-expiry.md) を参照する。CI成功だけで実際のScreen Time解除を確認済みとはしない。

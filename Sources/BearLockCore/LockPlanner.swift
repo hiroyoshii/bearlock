@@ -13,7 +13,7 @@ public struct LockPlanner: Sendable {
         existingRules: [LockRule],
         activeLock: ActiveLock?
     ) throws -> LockRule {
-        let rule: LockRule
+        var rule: LockRule
 
         switch request {
         case let .now(duration, targetSelectionID):
@@ -60,6 +60,8 @@ public struct LockPlanner: Sendable {
             )
         }
 
+        rule = rule.normalizedForMonitoring()
+
         if overlaps(rule: rule, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
         }
@@ -67,13 +69,15 @@ public struct LockPlanner: Sendable {
         return rule
     }
 
-    public func activeLock(from rule: LockRule, intervalStart: Date? = nil) -> ActiveLock {
-        let startedAt = intervalStart ?? rule.startsAt
+    public func activeLock(from rule: LockRule) -> ActiveLock {
+        // Callback delivery must not move the deadline. Recurring callers pass an
+        // occurrence-specific rule.
         return ActiveLock(
             sourceRuleID: rule.id,
-            startedAt: startedAt,
-            endsAt: startedAt.addingTimeInterval(rule.duration),
-            targetSelectionID: rule.targetSelectionID
+            startedAt: rule.startsAt,
+            endsAt: rule.endsAt,
+            targetSelectionID: rule.targetSelectionID,
+            scheduledEndsAt: rule.endsAt
         )
     }
 
@@ -99,6 +103,8 @@ public struct LockPlanner: Sendable {
         var normalized = replacement
         normalized.id = original.id
         normalized.status = .scheduled
+
+        normalized = normalized.normalizedForMonitoring()
 
         if overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
@@ -132,6 +138,8 @@ public struct LockPlanner: Sendable {
         normalized.startsAt = interval.start
         normalized.duration = interval.duration
         normalized.status = original.status == .disabled ? .disabled : .scheduled
+
+        normalized = normalized.normalizedForMonitoring()
 
         if overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
@@ -174,7 +182,8 @@ public struct LockPlanner: Sendable {
 
     public func scheduledRuleContaining(_ date: Date, in rules: [LockRule]) -> LockRule? {
         rules
-            .filter { $0.status == .scheduled && $0.contains(date) }
+            .filter { $0.status == .scheduled }
+            .compactMap { $0.occurrence(containing: date) }
             .sorted { $0.startsAt < $1.startsAt }
             .first
     }

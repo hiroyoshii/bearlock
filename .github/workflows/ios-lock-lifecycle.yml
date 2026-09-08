@@ -1,0 +1,70 @@
+name: iOS Lock Lifecycle
+
+on:
+  push:
+    branches: [main, 'codex/fix-lock-expiry']
+    paths:
+      - 'BearLock/**'
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Scripts/test-lock-repository-processes.py'
+      - 'project.yml'
+      - 'Package.swift'
+      - '.github/workflows/ios-lock-lifecycle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lock-lifecycle-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lifecycle:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          swift test 2>&1 | tee artifacts/unit-tests.log
+      - name: Cross-process repository transactions
+        run: |
+          set -o pipefail
+          python3 Scripts/test-lock-repository-processes.py 2>&1 | tee artifacts/process-tests.log
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          bash Scripts/validate-ios-project.sh
+          xcodegen generate
+      - name: Build app and all Screen Time extensions
+        run: |
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLock \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee artifacts/ios-build.log
+      - name: Build screenshot app
+        run: |
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLockScreenshot \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee artifacts/screenshot-build.log
+      - name: Mock UI regression tests
+        timeout-minutes: 15
+        run: |
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLock \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -resultBundlePath artifacts/lock-ui-tests.xcresult \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/ui-tests.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lock-lifecycle-results
+          path: artifacts/

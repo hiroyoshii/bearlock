@@ -280,6 +280,7 @@ private enum ScreenshotFixtures {
 }
 
 private struct StaticLockRepository: LockRepository {
+    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try body() }
     let state: LockState
 
     func load() throws -> LockState {

@@ -25,8 +25,8 @@ struct PreviewTargetSelectionStore: TargetSelectionStoring {
 }
 
 struct NoopShieldController: ShieldControlling {
-    func applyShield(for activeLock: ActiveLock) {}
-    func clearShield(for activeLock: ActiveLock) {}
+    func applyShield(for activeLock: ActiveLock, selection: LockTargetSelectionRef?) throws {}
+    func clearShield() {}
 }
 
 struct NoopScheduleController: ScheduleControlling {

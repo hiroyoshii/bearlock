@@ -14,7 +14,7 @@ final class LockPlannerTests: XCTestCase {
             existingRules: [],
             activeLock: nil
         )
-        let active = planner.activeLock(from: rule, intervalStart: now)
+        let active = planner.activeLock(from: rule)
 
         XCTAssertEqual(rule.kind, .immediate)
         XCTAssertEqual(rule.startsAt, now)

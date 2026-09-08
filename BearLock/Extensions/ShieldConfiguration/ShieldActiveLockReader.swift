@@ -31,7 +31,18 @@ struct ShieldActiveLockReader {
 
         do {
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                let value = try container.decode(String.self)
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                if let date = formatter.date(from: value) { return date }
+                formatter.formatOptions = [.withInternetDateTime]
+                guard let date = formatter.date(from: value) else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date")
+                }
+                return date
+            }
             let state = try decoder.decode(ShieldLockState.self, from: Data(contentsOf: url))
             guard let activeLock = state.activeLock, activeLock.isActive(at: now) else {
                 return nil

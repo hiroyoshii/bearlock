@@ -93,6 +93,7 @@ public struct ActiveLock: Codable, Equatable, Identifiable, Sendable {
     public var sourceRuleID: UUID?
     public var startedAt: Date
     public var endsAt: Date
+    public var scheduledEndsAt: Date?
     public var targetSelectionID: UUID
 
     public init(
@@ -100,12 +101,14 @@ public struct ActiveLock: Codable, Equatable, Identifiable, Sendable {
         sourceRuleID: UUID?,
         startedAt: Date,
         endsAt: Date,
-        targetSelectionID: UUID
+        targetSelectionID: UUID,
+        scheduledEndsAt: Date? = nil
     ) {
         self.id = id
         self.sourceRuleID = sourceRuleID
         self.startedAt = startedAt
         self.endsAt = endsAt
+        self.scheduledEndsAt = scheduledEndsAt
         self.targetSelectionID = targetSelectionID
     }
 
