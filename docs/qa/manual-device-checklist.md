@@ -57,3 +57,7 @@
 
 - iOS Settingsで権限を取り消す回避経路は完全には防げない。
 - アプリ削除などOS/account levelの操作はBear Lockだけでは防げない。
+
+## ロック終了の回帰確認
+
+長時間の画面オフ、終了後の端末使用再開、本体未起動での解除、親予定の変更、実機ログの確認は [ios-lock-expiry.md](ios-lock-expiry.md) を参照する。CI成功だけで実際のScreen Time解除を確認済みとはしない。

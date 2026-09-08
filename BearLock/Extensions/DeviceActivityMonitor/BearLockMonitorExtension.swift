@@ -1,55 +1,58 @@
 import BearLockCore
 import DeviceActivity
-import FamilyControls
 import Foundation
-import ManagedSettings
 
 final class BearLockMonitorExtension: DeviceActivityMonitor {
-    private let planner = LockPlanner()
-    private let shieldController = ManagedSettingsShieldController(
-        selectionStore: FamilyActivityTargetSelectionStore()
-    )
+    private let shieldController = ManagedSettingsShieldController()
     private let diagnostics = DiagnosticsLogger.shared
 
     override func intervalDidStart(for activity: DeviceActivityName) {
         super.intervalDidStart(for: activity)
-        diagnostics.record("DeviceActivity.intervalDidStart", detail: String(describing: activity))
-
-        Task {
-            do {
-                let store = try LockStore(repository: JSONFileLockRepository(fileURL: AppGroup.lockStateURL))
-                let state = await store.snapshot()
-                guard let rule = state.rules.first(where: { DeviceActivityName($0.deviceActivityName) == activity }) else {
-                    diagnostics.record("DeviceActivity.ruleMissing", level: .warning, detail: String(describing: activity))
-                    return
-                }
-
-                let active = planner.activeLock(from: rule, intervalStart: Date())
-                try await store.activate(active)
-                shieldController.applyShield(for: active)
-                diagnostics.record("DeviceActivity.activeLockCreated", detail: rule.kind.rawValue)
-            } catch {
-                diagnostics.record("DeviceActivity.intervalDidStart.failed", level: .error, detail: error.localizedDescription)
-                assertionFailure("Failed to start Bear Lock interval: \(error)")
-            }
-        }
+        handle(activity, starting: true)
     }
 
     override func intervalDidEnd(for activity: DeviceActivityName) {
         super.intervalDidEnd(for: activity)
-        diagnostics.record("DeviceActivity.intervalDidEnd", detail: String(describing: activity))
+        handle(activity, starting: false)
+    }
 
-        Task {
-            do {
-                let store = try LockStore(repository: JSONFileLockRepository(fileURL: AppGroup.lockStateURL))
-                if let completed = try await store.completeActiveLock(at: Date()) {
-                    shieldController.clearShield(for: completed)
-                    diagnostics.record("DeviceActivity.activeLockCompleted", detail: completed.id.uuidString)
+    private func handle(_ activity: DeviceActivityName, starting: Bool) {
+        let callback = starting ? "intervalDidStart" : "intervalDidEnd"
+        diagnostics.record("DeviceActivity.\(callback)", detail: activity.rawValue)
+        do {
+            let repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
+            let ruleID: UUID
+            if activity.rawValue.hasPrefix("bearlock.completion.") {
+                // This monitor only preserves an active occurrence's end when its parent
+                // is edited/stopped. Its immediate start callback must not activate anything.
+                guard !starting,
+                      let activeID = UUID(uuidString: String(activity.rawValue.dropFirst("bearlock.completion.".count))) else { return }
+                let state = try repository.load()
+                let snapshot = state.activeLock?.id == activeID ? state.activeLock : state.completedLocks.first { $0.id == activeID }
+                guard let source = snapshot?.sourceRuleID else {
+                    diagnostics.record("DeviceActivity.unknownCompletion", level: .warning, detail: activity.rawValue)
+                    return
                 }
-            } catch {
-                diagnostics.record("DeviceActivity.intervalDidEnd.failed", level: .error, detail: error.localizedDescription)
-                assertionFailure("Failed to end Bear Lock interval: \(error)")
+                ruleID = source
+            } else {
+                guard activity.rawValue.hasPrefix("bearlock."),
+                      let source = UUID(uuidString: String(activity.rawValue.dropFirst("bearlock.".count))) else {
+                    diagnostics.record("DeviceActivity.unknownActivity", level: .warning, detail: activity.rawValue)
+                    return
+                }
+                ruleID = source
             }
+            // No unstructured Task: finish reconciliation before returning to the OS.
+            try LockLifecycle(repository: repository).reconcile(
+                event: starting ? .intervalStarted(ruleID: ruleID) : .intervalEnded(ruleID: ruleID),
+                at: Date(),
+                apply: { try self.shieldController.applyShield(for: $0, selection: $1) },
+                clear: { self.shieldController.clearShield() },
+                record: { self.diagnostics.record("DeviceActivity.reconcile", detail: $0) }
+            )
+            diagnostics.record("DeviceActivity.\(callback).finished")
+        } catch {
+            diagnostics.record("DeviceActivity.\(callback).failed", level: .error, detail: String(describing: error))
         }
     }
 }

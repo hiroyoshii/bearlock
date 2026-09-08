@@ -34,7 +34,7 @@ public struct RecurrenceRule: Codable, Equatable, Sendable {
         var calendar = Calendar(identifier: calendarIdentifier)
         calendar.timeZone = TimeZone(identifier: timeZoneIdentifier) ?? .current
 
-        for offset in 0..<14 {
+        for offset in -1..<14 {
             guard let day = calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: date)) else {
                 continue
             }

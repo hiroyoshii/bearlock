@@ -81,19 +81,82 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         ])
     }
 
-    func testCorruptedStateIsQuarantinedAndLoadsEmptyState() throws {
+    func testCorruptedStateRemainsAnErrorOnRepeatedReads() throws {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let stateURL = directory.appending(path: "state.json")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        try "{ broken json".write(to: stateURL, atomically: true, encoding: .utf8)
+        let broken = "{ broken json"
+        try broken.write(to: stateURL, atomically: true, encoding: .utf8)
+        let repository = JSONFileLockRepository(fileURL: stateURL)
 
-        let state = try JSONFileLockRepository(fileURL: stateURL).load()
-        let quarantinedFiles = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        for _ in 0..<2 {
+            XCTAssertThrowsError(try repository.load()) { error in
+                guard case LockRepositoryError.corruptState = error else {
+                    return XCTFail("Unexpected error: \(error)")
+                }
+            }
+        }
+        XCTAssertEqual(try String(contentsOf: stateURL), broken)
+        XCTAssertEqual(try String(contentsOf: directory.appending(path: "state.corrupt.json")), broken)
+    }
 
-        XCTAssertEqual(state, LockState())
-        XCTAssertFalse(FileManager.default.fileExists(atPath: stateURL.path))
-        XCTAssertTrue(quarantinedFiles.contains { $0.hasPrefix("state.corrupt-") && $0.hasSuffix(".json") })
+    func testIOFailureDoesNotQuarantineOrReturnEmptyState() throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let stateURL = directory.appending(path: "state.json")
+        // Reading a directory as JSON is an I/O error, without depending on chmod/root.
+        try FileManager.default.createDirectory(at: stateURL, withIntermediateDirectories: true)
+        let repository = JSONFileLockRepository(fileURL: stateURL)
+        XCTAssertThrowsError(try repository.load()) { error in
+            XCTAssertFalse(error is LockRepositoryError)
+        }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: stateURL.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: directory.appending(path: "state.corrupt.json").path))
+    }
+
+    func testFractionalDatesAndOccurrenceDeadlineRoundTrip() throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let repository = JSONFileLockRepository(fileURL: directory.appending(path: "state.json"))
+        let end = date("2026-08-27T11:00:00Z").addingTimeInterval(0.125)
+        let active = ActiveLock(sourceRuleID: nil, startedAt: end.addingTimeInterval(-1800), endsAt: end,
+                                targetSelectionID: UUID(), scheduledEndsAt: end)
+        try repository.save(LockState(activeLock: active))
+        XCTAssertEqual(try repository.load().activeLock, active)
+    }
+
+    func testStoresReloadAndDoNotResurrectCompletedLock() async throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "state.json")
+        let app = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+        let monitor = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+        let end = date("2026-08-27T11:00:00Z")
+        let active = ActiveLock(sourceRuleID: nil, startedAt: end.addingTimeInterval(-1800), endsAt: end, targetSelectionID: UUID())
+        try await app.activate(active)
+        _ = try await monitor.completeActiveLock(at: end)
+        _ = try await app.saveTargetSelection(LockTargetSelectionRef(displayName: "New"))
+        let fresh = try await app.snapshot()
+        XCTAssertNil(fresh.activeLock)
+        XCTAssertEqual(fresh.completedLocks, [active])
+        XCTAssertEqual(fresh.targetSelections.count, 1)
+    }
+
+    func testConcurrentRepositoryInstancesDoNotLoseUpdates() async throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "state.json")
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<24 {
+                group.addTask {
+                    let store = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+                    _ = try await store.saveTargetSelection(LockTargetSelectionRef())
+                }
+            }
+            try await group.waitForAll()
+        }
+        XCTAssertEqual(try JSONFileLockRepository(fileURL: url).load().targetSelections.count, 24)
     }
 
     private func uniqueTemporaryDirectory() -> URL {

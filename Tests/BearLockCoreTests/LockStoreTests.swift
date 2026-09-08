@@ -11,7 +11,7 @@ final class LockStoreTests: XCTestCase {
 
         try await store.recordRecentLockTarget(targetSelectionID: savedTarget.id, usedAt: usedAt)
 
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
         XCTAssertEqual(state.recentLockTargets.count, 1)
         XCTAssertEqual(state.recentLockTargets.first?.targetSelectionID, savedTarget.id)
         XCTAssertEqual(state.recentLockTargets.first?.lastUsedAt, usedAt)
@@ -37,7 +37,7 @@ final class LockStoreTests: XCTestCase {
             usedAt: date("2026-08-27T11:00:00Z")
         )
 
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
         XCTAssertEqual(equivalent.id, first.id)
         XCTAssertEqual(state.recentLockTargets.count, 1)
         XCTAssertEqual(state.recentLockTargets.first?.lastUsedAt, date("2026-08-27T11:00:00Z"))
@@ -84,12 +84,12 @@ final class LockStoreTests: XCTestCase {
             targetSelectionID: target.id
         )
         try await store.addRule(rule)
-        let stateBeforeDeletion = await store.snapshot()
+        let stateBeforeDeletion = try await store.snapshot()
         let recentID = try XCTUnwrap(stateBeforeDeletion.recentLockTargets.first?.id)
 
         try await store.deleteRecentLockTarget(id: recentID)
 
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
         XCTAssertTrue(state.recentLockTargets.isEmpty)
         XCTAssertEqual(state.targetSelections, [target])
         XCTAssertEqual(state.rules, [rule])
@@ -108,7 +108,7 @@ final class LockStoreTests: XCTestCase {
                 targetSelectionID: target.id,
                 usedAt: date("2026-08-27T0\(index + 1):00:00Z")
             )
-            let state = await store.snapshot()
+            let state = try await store.snapshot()
             recentIDs.append(try XCTUnwrap(state.recentLockTargets.last?.id))
         }
 
@@ -175,7 +175,7 @@ final class LockStoreTests: XCTestCase {
 
         try await store.activate(active)
         let completed = try await store.completeActiveLock(at: date("2026-08-27T11:00:00Z"))
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
 
         XCTAssertEqual(completed, active)
         XCTAssertNil(state.activeLock)
@@ -198,7 +198,7 @@ final class LockStoreTests: XCTestCase {
         try await store.activate(active)
         try await store.clearActiveLock(id: activeID)
 
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
         XCTAssertNil(state.activeLock)
     }
 
@@ -248,7 +248,7 @@ final class LockStoreTests: XCTestCase {
         try await store.addRule(future)
 
         let completed = try await store.completeExpiredOneShotRules(at: date("2026-08-27T10:00:00Z"))
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
 
         XCTAssertEqual(completed.map(\.id), [expired.id])
         XCTAssertEqual(state.rules.first(where: { $0.id == expired.id })?.status, .completed)
@@ -286,7 +286,7 @@ final class LockStoreTests: XCTestCase {
         try await store.activate(active)
         try await store.replaceRule(replacement, now: date("2026-08-27T23:30:00Z"))
 
-        let state = await store.snapshot()
+        let state = try await store.snapshot()
         XCTAssertEqual(state.rules.first(where: { $0.id == ruleID })?.status, .disabled)
         XCTAssertEqual(state.activeLock, active)
     }
@@ -298,6 +298,8 @@ final class LockStoreTests: XCTestCase {
 
 private final class InMemoryLockRepository: LockRepository, @unchecked Sendable {
     private var state = LockState()
+
+    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try body() }
 
     func load() throws -> LockState {
         state

@@ -68,7 +68,7 @@ final class BearLockAppModel: ObservableObject {
         return BearLockAppModel(
             authorizationService: FamilyControlsAuthorizationService(),
             targetSelectionStore: FamilyActivityTargetSelectionStore(),
-            shieldController: ManagedSettingsShieldController(selectionStore: FamilyActivityTargetSelectionStore()),
+            shieldController: ManagedSettingsShieldController(),
             scheduleController: DeviceActivityScheduleController(),
             lockStore: lockStore
         )
@@ -183,36 +183,24 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("App.refresh.started")
         let now = Date()
         authorizationStatus = authorizationService.currentStatus()
-        lockState = await lockStore.snapshot()
-
-        if let completed = try? await lockStore.completeActiveLock(at: now) {
-            shieldController.clearShield(for: completed)
-            diagnostics.record("ActiveLock.completed", detail: completed.id.uuidString)
-            lockState = await lockStore.snapshot()
-        }
-
-        if let completedRules = try? await lockStore.completeExpiredOneShotRules(at: now), !completedRules.isEmpty {
-            diagnostics.record("Rules.completedExpiredOneShot", detail: "\(completedRules.count)")
-        }
-        lockState = await lockStore.snapshot()
-
-        if let active = lockState.activeLock, active.isActive(at: now) {
-            shieldController.applyShield(for: active)
-            diagnostics.record("ActiveLock.refreshAppliedShield", detail: active.id.uuidString)
-        } else if lockState.activeLock == nil,
-                  let rule = planner.scheduledRuleContaining(now, in: lockState.rules) {
-            let active = planner.activeLock(from: rule, intervalStart: rule.startsAt)
-            do {
-                try await lockStore.activate(active)
-                shieldController.applyShield(for: active)
-                lockState = await lockStore.snapshot()
-                diagnostics.record("ActiveLock.autoActivated", detail: rule.kind.rawValue)
-            } catch {
-                recordError("ActiveLock.autoActivate.failed", error)
-            }
+        do {
+            lockState = try await reconcileLocks(event: .refresh, at: now)
+        } catch {
+            recordError("App.refresh.failed", error)
         }
         refreshDiagnostics()
         hasLoadedInitialState = true
+    }
+
+    private func reconcileLocks(event: LockLifecycleEvent, at now: Date) async throws -> LockState {
+        let shield = shieldController
+        let logger = diagnostics
+        return try await lockStore.reconcile(
+            event: event, at: now,
+            apply: { try shield.applyShield(for: $0, selection: $1) },
+            clear: { shield.clearShield() },
+            record: { logger.record("ActiveLock.reconcile", detail: $0) }
+        )
     }
 
     func requestAuthorization() async {
@@ -231,14 +219,14 @@ final class BearLockAppModel: ObservableObject {
     func saveSelection(_ selection: FamilyActivitySelection) async {
         diagnostics.record("Selection.save.started")
         do {
-            let state = await lockStore.snapshot()
+            let state = try await lockStore.snapshot()
             if let active = state.activeLock, active.isActive(at: Date()) {
                 throw TargetSelectionStoreError.activeLockInProgress
             }
 
             let ref = try targetSelectionStore.save(selection)
             let savedRef = try await lockStore.saveTargetSelection(ref)
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("Selection.save.succeeded", detail: "\(savedRef.displayName) id=\(savedRef.id.uuidString)")
         } catch {
             recordError("Selection.save.failed", error)
@@ -254,7 +242,7 @@ final class BearLockAppModel: ObservableObject {
         do {
             let ref = LockTargetSelectionRef(displayName: L10n.format("%d targets", count))
             _ = try await lockStore.saveTargetSelection(ref)
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("Selection.uiTestingSave.succeeded", detail: "count=\(count)")
         } catch {
             recordError("Selection.uiTestingSave.failed", error)
@@ -272,7 +260,7 @@ final class BearLockAppModel: ObservableObject {
             try BearLockSafetyPolicy.validate(request)
 
             let now = Date()
-            let state = await lockStore.snapshot()
+            let state = try await lockStore.snapshot()
             let rule = try planner.makeRule(
                 from: request,
                 now: now,
@@ -290,25 +278,17 @@ final class BearLockAppModel: ObservableObject {
                     try? await lockStore.deleteRule(id: rule.id, now: now)
                     throw error
                 }
-                let active = planner.activeLock(from: rule, intervalStart: now)
-                do {
-                    try await lockStore.activate(active)
-                    shieldController.applyShield(for: active)
-                    diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule, active: active))
-                } catch {
-                    try? scheduleController.cancel(rule)
-                    try? await lockStore.deleteRule(id: rule.id, now: now)
-                    try? await lockStore.clearActiveLock(id: active.id)
-                    throw error
-                }
+                lockState = try await reconcileLocks(event: .intervalStarted(ruleID: rule.id), at: Date())
+                diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule, active: lockState.activeLock))
             case .delayed, .fixedDateTime, .recurring:
                 diagnostics.record("Schedule.create.started", detail: rule.kind.rawValue)
-                try scheduleController.schedule(rule)
+                // Publish the rule before monitoring can synchronously deliver its start.
+                try await lockStore.addRule(rule)
                 do {
-                    try await lockStore.addRule(rule)
+                    try scheduleController.schedule(rule)
                     diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule))
                 } catch {
-                    try? scheduleController.cancel(rule)
+                    try? await lockStore.deleteRule(id: rule.id, now: now)
                     throw error
                 }
             }
@@ -323,7 +303,7 @@ final class BearLockAppModel: ObservableObject {
                 diagnostics.record("RecentTarget.record.failed", level: .warning, detail: error.localizedDescription)
             }
 
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             refreshDiagnostics()
             return true
         } catch {
@@ -338,7 +318,7 @@ final class BearLockAppModel: ObservableObject {
         do {
             try await lockStore.deleteRule(id: rule.id, now: Date())
             try scheduleController.cancel(rule)
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("Schedule.delete.succeeded", detail: rule.kind.rawValue)
         } catch {
             recordError("Schedule.delete.failed", error)
@@ -350,7 +330,7 @@ final class BearLockAppModel: ObservableObject {
     func selectRecentLockTarget(_ recentTarget: RecentLockTarget) async -> Bool {
         diagnostics.record("RecentTarget.select.started", detail: recentTarget.id.uuidString)
         do {
-            let state = await lockStore.snapshot()
+            let state = try await lockStore.snapshot()
             if let active = state.activeLock, active.isActive(at: Date()) {
                 throw TargetSelectionStoreError.activeLockInProgress
             }
@@ -360,7 +340,7 @@ final class BearLockAppModel: ObservableObject {
 
             try targetSelectionStore.activate(selection)
             _ = try await lockStore.saveTargetSelection(selection)
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("RecentTarget.select.succeeded", detail: recentTarget.id.uuidString)
             refreshDiagnostics()
             return true
@@ -375,7 +355,7 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("RecentTarget.pin.started", detail: recentTarget.id.uuidString)
         do {
             try await lockStore.setRecentLockTargetPinned(id: recentTarget.id, pinned: pinned, at: Date())
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("RecentTarget.pin.succeeded", detail: pinned ? "pinned" : "unpinned")
         } catch {
             recordError("RecentTarget.pin.failed", error)
@@ -387,7 +367,7 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("RecentTarget.delete.started", detail: recentTarget.id.uuidString)
         do {
             try await lockStore.deleteRecentLockTarget(id: recentTarget.id)
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("RecentTarget.delete.succeeded", detail: recentTarget.id.uuidString)
         } catch {
             recordError("RecentTarget.delete.failed", error)
@@ -405,7 +385,7 @@ final class BearLockAppModel: ObservableObject {
             try BearLockSafetyPolicy.validateDuration(duration)
 
             let now = Date()
-            let state = await lockStore.snapshot()
+            let state = try await lockStore.snapshot()
             var replacement = original
             replacement.startsAt = startsAt
             replacement.duration = duration
@@ -426,7 +406,7 @@ final class BearLockAppModel: ObservableObject {
                 throw error
             }
 
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("Schedule.update.succeeded", detail: validated.kind.rawValue)
             refreshDiagnostics()
             return true
@@ -447,7 +427,7 @@ final class BearLockAppModel: ObservableObject {
             try BearLockSafetyPolicy.validateDuration(recurrence.duration)
 
             let now = Date()
-            let state = await lockStore.snapshot()
+            let state = try await lockStore.snapshot()
             var replacement = original
             replacement.recurrence = recurrence
 
@@ -469,7 +449,7 @@ final class BearLockAppModel: ObservableObject {
                 throw error
             }
 
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("Recurring.update.succeeded")
             refreshDiagnostics()
             return true
@@ -504,7 +484,7 @@ final class BearLockAppModel: ObservableObject {
                 throw error
             }
 
-            lockState = await lockStore.snapshot()
+            lockState = try await lockStore.snapshot()
             diagnostics.record("Recurring.setEnabled.succeeded", detail: enabled ? "enabled" : "disabled")
             refreshDiagnostics()
             return true

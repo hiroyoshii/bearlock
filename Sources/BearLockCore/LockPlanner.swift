@@ -13,7 +13,7 @@ public struct LockPlanner: Sendable {
         existingRules: [LockRule],
         activeLock: ActiveLock?
     ) throws -> LockRule {
-        let rule: LockRule
+        var rule: LockRule
 
         switch request {
         case let .now(duration, targetSelectionID):
@@ -60,6 +60,8 @@ public struct LockPlanner: Sendable {
             )
         }
 
+        rule = rule.normalizedForMonitoring()
+
         if overlaps(rule: rule, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
         }
@@ -68,12 +70,14 @@ public struct LockPlanner: Sendable {
     }
 
     public func activeLock(from rule: LockRule, intervalStart: Date? = nil) -> ActiveLock {
-        let startedAt = intervalStart ?? rule.startsAt
+        // intervalStart is retained for source compatibility; callback delivery must not
+        // move the deadline. Recurring callers pass an occurrence-specific rule.
         return ActiveLock(
             sourceRuleID: rule.id,
-            startedAt: startedAt,
-            endsAt: startedAt.addingTimeInterval(rule.duration),
-            targetSelectionID: rule.targetSelectionID
+            startedAt: rule.startsAt,
+            endsAt: rule.endsAt,
+            targetSelectionID: rule.targetSelectionID,
+            scheduledEndsAt: rule.endsAt
         )
     }
 
@@ -104,7 +108,7 @@ public struct LockPlanner: Sendable {
             throw LockValidationError.overlappingLock
         }
 
-        return normalized
+        return normalized.normalizedForMonitoring()
     }
 
     public func validateRecurringReplacement(
@@ -137,7 +141,7 @@ public struct LockPlanner: Sendable {
             throw LockValidationError.overlappingLock
         }
 
-        return normalized
+        return normalized.normalizedForMonitoring()
     }
 
     public func recurringRule(_ rule: LockRule, enabled: Bool, now: Date) throws -> LockRule {
@@ -174,7 +178,8 @@ public struct LockPlanner: Sendable {
 
     public func scheduledRuleContaining(_ date: Date, in rules: [LockRule]) -> LockRule? {
         rules
-            .filter { $0.status == .scheduled && $0.contains(date) }
+            .filter { $0.status == .scheduled }
+            .compactMap { $0.occurrence(containing: date) }
             .sorted { $0.startsAt < $1.startsAt }
             .first
     }
