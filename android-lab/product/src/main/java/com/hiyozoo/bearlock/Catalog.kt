@@ -7,21 +7,22 @@ import android.graphics.drawable.Drawable
 
 data class AppEntry(val pkg: String, val name: String, val category: Int, val icon: Drawable)
 class Catalog(private val context: Context) {
+    private val fixedExcluded = setOf(context.packageName, "com.android.settings", "com.android.systemui", "com.google.android.permissioncontroller", "com.android.permissioncontroller")
     @Suppress("DEPRECATION")
     fun apps(): List<AppEntry> {
         val pm = context.packageManager
+        val excludedPackages = excludedPackages()
         return pm.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)
             .map { it.activityInfo.applicationInfo }.distinctBy { it.packageName }
-            .filterNot { excluded(it.packageName) }
+            .filterNot { it.packageName in excludedPackages }
             .map { AppEntry(it.packageName, pm.getApplicationLabel(it).toString(), it.category, pm.getApplicationIcon(it)) }
             .sortedBy { it.name.lowercase() }
     }
+    fun excluded(pkg: String): Boolean = pkg in fixedExcluded || pkg in excludedPackages()
     @Suppress("DEPRECATION")
-    fun excluded(pkg: String): Boolean {
-        if (pkg in setOf(context.packageName, "com.android.settings", "com.android.systemui", "com.google.android.permissioncontroller", "com.android.permissioncontroller")) return true
-        val pm = context.packageManager
-        return listOf(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), Intent(Intent.ACTION_DIAL)).any { intent ->
-            pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).any { it.activityInfo.packageName == pkg }
+    private fun excludedPackages(): Set<String> {
+        return fixedExcluded + listOf(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), Intent(Intent.ACTION_DIAL)).flatMap { intent ->
+            context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).map { it.activityInfo.packageName }
         }
     }
     @Suppress("DEPRECATION")

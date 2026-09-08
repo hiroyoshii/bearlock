@@ -63,6 +63,22 @@ class PlannerTest {
         val ended=Planner.reconcile(s,now+60_000)
         assertTrue(Planner.reconcile(ended,now+10_000).sessions.isEmpty())
     }
+    @Test fun recentRecordsConfirmedCreationButNotEditing() {
+        val r=rule(now+60_000)
+        val s=Planner.save(State(),r,now)
+        assertEquals(listOf(Recent(target,now)),s.recent)
+        val edited=Planner.save(s,r.copy(end=r.end+60_000),now+1)
+        assertEquals(s.recent,edited.recent)
+        val next=Planner.save(edited,rule(now+180_000),now+2)
+        assertEquals(listOf(Recent(target,now+2)),next.recent)
+    }
+    @Test fun repeatedUsePreservesPinAndRejectedLockPreservesHistory() {
+        val original=State(recent=listOf(Recent(target,now-1,true)))
+        val s=Planner.save(original,rule(),now)
+        assertEquals(listOf(Recent(target,now,true)),s.recent)
+        assertThrows(IllegalArgumentException::class.java) { Planner.save(s,rule().copy(targets=Targets(apps=setOf("other"))),now) }
+        assertEquals(listOf(Recent(target,now,true)),s.recent)
+    }
     @Test fun recentKeepsThreePlusPins() {
         val recent=(0..6).map { Recent(Targets(apps=setOf("app.$it")),now-it,it==6) }
         val trimmed=Planner.trimRecent(recent)

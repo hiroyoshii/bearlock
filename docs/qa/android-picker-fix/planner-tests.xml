@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.hiyozoo.bearlock.PlannerTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-09-08T13:33:27.340Z" hostname="hiroyoshii" time="0.585">
+  <properties/>
+  <testcase name="recentKeepsThreePlusPins" classname="com.hiyozoo.bearlock.PlannerTest" time="0.155"/>
+  <testcase name="futureRecurringConflictRejected" classname="com.hiyozoo.bearlock.PlannerTest" time="0.079"/>
+  <testcase name="dailyCrossMidnightAndDstUseSavedZone" classname="com.hiyozoo.bearlock.PlannerTest" time="0.079"/>
+  <testcase name="pendingCanBeEditedAndDeleted" classname="com.hiyozoo.bearlock.PlannerTest" time="0.002"/>
+  <testcase name="reenableRecurringRechecksConflicts" classname="com.hiyozoo.bearlock.PlannerTest" time="0.022"/>
+  <testcase name="exactEndAndMultipleTargets" classname="com.hiyozoo.bearlock.PlannerTest" time="0.001"/>
+  <testcase name="adjacentAllowedOverlappingRejectedWithoutMutation" classname="com.hiyozoo.bearlock.PlannerTest" time="0.007"/>
+  <testcase name="recentRecordsConfirmedCreationButNotEditing" classname="com.hiyozoo.bearlock.PlannerTest" time="0.005"/>
+  <testcase name="invalidEmptyOrLongLockRejected" classname="com.hiyozoo.bearlock.PlannerTest" time="0.011"/>
+  <testcase name="editingRecurringParentPreservesActiveSnapshot" classname="com.hiyozoo.bearlock.PlannerTest" time="0.007"/>
+  <testcase name="domainMatchingIsBoundaryAware" classname="com.hiyozoo.bearlock.PlannerTest" time="0.191"/>
+  <testcase name="activeCannotBeEditedOrDeleted" classname="com.hiyozoo.bearlock.PlannerTest" time="0.003"/>
+  <testcase name="missedExpiredOccurrenceDoesNotCreateLock" classname="com.hiyozoo.bearlock.PlannerTest" time="0.0"/>
+  <testcase name="repeatedUsePreservesPinAndRejectedLockPreservesHistory" classname="com.hiyozoo.bearlock.PlannerTest" time="0.001"/>
+  <testcase name="disablingRecurringPreservesActiveAndSkipsFutureBoundaries" classname="com.hiyozoo.bearlock.PlannerTest" time="0.002"/>
+  <testcase name="endedSessionDoesNotReplayOnClockRollback" classname="com.hiyozoo.bearlock.PlannerTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

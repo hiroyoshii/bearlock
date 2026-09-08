@@ -1,0 +1,20 @@
+{
+  "passed": [
+    "Picker cancel restores original selection",
+    "Picker save persists both selected apps",
+    "Domain selection survives activity restart",
+    "Saving app and domain selections does not add or update recent history",
+    "Confirmation cancel creates no schedule or recent history",
+    "Delayed schedule saved through confirmation",
+    "Confirming a schedule records recent targets",
+    "Recent selection can be pinned",
+    "Pending schedule duration edited without changing recent history",
+    "Pending schedule deleted",
+    "Weekday overnight repeat saved as 23:00–07:00",
+    "Recurring enabled toggle persists off and on",
+    "Repeat cleanup removes only the test schedule",
+    "Settings and Android permission recovery open",
+    "App search is retained across category/app tabs; cancel restores draft",
+    "Target button remains usable at 320dp and 150% font size"
+  ]
+}

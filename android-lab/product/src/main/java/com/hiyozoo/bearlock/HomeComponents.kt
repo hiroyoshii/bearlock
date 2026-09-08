@@ -51,7 +51,7 @@ class SelectionSummary(private val a: MainActivity) {
                 }
             }
         }
-        u.add(c,u.button(if(locked) a.t("ロック中は変更できません","Cannot change during lock") else a.t("ロック対象を選ぶ","Select lock targets")) { a.pickTargets() }.apply { minHeight=u.dp(36); background=u.bg(Palette.subtle); setTextColor(Palette.steel); isEnabled=!locked; alpha=if(locked) .55f else 1f },0)
+        u.add(c,u.button(if(locked) a.t("ロック中は変更できません","Cannot change during lock") else a.t("ロック対象を選ぶ","Select lock targets")) { a.pickTargets() }.apply { minHeight=u.dp(50); background=android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x33142E4F),u.bg(Palette.ice).apply { setStroke(u.dp(1),Palette.steel) },null); setTextColor(Palette.navy); setTypeface(typeface,android.graphics.Typeface.BOLD); isEnabled=!locked; alpha=if(locked) .55f else 1f },0)
         u.add(parent,c,20)
     }
 }

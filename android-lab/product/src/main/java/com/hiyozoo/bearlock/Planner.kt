@@ -71,7 +71,8 @@ object Planner {
             // A persisted active occurrence supersedes the same occurrence of its edited parent.
             !(b.ruleId == rule.id && a.start == b.start) && a.start < b.end && b.start < a.end
         } }) { "overlap" }
-        val recent = listOf(Recent(rule.targets, now, current.recent.any { it.targets == rule.targets && it.pinned })) + current.recent.filter { it.targets != rule.targets }
+        val recent = if(previous != null) current.recent else
+            listOf(Recent(rule.targets, now, current.recent.any { it.targets == rule.targets && it.pinned })) + current.recent.filter { it.targets != rule.targets }
         return reconcile(current.copy(rules = others + rule, recent = trimRecent(recent)), now)
     }
     fun delete(state: State, id: String, now: Long): State {

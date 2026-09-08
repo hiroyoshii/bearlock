@@ -108,7 +108,6 @@ open class MainActivity : Activity() {
         if(state.sessions.any { it.active(System.currentTimeMillis()) }) { draft=pickerOriginal; error("active_immutable"); return }
         if(draft.empty) { error("empty_targets"); return }
         persistSelection()
-        mutate { it.copy(recent=Planner.trimRecent(listOf(Recent(draft,System.currentTimeMillis(),it.recent.any { r -> r.targets==draft && r.pinned })) + it.recent.filterNot { r -> r.targets==draft })) }
         getPreferences(0).edit().putBoolean("onboarded",true).apply()
         navigate(if(pickerReturn=="setup") "home" else pickerReturn)
     }
