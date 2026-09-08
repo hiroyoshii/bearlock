@@ -3,12 +3,14 @@ import FamilyControls
 import Foundation
 import ManagedSettings
 
-protocol ShieldControlling {
+protocol ShieldControlling: Sendable {
     func applyShield(for activeLock: ActiveLock, selection: LockTargetSelectionRef?) throws
     func clearShield()
 }
 
-struct ManagedSettingsShieldController: ShieldControlling {
+// ManagedSettings is used from both app and extension execution contexts. Every
+// lifecycle operation is serialized by the repository's cross-process transaction.
+struct ManagedSettingsShieldController: ShieldControlling, @unchecked Sendable {
     private let store = ManagedSettingsStore(named: .bearLock)
     private let diagnostics = DiagnosticsLogger.shared
 

@@ -241,6 +241,18 @@ final class LockLifecycleTests: XCTestCase {
         XCTAssertEqual(harness.repository.state.activeLock?.sourceRuleID, next.id)
     }
 
+    func testActorEntryPointCompletesClearBeforeReturning() async throws {
+        let rule = makeRule()
+        let repository = FaultRepository(state: LockState(rules: [rule], activeLock: LockPlanner().activeLock(from: rule)))
+        let store = try LockStore(repository: repository)
+        let counter = ClearCounter()
+        let result = try await store.reconcile(event: .refresh, at: rule.endsAt,
+                                               apply: { _, _ in XCTFail("Must not reapply expired lock") },
+                                               clear: { counter.increment() }, record: { _ in })
+        XCTAssertNil(result.activeLock)
+        XCTAssertEqual(counter.value, 1)
+    }
+
     private func makeRule() -> LockRule {
         LockRule(kind: .immediate, startsAt: start, duration: 1800, targetSelectionID: UUID())
     }
@@ -296,5 +308,20 @@ private final class FaultRepository: LockRepository, @unchecked Sendable {
         if failSave { throw Failure.injected }
         saves += 1
         self.state = state
+    }
+}
+
+private final class ClearCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+    func increment() {
+        lock.lock()
+        defer { lock.unlock() }
+        count += 1
+    }
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
     }
 }

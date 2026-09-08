@@ -248,9 +248,9 @@ public actor LockStore {
     public func reconcile(
         event: LockLifecycleEvent,
         at now: Date,
-        apply: (ActiveLock, LockTargetSelectionRef?) throws -> Void,
-        clear: () -> Void,
-        record: (String) -> Void
+        apply: @Sendable (ActiveLock, LockTargetSelectionRef?) throws -> Void,
+        clear: @Sendable () -> Void,
+        record: @Sendable (String) -> Void
     ) throws -> LockState {
         try LockLifecycle(repository: repository).reconcile(
             event: event, at: now, apply: apply, clear: clear, record: record
