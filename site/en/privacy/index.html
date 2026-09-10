@@ -19,7 +19,7 @@
     <main id="main-content">
       <p class="eyebrow">Privacy Policy</p>
       <h1>Privacy Policy</h1>
-      <p class="meta">Last updated: September 10, 2026</p>
+      <p class="meta">Last updated: September 11, 2026</p>
 
       <p>This policy explains how Hiyozoo handles information in the Bear Lock iOS and Android apps and through its support channel.</p>
 
@@ -29,11 +29,12 @@
       <h2>Information Stored on Your Device</h2>
       <p>Bear Lock stores the following information on your device to provide its features:</p>
       <ul>
-        <li>Selections of apps, categories, and websites made through Apple's selection interface</li>
+        <li>Selected apps, categories, and websites to block, along with recent targets and pinned selections</li>
         <li>Lock start times, end times, durations, and recurrence settings</li>
         <li>Lock status and recent operational records needed to verify correct behavior</li>
       </ul>
-      <p>On iOS, selections are stored as protected data issued by Apple's Screen Time APIs. Bear Lock cannot read how you use the selected apps. This information stays in local storage shared by the app and its extensions and is not sent to Hiyozoo. Operational records are limited to the 50 most recent entries.</p>
+      <h2>iOS Data and Permissions</h2>
+      <p>On iOS, you choose targets through Apple's selection interface. Selections are stored as protected data issued by Apple's Screen Time APIs. Bear Lock cannot read how you use the selected apps. This information stays in local storage shared by the app and its extensions and is not sent to Hiyozoo. Operational records are limited to the 50 most recent entries.</p>
 
       <h2>Android Data and Permissions</h2>
       <p>On Android, selected package names, categories, domains, schedules, and recent targets are stored on the device. The accessibility service checks the foreground app and processes supported browsers’ address bars locally to decide when to block. Screen content, address bars, and selections are not sent to Hiyozoo. Operational logs are trimmed to the most recent 300 lines after exceeding 128KB. Accessibility and exact alarm access can be revoked in Android settings. Blocking cannot operate while accessibility is revoked or the app is force-stopped.</p>
@@ -45,9 +46,11 @@
 
       <h2>Permissions and Deletion</h2>
       <ul>
-        <li>You can revoke Screen Time / Family Controls permission in iOS Settings. App blocking will stop working after permission is revoked.</li>
-        <li>You can delete lock schedules within Bear Lock.</li>
-        <li>Uninstalling Bear Lock deletes information stored locally by the app and its extensions.</li>
+        <li>iOS: You can revoke Screen Time / Family Controls permission in iOS Settings. App blocking will stop working after permission is revoked.</li>
+        <li>Android: You can revoke accessibility service and exact alarm access in Android settings. Revoking these permissions disables features needed to block apps or run locks at their scheduled times.</li>
+        <li>You can delete lock schedules within Bear Lock before they start. Active locks cannot be ended before their scheduled end time.</li>
+        <li>On both iOS and Android, uninstalling Bear Lock deletes information stored locally by the app. On iOS, this also includes information stored by its extensions.</li>
+        <li>Uninstalling the app does not delete purchase history managed by Apple or Google Play.</li>
         <li>You can request deletion of information retained by support using the contact address below.</li>
       </ul>
 
