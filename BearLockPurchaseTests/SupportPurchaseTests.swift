@@ -58,7 +58,6 @@ final class SupportPurchaseTests: XCTestCase {
         // Reset the test server's forced-failure state, retaining the same app service.
         session.resetToDefaultState()
         session.disableDialogs = true
-        try await session.setSimulatedError(nil, forAPI: .purchase)
         let remainingError = await session.simulatedError(forAPI: .purchase)
         XCTAssertNil(remainingError)
         await store.purchase(.coffee)
