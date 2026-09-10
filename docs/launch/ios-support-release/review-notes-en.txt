@@ -1,0 +1,16 @@
+This version adds optional consumable purchases that support Bear Lock development.
+
+To test the purchases:
+1. Open Bear Lock and complete the Screen Time setup if prompted.
+2. Open Settings > Support.
+3. Select Coffee, Lunch, or Dinner and complete the purchase.
+4. Confirm that a thank-you message appears.
+
+All three products are consumables and can be purchased again. They do not unlock features or change any app lock or schedule.
+
+Product IDs:
+com.hiyozoo.bearlock.support.coffee
+com.hiyozoo.bearlock.support.lunch
+com.hiyozoo.bearlock.support.dinner
+
+The button preceding the Screen Time permission request remains "Continue".

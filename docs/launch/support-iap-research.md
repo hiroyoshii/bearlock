@@ -126,7 +126,7 @@
 7. Monthly support subscriptions appear in a few apps, but they add more billing complexity than Bear Lock needs for MVP.
 8. Apps in sensitive categories tend to emphasize privacy, no tracking, and no feature differences.
 
-## Future Bear Lock Direction (After Version 1.0)
+## iOS support purchase restoration
 
 Version 1.1 restores optional support purchases on iOS only. Version 1.0 shipped without In-App Purchases. App Store Connect product availability, agreements, tax and banking setup must be checked separately; restoring the client does not configure them.
 
@@ -148,16 +148,17 @@ Recommended product direction:
 - No cloud sync for MVP.
 - Optional support is a consumable In-App Purchase.
 - Entry point lives low in Settings, not Home.
-- Copy clearly says support does not unlock features, change locks, shorten locks, or affect blocking behavior.
+- Purchases do not unlock features or change lock behavior. The user-facing text uses the short wording agreed below; a no-extra-features disclaimer is not required copy.
 
-Recommended screen copy:
+Agreed Japanese screen copy:
 
 ```text
-Bear Lockを支える
+サポート
 
-Bear Lockは無料です。広告、アカウント、サブスクリプションはありません。
-気に入ったら、開発を続ける手助けができます。Bear Lockの機能は変わりません。
+Bear Lockは無料で使えます。良ければ開発を応援してください。
 ```
+
+Release preparation and current validation evidence: [release materials](ios-support-release/README.md). Historical release investigation: [audit](ios-support-release-audit-2026-09-10.md). These documents distinguish previously completed setup from the remaining submission work.
 
 Recommended product-name style:
 
