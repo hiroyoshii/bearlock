@@ -1,0 +1,20 @@
+{
+  "run_id": 34494303858,
+  "source_commit": "b8ec38c",
+  "dimensions": [
+    1284,
+    2778
+  ],
+  "files": [
+    "ci-screenshots/app-store-ja/setup.png",
+    "ci-screenshots/app-store-ja/home.png",
+    "ci-screenshots/app-store-ja/confirmation.png",
+    "ci-screenshots/app-store-ja/activeLock.png",
+    "ci-screenshots/app-store-ja/composeRepeat.png",
+    "ci-screenshots/app-store-en/setup.png",
+    "ci-screenshots/app-store-en/home.png",
+    "ci-screenshots/app-store-en/confirmation.png",
+    "ci-screenshots/app-store-en/activeLock.png",
+    "ci-screenshots/app-store-en/composeRepeat.png"
+  ]
+}
