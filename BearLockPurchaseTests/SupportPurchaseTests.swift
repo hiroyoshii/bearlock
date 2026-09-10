@@ -55,7 +55,12 @@ final class SupportPurchaseTests: XCTestCase {
         await store.purchase(.coffee)
         XCTAssertEqual(store.message, L10n.string("The purchase could not be completed."))
         XCTAssertNil(store.purchasingProductID)
+        // Reset the test server's forced-failure state, retaining the same app service.
+        session.resetToDefaultState()
+        session.disableDialogs = true
         try await session.setSimulatedError(nil, forAPI: .purchase)
+        let remainingError = await session.simulatedError(forAPI: .purchase)
+        XCTAssertNil(remainingError)
         await store.purchase(.coffee)
         XCTAssertEqual(store.message, thanks)
         try await eventually { await self.unfinishedIDs().isEmpty }
@@ -67,7 +72,10 @@ final class SupportPurchaseTests: XCTestCase {
         await store.purchase(.coffee)
         XCTAssertNil(store.message)
         XCTAssertNil(store.purchasingProductID)
-        XCTAssertTrue(session.allTransactions().isEmpty)
+        // StoreKit Testing records cancelled attempts too; they must not be successful payments.
+        XCTAssertFalse(session.allTransactions().contains { $0.state == .purchased })
+        let remaining = await unfinishedIDs()
+        XCTAssertTrue(remaining.isEmpty)
     }
 
     func testPendingPurchaseFinishesWhenApproved() async throws {

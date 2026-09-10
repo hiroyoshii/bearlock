@@ -41,7 +41,9 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           for p in Path('artifacts').glob('*.log'):
-              for line in p.read_text().splitlines()[-50:]:
+              lines = p.read_text().splitlines()
+              selected = [line for line in lines if 'error:' in line] + lines[-15:]
+              for line in selected:
                   print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
           PY
       - uses: actions/upload-artifact@v4
