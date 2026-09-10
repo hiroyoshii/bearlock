@@ -6,6 +6,7 @@ on:
       - 'BearLock/Features/Home/SupportStore.swift'
       - 'BearLock/Services/Localization.swift'
       - 'BearLockPurchaseTests/**'
+      - 'BearLockPurchaseTestHost/**'
       - 'project.yml'
       - '.github/workflows/ios-purchases.yml'
   workflow_dispatch:
@@ -31,7 +32,7 @@ jobs:
           mkdir -p artifacts
           set -o pipefail
           xcodebuild -project BearLock.xcodeproj -scheme BearLockPurchases \
-            -destination 'platform=macOS' -parallel-testing-enabled NO \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -parallel-testing-enabled NO \
             -resultBundlePath artifacts/purchases.xcresult \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/purchases.log
       - name: Publish failure details

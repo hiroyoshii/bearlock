@@ -16,6 +16,7 @@ schemes:
   BearLockPurchases:
     build:
       targets:
+        BearLockPurchaseTestHost: all
         BearLockPurchaseTests: all
     test:
       targets:
@@ -143,8 +144,9 @@ targets:
 
   BearLockPurchaseTests:
     type: bundle.unit-test
-    platform: macOS
-    deploymentTarget: "14.0"
+    platform: iOS
+    dependencies:
+      - target: BearLockPurchaseTestHost
     sources:
       - BearLockPurchaseTests
       - BearLock/Features/Home/SupportStore.swift
@@ -154,3 +156,15 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.purchase-tests
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGNING_ALLOWED: NO
+
+  BearLockPurchaseTestHost:
+    type: application
+    platform: iOS
+    sources:
+      - BearLockPurchaseTestHost
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.purchase-test-host
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+        TARGETED_DEVICE_FAMILY: "1"
