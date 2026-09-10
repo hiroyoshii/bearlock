@@ -22,8 +22,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Generate test project
         run: |
-          brew install xcodegen
-          xcodegen generate
+          mkdir -p artifacts
+          set -o pipefail
+          brew install xcodegen 2>&1 | tee artifacts/generate.log
+          xcodegen generate 2>&1 | tee -a artifacts/generate.log
       - name: Exercise production purchase service with StoreKit Testing
         run: |
           mkdir -p artifacts
@@ -37,11 +39,9 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('artifacts/purchases.log')
-          if p.exists():
-              for line in p.read_text().splitlines():
-                  if 'error:' in line or 'failed' in line.lower():
-                      print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          for p in Path('artifacts').glob('*.log'):
+              for line in p.read_text().splitlines()[-50:]:
+                  print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
