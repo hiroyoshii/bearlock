@@ -10,6 +10,10 @@ class ScreenshotActivity: MainActivity() {
     private val fixtureNow=System.currentTimeMillis()
     override fun onCreate(savedInstanceState: Bundle?) {
         screen=intent.getStringExtra("screen") ?: "home"
+        intent.getStringExtra("language")?.takeIf { it in listOf("ja","en") }?.let {
+            getSharedPreferences("appearance",0).edit().putString("language",it).commit()
+            configureLanguage(this)
+        }
         visualPreview=true
         super.onCreate(savedInstanceState)
         page=when(screen) { "home","setup","settings" -> screen; else->"fixture" }
