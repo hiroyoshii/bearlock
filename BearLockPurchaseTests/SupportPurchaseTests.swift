@@ -49,6 +49,27 @@ final class SupportPurchaseTests: XCTestCase {
         XCTAssertNil(store.purchasingProductID)
     }
 
+    func testPurchaseFailureCanBeRetried() async throws {
+        await store.loadProducts()
+        try await session.setSimulatedError(.generic(.networkError(URLError(.notConnectedToInternet))), forAPI: .purchase)
+        await store.purchase(.coffee)
+        XCTAssertEqual(store.message, L10n.string("The purchase could not be completed."))
+        XCTAssertNil(store.purchasingProductID)
+        try await session.setSimulatedError(nil, forAPI: .purchase)
+        await store.purchase(.coffee)
+        XCTAssertEqual(store.message, thanks)
+        try await eventually { await self.unfinishedIDs().isEmpty }
+    }
+
+    func testCancelledPurchaseDoesNotShowSuccess() async throws {
+        await store.loadProducts()
+        try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
+        await store.purchase(.coffee)
+        XCTAssertNil(store.message)
+        XCTAssertNil(store.purchasingProductID)
+        XCTAssertTrue(session.allTransactions().isEmpty)
+    }
+
     func testPendingPurchaseFinishesWhenApproved() async throws {
         await store.loadProducts()
         session.askToBuyEnabled = true

@@ -142,7 +142,7 @@ targets:
         TEST_TARGET_NAME: BearLock
 
   BearLockPurchaseTests:
-    type: bundle.unit-testing
+    type: bundle.unit-test
     platform: macOS
     deploymentTarget: "14.0"
     sources:
