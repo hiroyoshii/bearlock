@@ -8,16 +8,10 @@ struct SupportView: View {
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("Bear Lock is free. No ads, accounts, or subscriptions.")
-                        .font(.body)
-                        .foregroundStyle(AppTheme.navy)
-
-                    Text("If you like it, you can help development continue. Bear Lock works the same either way.")
-                        .font(.subheadline)
-                        .foregroundStyle(AppTheme.steel)
-                }
-                .padding(.vertical, 8)
+                Text("Bear Lock is free to use. Please consider supporting its development.")
+                    .font(.body)
+                    .foregroundStyle(AppTheme.navy)
+                    .padding(.vertical, 8)
             }
 
             Section {
