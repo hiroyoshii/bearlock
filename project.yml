@@ -13,6 +13,13 @@ packages:
   BearLockCore:
     path: .
 schemes:
+  BearLockPurchases:
+    build:
+      targets:
+        BearLockPurchaseTests: all
+    test:
+      targets:
+        - BearLockPurchaseTests
   BearLock:
     build:
       targets:
@@ -133,3 +140,17 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.uitests
         INFOPLIST_FILE: BearLockUITests/Info.plist
         TEST_TARGET_NAME: BearLock
+
+  BearLockPurchaseTests:
+    type: bundle.unit-testing
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - BearLockPurchaseTests
+      - BearLock/Features/Home/SupportStore.swift
+      - BearLock/Services/Localization.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.purchase-tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO

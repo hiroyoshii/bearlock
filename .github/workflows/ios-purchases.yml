@@ -1,0 +1,50 @@
+name: iOS Support Purchases
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'BearLock/Features/Home/SupportStore.swift'
+      - 'BearLock/Services/Localization.swift'
+      - 'BearLockPurchaseTests/**'
+      - 'project.yml'
+      - '.github/workflows/ios-purchases.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ios-purchases-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  storekit:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate test project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Exercise production purchase service with StoreKit Testing
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLockPurchases \
+            -destination 'platform=macOS' -parallel-testing-enabled NO \
+            -resultBundlePath artifacts/purchases.xcresult \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/purchases.log
+      - name: Publish failure details
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('artifacts/purchases.log')
+          if p.exists():
+              for line in p.read_text().splitlines():
+                  if 'error:' in line or 'failed' in line.lower():
+                      print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storekit-purchase-results
+          path: artifacts/

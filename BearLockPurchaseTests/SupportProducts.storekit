@@ -1,0 +1,78 @@
+{
+  "identifier": "BEARLOCK-SUPPORT-TESTS",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "500",
+      "familyShareable": false,
+      "internalID": "1001",
+      "localizations": [
+        {
+          "description": "Optional support for development",
+          "displayName": "Coffee",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.hiyozoo.bearlock.support.coffee",
+      "referenceName": "Coffee",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "1000",
+      "familyShareable": false,
+      "internalID": "1002",
+      "localizations": [
+        {
+          "description": "Optional support for development",
+          "displayName": "Lunch",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.hiyozoo.bearlock.support.lunch",
+      "referenceName": "Lunch",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "2000",
+      "familyShareable": false,
+      "internalID": "1003",
+      "localizations": [
+        {
+          "description": "Optional support for development",
+          "displayName": "Dinner",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.hiyozoo.bearlock.support.dinner",
+      "referenceName": "Dinner",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "100",
+      "familyShareable": false,
+      "internalID": "2001",
+      "localizations": [
+        {
+          "description": "Unrelated test product",
+          "displayName": "Unrelated",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.hiyozoo.bearlock.test.unrelated",
+      "referenceName": "Unrelated",
+      "type": "Consumable"
+    }
+  ],
+  "settings": {
+    "_applicationInternalID": "6806725013",
+    "_askToBuyEnabled": false,
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "JPN"
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}
