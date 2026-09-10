@@ -36,7 +36,7 @@ data class Rule(
 data class Session(val key: String, val ruleId: String, val title: String, val targets: Targets, val start: Long, val end: Long) {
     fun active(now: Long) = start <= now && now < end
 }
-data class Recent(val targets: Targets, val usedAt: Long, val pinned: Boolean = false)
+data class Recent(val targets: Targets, val usedAt: Long, val pinned: Boolean = false, val pinnedAt: Long? = null)
 data class State(val rules: List<Rule> = emptyList(), val sessions: List<Session> = emptyList(), val completed: Set<String> = emptySet(), val recent: List<Recent> = emptyList())
 
 object Planner {
@@ -57,7 +57,7 @@ object Planner {
         require(rule.end - rule.start in 60_000..DAY) { "invalid_time" }
         ZoneId.of(rule.zone)
         require(rule.targets.domains.all { Domain.normalize(it) == it }) { "invalid_domain" }
-        val current = reconcile(state, now)
+        val current = reconcile(state, now).let { it.copy(recent=trimRecent(it.recent)) }
         val previous = current.rules.find { it.id == rule.id }
         require(previous == null || previous.recurring || current.sessions.none { it.ruleId == rule.id }) { "active_immutable" }
         require(rule.recurring || rule.start >= now) { "past_time" }
@@ -72,7 +72,7 @@ object Planner {
             !(b.ruleId == rule.id && a.start == b.start) && a.start < b.end && b.start < a.end
         } }) { "overlap" }
         val recent = if(previous != null) current.recent else
-            listOf(Recent(rule.targets, now, current.recent.any { it.targets == rule.targets && it.pinned })) + current.recent.filter { it.targets != rule.targets }
+            listOf(Recent(rule.targets, now, current.recent.any { it.targets == rule.targets && it.pinned }, current.recent.find { it.targets == rule.targets }?.pinnedAt)) + current.recent.filter { it.targets != rule.targets }
         return reconcile(current.copy(rules = others + rule, recent = trimRecent(recent)), now)
     }
     fun delete(state: State, id: String, now: Long): State {
@@ -81,7 +81,23 @@ object Planner {
         require(rule.recurring || current.sessions.none { it.ruleId == id }) { "active_immutable" }
         return current.copy(rules = current.rules.filter { it.id != id })
     }
-    fun trimRecent(items: List<Recent>) = items.filter { it.pinned } + items.filterNot { it.pinned }.take(3)
+    // Keep stored history; the three-item limit applies to display, as on iOS.
+    fun trimRecent(items: List<Recent>): List<Recent> {
+        var pins=0
+        return items.distinctBy { it.targets }.map { item ->
+            if(item.pinned && ++pins <= 3) item.copy(pinnedAt=item.pinnedAt ?: item.usedAt)
+            else item.copy(pinned=false,pinnedAt=null)
+        }
+    }
+    fun displayedRecent(items: List<Recent>): List<Recent> {
+        val normalized=trimRecent(items)
+        return (normalized.filter { it.pinned }.sortedBy { it.pinnedAt } + normalized.filterNot { it.pinned }.sortedByDescending { it.usedAt }).take(3)
+    }
+    fun pinRecent(items: List<Recent>, targets: Targets, pinned: Boolean, now: Long): List<Recent> {
+        val normalized=trimRecent(items)
+        require(!pinned || normalized.any { it.targets==targets && it.pinned } || normalized.count { it.pinned }<3) { "pin_limit" }
+        return normalized.map { if(it.targets==targets) it.copy(pinned=pinned,pinnedAt=if(pinned) it.pinnedAt ?: now else null) else it }
+    }
     fun nextBoundary(state: State, now: Long): Long? = (state.sessions.map { it.end } + state.rules.flatMap {
         it.occurrences(now, now + 8 * DAY).flatMap { s -> listOf(s.start, s.end) }
     }).filter { it > now }.minOrNull()

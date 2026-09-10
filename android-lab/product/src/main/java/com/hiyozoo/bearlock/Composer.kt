@@ -62,14 +62,15 @@ class Composer(private val a: MainActivity) {
             u.add(c,u.label(t("開始まで","Starts in"),17f,true),10)
             val r=u.row()
             r.addView(u.button("−") { a.delay=(a.delay-5).coerceAtLeast(5); refresh() }.apply {
-                contentDescription=t("開始を5分早める","Decrease start delay"); isEnabled=a.delay>5; minWidth=0; background=u.bg(Palette.subtle)
+                contentDescription=t("開始を5分早める","Decrease start delay"); isEnabled=a.delay>5; minWidth=0; background=u.touchBackground(Palette.subtle)
             },LinearLayout.LayoutParams(u.dp(54),u.dp(54)))
             val value=u.column().apply { gravity=Gravity.CENTER }
-            u.add(value,u.label("${a.delay}"+t("分"," min"),22f,true),2)
-            u.add(value,u.label(t("開始までの時間","Start delay"),12f,true,true),0)
-            r.addView(value,LinearLayout.LayoutParams(0,u.dp(54),1f))
+            u.add(value,u.label("${a.delay}"+t("分"," min"),22f,true).apply { gravity=Gravity.CENTER },2)
+            u.add(value,u.label(t("開始までの時間","Start delay"),12f,true,true).apply { gravity=Gravity.CENTER },0)
+            value.minimumHeight=u.dp(54)
+            r.addView(value,LinearLayout.LayoutParams(0,-2,1f).apply { leftMargin=u.dp(12); rightMargin=u.dp(12) })
             r.addView(u.button("＋") { a.delay=(a.delay+5).coerceAtMost(240); refresh() }.apply {
-                contentDescription=t("開始を5分遅らせる","Increase start delay"); isEnabled=a.delay<240; minWidth=0; background=u.bg(Palette.subtle)
+                contentDescription=t("開始を5分遅らせる","Increase start delay"); isEnabled=a.delay<240; minWidth=0; background=u.touchBackground(Palette.subtle)
             },LinearLayout.LayoutParams(u.dp(54),u.dp(54)))
             u.add(c,r,18)
         }
@@ -83,10 +84,10 @@ class Composer(private val a: MainActivity) {
             for(day in listOf(7,1,2,3,4,5,6)) weekdays.addView(u.button(dayName(day)) {
                 a.days=if(day in a.days) a.days-day else a.days+day
                 val button=weekdays.getChildAt(listOf(7,1,2,3,4,5,6).indexOf(day)) as Button
-                button.isSelected=day in a.days; button.setTextColor(if(button.isSelected) Palette.navy else Palette.steel); button.background=u.bg(if(button.isSelected) Palette.selected else Palette.subtle)
+                button.isSelected=day in a.days; button.setTextColor(if(button.isSelected) Palette.navy else Palette.steel); button.background=u.touchBackground(if(button.isSelected) Palette.selected else Palette.subtle)
             }.apply {
                 minWidth=0; minHeight=u.dp(38); textSize=15f; setPadding(0,u.dp(4),0,u.dp(4)); isSelected=day in a.days
-                setTextColor(if(isSelected) Palette.navy else Palette.steel); background=u.bg(if(isSelected) Palette.selected else Palette.subtle); contentDescription=java.time.DayOfWeek.of(day).getDisplayName(java.time.format.TextStyle.FULL,a.resources.configuration.locales[0])
+                setTextColor(if(isSelected) Palette.navy else Palette.steel); background=u.touchBackground(if(isSelected) Palette.selected else Palette.subtle); contentDescription=java.time.DayOfWeek.of(day).getDisplayName(java.time.format.TextStyle.FULL,a.resources.configuration.locales[0])
             },LinearLayout.LayoutParams(0,-2,1f).apply { if(day!=6) rightMargin=u.dp(8) })
             u.add(c,weekdays,18)
             for(start in listOf(true,false)) {
@@ -94,7 +95,7 @@ class Composer(private val a: MainActivity) {
                 row.addView(u.label(if(start) t("開始","Starts") else t("終了","Ends"),17f),LinearLayout.LayoutParams(0,-2,1f))
                 row.addView(u.button("%d:%02d".format(minute/60,minute%60)) {
                     TimePickerDialog(a,{ _,h,m -> if(start) a.repeatStart=h*60+m else a.repeatEnd=h*60+m; refresh() },minute/60,minute%60,true).show()
-                }.apply { background=u.bg(0xFFEEEEEF.toInt()); textSize=17f; minWidth=u.dp(76); minHeight=u.dp(44); setPadding(u.dp(12),u.dp(6),u.dp(12),u.dp(6)); contentDescription=if(start) t("開始時刻","Start time") else t("終了時刻","End time") })
+                }.apply { background=u.touchBackground(0xFFEEEEEF.toInt()); textSize=17f; minWidth=u.dp(76); minHeight=u.dp(44); setPadding(u.dp(12),u.dp(6),u.dp(12),u.dp(6)); contentDescription=if(start) t("開始時刻","Start time") else t("終了時刻","End time") })
                 u.add(c,row,18)
             }
             return
@@ -107,7 +108,7 @@ class Composer(private val a: MainActivity) {
         }
         val presets=u.column()
         val presetButtons=mutableListOf<Button>()
-        fun markPresets() { presetButtons.forEachIndexed { i, button -> button.apply { isSelected=listOf(15,30,60,120)[i]==a.duration; background=u.bg(if(isSelected) Palette.selected else Palette.subtle); setTextColor(if(isSelected) Palette.navy else Palette.steel) } } }
+        fun markPresets() { presetButtons.forEachIndexed { i, button -> button.apply { isSelected=listOf(15,30,60,120)[i]==a.duration; background=u.touchBackground(if(isSelected) Palette.selected else Palette.subtle); setTextColor(if(isSelected) Palette.navy else Palette.steel) } } }
 
         slider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(s: SeekBar?,p: Int,user: Boolean) { if(user) { a.duration=15+p*5; value.text="${a.duration}"+t("分"," min"); markPresets(); updateSummary?.invoke() } }
@@ -177,15 +178,15 @@ class Composer(private val a: MainActivity) {
 class ConfirmationContent(private val u: Ui) {
     fun build(targets: String, start: String, end: String, immediate: Boolean, cancel: ()->Unit, confirm: ()->Unit): LinearLayout {
         val c=u.column().apply { setPadding(u.dp(24),u.dp(20),u.dp(24),u.dp(24)); gravity=Gravity.CENTER_HORIZONTAL; setBackgroundColor(Palette.background) }
-        u.add(c,u.asset(R.drawable.bear_arming,96),16)
+        u.add(c,u.asset(R.drawable.bear_arming,112),16)
         u.add(c,u.label(tr(u.c,if(immediate) "熊を眠らせます。" else "ロックを予約します。",if(immediate) "Put Bear to sleep." else "Schedule Bear’s sleep."),22f,true).apply { gravity=Gravity.CENTER },12)
         u.add(c,u.label(tr(u.c,"開始後は短縮・解除できません。","Once started, you cannot shorten or end it early."),15f,muted=true).apply { gravity=Gravity.CENTER },22)
         val summary=u.card().apply { background=u.bg(Palette.ice) }
-        u.pair(summary,tr(u.c,"対象アプリ","Apps"),targets,8)
-        u.pair(summary,tr(u.c,"開始","Starts"),start,8)
-        u.pair(summary,tr(u.c,"起床","Wakes"),end,0); u.add(c,summary,22)
+        u.pair(summary,tr(u.c,"対象アプリ","Apps"),targets,8,emphasized=true)
+        u.pair(summary,tr(u.c,"開始","Starts"),start,8,emphasized=true)
+        u.pair(summary,tr(u.c,"起床","Wakes"),end,0,emphasized=true); u.add(c,summary,22)
         u.add(c,u.button(tr(u.c,if(immediate) "ロック開始" else "ロックを予約",if(immediate) "Start lock" else "Schedule lock"),true,confirm),10)
-        u.add(c,u.button(tr(u.c,"キャンセル","Cancel"),false,cancel).apply { background=u.bg(Palette.subtle); setTextColor(Palette.navy) },0)
+        u.add(c,u.button(tr(u.c,"キャンセル","Cancel"),false,cancel).apply { background=u.touchBackground(Palette.subtle); setTextColor(Palette.steel); layoutParams=LinearLayout.LayoutParams(-2,-2).apply { gravity=Gravity.CENTER_HORIZONTAL } },0)
         return c
     }
 }

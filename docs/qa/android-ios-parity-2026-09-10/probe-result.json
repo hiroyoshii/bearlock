@@ -1,0 +1,109 @@
+{
+  "window": {
+    "key": "10a04201-b346-46b1-aaf8-c65c4f1977d4",
+    "rule": "10a04201-b346-46b1-aaf8-c65c4f1977d4",
+    "title": "集中時間",
+    "targets": {
+      "apps": [
+        "com.hiyozoo.bearlock.probe"
+      ],
+      "domains": [],
+      "categories": []
+    },
+    "start": 1789052497441,
+    "end": 1789052557441
+  },
+  "blockedTapRequestedAt": 1789052504138,
+  "probeEvents": [
+    {
+      "event": "tap",
+      "wallMs": 1789052496772,
+      "taps": 1
+    },
+    {
+      "event": "pause",
+      "wallMs": 1789052497367,
+      "taps": 1
+    },
+    {
+      "event": "resume",
+      "wallMs": 1789052500202,
+      "taps": 1
+    },
+    {
+      "event": "pause",
+      "wallMs": 1789052504476,
+      "taps": 1
+    },
+    {
+      "event": "resume",
+      "wallMs": 1789052513591,
+      "taps": 1
+    },
+    {
+      "event": "tap",
+      "wallMs": 1789052560838,
+      "taps": 2
+    }
+  ],
+  "stateAfterEnd": {
+    "schema": 1,
+    "rules": [],
+    "sessions": [],
+    "completed": [
+      "ab153c94-ee11-40b6-b08a-d9064c30d1b3",
+      "b4d069b0-42cc-4858-be1d-c0896a8ff99c",
+      "ffc426be-0ed3-4322-80a3-744ce5817e38",
+      "562a9623-e564-470b-bed9-421b21e09992",
+      "fc7367bc-6cbf-461c-8bf4-d8a40c5aeed4",
+      "ce7bb91b-b707-4073-b75b-a8aa3d95feba",
+      "eb748a75-05ec-4a6b-ba50-85e556d47843",
+      "9c70797d-78a6-47b0-8745-79618afc8b33",
+      "10a04201-b346-46b1-aaf8-c65c4f1977d4"
+    ],
+    "recent": [
+      {
+        "targets": {
+          "apps": [
+            "com.hiyozoo.bearlock.probe"
+          ],
+          "domains": [],
+          "categories": []
+        },
+        "used": 1789052497441,
+        "pinned": true,
+        "pinnedAt": 1789052011798
+      },
+      {
+        "targets": {
+          "apps": [
+            "com.hiyozoo.bearlock.probe",
+            "com.android.chrome"
+          ],
+          "domains": [
+            "example.com"
+          ],
+          "categories": []
+        },
+        "used": 1788794558724,
+        "pinned": false,
+        "pinnedAt": null
+      },
+      {
+        "targets": {
+          "apps": [
+            "com.hiyozoo.bearlock.probe"
+          ],
+          "domains": [
+            "this-is-a-long-domain-name-for-confirmation-layout.example.com"
+          ],
+          "categories": []
+        },
+        "used": 1788795283088,
+        "pinned": false,
+        "pinnedAt": null
+      }
+    ]
+  },
+  "passed": true
+}

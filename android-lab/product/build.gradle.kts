@@ -2,7 +2,12 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
     namespace = "com.hiyozoo.bearlock"
     compileSdk = 36
-    defaultConfig { applicationId = "com.hiyozoo.bearlock"; minSdk = 26; targetSdk = 36; versionCode = 3; versionName = "0.1.2" }
+    defaultConfig { applicationId = "com.hiyozoo.bearlock"; minSdk = 26; targetSdk = 36; versionCode = 4; versionName = "0.2.0" }
+    defaultConfig {
+        val licenseKey = System.getenv("BEARLOCK_PLAY_LICENSE_KEY").orEmpty().trim()
+        require(licenseKey.matches(Regex("[A-Za-z0-9+/=]*"))) { "Play licensing key must be base64" }
+        buildConfigField("String", "PLAY_LICENSE_KEY", "\"$licenseKey\"")
+    }
     buildFeatures { buildConfig = true }
     bundle { language { enableSplit = false } }
     val signingPath = System.getenv("BEARLOCK_KEYSTORE")
@@ -19,4 +24,4 @@ android {
     kotlinOptions { jvmTarget = "17" }
     buildTypes { getByName("release") { isMinifyEnabled = false } }
 }
-dependencies { testImplementation("junit:junit:4.13.2") }
+dependencies { implementation("com.android.billingclient:billing:8.3.0"); testImplementation("junit:junit:4.13.2") }

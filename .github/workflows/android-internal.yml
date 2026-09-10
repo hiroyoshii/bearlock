@@ -45,6 +45,7 @@ jobs:
       - name: Check, build and verify signed AAB
         working-directory: android-lab
         env:
+          BEARLOCK_PLAY_LICENSE_KEY: ${{ secrets.BEARLOCK_PLAY_LICENSE_KEY }}
           BEARLOCK_KEYSTORE: ${{ runner.temp }}/bearlock-upload.jks
           BEARLOCK_STORE_PASSWORD: ${{ secrets.BEARLOCK_STORE_PASSWORD }}
           BEARLOCK_KEY_ALIAS: ${{ secrets.BEARLOCK_KEY_ALIAS }}

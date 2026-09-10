@@ -47,7 +47,7 @@ object Codec {
         JSONObject().put("id", it.id).put("title", it.title).put("targets", targets(it.targets)).put("start", it.start).put("end", it.end)
             .put("days", JSONArray(it.days.toList())).put("minute", it.minute).put("duration", it.durationMinutes).put("zone", it.zone).put("enabled", it.enabled)
     })).put("sessions", JSONArray(s.sessions.map(::session))).put("completed", JSONArray(s.completed.toList()))
-        .put("recent", JSONArray(s.recent.map { JSONObject().put("targets", targets(it.targets)).put("used", it.usedAt).put("pinned", it.pinned) })).toString()
+        .put("recent", JSONArray(s.recent.map { JSONObject().put("targets", targets(it.targets)).put("used", it.usedAt).put("pinned", it.pinned).put("pinnedAt", it.pinnedAt ?: JSONObject.NULL) })).toString()
     fun decode(text: String): State {
         val j = JSONObject(text); require(j.getInt("schema") == 1)
         return State(j.getJSONArray("rules").mapObjects {
@@ -55,6 +55,6 @@ object Codec {
                 it.getJSONArray("days").ints(), it.getInt("minute"), it.getInt("duration"), it.getString("zone"), it.optBoolean("enabled", true))
         }, j.getJSONArray("sessions").mapObjects {
             Session(it.getString("key"), it.getString("rule"), it.getString("title"), targets(it.getJSONObject("targets")), it.getLong("start"), it.getLong("end"))
-        }, j.getJSONArray("completed").strings(), j.getJSONArray("recent").mapObjects { Recent(targets(it.getJSONObject("targets")), it.getLong("used"), it.getBoolean("pinned")) })
+        }, j.getJSONArray("completed").strings(), Planner.trimRecent(j.getJSONArray("recent").mapObjects { Recent(targets(it.getJSONObject("targets")), it.getLong("used"), it.getBoolean("pinned"), if(it.isNull("pinnedAt")) null else it.getLong("pinnedAt")) }))
     }
 }

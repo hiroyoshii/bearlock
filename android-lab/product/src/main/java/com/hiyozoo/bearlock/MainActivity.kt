@@ -73,8 +73,8 @@ open class MainActivity : Activity() {
         }
         render()
     }
-    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); Scheduling.sync(this); load(); render(); handler.post(heartbeat) }
-    override fun onPause() { handler.removeCallbacks(heartbeat); super.onPause() }
+    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); Scheduling.sync(this); load(); render(); handler.post(heartbeat); if(!visualPreview) { SupportBilling.get(this).changed={ if(page=="support" && !isFinishing && !isDestroyed) render() }; SupportBilling.get(this).refresh() } }
+    override fun onPause() { if(!visualPreview) SupportBilling.get(this).changed=null; handler.removeCallbacks(heartbeat); super.onPause() }
     override fun onSaveInstanceState(out: Bundle) {
         out.putString("page",page); out.putString("targets",Codec.targets(draft).toString()); out.putInt("mode",mode)
         out.putInt("duration",duration); out.putInt("delay",delay); out.putLong("at",at); out.putString("title",title)
@@ -94,7 +94,8 @@ open class MainActivity : Activity() {
     @Deprecated("Used only by Android 8–12")
     override fun onBackPressed() { goBack() }
     fun goBack() {
-        if(page=="targets") { draft=pickerOriginal; navigate(pickerReturn) }
+        if(page=="support") { navigate("settings") }
+        else if(page=="targets") { draft=pickerOriginal; navigate(pickerReturn) }
         else if(page!="home") { editing=null; enabled=true; restoreSelection(); navigate("home") } else finish()
     }
     fun restoreSelection() { draft=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(draft) }
@@ -140,7 +141,7 @@ open class MainActivity : Activity() {
                 val side=ui.dp(if(ui.compact) 132 else 96)
                 toolbar.addView(cancel,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_START) })
                 toolbar.addView(save,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_END) })
-                val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロックを編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); else->t("設定","Settings") }
+                val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロックを編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); "support"->t("Bear Lockを応援","Support Bear Lock"); else->t("設定","Settings") }
                 toolbar.addView(ui.label(name,17f,true).apply { gravity=Gravity.CENTER; minHeight=ui.dp(50) },android.widget.RelativeLayout.LayoutParams(-1,-2).apply { if(ui.compact) addRule(android.widget.RelativeLayout.BELOW,cancel.id) else { addRule(android.widget.RelativeLayout.END_OF,cancel.id); addRule(android.widget.RelativeLayout.START_OF,save.id) } })
                 bar.addView(toolbar,LinearLayout.LayoutParams(-1,-2))
             }
@@ -151,7 +152,7 @@ open class MainActivity : Activity() {
         scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
         when(page) {
             "setup" -> setup(body); "home" -> home(body); "compose" -> Composer(this).showEditor(body)
-            "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body)
+            "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body); "support" -> SupportScreen(this).show(body)
             "permissions" -> permissions(body)
         }
         if(page=="targets") {
@@ -173,6 +174,7 @@ open class MainActivity : Activity() {
     }
     fun error(key: String?) {
         val message=when(key) {
+            "pin_limit" -> t("ピン留めできる対象は3件までです。","You can pin up to three targets.")
             "empty_targets" -> t("対象を1つ以上選んでください。","Choose at least one target.")
             "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps another lock. Choose a different time.")
             "active_immutable" -> t("開始したロックは変更・削除できません。","An active lock cannot be changed or deleted.")

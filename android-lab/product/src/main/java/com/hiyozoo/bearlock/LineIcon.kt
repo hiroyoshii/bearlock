@@ -10,6 +10,14 @@ class LineIcon(private val name: String, private val color: Int = Palette.navy):
         canvas.save(); canvas.translate(bounds.left.toFloat(),bounds.top.toFloat()); canvas.scale(bounds.width()/24f,bounds.height()/24f)
         fun line(vararg values: Float) { val p=Path(); p.moveTo(values[0],values[1]); for(i in 2 until values.size step 2) p.lineTo(values[i],values[i+1]); canvas.drawPath(p,paint) }
         when(name) {
+            "apps" -> { for(x in listOf(3f,14f)) for(y in listOf(3f,14f)) canvas.drawRoundRect(x,y,x+7f,y+7f,1f,1f,paint) }
+            "category" -> { line(3f,6f,7f,6f); line(11f,6f,21f,6f); line(3f,12f,7f,12f); line(11f,12f,21f,12f); line(3f,18f,7f,18f); line(11f,18f,21f,18f) }
+            "web" -> { canvas.drawCircle(12f,12f,9f,paint); canvas.drawOval(8f,3f,16f,21f,paint); line(3f,12f,21f,12f) }
+            "coffee" -> { canvas.drawRoundRect(3f,7f,17f,18f,2f,2f,paint); canvas.drawArc(14f,8f,23f,16f,-90f,180f,false,paint); line(3f,21f,20f,21f); line(7f,2f,7f,4f); line(12f,2f,12f,4f) }
+            "lunch" -> { line(4f,3f,4f,9f,10f,9f,10f,3f); line(7f,3f,7f,21f); line(19f,21f,19f,3f,15f,9f,19f,9f) }
+            "dinner" -> { val p=Path(); p.moveTo(15f,3f); p.cubicTo(-2f,0f,-2f,24f,17f,21f); p.cubicTo(8f,19f,6f,8f,15f,3f); canvas.drawPath(p,paint); line(20f,3f,20f,7f); line(18f,5f,22f,5f) }
+            "heart" -> { val p=Path(); p.moveTo(12f,21f); p.cubicTo(-7f,8f,5f,-3f,12f,6f); p.cubicTo(19f,-3f,31f,8f,12f,21f); canvas.drawPath(p,paint) }
+            "info" -> { canvas.drawCircle(12f,12f,9f,paint); line(12f,10f,12f,17f); canvas.drawPoint(12f,6f,paint) }
             "trash" -> { line(4f,6f,20f,6f); line(8f,6f,8f,3f,16f,3f,16f,6f); line(6f,6f,7f,21f,17f,21f,18f,6f); line(10f,9f,10f,18f); line(14f,9f,14f,18f) }
             "edit" -> { line(4f,20f,5f,15f,17f,3f,21f,7f,9f,19f,4f,20f); line(14f,6f,18f,10f) }
             "down" -> line(5f,9f,12f,16f,19f,9f)

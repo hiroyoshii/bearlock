@@ -22,25 +22,29 @@ class SelectionSummary(private val a: MainActivity) {
                 val summary=u.row(); summary.addView(total,LinearLayout.LayoutParams(-2,-2).apply { rightMargin=u.dp(12) }); summary.addView(counts,LinearLayout.LayoutParams(0,-2,1f)); u.add(c,summary,0)
             }
         }
-        val disclosure=u.row().apply { minimumHeight=u.dp(44); isClickable=true; isFocusable=true; contentDescription=a.t("対象一覧","Target list"); setOnClickListener { a.expandedTargets=!a.expandedTargets; a.render() } }
+        val disclosure=u.row().apply { minimumHeight=u.dp(44); isClickable=true; isFocusable=true; background=u.touchBackground(android.graphics.Color.TRANSPARENT); contentDescription=a.t("対象一覧","Target list"); setOnClickListener { a.expandedTargets=!a.expandedTargets; a.render() } }
         disclosure.addView(u.label(a.t("対象一覧","Target list"),14f,false,true),LinearLayout.LayoutParams(0,-2,1f))
         disclosure.addView(ImageView(a).apply { setImageDrawable(LineIcon(if(a.expandedTargets) "up" else "down",Palette.muted)); importantForAccessibility=android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(u.dp(18),u.dp(18)))
         u.add(c,disclosure,4)
-        if(a.expandedTargets) {
-            if(!a.draft.empty) u.add(c,u.label(a.catalog.summary(a.draft),14f,muted=true),12)
+        val details=u.column(); u.add(c,details,0)
+        fun bindDetails() {
+            details.removeAllViews()
+            val c=details
+            if(a.expandedTargets) {
+            if(!a.draft.empty) TargetRows(a).details(c,a.draft)
             if(!locked && a.state.recent.isNotEmpty()) {
                 u.add(c,u.label(a.t("最近使った対象","Recent selections"),14f,true),8)
-                for(recent in a.state.recent) {
-                    val r=u.row().apply { background=u.bg(if(recent.targets==a.draft) Palette.ice else Palette.background); setPadding(u.dp(6),0,u.dp(2),0) }
-                    r.addView(u.textButton((if(recent.pinned) "⌖ " else "")+a.catalog.summary(recent.targets)) {
+                for(recent in Planner.displayedRecent(a.state.recent)) {
+                    val r=u.row().apply { background=u.bg(if(recent.targets==a.draft) Palette.ice else Palette.white,8,true).apply { setStroke(u.dp(if(recent.targets==a.draft) 2 else 1),if(recent.targets==a.draft) Palette.navy else Palette.line) }; setPadding(u.dp(4),u.dp(4),u.dp(2),u.dp(4)) }
+                    r.addView(TargetRows(a).recent(recent) {
                         a.load()
                         if(a.state.sessions.any { it.active(System.currentTimeMillis()) }) a.error("active_immutable")
                         else { a.draft=recent.targets; a.persistSelection(); a.render() }
-                    }.apply { textSize=13f; gravity=Gravity.START or Gravity.CENTER_VERTICAL },LinearLayout.LayoutParams(0,-2,1f))
+                    },LinearLayout.LayoutParams(0,-2,1f))
                     r.addView(u.iconButton("⋯",a.t("対象のメニュー","Selection menu")) {
                         val menu=PopupMenu(a,r.getChildAt(1))
                         menu.menu.add(if(recent.pinned) a.t("ピン解除","Unpin") else a.t("ピン留め","Pin")).setOnMenuItemClickListener {
-                            a.mutate { it.copy(recent=Planner.trimRecent(it.recent.map { x -> if(x.targets==recent.targets) x.copy(pinned=!x.pinned) else x })) }; true
+                            a.mutate { it.copy(recent=Planner.pinRecent(it.recent,recent.targets,!recent.pinned,System.currentTimeMillis())) }; true
                         }
                         menu.menu.add(a.t("削除","Delete")).setOnMenuItemClickListener {
                             AlertDialog.Builder(a).setTitle(a.t("履歴から削除しますか？","Remove from recent selections?"))
@@ -50,6 +54,14 @@ class SelectionSummary(private val a: MainActivity) {
                     }); u.add(c,r,6)
                 }
             }
+        }
+        }
+        bindDetails()
+        disclosure.setOnClickListener {
+            android.transition.TransitionManager.beginDelayedTransition(c,android.transition.AutoTransition().apply { duration=180 })
+            a.expandedTargets=!a.expandedTargets
+            (disclosure.getChildAt(1) as ImageView).setImageDrawable(LineIcon(if(a.expandedTargets) "up" else "down",Palette.muted))
+            bindDetails()
         }
         u.add(c,u.button(if(locked) a.t("ロック中は変更できません","Cannot change during lock") else a.t("ロック対象を選ぶ","Select lock targets")) { a.pickTargets() }.apply { minHeight=u.dp(50); background=android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x33142E4F),u.bg(Palette.ice).apply { setStroke(u.dp(1),Palette.steel) },null); setTextColor(Palette.navy); setTypeface(typeface,android.graphics.Typeface.BOLD); isEnabled=!locked; alpha=if(locked) .55f else 1f },0)
         u.add(parent,c,20)

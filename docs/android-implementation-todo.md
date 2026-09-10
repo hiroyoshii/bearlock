@@ -2,6 +2,20 @@
 
 2026-09-06。比較用 `android-lab/app` を保存し、`android-lab/product` に製品実装を追加する。
 
+## 2026-09-10 iOS整合の追加対応
+
+- [x] 対象のアイコン付き詳細・最近使った対象の選択表示
+- [x] 履歴3件表示・ピン3件上限・安定した順序・旧データ保持
+- [x] 共通の押下反応・確認画面・設定の整合
+- [x] 応援購入3商品・Play Billing・署名検証・再照会/消費処理の実装
+- [x] Debug/Releaseビルド、単体20件、エミュレーター操作、日英スクショ比較
+- [ ] Play ConsoleにCoffee/Lunch/Dinnerを登録・有効化
+- [ ] GitHub環境android-internalにBEARLOCK_PLAY_LICENSE_KEYを登録し署名ビルド
+- [ ] 内部テスト配信で購入・再購入・取消・保留・再起動を確認
+- [ ] 更新したPrivacy/Supportを公開し、Play Consoleのデータセーフティを確認
+
+[変更とスクショ](android-ios-parity-2026-09-10.md) · [応援購入の設定手順](android-support-purchases.md)。購入設定がなくてもUI・ロック機能は配信可能。
+
 ## 実装
 
 - [x] 複数アプリ・Webドメイン・端末カテゴリの選択、検索、対象名・アイコン

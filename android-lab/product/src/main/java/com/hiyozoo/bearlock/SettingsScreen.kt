@@ -11,17 +11,22 @@ class SettingsScreen(private val a: MainActivity) {
     private val u get()=a.ui
     private fun t(ja: String,en: String)=a.t(ja,en)
     private fun link(path: String) = a.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://bearlock.hiyozoo.com/"+t("","en/")+path+"/")))
-    private fun row(parent: LinearLayout, label: String, action: ()->Unit) = u.add(parent,u.textButton(label,action).apply { gravity=Gravity.START or Gravity.CENTER_VERTICAL; setTextColor(Palette.steel) },0)
+    private fun row(parent: LinearLayout, label: String, symbol: String = "info", action: ()->Unit) = u.add(parent,u.textButton(label,action).apply {
+        gravity=Gravity.START or Gravity.CENTER_VERTICAL; setTextColor(Palette.navy); compoundDrawablePadding=u.dp(12)
+        setCompoundDrawables(LineIcon(symbol,Palette.steel).apply { setBounds(0,0,u.dp(22),u.dp(22)) },null,null,null)
+    },0)
     fun show(parent: LinearLayout) {
-        u.add(parent,u.asset(R.drawable.bear_ready,80),12)
-        u.add(parent,u.label(t("指定時間が終わると、自動でロックを解除します。","Set app locks that end automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.START; setTextColor(Palette.muted) },24)
+        u.add(parent,u.asset(R.drawable.bear_ready,108),12)
+        u.add(parent,u.label(t("指定時間が終わると、自動でロックを解除します。","Set app locks that end automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.CENTER; setTextColor(Palette.muted) },24)
         u.add(parent,u.label(t("データの扱い","Data handling"),13f,true,true),8)
         val data=u.card(); u.add(data,u.label(t("選択対象と予約はこの端末に保存されます。アカウント、クラウド同期、広告、分析、トラッキングはありません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),15f),0); u.add(parent,data,24)
         u.add(parent,u.label(t("情報","Information"),13f,true,true),8)
         val info=u.card()
         row(info,t("プライバシーポリシー","Privacy Policy")) { link("privacy") }
         row(info,t("サポートとよくある質問","Support and FAQ")) { link("support") }
-        u.pair(info,t("バージョン","Version"),BuildConfig.VERSION_NAME,0); u.add(parent,info,24)
+        u.pair(info,t("バージョン","Version"),BuildConfig.VERSION_NAME,8)
+        row(info,t("Bear Lockを応援","Support Bear Lock"),"heart") { a.navigate("support") }
+        u.add(parent,info,24)
         u.add(parent,u.label(t("Androidの設定","Android settings"),13f,true,true),8)
         val platform=u.card()
         row(platform,t("権限・動作状態を確認","Permissions and status")) { a.navigate("permissions") }

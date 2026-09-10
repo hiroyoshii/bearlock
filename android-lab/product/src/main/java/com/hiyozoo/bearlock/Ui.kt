@@ -32,6 +32,8 @@ class Ui(val c: Context) {
     fun bg(color: Int, radius: Int = 8, border: Boolean = false) = GradientDrawable().apply {
         setColor(color); cornerRadius = dp(radius).toFloat(); if (border) setStroke(dp(1),Palette.line)
     }
+    fun touchBackground(color: Int, border: Boolean = false) = android.graphics.drawable.RippleDrawable(
+        android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_focused),intArrayOf()),intArrayOf(0x33142E4F,0x22142E4F)),bg(color,8,border),bg(Palette.white))
     fun column() = LinearLayout(c).apply { orientation = LinearLayout.VERTICAL }
     fun row() = LinearLayout(c).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
     fun label(value: String, size: Float = 16f, bold: Boolean = false, muted: Boolean = false) = TextView(c).apply {
@@ -66,7 +68,7 @@ class Ui(val c: Context) {
         background=bg(Palette.background,8); clipToOutline=true
     }
     fun textButton(value: String, action: () -> Unit) = button(value,false,action).apply {
-        background=bg(android.graphics.Color.TRANSPARENT); setPadding(dp(8),dp(4),dp(8),dp(4)); minWidth=0
+        background=touchBackground(android.graphics.Color.TRANSPARENT); setPadding(dp(8),dp(4),dp(8),dp(4)); minWidth=0
     }
     fun iconButton(symbol: String, description: String, action: () -> Unit) = textButton(symbol,action).apply {
         contentDescription=description
@@ -74,12 +76,12 @@ class Ui(val c: Context) {
         text=""; setCompoundDrawables(LineIcon(name,if(name=="trash") 0xFFFF3B30.toInt() else Palette.steel).apply { setBounds(0,0,dp(20),dp(20)) },null,null,null)
         setPadding(dp(12),dp(14),dp(12),dp(14)); layoutParams=LinearLayout.LayoutParams(dp(44),dp(48))
     }
-    fun pair(parent: LinearLayout, name: String, value: String, gap: Int = 12) {
+    fun pair(parent: LinearLayout, name: String, value: String, gap: Int = 12, emphasized: Boolean = false) {
         if(compact) {
-            val group=column(); add(group,label(name,14f,false,true),4); add(group,label(value,15f),0); add(parent,group,gap); return
+            val group=column(); add(group,label(name,14f,emphasized,true),4); add(group,label(value,15f,emphasized),0); add(parent,group,gap); return
         }
-        val r=row(); r.addView(label(name,14f,false,true),LinearLayout.LayoutParams(0,-2,1f))
-        r.addView(label(value,15f,false).apply { gravity=Gravity.END },LinearLayout.LayoutParams(0,-2,2f)); add(parent,r,gap)
+        val r=row(); r.addView(label(name,14f,emphasized,true),LinearLayout.LayoutParams(0,-2,1f))
+        r.addView(label(value,15f,emphasized).apply { gravity=Gravity.END },LinearLayout.LayoutParams(0,-2,2f)); add(parent,r,gap)
     }
     fun art(sleep: Boolean = false, height: Int = 180) = ImageView(c).apply {
         setImageResource(if(sleep) R.drawable.bear_sleep else R.drawable.bear_ready)

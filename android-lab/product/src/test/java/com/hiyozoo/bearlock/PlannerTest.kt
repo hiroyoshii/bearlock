@@ -75,14 +75,35 @@ class PlannerTest {
     @Test fun repeatedUsePreservesPinAndRejectedLockPreservesHistory() {
         val original=State(recent=listOf(Recent(target,now-1,true)))
         val s=Planner.save(original,rule(),now)
-        assertEquals(listOf(Recent(target,now,true)),s.recent)
+        assertEquals(listOf(Recent(target,now,true,now-1)),s.recent)
         assertThrows(IllegalArgumentException::class.java) { Planner.save(s,rule().copy(targets=Targets(apps=setOf("other"))),now) }
-        assertEquals(listOf(Recent(target,now,true)),s.recent)
+        assertEquals(listOf(Recent(target,now,true,now-1)),s.recent)
     }
-    @Test fun recentKeepsThreePlusPins() {
+    @Test fun recentDisplaysThreeIncludingPinsWithoutDeletingHistory() {
         val recent=(0..6).map { Recent(Targets(apps=setOf("app.$it")),now-it,it==6) }
-        val trimmed=Planner.trimRecent(recent)
-        assertEquals(4,trimmed.size); assertTrue(trimmed.first().pinned)
+        val saved=Planner.trimRecent(recent)
+        assertEquals(7,saved.size)
+        val displayed=Planner.displayedRecent(saved)
+        assertEquals(3,displayed.size); assertTrue(displayed.first().pinned)
+        assertEquals(listOf("app.6","app.0","app.1"),displayed.map { it.targets.apps.single() })
+    }
+    @Test fun pinLimitAndOrderSurviveReuse() {
+        val items=(0..3).map { Recent(Targets(apps=setOf("app.$it")),now-it) }
+        var pinned=items
+        for(i in 0..2) pinned=Planner.pinRecent(pinned,items[i].targets,true,now+i)
+        val full=pinned
+        assertThrows(IllegalArgumentException::class.java) { Planner.pinRecent(full,items[3].targets,true,now+3) }
+        val reused=full.map { if(it.targets==items[2].targets) it.copy(usedAt=now+99) else it }
+        assertEquals(listOf(items[0].targets,items[1].targets,items[2].targets),Planner.displayedRecent(reused).map { it.targets })
+        val unpinned=Planner.pinRecent(full,items[0].targets,false,now+4)
+        assertEquals(3,Planner.pinRecent(unpinned,items[3].targets,true,now+5).count { it.pinned })
+    }
+    @Test fun legacyExcessPinsMigrateWithoutLosingSelections() {
+        val items=(0..5).map { Recent(Targets(apps=setOf("app.$it")),now-it,true) }
+        val normalized=Planner.trimRecent(items)
+        assertEquals(6,normalized.size); assertEquals(3,normalized.count { it.pinned })
+        assertEquals(items.map { it.targets },normalized.map { it.targets })
+        assertEquals(normalized,Planner.trimRecent(normalized))
     }
     @Test fun invalidEmptyOrLongLockRejected() {
         assertThrows(IllegalArgumentException::class.java) { Planner.save(State(),rule().copy(targets=Targets()),now) }
