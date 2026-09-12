@@ -1,6 +1,6 @@
 # Android Play Store screenshots
 
-1080×1920 PNG, Japanese and English. Download the Android Store Assets workflow artifact for all images. These are production UI components rendered with sample data; they do not demonstrate real blocking or purchase transactions.
+1080×1920 PNG, Japanese and English. Download the Android Store Assets workflow artifact for all images. These are production UI components rendered with sample data; they do not demonstrate real blocking or external website behavior.
 
 ## ja
 
