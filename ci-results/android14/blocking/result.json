@@ -1,0 +1,72 @@
+{
+  "window": {
+    "key": "d70e1b74-132f-41f5-9122-248b22823181",
+    "rule": "d70e1b74-132f-41f5-9122-248b22823181",
+    "title": "集中時間",
+    "targets": {
+      "apps": [
+        "com.hiyozoo.bearlock.probe"
+      ],
+      "domains": [],
+      "categories": []
+    },
+    "start": 1789193133844,
+    "end": 1789193193844
+  },
+  "blockedTapRequestedAt": 1789193139311,
+  "probeEvents": [
+    {
+      "event": "tap",
+      "wallMs": 1789193133410,
+      "taps": 1
+    },
+    {
+      "event": "pause",
+      "wallMs": 1789193133700,
+      "taps": 1
+    },
+    {
+      "event": "resume",
+      "wallMs": 1789193136203,
+      "taps": 1
+    },
+    {
+      "event": "pause",
+      "wallMs": 1789193139435,
+      "taps": 1
+    },
+    {
+      "event": "resume",
+      "wallMs": 1789193147097,
+      "taps": 1
+    },
+    {
+      "event": "tap",
+      "wallMs": 1789193195992,
+      "taps": 2
+    }
+  ],
+  "stateAfterEnd": {
+    "schema": 1,
+    "rules": [],
+    "sessions": [],
+    "completed": [
+      "d70e1b74-132f-41f5-9122-248b22823181"
+    ],
+    "recent": [
+      {
+        "targets": {
+          "apps": [
+            "com.hiyozoo.bearlock.probe"
+          ],
+          "domains": [],
+          "categories": []
+        },
+        "used": 1789193133844,
+        "pinned": false,
+        "pinnedAt": null
+      }
+    ]
+  },
+  "passed": true
+}

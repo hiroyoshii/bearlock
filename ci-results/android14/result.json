@@ -1,8 +1,15 @@
 {
-  "commit": "19fa7c1bed62c3266eaa76f71afead7320d753bc",
-  "run": "34676813831",
-  "checks": [],
-  "passed": false,
-  "api": "34",
-  "error": "Traceback (most recent call last):\n  File \"/home/runner/work/bearlock/bearlock/android-lab/scripts/android14_verify.py\", line 50, in <module>\n    tap('ユーザー補助を設定')\n  File \"/home/runner/work/bearlock/bearlock/android-lab/scripts/android14_verify.py\", line 38, in tap\n    raise AssertionError('Missing control: ' + label)\nAssertionError: Missing control: ユーザー補助を設定\n"
+  "commit": "0b5345e38f75adb42f173d51fc4299e5c6a713fa",
+  "run": "34677036562",
+  "checks": [
+    "Disclosure opens, declines, reopens, and navigates to Android settings after consent",
+    "Accessibility connected and exact alarm allowed on API 34",
+    "Target selection cancel/save works without creating recent history",
+    "Confirmation cancel creates neither a rule nor recent history",
+    "Confirmed delayed schedule persists and records recent targets",
+    "Pending schedule edit/delete works and preserves recent history",
+    "Actual Probe input blocked during a one-minute lock and restored after natural expiry"
+  ],
+  "passed": true,
+  "api": "34"
 }
