@@ -1,6 +1,6 @@
 {
-  "commit": "31ff4c6a86130f83bcc5d08e6ae101b670af1d6d",
-  "run": "34679553647",
+  "commit": "b3095afb99658a026c73fa56671a46fa7fea92c3",
+  "run": "34688012426",
   "size": [
     1080,
     1920
@@ -10,51 +10,51 @@
   "images": [
     {
       "path": "ja/01-home.png",
-      "sha256": "2d10d27ec88e12597f5498ea62494106aea05c7ddaf5631b53e87a72fccb8e67"
+      "sha256": "6a94751812c11a5ef395eec9a352fa44be641756cc82a6122f86b87c505acfb9"
     },
     {
       "path": "ja/02-setup.png",
-      "sha256": "cdb5a09e72b3ca07a6933eda517de6517e51ec421dfa0f16e6483a68f118aab1"
+      "sha256": "117d8fce3720878a21507d07175af01f771565f4237d37a2396d0eafca7672a9"
     },
     {
       "path": "ja/03-composeRepeat.png",
-      "sha256": "73631de3905aa0e65d27a246f1bc28caa2bb40cc7b211c8959507ee197594d79"
+      "sha256": "138deb6e6519325842ac9ca7d3ae17f01572bd097325ddeefd35cf3485ee1e8e"
     },
     {
       "path": "ja/04-composeDelayed.png",
-      "sha256": "caf1588e5bcf261747af260c82e8409d75cdb2a4a0df5d2945fa22036d841ef2"
+      "sha256": "5490086fa6af3dbb7b2cf5468fa5bd98b05df4df847e56e6b040dc7fb268923b"
     },
     {
       "path": "ja/05-activeLock.png",
-      "sha256": "ff6dcd0124b20605edff4670b0e4897c3485495f60d138361aed3ffcc04e5e71"
+      "sha256": "b3072fa05ccea1b0706a079b6706094a8d3023a8e3fd2a0d242f354411e80502"
     },
     {
       "path": "ja/06-confirmation.png",
-      "sha256": "2e3ea95d6dafcbbecff303a697cba70fd8aa98907ccf340802c77256d122c718"
+      "sha256": "f771c5363a575d7a735daa3fb48db0241b25ebddea2978864c0cf22618d05b54"
     },
     {
       "path": "en/01-home.png",
-      "sha256": "08d5b6e94481b05c05cccd71f17a4e53a1fc5ccaee1980bde98f40d1b38046d8"
+      "sha256": "ef4801e59aa9686790c0fec5510225779cdfc0df019d2ebda94f48215331702c"
     },
     {
       "path": "en/02-setup.png",
-      "sha256": "1db01225c72950dea0a9e498a39f314f26060efdc07a56dd7ccdf1dc451db7f2"
+      "sha256": "3936b882b6e485bed66cbf74737da9d9f1bc8345209cb32fa3c335119c7af38a"
     },
     {
       "path": "en/03-composeRepeat.png",
-      "sha256": "e0a0931da962fe8fe5e0c79f48a8e34ea28230a0f83833db8fb625ac506b4231"
+      "sha256": "4942e910f6625e1ff9d6ca4f6e8647dbd46f62a67b540d0078510c90edb6dd4f"
     },
     {
       "path": "en/04-composeDelayed.png",
-      "sha256": "0776ec824f686d1ebef2c19914d4f5a753978ed571ce266f2576a548e2645326"
+      "sha256": "60a70159853ed439df654866f0687d457f2866fcc984fe14763a1c19af787089"
     },
     {
       "path": "en/05-activeLock.png",
-      "sha256": "e163fbd3badd26da7f92c9da6a12d8d5e3edca3d4f0841992a089a1735b84379"
+      "sha256": "e47684a488dce23cc81c3448ec9b5165a57cda6713507e7e459d48a150d15cbc"
     },
     {
       "path": "en/06-confirmation.png",
-      "sha256": "d936c239297e09659241834686da9c187e7bf8945f85f15ce053a378be69c50c"
+      "sha256": "ca6da026fae9347d8f5a9cba523fa7559eb559f51c702cca219960c18e759758"
     }
   ]
 }
