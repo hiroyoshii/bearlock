@@ -2,7 +2,7 @@
 import json, re, time
 from pathlib import Path
 import product_qa as q
-assert q.SERIAL.startswith("emulator-"), "Use a disposable emulator"
+assert q.sh("getprop", "ro.kernel.qemu") == "1", "Use a disposable emulator"
 q.PRESERVE_ACCESSIBILITY = True
 q.OUT = Path('artifacts/android14/permission-scope')
 q.OUT.mkdir(parents=True, exist_ok=True)

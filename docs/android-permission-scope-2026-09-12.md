@@ -25,3 +25,11 @@ Google の説明: https://developer.android.com/develop/background-work/services
 - Android 14 Acceptance CI に上記の回帰確認を追加。
 
 1分のロックは debug 用ハーネスから本体 Planner / GuardService を動かす試験。通常画面の最短時間は15分のまま。動画撮影・Play への配信は行わない。
+
+## 今回の実行結果（2026-09-13）
+
+- 修正版 APK のビルド成功。単体テスト22件成功（Planner 20、購入検証2）。
+- Android 14 に 0.2.1 / versionCode 6 をインストールできた。
+- 即時開始で未許可のユーザー補助のみを要求する画面を確認。
+- ローカルの画面遷移試験・入力/自然解除試験は未完了。System UI / Process system / Bear Lock の ANR ダイアログに操作が遮られた。ANR 記録には CPU・メモリ pressure があり、エミュレーター環境が不安定だったが、この実行をアプリの合格証拠とは扱わない。
+- Android 14 CI に回帰試験を追加して main に反映した。CI の完了・成功および Play 配信は未確認。
