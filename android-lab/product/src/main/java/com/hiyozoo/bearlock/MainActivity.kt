@@ -158,7 +158,13 @@ open class MainActivity : Activity() {
         }
         val scroll=ScrollView(this).apply { isFillViewport=true; clipToPadding=false }; contentScroll=scroll
         body=ui.column().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(24)) }
-        scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
+        if(page=="targets") {
+            // The picker owns its scrolling viewport; nesting a list in ScrollView defeats recycling.
+            contentScroll=null
+            root.addView(body,LinearLayout.LayoutParams(-1,0,1f))
+        } else {
+            scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
+        }
         when(page) {
             "setup" -> setup(body); "home" -> home(body); "compose" -> Composer(this).showEditor(body)
             "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body); "support" -> SupportScreen(this).show(body)

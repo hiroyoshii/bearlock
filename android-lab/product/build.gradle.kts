@@ -2,7 +2,7 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
     namespace = "com.hiyozoo.bearlock"
     compileSdk = 36
-    defaultConfig { applicationId = "com.hiyozoo.bearlock"; minSdk = 26; targetSdk = 36; versionCode = 7; versionName = "0.2.2" }
+    defaultConfig { applicationId = "com.hiyozoo.bearlock"; minSdk = 26; targetSdk = 36; versionCode = 8; versionName = "0.2.3" }
     buildFeatures { buildConfig = true }
     bundle { language { enableSplit = false } }
     val signingPath = System.getenv("BEARLOCK_KEYSTORE")

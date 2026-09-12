@@ -46,6 +46,9 @@ jobs:
             adb install -r android-lab/product/build/outputs/apk/debug/product-debug.apk
             adb install -r android-lab/probe/build/outputs/apk/debug/probe-debug.apk
             mkdir -p artifacts/android14
+            adb shell am instrument -w com.hiyozoo.bearlock/.PickerInstrumentation > artifacts/android14/picker-test.log
+            cat artifacts/android14/picker-test.log
+            grep -q 'PASS: 1000 apps' artifacts/android14/picker-test.log
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/onboarding_verify.py > artifacts/android14/onboarding-run.log 2>&1
             python3 android-lab/scripts/android14_verify.py
             python3 android-lab/scripts/permission_scope_verify.py

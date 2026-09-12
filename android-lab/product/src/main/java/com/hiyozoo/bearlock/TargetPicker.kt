@@ -17,6 +17,7 @@ class TargetPicker(private val a: MainActivity) {
     private val u get()=a.ui
     private fun t(ja: String,en: String)=a.t(ja,en)
     fun show(parent: LinearLayout) {
+        val openedAt=android.os.SystemClock.elapsedRealtime()
 
         // Selection count is shown once in the fixed footer.
         fun update() {
@@ -27,54 +28,67 @@ class TargetPicker(private val a: MainActivity) {
         val tabs=RadioGroup(a).apply { orientation=if(u.compact) RadioGroup.VERTICAL else RadioGroup.HORIZONTAL }
         for((i,name) in listOf(t("アプリ","Apps"),t("Web","Web"),t("カテゴリ","Categories")).withIndex()) tabs.addView(RadioButton(a).apply { id=tabIds[i]; text=name; setTextColor(Palette.navy) },if(u.compact) RadioGroup.LayoutParams(-1,-2) else RadioGroup.LayoutParams(0,-2,1f))
         u.add(parent,tabs,16)
-        val content=u.column(); u.add(parent,content)
+        val viewport=FrameLayout(a)
+        parent.addView(viewport,LinearLayout.LayoutParams(-1,0,1f))
+        val content=u.column()
+        fun resetContent(scrollable: Boolean) {
+            (content.parent as? android.view.ViewGroup)?.removeView(content)
+            content.removeAllViews(); viewport.removeAllViews()
+            if(scrollable) {
+                val scroll=ScrollView(a).apply { isFillViewport=true }
+                scroll.addView(content); viewport.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+            } else viewport.addView(content,FrameLayout.LayoutParams(-1,-1))
+        }
         var entries: List<AppEntry>? = null
         var loadFailed = false
         var query = ""
-        var generation = 0
         fun loading(): Boolean {
             if(entries != null) return false
             u.add(content,u.label(if(loadFailed) t("アプリを取得できませんでした。画面を開き直してください。","Could not load apps. Please reopen this screen.") else t("アプリを読み込み中…","Loading apps…"),15f,muted=true))
             return true
         }
         fun apps() {
-            ++generation
-            content.removeAllViews()
+            resetContent(false)
             val search=u.input(t("アプリを検索","Search apps")).apply { isSingleLine=true; isEnabled=entries != null }
             u.add(content,search,12)
-            val list=u.column().apply { background=u.bg(Palette.white) }; u.add(content,list)
             if(loading()) return
             val available=entries.orEmpty()
-            fun showApps(query: String) {
-                list.removeAllViews()
-                val searchGeneration = ++generation
-                val matches=available.filter { it.name.contains(query,true) || it.pkg.contains(query,true) }
-                var offset=0
-                fun appendBatch() {
-                    if(generation != searchGeneration || a.isDestroyed || !parent.isAttachedToWindow) return
-                    val end=minOf(offset+12,matches.size)
-                    for(app in matches.subList(offset,end)) {
-                        val row=u.row().apply { setPadding(u.dp(8),u.dp(2),u.dp(8),u.dp(2)); background=u.bg(Palette.white,12) }
-                        row.addView(ImageView(a).apply { setImageDrawable(app.icon); importantForAccessibility=android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(u.dp(36),u.dp(36)).apply { rightMargin=u.dp(12) })
-                        val check=CheckBox(a).apply { text=app.name; textSize=16f; setTextColor(Palette.navy); minHeight=u.dp(52); isChecked=app.pkg in a.draft.apps
-                            setOnCheckedChangeListener { _,on -> a.draft=a.draft.copy(apps=if(on) a.draft.apps+app.pkg else a.draft.apps-app.pkg); update() }
-                        }
-                        row.addView(check,LinearLayout.LayoutParams(0,-2,1f)); u.add(list,row,0)
-                    }
-                    offset=end
-                    if(offset<matches.size) list.postOnAnimation { appendBatch() }
-                }
-                list.post { appendBatch() }
-                if(matches.isEmpty()) u.add(list,u.label(t("該当するアプリがありません。","No matching apps."),15f,muted=true))
+            val list=ListView(a).apply {
+                divider=android.graphics.drawable.ColorDrawable(Palette.line); dividerHeight=u.dp(1)
+                background=u.bg(Palette.white); clipToOutline=true
             }
-            search.setText(query); showApps(query); search.onEdit { query=it; showApps(it) }
+            val empty=u.label(t("該当するアプリがありません。","No matching apps."),15f,muted=true)
+            val container=FrameLayout(a)
+            container.addView(list,FrameLayout.LayoutParams(-1,-1))
+            container.addView(empty,FrameLayout.LayoutParams(-1,-2))
+            content.addView(container,LinearLayout.LayoutParams(-1,0,1f))
+            val adapter=AppPickerAdapter(a,available,::update)
+            val notes=u.column()
+            u.add(notes,u.label(t("ホーム・設定・電話など、端末の操作に必要なアプリは除外しています。","Home, Settings and dialer apps are excluded."),13f,muted=true),8)
             val missing=a.draft.apps-available.map { it.pkg }.toSet()
-            for(pkg in missing) u.add(content,u.button(t("未インストールの対象を外す: ","Remove unavailable target: ")+pkg) { a.draft=a.draft.copy(apps=a.draft.apps-pkg); update(); apps() })
-            u.add(content,u.label(t("ホーム・設定・電話など、端末の操作に必要なアプリは除外しています。","Home, Settings and dialer apps are excluded."),13f,muted=true),0)
+            for(pkg in missing) u.add(notes,u.button(t("未インストールの対象を外す: ","Remove unavailable target: ")+pkg) {
+                a.draft=a.draft.copy(apps=a.draft.apps-pkg); update(); apps()
+            })
+            list.addFooterView(notes,null,false)
+            list.adapter=adapter
+            fun filter(value: String) {
+                adapter.filter(value)
+                empty.visibility=if(adapter.count==0) android.view.View.VISIBLE else android.view.View.GONE
+                list.visibility=if(adapter.count==0) android.view.View.GONE else android.view.View.VISIBLE
+                list.setSelection(0)
+            }
+            search.setText(query); filter(query)
+            search.onEdit { query=it; filter(it) }
+            if(BuildConfig.DEBUG) list.viewTreeObserver.addOnPreDrawListener(object: android.view.ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    list.viewTreeObserver.removeOnPreDrawListener(this)
+                    android.util.Log.d("BearLockPicker","first_rows_ms=${android.os.SystemClock.elapsedRealtime()-openedAt} apps=${available.size} attached_rows=${list.childCount}")
+                    return true
+                }
+            })
         }
         fun web() {
-            ++generation
-            content.removeAllViews()
+            resetContent(true)
             u.add(content,u.label(t("ドメイン単位で指定します。サブドメインも含みます。","Enter domains. Subdomains are included."),15f),12)
             val input=u.input("example.com").apply { inputType=InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI; isSingleLine=true }
             u.add(content,input,8)
@@ -86,19 +100,16 @@ class TargetPicker(private val a: MainActivity) {
             u.add(content,u.label(t("ChromeとFirefoxの通常タブに対応しています。シークレットタブ、カスタムタブ、その他のブラウザには対応していません。","Supports regular tabs in Chrome and Firefox. Private tabs, custom tabs, and other browsers are not supported."),14f,muted=true),0)
         }
         fun categories() {
-            ++generation
-            content.removeAllViews()
+            resetContent(false)
             if(loading()) return
-            val available=entries.orEmpty()
-            u.add(content,u.label(t("端末が分類したアプリに適用します。未分類のアプリは「アプリ」から個別に追加してください。新しく入れた同カテゴリのアプリにも適用します。","Uses device app categories, including newly installed apps. Add unclassified apps individually from Apps."),14f,muted=true),16)
-            for(id in 0..7) {
-                val apps=available.filter { it.category==id }
-                val c=u.card()
-                u.add(c,CheckBox(a).apply { text=a.catalog.categoryName(id)+" (${apps.size})"; textSize=17f; setTextColor(Palette.navy); isChecked=id in a.draft.categories
-                    setOnCheckedChangeListener { _,on -> a.draft=a.draft.copy(categories=if(on) a.draft.categories+id else a.draft.categories-id); update() }
-                },4)
-                u.add(c,u.label(apps.joinToString(", ") { it.name }.ifEmpty { t("この端末では該当なし","No matching apps on this device") },13f,muted=true),0); u.add(content,c,12)
+            u.add(content,u.label(t("カテゴリを開いてアプリを選べます。カテゴリ全体を選ぶと、新しく入れた同カテゴリのアプリにも適用します。","Expand a category to choose apps. Selecting a whole category also includes newly installed apps in that category."),14f,muted=true),12)
+            val list=ExpandableListView(a).apply {
+                setGroupIndicator(null)
+                divider=android.graphics.drawable.ColorDrawable(Palette.line); dividerHeight=u.dp(1)
+                background=u.bg(Palette.white); clipToOutline=true
             }
+            list.setAdapter(AppCategoryAdapter(a,entries.orEmpty(),::update))
+            content.addView(list,LinearLayout.LayoutParams(-1,0,1f))
         }
         tabs.setOnCheckedChangeListener { _,id -> when(id) { tabIds[0]->apps(); tabIds[1]->web(); tabIds[2]->categories() } }
         tabs.check(tabIds[0])
