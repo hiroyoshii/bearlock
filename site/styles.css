@@ -221,3 +221,30 @@ code {
       url("/assets/brand-hero.png") center bottom / cover no-repeat;
   }
 }
+
+.support-content h1 {
+  font-size: clamp(2rem, 6vw, 3rem);
+  overflow-wrap: anywhere;
+}
+.support-content .panel h2 { margin-top: 0; }
+.support-pay {
+  display: inline-block;
+  min-height: 48px;
+  margin: 8px 0 16px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: var(--navy);
+  color: white;
+  text-align: center;
+  text-decoration: none;
+}
+.support-pay:hover { background: #244969; }
+.support-pay:active { background: #0c2038; }
+.payment-unavailable {
+  padding: 12px 16px;
+  background: var(--ice);
+  border-radius: 8px;
+}
+@media (max-width: 640px) {
+  .support-pay { display: block; width: 100%; }
+}

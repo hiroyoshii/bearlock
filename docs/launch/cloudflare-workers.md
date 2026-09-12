@@ -2,7 +2,7 @@
 
 This repository includes a static App Store support site under `site/`.
 
-The site is deployed as Cloudflare Workers Static Assets. No build step is required.
+The site is deployed as Cloudflare Workers Static Assets. Run `python3 tools/configure_stripe.py` before deployment to render the public Stripe checkout URL. See [Stripe setup](../stripe-support-setup.md).
 
 ## URLs
 
@@ -20,7 +20,7 @@ If setting this up from the Cloudflare dashboard:
 1. Create a Workers application.
 2. Connect this Git repository.
 3. Use the root `wrangler.toml`.
-4. Leave the build command empty.
+4. Set the build command to `python3 tools/configure_stripe.py`. Configure `BEARLOCK_STRIPE_PAYMENT_LINK` with the public live Payment Link URL.
 5. Use `npx wrangler deploy` as the deploy command if Cloudflare asks for one.
 6. Deploy.
 
@@ -43,7 +43,7 @@ The workflow `.github/workflows/cloudflare-workers.yml` deploys `site/` with Clo
 It runs on:
 
 - Pushes to `main` when `site/**`, `wrangler.toml`, or the workflow changes.
-- Pull requests touching the same files.
+- Pull requests touching the same files (validation only; no production deployment).
 - Manual `workflow_dispatch`.
 
 Add these repository secrets in GitHub:
@@ -58,6 +58,7 @@ The API token should have Workers edit permission for the account.
 From the repository root:
 
 ```sh
+python3 tools/configure_stripe.py
 npx wrangler deploy
 ```
 

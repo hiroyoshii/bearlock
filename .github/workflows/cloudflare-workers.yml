@@ -6,11 +6,15 @@ on:
       - main
     paths:
       - "site/**"
+      - "tools/configure_stripe.py"
+      - "tools/tests/**"
       - "wrangler.toml"
       - ".github/workflows/cloudflare-workers.yml"
   pull_request:
     paths:
       - "site/**"
+      - "tools/configure_stripe.py"
+      - "tools/tests/**"
       - "wrangler.toml"
       - ".github/workflows/cloudflare-workers.yml"
   workflow_dispatch:
@@ -36,6 +40,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Test payment link configuration
+        run: python3 -m unittest discover -s tools/tests -v
+
+      - name: Configure Stripe checkout
+        env:
+          BEARLOCK_STRIPE_PAYMENT_LINK: ${{ vars.BEARLOCK_STRIPE_PAYMENT_LINK }}
+        run: |
+          if [ -n "$BEARLOCK_STRIPE_PAYMENT_LINK" ]; then
+            python3 tools/configure_stripe.py --require-live
+          else
+            env -u BEARLOCK_STRIPE_PAYMENT_LINK python3 tools/configure_stripe.py
+          fi
+
       - name: Validate static files
         run: |
           test -f site/index.html
@@ -45,9 +62,15 @@ jobs:
           test -f site/en/privacy/index.html
           test -f site/en/support/index.html
           test -f site/styles.css
+          test -f site/support/development/index.html
+          test -f site/en/support/development/index.html
+          test -f site/support/thanks/index.html
+          test -f site/en/support/thanks/index.html
+          test -f site/commerce/index.html
+          test -f site/en/commerce/index.html
 
       - name: Deploy to Cloudflare Workers
-        if: ${{ env.CLOUDFLARE_API_TOKEN_VALUE != '' && env.CLOUDFLARE_ACCOUNT_ID_VALUE != '' }}
+        if: ${{ github.event_name != 'pull_request' && env.CLOUDFLARE_API_TOKEN_VALUE != '' && env.CLOUDFLARE_ACCOUNT_ID_VALUE != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ env.CLOUDFLARE_API_TOKEN_VALUE }}
