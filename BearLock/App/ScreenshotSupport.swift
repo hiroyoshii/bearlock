@@ -125,8 +125,7 @@ struct ScreenshotHostView: View {
                 rule: ScreenshotFixtures.recurringRule,
                 isSaving: false,
                 onCancel: {},
-                onSave: { _ in },
-                onSetEnabled: { _ in }
+                onSave: { _, _ in }
             )
         case .settings:
             SettingsView()

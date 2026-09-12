@@ -216,7 +216,8 @@ final class BearLockAppModel: ObservableObject {
         refreshDiagnostics()
     }
 
-    func saveSelection(_ selection: FamilyActivitySelection) async {
+    @discardableResult
+    func saveSelection(_ selection: FamilyActivitySelection) async -> Bool {
         diagnostics.record("Selection.save.started")
         do {
             let state = try await lockStore.snapshot()
@@ -228,10 +229,13 @@ final class BearLockAppModel: ObservableObject {
             let savedRef = try await lockStore.saveTargetSelection(ref)
             lockState = try await lockStore.snapshot()
             diagnostics.record("Selection.save.succeeded", detail: "\(savedRef.displayName) id=\(savedRef.id.uuidString)")
+            refreshDiagnostics()
+            return true
         } catch {
             recordError("Selection.save.failed", error)
         }
         refreshDiagnostics()
+        return false
     }
 
     func saveUITestingSelection(count: Int) async {
@@ -418,7 +422,7 @@ final class BearLockAppModel: ObservableObject {
     }
 
     @discardableResult
-    func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule) async -> Bool {
+    func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule, enabled: Bool) async -> Bool {
         isUpdatingLock = true
         defer { isUpdatingLock = false }
         diagnostics.record("Recurring.update.started")
@@ -436,16 +440,23 @@ final class BearLockAppModel: ObservableObject {
                 replacing: original,
                 now: now,
                 existingRules: state.rules,
-                activeLock: state.activeLock
+                activeLock: state.activeLock,
+                enabled: enabled
             )
 
             do {
                 if validated.status == .scheduled {
                     try scheduleController.schedule(validated)
+                } else {
+                    try scheduleController.cancel(validated)
                 }
                 try await lockStore.replaceRule(validated, now: now)
             } catch {
-                try? scheduleController.schedule(original)
+                if original.status == .scheduled {
+                    try? scheduleController.schedule(original)
+                } else {
+                    try? scheduleController.cancel(original)
+                }
                 throw error
             }
 

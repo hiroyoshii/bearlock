@@ -39,14 +39,7 @@ class Composer(private val a: MainActivity) {
         val c=u.card()
         if(a.mode==3) u.add(c,Switch(a).apply {
             text=t("有効","Enabled"); textSize=17f; setTextColor(Palette.navy); isChecked=a.enabled; minHeight=u.dp(48)
-            setOnCheckedChangeListener { _,on ->
-                try {
-                    val rule=a.editing ?: return@setOnCheckedChangeListener
-                    val changed=rule.copy(enabled=on)
-                    val now=System.currentTimeMillis(); a.state=a.store.change { Planner.save(it,changed,now) }
-                    a.editing=changed; a.enabled=on; Scheduling.sync(a)
-                } catch(e: Exception) { a.error(e.message); a.render() }
-            }
+            setOnCheckedChangeListener { _,on -> a.enabled=on }
         },16)
         fields(c); u.add(parent,c,20)
         u.add(parent,u.label(if(a.mode==3) t("繰り返しの変更は次回から適用されます。実行中のロックは短縮・解除できません。","Changes apply from the next interval. The current lock cannot be shortened or cleared.") else t("予約は開始前のみ編集できます。開始後は短縮、削除、対象の削減はできません。","Scheduled locks can only be edited before they start. Active locks cannot be shortened, deleted, or have targets reduced."),13f,muted=true),16)
@@ -160,7 +153,8 @@ class Composer(private val a: MainActivity) {
             }
             val first=rule.occurrences(now,now+8*Planner.DAY).first()
             val dialog=Dialog(a)
-            val content=ConfirmationContent(u).build(a.catalog.summary(rule.targets),dateText(first.start),dateText(first.end),a.mode==0,{ dialog.dismiss() }) {
+            val content=ConfirmationContent(u).build(a.catalog.summary(rule.targets),when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.delay}分後","${a.delay} min after confirmation"); 3 -> daysText(a.days)+" %02d:%02d".format(a.repeatStart/60,a.repeatStart%60); else -> dateText(first.start) },
+                if(a.mode in listOf(0,1,3)) t("開始から${if(a.mode==3) rule.durationMinutes else a.duration}分後","${if(a.mode==3) rule.durationMinutes else a.duration} min after start") else dateText(first.end),a.mode==0,{ dialog.dismiss() }) {
                 try {
                     val savedAt=System.currentTimeMillis(); a.state=a.store.change { Planner.save(it,make(savedAt),savedAt) }
                     a.persistSelection(); a.store.event("lock_saved"); Scheduling.sync(a); dialog.dismiss(); a.navigate("home")

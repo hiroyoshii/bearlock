@@ -39,13 +39,18 @@ class SettingsScreen(private val a: MainActivity) {
             }.show()
         }
         u.add(parent,platform,24)
-        if(BuildConfig.DEBUG) {
+        run {
             u.add(parent,u.label(t("診断","Diagnostics"),13f,true,true),8)
             val diagnostics=u.card()
             row(diagnostics,t("端末内の診断","On-device diagnostics")) {
-                val text="Android ${Build.VERSION.RELEASE} / ${Build.MANUFACTURER} ${Build.MODEL}\nService: ${GuardService.instance!=null}\nExact alarms: ${Scheduling.permitted(a)}\nStorage: ${a.store.error ?: "OK"}\nRules: ${a.state.rules.size}\nActive: ${a.state.sessions.size}\n\n"+a.store.logs().takeLast(6000)
+                val text="Android ${Build.VERSION.RELEASE} / ${Build.MANUFACTURER} ${Build.MODEL}\nService: ${GuardService.instance!=null}\nExact alarms: ${Scheduling.permitted(a)}\nStorage: ${a.store.error ?: "OK"}\nRules: ${a.state.rules.size}\nActive: ${a.state.sessions.size}\n\n"+runCatching { a.store.logs().takeLast(6000) }.getOrDefault(t("診断ログを読み込めません","Cannot read diagnostic logs"))
                 val view=u.label(text,13f).apply { setTextIsSelectable(true); setPadding(u.dp(20),u.dp(12),u.dp(20),u.dp(12)) }
-                AlertDialog.Builder(a).setTitle(t("診断","Diagnostics")).setView(ScrollView(a).apply { addView(view) }).setPositiveButton("OK",null).show()
+                AlertDialog.Builder(a).setTitle(t("診断","Diagnostics")).setView(ScrollView(a).apply { addView(view) }).setPositiveButton("OK",null)
+                    .setNeutralButton(t("共有","Share")) { _,_ ->
+                        a.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                            type="text/plain"; putExtra(Intent.EXTRA_TEXT,text)
+                        },t("診断を共有","Share diagnostics")))
+                    }.show()
             }
             row(diagnostics,t("診断ログを消去","Clear diagnostics")) { a.store.clearLogs(); Toast.makeText(a,t("診断ログを消去しました","Diagnostics cleared"),Toast.LENGTH_SHORT).show() }
             u.add(parent,diagnostics,0)

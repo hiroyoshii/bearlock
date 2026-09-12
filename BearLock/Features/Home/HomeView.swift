@@ -8,13 +8,21 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                if model.authorizationStatus != .approved {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Screen Time access is unavailable. Blocking may not be active.")
+                        Button("Review access") { Task { await model.requestAuthorization() } }
+                        Link("Open Settings", destination: URL(string: UIApplication.openSettingsURLString)!)
+                    }
+                    .padding().background(AppTheme.snow)
+                }
                 if model.lockState.targetSelections.isEmpty {
                     targetSelectionPrompt
                 } else {
                     selectedTargetSummary
                 }
 
-                if let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
+                if model.authorizationStatus == .approved, let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
                     ActiveLockView(activeLock: activeLock)
                 }
 

@@ -37,6 +37,7 @@ struct SetupView: View {
                 .tint(AppTheme.navy)
 
                 TargetSelectionButton(prominent: false)
+                NavigationLink("Support and diagnostics") { SettingsView() }
             }
             .controlSize(.large)
 

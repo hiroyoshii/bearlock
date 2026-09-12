@@ -4,6 +4,21 @@ import XCTest
 final class LockPlannerTests: XCTestCase {
     private let targetID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
 
+    func testRecurringEditValidatesTheDraftEnabledState() throws {
+        let planner = LockPlanner(calendar: gregorianUTC)
+        let now = date("2026-08-27T05:00:00Z")
+        let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 6, minute: 0), endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
+        let original = try planner.makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID), now: now, existingRules: [], activeLock: nil)
+        let conflict = try planner.makeRule(from: .fixed(startsAt: date("2026-08-27T06:15:00Z"), duration: 900, targetSelectionID: targetID), now: now, existingRules: [], activeLock: nil)
+        let disabled = try planner.validateRecurringReplacement(original, replacing: original, now: now, existingRules: [original, conflict], activeLock: nil, enabled: false)
+        XCTAssertEqual(disabled.status, .disabled)
+        XCTAssertEqual(original.status, .scheduled)
+        XCTAssertThrowsError(try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled, conflict], activeLock: nil, enabled: true))
+        let enabled = try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled], activeLock: nil, enabled: true)
+        XCTAssertEqual(enabled.status, .scheduled)
+        XCTAssertEqual(enabled.id, original.id)
+    }
+
     func testImmediateLockUsesCurrentTime() throws {
         let planner = LockPlanner(calendar: gregorianUTC)
         let now = date("2026-08-27T05:00:00Z")

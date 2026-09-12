@@ -187,17 +187,29 @@ open class MainActivity : Activity() {
     fun home(parent: LinearLayout) {
         val active=state.sessions.filter { it.active(System.currentTimeMillis()) }
         SelectionSummary(this).show(parent,active.isNotEmpty())
-        if(active.isNotEmpty()) {
+        if(!visualPreview && store.error != null) {
+            ui.add(parent,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
+            ui.add(parent,ui.button(t("再読み込み","Retry")) { load(); render() },12)
+            ui.add(parent,ui.button(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },16)
+        } else if(!visualPreview && GuardService.instance==null) {
+            ui.add(parent,ui.label(t("アプリの制限は停止中です。ユーザー補助を接続してください。","App blocking is unavailable. Connect the accessibility service."),17f,true),16)
+        } else if(!visualPreview && !Scheduling.permitted(this)) {
+            ui.add(parent,ui.label(t("予約時刻の動作に必要な権限がありません。設定を確認してください。","Scheduled timing permission is missing. Review permissions."),17f,true),16)
+        }
+        if(active.isNotEmpty() && (visualPreview || (store.error == null && GuardService.instance != null && Scheduling.permitted(this)))) {
             countdownEnd=active.maxOf { it.end }
             countdown=ActiveCard(ui).show(parent,remaining(countdownEnd),timeText(countdownEnd))
             ui.add(parent,ui.label(t("ロック中は短縮、削除、対象アプリの削減はできません。","During a lock, you cannot shorten it, delete it, or reduce blocked apps."),13f,muted=true),20)
             if(mode==0) mode=1
         }
+        if(active.isNotEmpty() && mode==0) mode=1
         if(!visualPreview && (GuardService.instance==null || !Scheduling.permitted(this) || store.error!=null)) {
             ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { navigate("permissions") },16)
         }
-        Composer(this).show(parent)
-        schedules(parent)
+        if(store.error == null) {
+            Composer(this).show(parent)
+            schedules(parent)
+        }
     }
     private fun remaining(end: Long): String {
         val seconds=((end-System.currentTimeMillis()).coerceAtLeast(0)/1000)

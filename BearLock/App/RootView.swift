@@ -12,7 +12,11 @@ struct RootView: View {
                     case .approved:
                         HomeView()
                     case .denied, .unknown:
-                        SetupView()
+                        if model.authorizationStatus == .unknown && model.lockState.targetSelections.isEmpty && model.lockState.rules.isEmpty {
+                            SetupView()
+                        } else {
+                            HomeView()
+                        }
                     }
                 } else {
                     ProgressView()

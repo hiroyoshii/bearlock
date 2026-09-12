@@ -5,7 +5,8 @@ struct TargetSelectionButton: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var selection = FamilyActivitySelection()
     @State private var isPickerPresented = false
-    @State private var shouldSaveSelectionOnDismiss = false
+    @State private var isSaving = false
+    @State private var saveError: String?
     @State private var uiTestingSelectionCount: Int?
 
     let prominent: Bool
@@ -19,11 +20,6 @@ struct TargetSelectionButton: View {
                         await model.saveUITestingSelection(count: uiTestingSelectionCount)
                     }
                     self.uiTestingSelectionCount = nil
-                } else if shouldSaveSelectionOnDismiss {
-                    Task {
-                        await model.saveSelection(selection)
-                    }
-                    shouldSaveSelectionOnDismiss = false
                 }
             }) {
                 if usesUITestingPicker {
@@ -40,13 +36,22 @@ struct TargetSelectionButton: View {
                 } else {
                     TargetSelectionPickerSheet(
                         selection: $selection,
+                        isSaving: isSaving,
+                        saveError: saveError,
                         onCancel: {
-                            shouldSaveSelectionOnDismiss = false
                             isPickerPresented = false
                         },
                         onSave: {
-                            shouldSaveSelectionOnDismiss = true
-                            isPickerPresented = false
+                            isSaving = true
+                            Task {
+                                let saved = await model.saveSelection(selection)
+                                isSaving = false
+                                if saved { isPickerPresented = false }
+                                else {
+                                    saveError = model.lastErrorMessage
+                                    model.lastErrorMessage = nil
+                                }
+                            }
                         }
                     )
                 }
@@ -56,11 +61,17 @@ struct TargetSelectionButton: View {
     @ViewBuilder
     private var baseButton: some View {
         let button = Button {
+            guard model.authorizationStatus == .approved else {
+                Task { await model.requestAuthorization() }
+                return
+            }
             do {
                 selection = try model.targetSelectionStore.load()
             } catch {
-                selection = FamilyActivitySelection()
+                model.lastErrorMessage = error.localizedDescription
+                return
             }
+            saveError = nil
             isPickerPresented = true
         } label: {
             Label(isLocked ? "Cannot change during lock" : "Select targets", systemImage: "app.badge")
@@ -173,6 +184,8 @@ private struct UITestingTargetSelectionPickerSheet: View {
 
 private struct TargetSelectionPickerSheet: View {
     @Binding var selection: FamilyActivitySelection
+    let isSaving: Bool
+    let saveError: String?
 
     let onCancel: () -> Void
     let onSave: () -> Void
@@ -180,11 +193,14 @@ private struct TargetSelectionPickerSheet: View {
     var body: some View {
         NavigationStack {
             FamilyActivityPicker(selection: $selection)
+                .disabled(isSaving)
+                .interactiveDismissDisabled(isSaving)
                 .navigationTitle("Select targets")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", action: onCancel)
+                            .disabled(isSaving)
                     }
                 }
                 .safeAreaInset(edge: .bottom) {
@@ -194,6 +210,8 @@ private struct TargetSelectionPickerSheet: View {
                             .foregroundStyle(AppTheme.navy.opacity(0.62))
                             .multilineTextAlignment(.center)
 
+                        if let saveError { Text(saveError).foregroundStyle(.red) }
+                        if isSaving { ProgressView() }
                         Button(action: onSave) {
                             Label("Save", systemImage: "checkmark.circle.fill")
                                 .frame(maxWidth: .infinity)
@@ -201,7 +219,7 @@ private struct TargetSelectionPickerSheet: View {
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .tint(AppTheme.navy)
-                        .disabled(selectionCount == 0)
+                        .disabled(selectionCount == 0 || isSaving)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 12)

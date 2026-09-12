@@ -41,7 +41,6 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings-support-link")
             }
 
-#if DEBUG
             Section("Diagnostics") {
                 NavigationLink {
                     DebugDiagnosticsView()
@@ -49,7 +48,6 @@ struct SettingsView: View {
                     Label("Diagnostics", systemImage: "stethoscope")
                 }
             }
-#endif
         }
         .navigationTitle("Settings")
     }
@@ -59,7 +57,6 @@ struct SettingsView: View {
     }
 }
 
-#if DEBUG
 struct DebugDiagnosticsView: View {
     @EnvironmentObject private var model: BearLockAppModel
 
@@ -86,6 +83,12 @@ struct DebugDiagnosticsView: View {
                 diagnosticRow("Shield UI", summary.lastShieldConfigurationEvent)
             }
 
+            Section {
+                ShareLink(item: "Bear Lock \(summary.appVersion)\nAuthorization: \(summary.authorizationStatus)\nActive: \(summary.activeLockStatus)\nError: \(summary.lastError)\n" + model.diagnosticsSnapshot.events.map { "\($0.date): \($0.name) \($0.detail ?? "")" }.joined(separator: "\n")) {
+                    Label("Share diagnostics", systemImage: "square.and.arrow.up")
+                }
+                Text("Review diagnostics before sharing. They may include your selections and schedule times.")
+            }
             Section("App") {
                 diagnosticRow("Bundle ID", summary.bundleIdentifier)
                 diagnosticRow("Version", summary.appVersion)
@@ -177,4 +180,3 @@ struct DebugDiagnosticsView: View {
         }
     }
 }
-#endif

@@ -244,7 +244,7 @@ struct LockComposerView: View {
     }
 
     private var canSubmit: Bool {
-        guard model.lockState.targetSelections.last != nil else {
+        guard model.authorizationStatus == .approved, model.lockState.targetSelections.last != nil else {
             return false
         }
 
@@ -359,6 +359,8 @@ struct LockComposerView: View {
             targetSummary: model.lockState.targetSelections.last?.displayName ?? "Selected apps",
             startsAt: startsAt,
             endsAt: endsAt,
+            startSummary: mode == .now ? L10n.string("After confirmation") : mode == .delayed ? L10n.format("%d min after confirmation", Int(delayMinutes)) : mode == .recurring ? selectedWeekdays.sorted { $0.rawValue < $1.rawValue }.map { $0.shortName() }.joined(separator: " · ") + " " + date(from: recurringStart).formatted(date: .omitted, time: .shortened) : nil,
+            endSummary: mode == .now || mode == .delayed || mode == .recurring ? L10n.format("%d min after start", Int(requestDuration / 60)) : nil,
             isImmediate: mode == .now
         )
     }

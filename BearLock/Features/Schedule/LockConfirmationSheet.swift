@@ -6,6 +6,8 @@ struct LockConfirmationDetails: Equatable {
     var targetSummary: String
     var startsAt: Date
     var endsAt: Date
+    var startSummary: String? = nil
+    var endSummary: String? = nil
     var isImmediate: Bool
 }
 
@@ -35,8 +37,8 @@ struct LockConfirmationSheet: View {
 
             VStack(spacing: 12) {
                 row(label: "Apps", value: details.targetSummary)
-                row(label: "Starts", value: details.startsAt.formatted(date: .abbreviated, time: .shortened))
-                row(label: "Wakes", value: details.endsAt.formatted(date: .abbreviated, time: .shortened))
+                row(label: "Starts", value: details.startSummary ?? details.startsAt.formatted(date: .abbreviated, time: .shortened))
+                row(label: "Wakes", value: details.endSummary ?? details.endsAt.formatted(date: .abbreviated, time: .shortened))
             }
             .padding(16)
             .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))

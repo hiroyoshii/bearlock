@@ -151,6 +151,11 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
 
         tapFirstButton(app, identifier: "scheduled-lock-delete-button")
+        XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 5))
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Starts later"].exists)
+        tapFirstButton(app, identifier: "scheduled-lock-delete-button")
+        app.buttons["Delete"].tap()
         XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-delayed-deleted")
     }
@@ -173,6 +178,11 @@ final class BearLockLaunchUITests: XCTestCase {
         tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
         captureScreenshot(named: "e2e-recurring-disabled-editor")
         app.buttons["Cancel"].tap()
+        tapFirstButton(app, identifier: "scheduled-lock-edit-button")
+        XCTAssertEqual(app.switches["recurring-rule-enabled-toggle"].value as? String, "1")
+        tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
+        app.buttons["Save"].tap()
+        scrollToStaticText("Off", in: app)
     }
 
     func testDisabledRecurringSeedShowsOffStateWithMockServices() throws {

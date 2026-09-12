@@ -188,3 +188,23 @@
 "The purchase is pending." = "購入は保留中です。";
 "The purchase could not be completed." = "購入を完了できませんでした。";
 "Reload support items" = "応援アイテムを再読み込み";
+
+"Delete this schedule?" = "この予約を削除しますか？";
+
+"After confirmation" = "確定後に開始";
+
+"%d min after confirmation" = "確定から%d分後";
+
+"%d min after start" = "開始から%d分後";
+
+"Screen Time access is unavailable. Blocking may not be active." = "スクリーンタイムへのアクセスがありません。制限が動作していない可能性があります。";
+
+"Review access" = "アクセスを確認";
+
+"Open Settings" = "設定を開く";
+
+"Share diagnostics" = "診断を共有";
+
+"Review diagnostics before sharing. They may include your selections and schedule times." = "共有前に診断内容を確認してください。対象や予約時刻が含まれる場合があります。";
+
+"Support and diagnostics" = "サポートと診断";

@@ -118,7 +118,8 @@ public struct LockPlanner: Sendable {
         replacing original: LockRule,
         now: Date,
         existingRules: [LockRule],
-        activeLock: ActiveLock?
+        activeLock: ActiveLock?,
+        enabled: Bool? = nil
     ) throws -> LockRule {
         guard original.kind == .recurring,
               let recurrence = replacement.recurrence
@@ -137,11 +138,11 @@ public struct LockPlanner: Sendable {
         normalized.kind = .recurring
         normalized.startsAt = interval.start
         normalized.duration = interval.duration
-        normalized.status = original.status == .disabled ? .disabled : .scheduled
+        normalized.status = (enabled ?? (original.status != .disabled)) ? .scheduled : .disabled
 
         normalized = normalized.normalizedForMonitoring()
 
-        if overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
+        if normalized.status == .scheduled && overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
             throw LockValidationError.overlappingLock
         }
 

@@ -3,6 +3,8 @@ import SwiftUI
 
 struct ScheduledLockListView: View {
     @EnvironmentObject private var model: BearLockAppModel
+    @State private var pendingDeletion: LockRule?
+    @State private var showsDeleteConfirmation = false
     @State private var editingSheet: ScheduledLockEditSheet?
 
     var body: some View {
@@ -31,12 +33,23 @@ struct ScheduledLockListView: View {
                             }
                         },
                         onDelete: {
-                            Task {
-                                await model.deleteScheduledRule(rule)
-                            }
+                            pendingDeletion = rule
+                            showsDeleteConfirmation = true
                         }
                     )
                 }
+            }
+        }
+        .confirmationDialog("Delete this schedule?", isPresented: $showsDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                guard let rule = pendingDeletion else { return }
+                pendingDeletion = nil
+                Task { await model.deleteScheduledRule(rule) }
+            }
+            Button("Cancel", role: .cancel) { pendingDeletion = nil }
+        } message: {
+            if let rule = pendingDeletion {
+                Text("\(rule.startsAt.formatted()) → \(rule.endsAt.formatted())")
             }
         }
         .sheet(item: $editingSheet) { sheet in
@@ -64,17 +77,12 @@ struct ScheduledLockListView: View {
                     onCancel: {
                         editingSheet = nil
                     },
-                    onSave: { recurrence in
+                    onSave: { recurrence, enabled in
                         Task {
-                            let didUpdate = await model.updateRecurringRule(rule, recurrence: recurrence)
+                            let didUpdate = await model.updateRecurringRule(rule, recurrence: recurrence, enabled: enabled)
                             if didUpdate {
                                 editingSheet = nil
                             }
-                        }
-                    },
-                    onSetEnabled: { enabled in
-                        Task {
-                            await model.setRecurringRule(rule, enabled: enabled)
                         }
                     }
                 )

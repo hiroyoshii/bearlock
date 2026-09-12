@@ -5,8 +5,7 @@ struct RecurringRuleEditorView: View {
     let rule: LockRule
     let isSaving: Bool
     let onCancel: () -> Void
-    let onSave: (_ recurrence: RecurrenceRule) -> Void
-    let onSetEnabled: (_ enabled: Bool) -> Void
+    let onSave: (_ recurrence: RecurrenceRule, _ enabled: Bool) -> Void
 
     @State private var selectedWeekdays: Set<Weekday>
     @State private var startsAt: DateComponents
@@ -17,14 +16,12 @@ struct RecurringRuleEditorView: View {
         rule: LockRule,
         isSaving: Bool,
         onCancel: @escaping () -> Void,
-        onSave: @escaping (_ recurrence: RecurrenceRule) -> Void,
-        onSetEnabled: @escaping (_ enabled: Bool) -> Void
+        onSave: @escaping (_ recurrence: RecurrenceRule, _ enabled: Bool) -> Void
     ) {
         self.rule = rule
         self.isSaving = isSaving
         self.onCancel = onCancel
         self.onSave = onSave
-        self.onSetEnabled = onSetEnabled
 
         let recurrence = rule.recurrence ?? RecurrenceRule(
             weekdays: [.monday, .tuesday, .wednesday, .thursday, .friday],
@@ -42,9 +39,7 @@ struct RecurringRuleEditorView: View {
             Form {
                 Section("Status") {
                     Toggle("Enabled", isOn: $isEnabled)
-                        .onChange(of: isEnabled) { _, enabled in
-                            onSetEnabled(enabled)
-                        }
+                        .disabled(isSaving)
                         .accessibilityIdentifier("recurring-rule-enabled-toggle")
                 }
 
@@ -79,7 +74,7 @@ struct RecurringRuleEditorView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(makeRecurrence())
+                        onSave(makeRecurrence(), isEnabled)
                     }
                     .disabled(isSaving || selectedWeekdays.isEmpty || isOverSafetyLimit)
                 }

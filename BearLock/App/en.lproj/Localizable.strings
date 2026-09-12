@@ -188,3 +188,23 @@
 "The purchase is pending." = "The purchase is pending.";
 "The purchase could not be completed." = "The purchase could not be completed.";
 "Reload support items" = "Reload support items";
+
+"Delete this schedule?" = "Delete this schedule?";
+
+"After confirmation" = "After confirmation";
+
+"%d min after confirmation" = "%d min after confirmation";
+
+"%d min after start" = "%d min after start";
+
+"Screen Time access is unavailable. Blocking may not be active." = "Screen Time access is unavailable. Blocking may not be active.";
+
+"Review access" = "Review access";
+
+"Open Settings" = "Open Settings";
+
+"Share diagnostics" = "Share diagnostics";
+
+"Review diagnostics before sharing. They may include your selections and schedule times." = "Review diagnostics before sharing. They may include your selections and schedule times.";
+
+"Support and diagnostics" = "Support and diagnostics";

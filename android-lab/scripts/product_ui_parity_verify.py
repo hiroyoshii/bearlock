@@ -73,10 +73,17 @@ q.page('home',True);tap('繰り返し');q.shot('compose-repeat-home');tap('ロ�
 repeat=next(r for r in state()['rules'] if r['days'])
 assert repeat['days']==[1,2,3,4,5] and repeat['minute']==1380 and repeat['duration']==480
 record('Weekday overnight repeat saved as 23:00–07:00')
-tap('予約を編集',True);q.shot('recurring-editor');tap('有効');assert not next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
-tap('有効');assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
-record('Recurring enabled toggle persists off and on')
-tap('キャンセル');tap('予約を削除',True);tap('削除')
+tap('予約を編集',True);q.shot('recurring-editor');tap('有効')
+assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
+tap('キャンセル')
+assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
+record('Cancelling a recurring toggle preserves saved state')
+tap('予約を編集',True);tap('有効');tap('保存')
+assert not next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
+tap('予約を編集',True);tap('有効');tap('保存')
+assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
+record('Recurring enabled changes persist only on Save')
+tap('予約を削除',True);tap('削除')
 assert repeat['id'] not in {r['id'] for r in state()['rules']}
 record('Repeat cleanup removes only the test schedule')
 q.page('settings');q.shot('settings');tap('権限・動作状態を確認');q.shot('permissions')
