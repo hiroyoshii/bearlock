@@ -4,6 +4,7 @@ struct SetupView: View {
     @AppStorage("hasSeenIntroduction") private var hasSeenIntroduction = false
 
     var body: some View {
+        GeometryReader { geometry in
         ScrollView {
         VStack(spacing: 24) {
             Spacer()
@@ -41,7 +42,9 @@ struct SetupView: View {
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, minHeight: max(0, geometry.size.height - 48))
         .padding(24)
+        }
         }
     }
 }
