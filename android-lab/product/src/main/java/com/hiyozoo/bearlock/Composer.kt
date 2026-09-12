@@ -149,7 +149,7 @@ class Composer(private val a: MainActivity) {
             if(GuardService.instance==null || !Scheduling.permitted(a)) {
                 AlertDialog.Builder(a).setTitle(t("先に設定を完了してください","Complete setup first"))
                     .setMessage(t("ユーザー補助の接続と予約権限が必要です。","Accessibility and alarm permissions are required."))
-                    .setNegativeButton(t("キャンセル","Cancel"),null).setPositiveButton(t("設定へ","Setup")) { _,_->a.navigate("permissions") }.show(); return
+                    .setNegativeButton(t("キャンセル","Cancel"),null).setPositiveButton(t("設定へ","Setup")) { _,_->a.requestPermissions(forConfirmation=true) }.show(); return
             }
             val first=rule.occurrences(now,now+8*Planner.DAY).first()
             val dialog=Dialog(a)

@@ -29,7 +29,7 @@ class SettingsScreen(private val a: MainActivity) {
         u.add(parent,info,24)
         u.add(parent,u.label(t("Androidの設定","Android settings"),13f,true,true),8)
         val platform=u.card()
-        row(platform,t("権限・動作状態を確認","Permissions and status")) { a.navigate("permissions") }
+        row(platform,t("権限・動作状態を確認","Permissions and status")) { a.requestPermissions() }
         row(platform,t("Androidの対応範囲","Android coverage")) {
             AlertDialog.Builder(a).setTitle(t("対応範囲","Coverage")).setMessage(t("Web制限はChrome・Firefoxの通常タブのアドレス欄を対象にしています。非表示のアドレス欄、シークレット、カスタムタブ、他ブラウザは保証対象外です。\n\nカテゴリは端末の分類を使います。未分類のアプリは個別に選択してください。\n\n権限の取消や強制停止中は制限できません。分割画面・PiP・通知返信・仕事用プロファイル・Android 17の高度な保護は未検証です。通信や通知そのものは停止しません。", "Website adapters target regular Chrome and Firefox tabs. Hidden address bars, private tabs, custom tabs and other browsers are not guaranteed.\n\nCategories use device classification. Select unclassified apps individually.\n\nBlocking cannot run while permission is revoked or the app is force-stopped. Split screen, PiP, notification replies, work profiles and Android 17 Advanced Protection are unverified. Network traffic and notifications are not stopped.")).setPositiveButton("OK",null).show()
         }

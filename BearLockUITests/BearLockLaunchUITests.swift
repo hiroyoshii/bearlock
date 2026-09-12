@@ -11,14 +11,64 @@ final class BearLockLaunchUITests: XCTestCase {
         app.launchArguments = ["--ui-testing", "--reset-ui-testing-state"]
         app.launch()
 
-        XCTAssertTrue(app.buttons["Continue"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Select targets"].exists)
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["Select targets"].exists)
 
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = "bearlock-setup-screen"
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    func testIntroductionAndContextualAccessFlow() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-ui-testing-state", "--ui-testing-target-picker"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
+        captureScreenshot(named: "onboarding-introduction-en")
+        app.buttons["Get started"].tap()
+        XCTAssertTrue(app.buttons["Select targets"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.alerts["Screen Time access"].exists)
+        app.buttons["In"].tap()
+        app.buttons["Select targets"].tap()
+        XCTAssertTrue(app.alerts["Screen Time access"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "onboarding-access-explanation-en")
+        app.alerts.buttons["Not now"].tap()
+        XCTAssertTrue(app.staticTexts["Start delay"].exists)
+        app.buttons["Select targets"].tap()
+        app.alerts.buttons["Continue"].tap()
+        XCTAssertTrue(app.buttons["ui-testing-target-app-messages"].waitForExistence(timeout: 5))
+        app.buttons["ui-testing-target-app-messages"].tap()
+        app.buttons["ui-testing-target-save"].tap()
+        XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].isEnabled)
+        captureScreenshot(named: "onboarding-home-ready-en")
+        app.buttons["lock-composer-primary-button"].tap()
+        XCTAssertTrue(app.buttons["lock-confirmation-confirm-button"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "onboarding-confirmation-en")
+        app.buttons["Cancel"].tap()
+        app.terminate()
+        app.launchArguments = ["--ui-testing", "--ui-testing-target-picker"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Select targets"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Get started"].exists)
+    }
+
+    func testDeclinedAccessKeepsHomeUsable() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-ui-testing-state", "--ui-testing-target-picker", "--ui-testing-deny-authorization"]
+        app.launch()
+        app.buttons["Get started"].tap()
+        app.buttons["Select targets"].tap()
+        app.alerts.buttons["Continue"].tap()
+        XCTAssertTrue(app.staticTexts["Screen Time access is unavailable. Blocking may not be active."].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Get started"].exists)
+        XCTAssertTrue(app.buttons["Settings"].exists)
+        app.buttons["Select targets"].tap()
+        XCTAssertTrue(app.alerts["Screen Time access"].waitForExistence(timeout: 5))
+        app.alerts.buttons["Not now"].tap()
+        captureScreenshot(named: "onboarding-access-declined-en")
     }
 
     func testUnavailableAccessKeepsRecoveryAndSettingsReachable() throws {

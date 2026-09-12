@@ -29,3 +29,11 @@
 "Support and diagnostics" = "サポートと診断";
 
 "Delete" = "削除";
+
+"Once started, the lock cannot be ended early. It ends automatically at the chosen time." = "開始後は途中で解除できません。終了時刻になると、自動で解除されます。";
+
+"Get started" = "はじめる";
+
+"Screen Time access" = "スクリーンタイムへのアクセス";
+
+"Not now" = "あとで";

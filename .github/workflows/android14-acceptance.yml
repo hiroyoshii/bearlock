@@ -45,6 +45,7 @@ jobs:
           script: |
             adb install -r android-lab/product/build/outputs/apk/debug/product-debug.apk
             adb install -r android-lab/probe/build/outputs/apk/debug/probe-debug.apk
+            BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/onboarding_verify.py
             python3 android-lab/scripts/android14_verify.py
       - uses: actions/upload-artifact@v4
         if: always()

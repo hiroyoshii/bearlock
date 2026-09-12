@@ -14,6 +14,8 @@ open class MainActivity : Activity() {
     val store by lazy { Store(this) }
     val catalog by lazy { Catalog(this) }
     var page = "home"
+    var returnToConfirmation = false
+    var permissionsReturnPage = "home"
     var draft = Targets()
     var editing: Rule? = null
     var mode = 0
@@ -76,6 +78,7 @@ open class MainActivity : Activity() {
     override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); Scheduling.sync(this); load(); render(); handler.post(heartbeat); if(!visualPreview) { SupportBilling.get(this).changed={ if(page=="support" && !isFinishing && !isDestroyed) render() }; SupportBilling.get(this).refresh() } }
     override fun onPause() { if(!visualPreview) SupportBilling.get(this).changed=null; handler.removeCallbacks(heartbeat); super.onPause() }
     override fun onSaveInstanceState(out: Bundle) {
+        out.putBoolean("returnToConfirmation",returnToConfirmation); out.putString("permissionsReturnPage",permissionsReturnPage)
         out.putString("page",page); out.putString("targets",Codec.targets(draft).toString()); out.putInt("mode",mode)
         out.putInt("duration",duration); out.putInt("delay",delay); out.putLong("at",at); out.putString("title",title)
         out.putInt("repeatStart",repeatStart); out.putInt("repeatEnd",repeatEnd); out.putBoolean("enabled",enabled)
@@ -83,6 +86,7 @@ open class MainActivity : Activity() {
         out.putIntArray("days",days.toIntArray()); out.putString("editing",editing?.id); super.onSaveInstanceState(out)
     }
     private fun restore(b: Bundle) {
+        returnToConfirmation=b.getBoolean("returnToConfirmation"); permissionsReturnPage=b.getString("permissionsReturnPage","home")
         page=b.getString("page","home"); draft=Codec.targets(org.json.JSONObject(b.getString("targets","{}")))
         mode=b.getInt("mode"); duration=b.getInt("duration",120); delay=b.getInt("delay",30); at=b.getLong("at")
         repeatStart=b.getInt("repeatStart",1380); repeatEnd=b.getInt("repeatEnd",420); enabled=b.getBoolean("enabled",true)
@@ -94,7 +98,8 @@ open class MainActivity : Activity() {
     @Deprecated("Used only by Android 8–12")
     override fun onBackPressed() { goBack() }
     fun goBack() {
-        if(page=="support") { navigate("settings") }
+        if(page=="permissions") { val target=permissionsReturnPage; returnToConfirmation=false; navigate(target) }
+        else if(page=="support") { navigate("settings") }
         else if(page=="targets") { draft=pickerOriginal; navigate(pickerReturn) }
         else if(page!="home") { editing=null; enabled=true; restoreSelection(); navigate("home") } else finish()
     }
@@ -113,6 +118,9 @@ open class MainActivity : Activity() {
         navigate(if(pickerReturn=="setup") "home" else pickerReturn)
     }
     open fun load() { runCatching { store.reconcile() }.onSuccess { state=it } }
+    fun requestPermissions(forConfirmation: Boolean = false) {
+        permissionsReturnPage=page; returnToConfirmation=forConfirmation; navigate("permissions")
+    }
     fun navigate(next: String) { page=next; render() }
     fun create(targets: Targets = Targets()) { editing=null; draft=targets; mode=0; duration=120; enabled=true; title=""; at=System.currentTimeMillis()+3_600_000; navigate("compose") }
     fun edit(rule: Rule) {
@@ -191,9 +199,9 @@ open class MainActivity : Activity() {
             ui.add(parent,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
             ui.add(parent,ui.button(t("再読み込み","Retry")) { load(); render() },12)
             ui.add(parent,ui.button(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },16)
-        } else if(!visualPreview && GuardService.instance==null) {
+        } else if(!visualPreview && state.rules.isNotEmpty() && GuardService.instance==null) {
             ui.add(parent,ui.label(t("アプリの制限は停止中です。ユーザー補助を接続してください。","App blocking is unavailable. Connect the accessibility service."),17f,true),16)
-        } else if(!visualPreview && !Scheduling.permitted(this)) {
+        } else if(!visualPreview && state.rules.isNotEmpty() && !Scheduling.permitted(this)) {
             ui.add(parent,ui.label(t("予約時刻の動作に必要な権限がありません。設定を確認してください。","Scheduled timing permission is missing. Review permissions."),17f,true),16)
         }
         if(active.isNotEmpty() && (visualPreview || (store.error == null && GuardService.instance != null && Scheduling.permitted(this)))) {
@@ -203,8 +211,8 @@ open class MainActivity : Activity() {
             if(mode==0) mode=1
         }
         if(active.isNotEmpty() && mode==0) mode=1
-        if(!visualPreview && (GuardService.instance==null || !Scheduling.permitted(this) || store.error!=null)) {
-            ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { navigate("permissions") },16)
+        if(!visualPreview && state.rules.isNotEmpty() && (GuardService.instance==null || !Scheduling.permitted(this) || store.error!=null)) {
+            ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { requestPermissions() },16)
         }
         if(store.error == null) {
             Composer(this).show(parent)
@@ -221,8 +229,10 @@ open class MainActivity : Activity() {
         val group=ui.column().apply { setPadding(ui.dp(4),0,ui.dp(4),0) }
         ui.add(group,ui.asset(R.drawable.brand_hero,175).apply { layoutParams=LinearLayout.LayoutParams(minOf(ui.dp(310),resources.displayMetrics.widthPixels-ui.dp(48)),ui.dp(175)).apply { gravity=Gravity.CENTER_HORIZONTAL } },18)
         ui.add(group,ui.label(t("アプリを選び、時間を\n決めて、ロックします。","Choose apps, set a time,\nand lock them."),20f,true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },28)
-        ui.add(group,ui.button(t("ロックのアクセスを許可","Allow lock access"),true) { navigate("permissions") },12)
-        ui.add(group,ui.button(t("ロック対象を選ぶ","Select lock targets")) { pickTargets() },0)
+        ui.add(group,ui.label(t("開始後は途中で解除できません。終了時刻になると、自動で解除されます。","Once started, the lock cannot be ended early. It ends automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
+        ui.add(group,ui.button(t("はじめる","Get started"),true) {
+            getPreferences(0).edit().putBoolean("onboarded",true).apply(); navigate("home")
+        },0)
         ui.add(parent,group,0)
     }
     private fun permissions(parent: LinearLayout) {
@@ -238,7 +248,13 @@ open class MainActivity : Activity() {
             if(Build.VERSION.SDK_INT>=31) startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:$packageName")))
         },0); ui.add(parent,a,16)
         ui.add(parent,ui.label(t("権限の取消・強制停止中は制限できません。Android 17の高度な保護が有効な環境は対応確認中です。","Blocking cannot run while permission is revoked or the app is force-stopped. Android 17 Advanced Protection compatibility is not verified."),14f,muted=true),20)
-        ui.add(parent,ui.button(t("ホームへ","Continue to home"),true) { getPreferences(0).edit().putBoolean("onboarded",true).apply(); navigate("home") })
+        ui.add(parent,ui.button(if(returnToConfirmation) t("確認に戻る","Return to confirmation") else t("戻る","Back"),true) {
+            val confirm=returnToConfirmation
+            val destination=permissionsReturnPage
+            returnToConfirmation=false
+            navigate(destination)
+            if(confirm && GuardService.instance!=null && Scheduling.permitted(this)) Composer(this).confirm()
+        })
     }
     private fun disclose() {
         AlertDialog.Builder(this).setTitle(t("ユーザー補助の使用について","Accessibility access"))

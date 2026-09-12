@@ -57,7 +57,7 @@ final class BearLockAppModel: ObservableObject {
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
             let selectionStore = PreviewTargetSelectionStore()
             return BearLockAppModel(
-                authorizationService: PreviewAuthorizationService(status: uiTestingAuthorizationStatus),
+                authorizationService: UITestingAuthorizationService(status: uiTestingAuthorizationStatus, deny: ProcessInfo.processInfo.arguments.contains("--ui-testing-deny-authorization")),
                 targetSelectionStore: selectionStore,
                 shieldController: NoopShieldController(),
                 scheduleController: NoopScheduleController(),
@@ -86,6 +86,7 @@ final class BearLockAppModel: ObservableObject {
         let arguments = ProcessInfo.processInfo.arguments
 
         if arguments.contains("--reset-ui-testing-state") {
+            UserDefaults.standard.removeObject(forKey: "hasSeenIntroduction")
             try? FileManager.default.removeItem(at: uiTestingRepositoryURL)
         }
 

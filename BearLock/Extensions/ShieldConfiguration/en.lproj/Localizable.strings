@@ -29,3 +29,11 @@
 "Support and diagnostics" = "Support and diagnostics";
 
 "Delete" = "Delete";
+
+"Once started, the lock cannot be ended early. It ends automatically at the chosen time." = "Once started, the lock cannot be ended early. It ends automatically at the chosen time.";
+
+"Get started" = "Get started";
+
+"Screen Time access" = "Screen Time access";
+
+"Not now" = "Not now";

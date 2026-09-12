@@ -5,6 +5,8 @@ struct TargetSelectionButton: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var selection = FamilyActivitySelection()
     @State private var isPickerPresented = false
+    @State private var showsAccessExplanation = false
+    @State private var isRequestingAccess = false
     @State private var isSaving = false
     @State private var saveError: String?
     @State private var uiTestingSelectionCount: Int?
@@ -13,7 +15,20 @@ struct TargetSelectionButton: View {
 
     var body: some View {
         baseButton
-            .disabled(isLocked)
+            .disabled(isLocked || isRequestingAccess)
+            .alert("Screen Time access", isPresented: $showsAccessExplanation) {
+                Button("Not now", role: .cancel) {}
+                Button("Continue") {
+                    isRequestingAccess = true
+                    Task {
+                        await model.requestAuthorization()
+                        isRequestingAccess = false
+                        if model.authorizationStatus == .approved { openPicker() }
+                    }
+                }
+            } message: {
+                Text("Screen Time access is used to select and lock apps on this device.")
+            }
             .sheet(isPresented: $isPickerPresented, onDismiss: {
                 if let uiTestingSelectionCount {
                     Task {
@@ -62,17 +77,10 @@ struct TargetSelectionButton: View {
     private var baseButton: some View {
         let button = Button {
             guard model.authorizationStatus == .approved else {
-                Task { await model.requestAuthorization() }
+                showsAccessExplanation = true
                 return
             }
-            do {
-                selection = try model.targetSelectionStore.load()
-            } catch {
-                model.lastErrorMessage = error.localizedDescription
-                return
-            }
-            saveError = nil
-            isPickerPresented = true
+            openPicker()
         } label: {
             Label(isLocked ? "Cannot change during lock" : "Select targets", systemImage: "app.badge")
                 .frame(maxWidth: .infinity)
@@ -87,6 +95,13 @@ struct TargetSelectionButton: View {
                 .buttonStyle(.bordered)
                 .tint(AppTheme.steel)
         }
+    }
+
+    private func openPicker() {
+        do { selection = try model.targetSelectionStore.load() }
+        catch { model.lastErrorMessage = error.localizedDescription; return }
+        saveError = nil
+        isPickerPresented = true
     }
 
     private var isLocked: Bool {

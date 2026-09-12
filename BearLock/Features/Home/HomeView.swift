@@ -8,7 +8,7 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                if model.authorizationStatus != .approved {
+                if model.authorizationStatus != .approved && (model.authorizationStatus == .denied || !model.lockState.targetSelections.isEmpty || !model.lockState.rules.isEmpty) {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Screen Time access is unavailable. Blocking may not be active.")
                         Button("Review access") { Task { await model.requestAuthorization() } }

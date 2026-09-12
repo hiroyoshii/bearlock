@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct SetupView: View {
-    @EnvironmentObject private var model: BearLockAppModel
+    @AppStorage("hasSeenIntroduction") private var hasSeenIntroduction = false
 
     var body: some View {
+        ScrollView {
         VStack(spacing: 24) {
             Spacer()
 
@@ -20,29 +21,27 @@ struct SetupView: View {
             }
 
             VStack(spacing: 12) {
-                Text("Screen Time access is used to select and lock apps on this device.")
+                Text("Once started, the lock cannot be ended early. It ends automatically at the chosen time.")
                     .font(.footnote)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
 
                 Button {
-                    Task {
-                        await model.requestAuthorization()
-                    }
+                    hasSeenIntroduction = true
                 } label: {
-                    Label("Continue", systemImage: "arrow.right")
+                    Label("Get started", systemImage: "arrow.right")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(AppTheme.navy)
 
-                TargetSelectionButton(prominent: false)
-                NavigationLink("Support and diagnostics") { SettingsView() }
+
             }
             .controlSize(.large)
 
             Spacer()
         }
         .padding(24)
+        }
     }
 }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @AppStorage("hasSeenIntroduction") private var hasSeenIntroduction = false
     @EnvironmentObject private var model: BearLockAppModel
     @Environment(\.scenePhase) private var scenePhase
 
@@ -8,15 +9,10 @@ struct RootView: View {
         NavigationStack {
             Group {
                 if model.hasLoadedInitialState {
-                    switch model.authorizationStatus {
-                    case .approved:
+                    if !hasSeenIntroduction && model.authorizationStatus == .unknown && model.lockState.targetSelections.isEmpty && model.lockState.rules.isEmpty {
+                        SetupView()
+                    } else {
                         HomeView()
-                    case .denied, .unknown:
-                        if model.authorizationStatus == .unknown && model.lockState.targetSelections.isEmpty && model.lockState.rules.isEmpty {
-                            SetupView()
-                        } else {
-                            HomeView()
-                        }
                     }
                 } else {
                     ProgressView()

@@ -114,6 +114,8 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testUnavailableAccessKeepsRecoveryAndSettingsReachable \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testIntroductionAndContextualAccessFlow \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testDeclinedAccessKeepsHomeUsable \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testRecentTargetsSelectionFeedbackAndActions \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
