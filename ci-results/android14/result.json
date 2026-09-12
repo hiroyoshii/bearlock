@@ -1,0 +1,8 @@
+{
+  "commit": "19fa7c1bed62c3266eaa76f71afead7320d753bc",
+  "run": "34676813831",
+  "checks": [],
+  "passed": false,
+  "api": "34",
+  "error": "Traceback (most recent call last):\n  File \"/home/runner/work/bearlock/bearlock/android-lab/scripts/android14_verify.py\", line 50, in <module>\n    tap('ユーザー補助を設定')\n  File \"/home/runner/work/bearlock/bearlock/android-lab/scripts/android14_verify.py\", line 38, in tap\n    raise AssertionError('Missing control: ' + label)\nAssertionError: Missing control: ユーザー補助を設定\n"
+}
