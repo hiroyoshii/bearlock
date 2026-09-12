@@ -1,7 +1,7 @@
 {
   "window": {
-    "key": "d70e1b74-132f-41f5-9122-248b22823181",
-    "rule": "d70e1b74-132f-41f5-9122-248b22823181",
+    "key": "e05f4338-955e-45fa-b3c6-d5d643767b38",
+    "rule": "e05f4338-955e-45fa-b3c6-d5d643767b38",
     "title": "集中時間",
     "targets": {
       "apps": [
@@ -10,39 +10,39 @@
       "domains": [],
       "categories": []
     },
-    "start": 1789193133844,
-    "end": 1789193193844
+    "start": 1789194466705,
+    "end": 1789194526705
   },
-  "blockedTapRequestedAt": 1789193139311,
+  "blockedTapRequestedAt": 1789194472063,
   "probeEvents": [
     {
       "event": "tap",
-      "wallMs": 1789193133410,
+      "wallMs": 1789194466126,
       "taps": 1
     },
     {
       "event": "pause",
-      "wallMs": 1789193133700,
+      "wallMs": 1789194466442,
       "taps": 1
     },
     {
       "event": "resume",
-      "wallMs": 1789193136203,
+      "wallMs": 1789194468777,
       "taps": 1
     },
     {
       "event": "pause",
-      "wallMs": 1789193139435,
+      "wallMs": 1789194472150,
       "taps": 1
     },
     {
       "event": "resume",
-      "wallMs": 1789193147097,
+      "wallMs": 1789194479894,
       "taps": 1
     },
     {
       "event": "tap",
-      "wallMs": 1789193195992,
+      "wallMs": 1789194528623,
       "taps": 2
     }
   ],
@@ -51,7 +51,7 @@
     "rules": [],
     "sessions": [],
     "completed": [
-      "d70e1b74-132f-41f5-9122-248b22823181"
+      "e05f4338-955e-45fa-b3c6-d5d643767b38"
     ],
     "recent": [
       {
@@ -62,7 +62,7 @@
           "domains": [],
           "categories": []
         },
-        "used": 1789193133844,
+        "used": 1789194466705,
         "pinned": false,
         "pinnedAt": null
       }
