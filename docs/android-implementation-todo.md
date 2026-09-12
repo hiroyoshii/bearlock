@@ -7,14 +7,11 @@
 - [x] 対象のアイコン付き詳細・最近使った対象の選択表示
 - [x] 履歴3件表示・ピン3件上限・安定した順序・旧データ保持
 - [x] 共通の押下反応・確認画面・設定の整合
-- [x] 応援購入3商品・Play Billing・署名検証・再照会/消費処理の実装
+- [x] Androidのアプリ内課金を削除し、公式サイトの応援ページへ移動する構成に変更
 - [x] Debug/Releaseビルド、単体20件、エミュレーター操作、日英スクショ比較
-- [ ] Play ConsoleにCoffee/Lunch/Dinnerを登録・有効化
-- [ ] GitHub環境android-internalにBEARLOCK_PLAY_LICENSE_KEYを登録し署名ビルド
-- [ ] 内部テスト配信で購入・再購入・取消・保留・再起動を確認
 - [ ] 更新したPrivacy/Supportを公開し、Play Consoleのデータセーフティを確認
 
-[変更とスクショ](android-ios-parity-2026-09-10.md) · [応援購入の設定手順](android-support-purchases.md)。購入設定がなくてもUI・ロック機能は配信可能。
+[変更とスクショ](android-ios-parity-2026-09-10.md) · [Androidの応援導線](android-support-purchases.md)。Androidアプリ内には購入処理を含めない。
 
 ## 実装
 

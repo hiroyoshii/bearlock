@@ -75,8 +75,8 @@ open class MainActivity : Activity() {
         }
         render()
     }
-    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); Scheduling.sync(this); load(); render(); handler.post(heartbeat); if(!visualPreview) { SupportBilling.get(this).changed={ if(page=="support" && !isFinishing && !isDestroyed) render() }; SupportBilling.get(this).refresh() } }
-    override fun onPause() { if(!visualPreview) SupportBilling.get(this).changed=null; handler.removeCallbacks(heartbeat); super.onPause() }
+    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); Scheduling.sync(this); load(); render(); handler.post(heartbeat) }
+    override fun onPause() { handler.removeCallbacks(heartbeat); super.onPause() }
     override fun onSaveInstanceState(out: Bundle) {
         out.putBoolean("returnToConfirmation",returnToConfirmation); out.putString("permissionsReturnPage",permissionsReturnPage)
         out.putString("page",page); out.putString("targets",Codec.targets(draft).toString()); out.putInt("mode",mode)

@@ -65,14 +65,14 @@ finally:
     'run': os.environ.get('GITHUB_RUN_ID', 'local'),
     'size': [1080, 1920], 'density': 400,
     'source': 'Debug ScreenshotActivity using production UI components and sample data. '
-              'Visual fixtures, not proof of blocking or purchase behavior.',
+              'Visual fixtures, not proof of blocking or external website behavior.',
     'images': records,
 }, indent=2) + '\n')
 (args.output / 'README.md').write_text(
     '# Android Play Store screenshots\n\n'
     '1080×1920 PNG, Japanese and English. Download the Android Store Assets workflow artifact '
     'for all images. These are production UI components rendered with sample data; '
-    'they do not demonstrate real blocking or purchase transactions.\n\n' +
+    'they do not demonstrate real blocking or external website behavior.\n\n' +
     '\n'.join(f'## {lang}\n\n' + '\n\n'.join(
         f'![{screen}]({lang}/{i:02d}-{screen}.png)' for i, screen in enumerate(screens, 1)
     ) for lang in ['ja', 'en']) + '\n')

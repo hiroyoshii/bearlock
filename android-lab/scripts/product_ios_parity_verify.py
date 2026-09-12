@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""UI parity and unconfigured-billing checks on the dedicated QA emulator.
-Run after product_ui_parity_verify.py. Does not purchase or create a lock.
+"""UI parity and external-support checks on the dedicated QA emulator.
+Run after product_ui_parity_verify.py. Does not open a browser or create a lock.
 """
 import json,re,time
 from pathlib import Path
@@ -27,15 +27,12 @@ def language(lang):
     q.page('settings',language=lang)
 def support(ja):
     q.page('settings');tap('Bear Lockを応援' if ja else 'Support Bear Lock')
-    for _ in range(15):
-        all_nodes=nodes()
-        if not any('読み込み中' in n.get('text','') or 'Loading support items' in n.get('text','') for n in all_nodes):break
-        time.sleep(1)
-    buttons=[n for n in all_nodes if n.get('class')=='android.widget.Button' and any(n.get('text','').startswith(x) for x in ['Coffee','Lunch','Dinner'])]
-    assert len(buttons)==3 and all(n.get('enabled')=='false' for n in buttons)
-    assert all('—' in n.get('text','') for n in buttons), 'QA must not display fake prices'
-    q.shot('support-unconfigured')
-    tap('キャンセル' if ja else 'Cancel')
+    all_nodes=nodes()
+    label='公式サイトを開く' if ja else 'Open website'
+    assert any(n.get('text')==label and n.get('enabled')=='true' for n in all_nodes)
+    assert not any(n.get('text','').startswith(x) for n in all_nodes for x in ['Coffee','Lunch','Dinner'])
+    q.shot('support-web')
+    tap('戻る' if ja else 'Back')
     assert any(n.get('text')==('設定' if ja else 'Settings') for n in nodes())
 q.sh('wm','size','1284x2778');q.sh('wm','density','480');q.sh('settings','put','system','font_scale','1.0')
 q.page('home',True);tap('対象一覧')
@@ -55,7 +52,7 @@ for lang in ['ja','en']:
     if lang=='en':language('en')
     q.OUT=OUT/'actual'/lang
     support(lang=='ja');q.shot('settings')
-    check(lang+': three unavailable support items are disabled; cancel returns to settings')
+    check(lang+': website link is enabled without purchase items; back returns to settings')
     q.OUT=OUT/'android'/lang
     for screen in ['home','setup','composeRepeat','activeLock','confirmation','settings']:
         q.sh('am','start','-W','-f','0x10008000','-n',q.APP+'/.ScreenshotActivity','--es','screen',screen)
@@ -70,4 +67,4 @@ try:
 finally:
     q.sh('wm','size','1284x2778');q.sh('settings','put','system','font_scale','1.0')
 q.page('home')
-(OUT/'acceptance.json').write_text(json.dumps({'passed':checks,'billing':'unconfigured debug build only; no real purchase made'},ensure_ascii=False,indent=2))
+(OUT/'acceptance.json').write_text(json.dumps({'passed':checks,'support':'website link only; browser launch is not exercised'},ensure_ascii=False,indent=2))
