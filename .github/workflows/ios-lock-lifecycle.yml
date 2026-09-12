@@ -46,6 +46,12 @@ jobs:
           xcodebuild -project BearLock.xcodeproj -scheme BearLock \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO build 2>&1 | tee artifacts/ios-build.log
+      - name: Build release app with diagnostics
+        run: |
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLock -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee artifacts/ios-release-build.log
       - name: Build screenshot app
         run: |
           set -o pipefail
@@ -60,6 +66,7 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -resultBundlePath artifacts/lock-ui-tests.xcresult \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testUnavailableAccessKeepsRecoveryAndSettingsReachable \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \

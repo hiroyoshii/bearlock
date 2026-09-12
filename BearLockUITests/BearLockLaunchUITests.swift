@@ -8,7 +8,7 @@ final class BearLockLaunchUITests: XCTestCase {
 
     func testLaunchSetupScreenAndCaptureScreenshot() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
+        app.launchArguments = ["--ui-testing", "--reset-ui-testing-state"]
         app.launch()
 
         XCTAssertTrue(app.buttons["Continue"].waitForExistence(timeout: 10))
@@ -19,6 +19,19 @@ final class BearLockLaunchUITests: XCTestCase {
         attachment.name = "bearlock-setup-screen"
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    func testUnavailableAccessKeepsRecoveryAndSettingsReachable() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-ui-testing-state", "--ui-testing-seeded"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Screen Time access is unavailable. Blocking may not be active."].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["lock-composer-primary-button"].isEnabled)
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        scrollToStaticText("Diagnostics", in: app)
+        app.buttons["diagnostics-link"].tap()
+        XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
     }
 
     func testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint() throws {
@@ -66,6 +79,7 @@ final class BearLockLaunchUITests: XCTestCase {
 
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Start this lock?"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["After confirmation"].exists)
         captureScreenshot(named: "e2e-immediate-confirmation")
 
         app.buttons["lock-confirmation-confirm-button"].tap()

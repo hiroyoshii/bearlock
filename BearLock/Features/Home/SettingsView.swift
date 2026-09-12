@@ -47,6 +47,7 @@ struct SettingsView: View {
                 } label: {
                     Label("Diagnostics", systemImage: "stethoscope")
                 }
+                .accessibilityIdentifier("diagnostics-link")
             }
         }
         .navigationTitle("Settings")
