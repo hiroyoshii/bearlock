@@ -1,17 +1,10 @@
 package com.hiyozoo.bearlock
 
 import android.app.*
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.widget.*
 import java.time.*
 
-fun EditText.onEdit(action: (String)->Unit) { addTextChangedListener(object: TextWatcher {
-    override fun beforeTextChanged(s: CharSequence?,start: Int,count: Int,after: Int) {}
-    override fun onTextChanged(s: CharSequence?,start: Int,before: Int,count: Int) { action(s.toString()) }
-    override fun afterTextChanged(s: Editable?) {}
-}) }
 class Composer(private val a: MainActivity) {
     private val u get()=a.ui
     private fun t(ja: String,en: String)=a.t(ja,en)

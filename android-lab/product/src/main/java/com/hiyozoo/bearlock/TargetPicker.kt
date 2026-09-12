@@ -2,7 +2,15 @@ package com.hiyozoo.bearlock
 
 import android.view.Gravity
 import android.widget.*
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
+
+private fun EditText.onEdit(action: (String)->Unit) { addTextChangedListener(object: TextWatcher {
+    override fun beforeTextChanged(s: CharSequence?,start: Int,count: Int,after: Int) {}
+    override fun onTextChanged(s: CharSequence?,start: Int,before: Int,count: Int) { action(s.toString()) }
+    override fun afterTextChanged(s: Editable?) {}
+}) }
 
 class TargetPicker(private val a: MainActivity) {
     companion object { private val loader = java.util.concurrent.Executors.newSingleThreadExecutor() }
@@ -75,7 +83,7 @@ class TargetPicker(private val a: MainActivity) {
                 if(domain==null) a.error("invalid_domain") else { a.draft=a.draft.copy(domains=a.draft.domains+domain); update(); web() }
             },16)
             for(domain in a.draft.domains) u.add(content,u.button("×  $domain") { a.draft=a.draft.copy(domains=a.draft.domains-domain); update(); web() },8)
-            u.add(content,u.label(t("Chrome・Firefoxの通常タブ向け。アドレス欄が読めない画面、シークレット、他のブラウザは保証対象外です。ブラウザ版ごとの動作検証中です。","Adapters target regular Chrome and Firefox tabs; version testing is ongoing. Unreadable address bars, private tabs and other browsers are not guaranteed."),14f,muted=true),0)
+            u.add(content,u.label(t("ChromeとFirefoxの通常タブに対応しています。シークレットタブ、カスタムタブ、その他のブラウザには対応していません。","Supports regular tabs in Chrome and Firefox. Private tabs, custom tabs, and other browsers are not supported."),14f,muted=true),0)
         }
         fun categories() {
             ++generation

@@ -77,12 +77,17 @@ try:
     q.page('home', True)
     before = state()['recent']
     tap('ロック対象を選ぶ')
+    tap('Web')
+    web_copy='\n'.join(x[0] or '' for x in q.texts())
+    assert 'ChromeとFirefoxの通常タブに対応しています' in web_copy
+    assert all(term not in web_copy for term in ['動作検証中','保証対象外','未検証','対応確認中'])
+    tap('アプリ')
     tap('キャンセル')
     assert any(x[0]=='1件の対象' for x in q.texts())
     tap('ロック対象を選ぶ')
     tap('保存')
     assert state()['recent']==before
-    record('Target selection cancel/save works without creating recent history')
+    record('Target selection uses final Web support copy; cancel/save works without creating recent history')
     tap('後で')
     tap('15分')
     tap('ロックを予約')
