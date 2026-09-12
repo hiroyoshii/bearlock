@@ -295,13 +295,17 @@ final class BearLockLaunchUITests: XCTestCase {
     private func tapSwitch(_ app: XCUIApplication, identifier: String, label: String) {
         let identifiedSwitch = app.switches.matching(identifier: identifier).firstMatch
         if identifiedSwitch.waitForExistence(timeout: 3) {
-            identifiedSwitch.tap()
+            let before = identifiedSwitch.value as? String
+            identifiedSwitch.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+            let changed = NSPredicate(format: "value != %@", before ?? "")
+            XCTAssertTrue(expectation(for: changed, evaluatedWith: identifiedSwitch).expectedFulfillmentCount == 1)
+            waitForExpectations(timeout: 5)
             return
         }
 
         let labeledSwitch = app.switches[label]
         XCTAssertTrue(labeledSwitch.waitForExistence(timeout: 5), "Expected switch with identifier \(identifier) or label \(label)")
-        labeledSwitch.tap()
+        labeledSwitch.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
     }
 
     private func scrollToStaticText(_ text: String, in app: XCUIApplication) {
