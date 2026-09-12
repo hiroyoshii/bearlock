@@ -1,0 +1,60 @@
+{
+  "commit": "31ff4c6a86130f83bcc5d08e6ae101b670af1d6d",
+  "run": "34679553647",
+  "size": [
+    1080,
+    1920
+  ],
+  "density": 400,
+  "source": "Debug ScreenshotActivity using production UI components and sample data. Visual fixtures, not proof of blocking or purchase behavior.",
+  "images": [
+    {
+      "path": "ja/01-home.png",
+      "sha256": "2d10d27ec88e12597f5498ea62494106aea05c7ddaf5631b53e87a72fccb8e67"
+    },
+    {
+      "path": "ja/02-setup.png",
+      "sha256": "cdb5a09e72b3ca07a6933eda517de6517e51ec421dfa0f16e6483a68f118aab1"
+    },
+    {
+      "path": "ja/03-composeRepeat.png",
+      "sha256": "73631de3905aa0e65d27a246f1bc28caa2bb40cc7b211c8959507ee197594d79"
+    },
+    {
+      "path": "ja/04-composeDelayed.png",
+      "sha256": "caf1588e5bcf261747af260c82e8409d75cdb2a4a0df5d2945fa22036d841ef2"
+    },
+    {
+      "path": "ja/05-activeLock.png",
+      "sha256": "ff6dcd0124b20605edff4670b0e4897c3485495f60d138361aed3ffcc04e5e71"
+    },
+    {
+      "path": "ja/06-confirmation.png",
+      "sha256": "2e3ea95d6dafcbbecff303a697cba70fd8aa98907ccf340802c77256d122c718"
+    },
+    {
+      "path": "en/01-home.png",
+      "sha256": "08d5b6e94481b05c05cccd71f17a4e53a1fc5ccaee1980bde98f40d1b38046d8"
+    },
+    {
+      "path": "en/02-setup.png",
+      "sha256": "1db01225c72950dea0a9e498a39f314f26060efdc07a56dd7ccdf1dc451db7f2"
+    },
+    {
+      "path": "en/03-composeRepeat.png",
+      "sha256": "e0a0931da962fe8fe5e0c79f48a8e34ea28230a0f83833db8fb625ac506b4231"
+    },
+    {
+      "path": "en/04-composeDelayed.png",
+      "sha256": "0776ec824f686d1ebef2c19914d4f5a753978ed571ce266f2576a548e2645326"
+    },
+    {
+      "path": "en/05-activeLock.png",
+      "sha256": "e163fbd3badd26da7f92c9da6a12d8d5e3edca3d4f0841992a089a1735b84379"
+    },
+    {
+      "path": "en/06-confirmation.png",
+      "sha256": "d936c239297e09659241834686da9c187e7bf8945f85f15ce053a378be69c50c"
+    }
+  ]
+}
