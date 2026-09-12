@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Helpers for real emulator UI runs. Does not reset application data or end locks."""
-import argparse,json,re,subprocess,time,xml.etree.ElementTree as ET
+import argparse,json,os,re,subprocess,time,xml.etree.ElementTree as ET
 from pathlib import Path
-ADB='/mnt/c/Users/orien/AppData/Local/Android/Sdk/platform-tools/adb.exe'
-SERIAL='emulator-5554'
+ADB=os.environ.get('ADB','/mnt/c/Users/orien/AppData/Local/Android/Sdk/platform-tools/adb.exe')
+SERIAL=os.environ.get('ANDROID_SERIAL','emulator-5554')
 APP='com.hiyozoo.bearlock'
 OUT=Path('artifacts/android-product')
 PRESERVE_ACCESSIBILITY=False
