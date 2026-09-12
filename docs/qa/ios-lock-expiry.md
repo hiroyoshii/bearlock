@@ -5,6 +5,7 @@
 This change fixes reproducible paths that leave a shield behind. It does **not** establish which path occurred on the reported iPhone. The device's callback delivery and effective Screen Time enforcement require physical-device evidence.
 
 - App and monitor use `LockLifecycle` to reconcile the current occurrence.
+- The shield configuration extension also reconciles when a blocked target is opened. If the end callback is delayed or missed, opening the target after its saved deadline clears the stale named store without requiring Bear Lock to launch. An adjacent current occurrence is applied instead of being cleared.
 - Schedule components include seconds. Newly created/replaced rules use integral seconds; end times round up, never shortening the requested duration.
 - A late start does not move the occurrence deadline. Duplicate starts do not replace the active snapshot; an expired start cannot reapply its old shield.
 - Completion requires expiration of the saved active deadline **or** the immutable scheduled occurrence deadline. A callback alone is not proof: `stopMonitoring` can deliver an early end. Mismatched rule notifications cannot complete the current lock.
@@ -22,7 +23,7 @@ This change fixes reproducible paths that leave a shield behind. It does **not**
 
 The `iOS Lock Lifecycle` GitHub Actions workflow runs:
 
-1. `swift test`: schedule precision; delayed/duplicate/out-of-order callbacks; hours-late end; stop before deadline; different rule and later recurring occurrence; app refresh without callback; persistence/read failures; legacy shifted deadline; residual shield; current next rule; overnight recurrence; stale Store snapshots; concurrent repository instances; corrupted and unreadable files.
+1. `swift test`: schedule precision; delayed/duplicate/out-of-order callbacks; hours-late end; stop before deadline; different rule and later recurring occurrence; app refresh and shield presentation without callback; persistence/read failures; legacy shifted deadline; residual shield; current next rule; overnight recurrence; stale Store snapshots; concurrent repository instances; corrupted and unreadable files.
 2. `python3 Scripts/test-lock-repository-processes.py`: compiles the production repository and launches four independent OS processes. All 160 mutations must survive with distinct IDs.
 3. Xcode project validation and Simulator builds of the app, monitor, shield configuration, shield action, and screenshot app.
 4. Simulator mock UI tests for immediate creation, delayed schedule edit/delete, and active-lock immutability controls.
@@ -65,6 +66,7 @@ Capture diagnostics promptly after the failure. Opening Bear Lock invokes a sepa
 - `keep=unexpiredOccurrence`: early end/stop, or a later valid occurrence is still active.
 - `clear=expiredNoCurrentOccurrence`: expiry established with no current rule needing shielding.
 - `Shield.clear.requested`: the ManagedSettings API was called. This is **not** an OS acknowledgement that restrictions are gone.
+- `ShieldRecovery.clear`: opening a shielded target detected an expired lock and requested removal without launching Bear Lock.
 - `saveFailed=...`: state persistence failed; when preceded by clear, that failure did not block the clear request.
 - `DeviceActivity.intervalDidEnd.finished` / `.failed`: synchronous callback completion or error.
 - `Schedule.preservedActiveDeadline`: independent end monitoring registered before parent changes.

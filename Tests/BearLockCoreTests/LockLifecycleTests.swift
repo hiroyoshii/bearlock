@@ -136,6 +136,33 @@ final class LockLifecycleTests: XCTestCase {
         XCTAssertEqual(harness.clears, 1)
     }
 
+    func testShieldPresentationCanUnlockWithoutEndCallbackOrAppRefresh() throws {
+        let rule = makeRule()
+        let harness = activeHarness(rule)
+        try harness.run(.shieldPresented, at: rule.endsAt)
+        XCTAssertEqual(harness.clears, 1)
+        XCTAssertNil(harness.repository.state.activeLock)
+    }
+
+    func testShieldPresentationDoesNotReapplyAnUnexpiredLock() throws {
+        let rule = makeRule()
+        let harness = activeHarness(rule)
+        try harness.run(.shieldPresented, at: rule.endsAt.addingTimeInterval(-1))
+        XCTAssertEqual(harness.clears, 0)
+        XCTAssertTrue(harness.applied.isEmpty)
+        XCTAssertNotNil(harness.repository.state.activeLock)
+    }
+
+    func testShieldPresentationAppliesAnAdjacentCurrentLock() throws {
+        let first = makeRule()
+        let second = LockRule(kind: .fixedDateTime, startsAt: first.endsAt, duration: 1800, targetSelectionID: UUID())
+        let harness = activeHarness(first, otherRules: [second])
+        try harness.run(.shieldPresented, at: first.endsAt)
+        XCTAssertEqual(harness.clears, 0)
+        XCTAssertEqual(harness.applied.first?.sourceRuleID, second.id)
+        XCTAssertEqual(harness.repository.state.activeLock?.sourceRuleID, second.id)
+    }
+
     func testLegacyOneShotDeadlineShiftIsRepaired() throws {
         let rule = makeRule()
         let active = ActiveLock(sourceRuleID: rule.id, startedAt: start.addingTimeInterval(300),

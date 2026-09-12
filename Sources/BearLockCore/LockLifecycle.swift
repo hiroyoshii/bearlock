@@ -2,12 +2,13 @@ import Foundation
 
 public enum LockLifecycleEvent: Equatable, Sendable {
     case refresh
+    case shieldPresented
     case intervalStarted(ruleID: UUID)
     case intervalEnded(ruleID: UUID, activeID: UUID? = nil)
 
     var ruleID: UUID? {
         switch self {
-        case .refresh: return nil
+        case .refresh, .shieldPresented: return nil
         case let .intervalStarted(id), let .intervalEnded(id, _): return id
         }
     }

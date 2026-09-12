@@ -4,6 +4,7 @@ import UIKit
 
 final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource {
     private let activeLockReader = ShieldActiveLockReader()
+    private let expiryRecovery = ShieldExpiryRecovery()
 
     override func configuration(shielding application: Application) -> ShieldConfiguration {
         return configuration(title: title(for: application.localizedDisplayName, fallbackKey: "This app is sleeping."))
@@ -23,6 +24,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     }
 
     private func configuration(title: String) -> ShieldConfiguration {
+        expiryRecovery.reconcile()
         let subtitle = activeLockReader.unlockText() ?? localized("Locked until the scheduled time.")
 
         return ShieldConfiguration(
