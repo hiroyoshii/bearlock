@@ -24,3 +24,9 @@ iOS UIテストへ削除取消、繰り返し切替取消・保存を追加。An
 6. Releaseで診断内容を閲覧し、ユーザーが共有先を選べること。ログ読込失敗時も問い合わせ先に到達できること。
 
 OSの実遮断・解除は端末上で別途確認。診断は自動送信しない。
+
+## GitHub Actionsでの確認
+
+- [Android CI](https://github.com/hiroyoshii/bearlock/actions/runs/34678016662): 成功（Android実装コミット `a70c761`）。
+- [Android 14 Acceptance](https://github.com/hiroyoshii/bearlock/actions/runs/34678016608): 成功。同ワークフローの実動作回帰であり、更新した全UI操作スクリプトの実行済みを意味しない。
+- [iOS Lock Lifecycle](https://github.com/hiroyoshii/bearlock/actions/runs/34678106635): 成功（`2c1be6c`）。通常／Release本体と拡張、スクショアプリのビルド、権限復旧・削除確認等のUI回帰を含む。
