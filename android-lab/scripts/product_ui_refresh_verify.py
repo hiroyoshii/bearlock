@@ -29,7 +29,7 @@ def tap(label):
     raise AssertionError(label)
 def check(name): checks.append(name);print('PASS: '+name,flush=True)
 def language(lang):
-    q.page('settings');tap('言語 / Language' if lang=='en' else 'Language / 言語');tap('English' if lang=='en' else '日本語')
+    q.page('settings',language=lang)
 q.sh('wm','size','1284x2778');q.sh('wm','density','480');q.sh('settings','put','system','font_scale','1.0')
 q.page('home',True)
 # Capture a video of actual repeated interaction, separate from read-only fixtures.

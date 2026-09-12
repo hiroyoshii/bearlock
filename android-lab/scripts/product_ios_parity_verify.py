@@ -24,7 +24,7 @@ def tap(label):
     raise AssertionError(label)
 def check(name):checks.append(name);print('PASS: '+name,flush=True)
 def language(lang):
-    q.page('settings');tap('言語 / Language' if lang=='en' else 'Language / 言語');tap('English' if lang=='en' else '日本語')
+    q.page('settings',language=lang)
 def support(ja):
     q.page('settings');tap('Bear Lockを応援' if ja else 'Support Bear Lock')
     for _ in range(15):

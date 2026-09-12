@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <queries><intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent><intent><action android:name="android.intent.action.DIAL" /></intent><intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.HOME" /></intent></queries>
-    <application android:theme="@style/BearTheme" android:label="Bear Lock" android:icon="@drawable/brand_icon" android:allowBackup="false" android:dataExtractionRules="@xml/data_extraction" android:supportsRtl="true">
+    <application android:theme="@style/BearTheme" android:label="Bear Lock" android:icon="@drawable/brand_icon" android:allowBackup="false" android:dataExtractionRules="@xml/data_extraction" android:supportsRtl="true" android:localeConfig="@xml/locales_config">
         <activity android:name=".MainActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
             <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
         </activity>

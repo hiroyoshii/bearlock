@@ -8,6 +8,10 @@ import android.os.Bundle
 class QAHarnessActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intent.getStringExtra("language")?.takeIf { it in listOf("ja","en") }?.let {
+            getSharedPreferences("appearance",0).edit().putString("language",it).commit()
+            configureLanguage(this)
+        }
         val store=Store(this)
         try {
             val now=System.currentTimeMillis()

@@ -31,8 +31,10 @@ def shot(name,xml=True):
     if xml: (OUT/f'{name}.xml').write_text(ET.tostring(tree(),encoding='unicode'))
     time.sleep(.7)
     (OUT/f'{name}.png').write_bytes(adb('exec-out','screencap','-p',binary=True))
-def page(name,draft=False):
-    sh('am','start','-W','-f','0x10008000','-n',APP+'/.QAHarnessActivity','--es','page',name,'--ez','draft',str(draft).lower())
+def page(name,draft=False,language=None):
+    command=['am','start','-W','-f','0x10008000','-n',APP+'/.QAHarnessActivity','--es','page',name,'--ez','draft',str(draft).lower()]
+    if language in ('ja','en'): command += ['--es','language',language]
+    sh(*command)
     time.sleep(2)
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('action',choices=['texts','tap','shot','page']);p.add_argument('value',nargs='?',default='home');a=p.parse_args()

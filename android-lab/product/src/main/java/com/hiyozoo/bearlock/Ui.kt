@@ -11,11 +11,12 @@ import java.text.DateFormat
 import java.util.Date
 
 fun tr(c: Context, ja: String, en: String): String {
-    val language=c.getSharedPreferences("appearance",0).getString("language","").orEmpty().ifEmpty { c.resources.configuration.locales[0].language }
+    val testLanguage=if(BuildConfig.DEBUG) c.getSharedPreferences("appearance",0).getString("language","").orEmpty() else ""
+    val language=testLanguage.ifEmpty { c.resources.configuration.locales[0].language }
     return if(language=="ja") ja else en
 }
 fun configureLanguage(c: Context) {
-    val language=c.getSharedPreferences("appearance",0).getString("language","").orEmpty()
+    val language=if(BuildConfig.DEBUG) c.getSharedPreferences("appearance",0).getString("language","").orEmpty() else ""
     java.util.Locale.setDefault(if(language.isEmpty()) c.resources.configuration.locales[0] else java.util.Locale.forLanguageTag(language))
 }
 fun timeText(ms: Long): String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(ms))

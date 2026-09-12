@@ -56,7 +56,7 @@ open class MainActivity : Activity() {
     fun t(ja: String,en: String) = tr(this,ja,en)
     override fun attachBaseContext(base: android.content.Context) {
         configureLanguage(base)
-        val language=base.getSharedPreferences("appearance",0).getString("language","").orEmpty()
+        val language=if(BuildConfig.DEBUG) base.getSharedPreferences("appearance",0).getString("language","").orEmpty() else ""
         if(language.isEmpty()) super.attachBaseContext(base) else {
             val config=android.content.res.Configuration(base.resources.configuration)
             config.setLocale(java.util.Locale.forLanguageTag(language))
@@ -144,7 +144,8 @@ open class MainActivity : Activity() {
                 bar.addView(ui.iconButton("⚙",t("設定","Settings")) { navigate("settings") })
             } else {
                 val toolbar=android.widget.RelativeLayout(this)
-                val cancel=ui.textButton(t("キャンセル","Cancel")) { goBack() }.apply { id=View.generateViewId(); textSize=14f }
+                val isEditingPage=page=="targets" || page=="compose"
+                val cancel=ui.textButton(if(isEditingPage) t("キャンセル","Cancel") else t("戻る","Back")) { goBack() }.apply { id=View.generateViewId(); textSize=14f }
                 val save=ui.textButton(if(page=="compose") t("保存","Save") else "") { if(page=="compose") Composer(this).saveEdit() }.apply { id=View.generateViewId(); textSize=14f; visibility=if(page=="compose") View.VISIBLE else View.INVISIBLE }
                 val side=ui.dp(if(ui.compact) 132 else 96)
                 toolbar.addView(cancel,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_START) })
@@ -237,7 +238,7 @@ open class MainActivity : Activity() {
         ui.add(parent,group,0)
     }
     private fun permissions(parent: LinearLayout) {
-        ui.heading(parent,t("使う前の準備","A little setup"),t("Bear Lockが時間どおりに動くように。","Help Bear Lock keep your schedule."))
+        ui.heading(parent,t("ロックに必要な設定","Required settings"),t("ロックの開始と解除に必要な状態を確認します。","Check the settings used to start and end locks."))
 
         val c=ui.card()
         ui.add(c,ui.label(t("1. アプリの制限","1. App blocking"),19f,true),8)
@@ -251,7 +252,7 @@ open class MainActivity : Activity() {
                 if(Build.VERSION.SDK_INT>=31) startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:$packageName")))
             },0); ui.add(parent,a,16)
         }
-        ui.add(parent,ui.label(t("ユーザー補助の取消・強制停止中は制限できません。Android 17の高度な保護が有効な環境は対応確認中です。","Blocking cannot run while accessibility access is revoked or the app is force-stopped. Android 17 Advanced Protection compatibility is not verified."),14f,muted=true),20)
+        ui.add(parent,ui.label(t("ユーザー補助を解除した場合や、Bear Lockを強制停止した場合はロックが動作しません。","Locks do not work while accessibility access is disabled or Bear Lock is force-stopped."),14f,muted=true),20)
         ui.add(parent,ui.button(if(returnToConfirmation) t("確認に戻る","Return to confirmation") else t("戻る","Back"),true) {
             val confirm=returnToConfirmation
             val destination=permissionsReturnPage

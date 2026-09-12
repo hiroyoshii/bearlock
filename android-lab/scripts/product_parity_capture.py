@@ -17,10 +17,8 @@ def tap(label):
         q.scroll()
     raise AssertionError(label)
 def language(lang):
-    q.page('settings')
-    texts=q.texts();japanese=any(x[0]=='データの扱い' for x in texts)
-    tap('言語 / Language' if japanese else 'Language / 言語')
-    tap('日本語' if lang=='ja' else 'English');time.sleep(1)
+    q.page('settings',language=lang)
+    time.sleep(1)
 
 q.OUT=OUT/'interactions'
 q.page('home',True);tap('後で');tap('開始を5分遅らせる')
