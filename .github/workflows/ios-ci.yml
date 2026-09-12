@@ -268,24 +268,6 @@ jobs:
           file "$SCREENSHOT_PATH"
           shasum -a 256 "$SCREENSHOT_PATH"
 
-      - name: Commit latest App Store screenshots
-        run: |
-          set -euo pipefail
-          mkdir -p ci-screenshots
-          rm -rf ci-screenshots/app-store-ja ci-screenshots/app-store-en
-          mkdir -p ci-screenshots/app-store-ja ci-screenshots/app-store-en
-          for screen in setup home confirmation activeLock composeRepeat; do
-            cp "$SCREENSHOT_DIR/iphone-app-store-ja/$screen.png" "ci-screenshots/app-store-ja/$screen.png"
-            cp "$SCREENSHOT_DIR/iphone-app-store-en/$screen.png" "ci-screenshots/app-store-en/$screen.png"
-          done
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ci-screenshots/app-store-ja ci-screenshots/app-store-en
-          if ! git diff --cached --quiet; then
-            git commit -m "Update App Store screenshots [skip ci]"
-            git push
-          fi
-
       - name: Assert mock UI e2e passed
         if: env.RUN_MOCK_E2E == 'true'
         run: |
@@ -309,6 +291,25 @@ jobs:
             git commit -m "Update latest e2e failure log [skip ci]" || true
             git push || true
             exit 1
+          fi
+
+      - name: Commit latest App Store screenshots
+        run: |
+          set -euo pipefail
+          mkdir -p ci-screenshots
+          rm -rf ci-screenshots/app-store-ja ci-screenshots/app-store-en
+          mkdir -p ci-screenshots/app-store-ja ci-screenshots/app-store-en
+          for screen in setup home confirmation activeLock composeRepeat; do
+            cp "$SCREENSHOT_DIR/iphone-app-store-ja/$screen.png" "ci-screenshots/app-store-ja/$screen.png"
+            cp "$SCREENSHOT_DIR/iphone-app-store-en/$screen.png" "ci-screenshots/app-store-en/$screen.png"
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ci-screenshots/app-store-ja ci-screenshots/app-store-en
+          if ! git diff --cached --quiet; then
+            git commit -m "Update App Store screenshots [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
 
       - name: Upload artifacts
