@@ -98,6 +98,10 @@ object Planner {
         require(!pinned || normalized.any { it.targets==targets && it.pinned } || normalized.count { it.pinned }<3) { "pin_limit" }
         return normalized.map { if(it.targets==targets) it.copy(pinned=pinned,pinnedAt=if(pinned) it.pinnedAt ?: now else null) else it }
     }
+    /** Only future starts need an exact wakeup; active locks use wall-clock expiry. */
+    fun needsScheduledAlarm(state: State, now: Long): Boolean =
+        state.rules.any { it.enabled && (it.recurring || it.start > now) }
+
     fun nextBoundary(state: State, now: Long): Long? = (state.sessions.map { it.end } + state.rules.flatMap {
         it.occurrences(now, now + 8 * DAY).flatMap { s -> listOf(s.start, s.end) }
     }).filter { it > now }.minOrNull()

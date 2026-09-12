@@ -16,7 +16,11 @@ object Scheduling {
             alarm.cancel(pi)
             Planner.nextBoundary(state, System.currentTimeMillis())?.let {
                 if (permitted(c)) alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it, pi)
-                else { alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it, pi); store.event("alarm_permission_missing") }
+                else {
+                    // Active locks expire in GuardService using wall time. This alarm is cleanup only.
+                    alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it, pi)
+                    if (Planner.needsScheduledAlarm(state, System.currentTimeMillis())) store.event("alarm_permission_missing")
+                }
             }
             GuardService.instance?.refresh()
         } catch (e: Exception) { store.event("schedule_failure:${e.javaClass.simpleName}") }

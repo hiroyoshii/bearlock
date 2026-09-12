@@ -48,6 +48,9 @@ jobs:
             mkdir -p artifacts/android14
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/onboarding_verify.py > artifacts/android14/onboarding-run.log 2>&1
             python3 android-lab/scripts/android14_verify.py
+            python3 android-lab/scripts/permission_scope_verify.py
+            BEARLOCK_QA_WITHOUT_EXACT_ALARM=1 BEARLOCK_PROBE_OUT=artifacts/android14/without-exact-alarm python3 android-lab/scripts/product_verify.py
+            BEARLOCK_QA_WITHOUT_EXACT_ALARM=1 BEARLOCK_QA_SLEEP_THROUGH_EXPIRY=1 BEARLOCK_PROBE_OUT=artifacts/android14/without-exact-alarm-sleep python3 android-lab/scripts/product_verify.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:

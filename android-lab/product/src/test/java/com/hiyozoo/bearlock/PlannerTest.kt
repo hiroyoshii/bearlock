@@ -8,6 +8,21 @@ class PlannerTest {
     private val now=Instant.parse("2026-09-07T09:00:00Z").toEpochMilli() // Monday
     private val target=Targets(apps=setOf("app.a","app.b"))
     private fun rule(start: Long=now,end: Long=start+60_000)=Rule(title="Focus",targets=target,start=start,end=end,zone="UTC")
+    @Test fun immediateExpiryDoesNotRequireScheduledWakeup() {
+        val state = Planner.save(State(), rule(), now)
+        assertFalse(Planner.needsScheduledAlarm(state, now))
+        assertEquals(now + 60_000, Planner.nextBoundary(state, now))
+        assertFalse(state.sessions.single().active(now + 60_000))
+        assertTrue(Planner.reconcile(state, now + 60_000).sessions.isEmpty())
+    }
+    @Test fun onlyEnabledFutureOrRecurringRulesNeedScheduledWakeup() {
+        val future = rule(now + 60_000)
+        assertTrue(Planner.needsScheduledAlarm(State(rules=listOf(future)), now))
+        assertFalse(Planner.needsScheduledAlarm(State(rules=listOf(future.copy(enabled=false))), now))
+        val repeating = rule().copy(days=setOf(1), minute=540, durationMinutes=1)
+        assertTrue(Planner.needsScheduledAlarm(State(rules=listOf(repeating)), now))
+        assertFalse(Planner.needsScheduledAlarm(State(rules=listOf(repeating.copy(enabled=false))), now))
+    }
     @Test fun exactEndAndMultipleTargets() {
         val s=Planner.save(State(),rule(),now)
         assertEquals(2,s.sessions.single().targets.apps.size)

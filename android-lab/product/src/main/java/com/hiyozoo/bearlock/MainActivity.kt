@@ -194,6 +194,7 @@ open class MainActivity : Activity() {
     }
     fun home(parent: LinearLayout) {
         val active=state.sessions.filter { it.active(System.currentTimeMillis()) }
+        val missingScheduledAlarm = Planner.needsScheduledAlarm(state, System.currentTimeMillis()) && !Scheduling.permitted(this)
         SelectionSummary(this).show(parent,active.isNotEmpty())
         if(!visualPreview && store.error != null) {
             ui.add(parent,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
@@ -201,17 +202,17 @@ open class MainActivity : Activity() {
             ui.add(parent,ui.button(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },16)
         } else if(!visualPreview && state.rules.isNotEmpty() && GuardService.instance==null) {
             ui.add(parent,ui.label(t("アプリの制限は停止中です。ユーザー補助を接続してください。","App blocking is unavailable. Connect the accessibility service."),17f,true),16)
-        } else if(!visualPreview && state.rules.isNotEmpty() && !Scheduling.permitted(this)) {
+        } else if(!visualPreview && missingScheduledAlarm) {
             ui.add(parent,ui.label(t("予約時刻の動作に必要な権限がありません。設定を確認してください。","Scheduled timing permission is missing. Review permissions."),17f,true),16)
         }
-        if(active.isNotEmpty() && (visualPreview || (store.error == null && GuardService.instance != null && Scheduling.permitted(this)))) {
+        if(active.isNotEmpty() && (visualPreview || (store.error == null && GuardService.instance != null))) {
             countdownEnd=active.maxOf { it.end }
             countdown=ActiveCard(ui).show(parent,remaining(countdownEnd),timeText(countdownEnd))
             ui.add(parent,ui.label(t("ロック中は短縮、削除、対象アプリの削減はできません。","During a lock, you cannot shorten it, delete it, or reduce blocked apps."),13f,muted=true),20)
             if(mode==0) mode=1
         }
         if(active.isNotEmpty() && mode==0) mode=1
-        if(!visualPreview && state.rules.isNotEmpty() && (GuardService.instance==null || !Scheduling.permitted(this) || store.error!=null)) {
+        if(!visualPreview && state.rules.isNotEmpty() && (GuardService.instance==null || missingScheduledAlarm || store.error!=null)) {
             ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { requestPermissions() },16)
         }
         if(store.error == null) {
@@ -242,18 +243,21 @@ open class MainActivity : Activity() {
         ui.add(c,ui.label(t("1. アプリの制限","1. App blocking"),19f,true),8)
         ui.add(c,ui.label(if(GuardService.instance!=null) t("接続済み","Connected") else t("未接続","Not connected"),15f),8)
         ui.add(c,ui.button(t("ユーザー補助を設定","Set up accessibility"),true) { disclose() },0); ui.add(parent,c,16)
-        val a=ui.card(); ui.add(a,ui.label(t("2. 予約時刻の実行","2. Scheduled timing"),19f,true),8)
-        ui.add(a,ui.label(if(Scheduling.permitted(this)) t("許可済み","Allowed") else t("アラームとリマインダーの許可が必要です。","Allow alarms and reminders."),15f),12)
-        ui.add(a,ui.button(t("予約の権限を設定","Set up alarms")) {
-            if(Build.VERSION.SDK_INT>=31) startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:$packageName")))
-        },0); ui.add(parent,a,16)
-        ui.add(parent,ui.label(t("権限の取消・強制停止中は制限できません。Android 17の高度な保護が有効な環境は対応確認中です。","Blocking cannot run while permission is revoked or the app is force-stopped. Android 17 Advanced Protection compatibility is not verified."),14f,muted=true),20)
+        if(!returnToConfirmation || mode != 0) {
+            val a=ui.card(); ui.add(a,ui.label(t("2. 予約を使う場合のみ","2. Only for scheduled locks"),19f,true),8)
+            ui.add(a,ui.label(t("後で・日時指定・繰り返しの開始時刻を正確に処理するために使います。今すぐのロックには不要です。","Used to start Later, Date and Repeat locks at the scheduled time. Not needed for immediate locks."),14f,muted=true),12)
+            ui.add(a,ui.label(if(Scheduling.permitted(this)) t("許可済み","Allowed") else t("アラームとリマインダーの許可が必要です。","Allow alarms and reminders."),15f),12)
+            ui.add(a,ui.button(t("アラームとリマインダーを設定","Set up alarms")) {
+                if(Build.VERSION.SDK_INT>=31) startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:$packageName")))
+            },0); ui.add(parent,a,16)
+        }
+        ui.add(parent,ui.label(t("ユーザー補助の取消・強制停止中は制限できません。Android 17の高度な保護が有効な環境は対応確認中です。","Blocking cannot run while accessibility access is revoked or the app is force-stopped. Android 17 Advanced Protection compatibility is not verified."),14f,muted=true),20)
         ui.add(parent,ui.button(if(returnToConfirmation) t("確認に戻る","Return to confirmation") else t("戻る","Back"),true) {
             val confirm=returnToConfirmation
             val destination=permissionsReturnPage
             returnToConfirmation=false
             navigate(destination)
-            if(confirm && GuardService.instance!=null && Scheduling.permitted(this)) Composer(this).confirm()
+            if(confirm && GuardService.instance!=null && (mode == 0 || Scheduling.permitted(this))) Composer(this).confirm()
         })
     }
     private fun disclose() {

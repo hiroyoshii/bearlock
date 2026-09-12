@@ -139,18 +139,28 @@ class Composer(private val a: MainActivity) {
         return Rule(id=a.editing?.id ?: java.util.UUID.randomUUID().toString(),title=a.editing?.title ?: when(a.mode) { 0->t("今すぐ","Now");1->t("あとで開始","Starts later");2->t("日時指定","Date & Time");else->t("繰り返し","Repeats") },targets=a.draft,start=start,end=start+duration*60_000L,
             days=if(a.mode==3) a.days else emptySet(),minute=a.repeatStart,durationMinutes=duration,zone=a.editing?.zone ?: ZoneId.systemDefault().id,enabled=a.enabled)
     }
+    private fun permissionsReady(scheduled: Boolean, forConfirmation: Boolean): Boolean {
+        val missingAccess = GuardService.instance == null
+        val missingAlarm = scheduled && !Scheduling.permitted(a)
+        if(missingAccess || missingAlarm) {
+            AlertDialog.Builder(a).setTitle(t("先に設定を完了してください","Complete setup first"))
+                .setMessage(listOfNotNull(
+                    if(missingAccess) t("選んだアプリを制限するため、ユーザー補助を許可してください。","Allow accessibility access to block your selected apps.") else null,
+                    if(missingAlarm) t("予約した時刻にロックを開始するため、「アラームとリマインダー」を許可してください。今すぐのロックには不要です。","Allow alarms and reminders to start locks at scheduled times. Immediate locks do not need this permission.") else null
+                ).joinToString("\n\n"))
+                .setNegativeButton(t("キャンセル","Cancel"),null).setPositiveButton(t("設定へ","Setup")) { _,_->a.requestPermissions(forConfirmation=forConfirmation) }.show(); return false
+        }
+        return true
+    }
     fun saveEdit() {
         if(a.editing==null) return
+        if(a.enabled && !permissionsReady(true, false)) return
         try { val now=System.currentTimeMillis(); a.state=a.store.change { Planner.save(it,make(now),now) }; Scheduling.sync(a); a.editing=null; a.enabled=true; a.restoreSelection(); a.mode=0; a.navigate("home") } catch(e: Exception) { a.error(e.message) }
     }
     fun confirm() {
         try {
             val now=System.currentTimeMillis(); val rule=make(now); Planner.save(a.state,rule,now)
-            if(GuardService.instance==null || !Scheduling.permitted(a)) {
-                AlertDialog.Builder(a).setTitle(t("先に設定を完了してください","Complete setup first"))
-                    .setMessage(t("ユーザー補助の接続と予約権限が必要です。","Accessibility and alarm permissions are required."))
-                    .setNegativeButton(t("キャンセル","Cancel"),null).setPositiveButton(t("設定へ","Setup")) { _,_->a.requestPermissions(forConfirmation=true) }.show(); return
-            }
+            if(!permissionsReady(a.mode != 0, true)) return
             val first=rule.occurrences(now,now+8*Planner.DAY).first()
             val dialog=Dialog(a)
             val content=ConfirmationContent(u).build(a.catalog.summary(rule.targets),when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.delay}分後","${a.delay} min after confirmation"); 3 -> daysText(a.days)+" %02d:%02d".format(a.repeatStart/60,a.repeatStart%60); else -> dateText(first.start) },
