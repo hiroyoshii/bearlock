@@ -40,7 +40,7 @@ try:
             hierarchy = call('shell', 'cat', '/sdcard/store-window.xml').decode()
             assert f'package="{app}"' in hierarchy, hierarchy
             expected = {'home': ('選択済み対象', 'Selected targets'),
-                        'setup': ('ロックのアクセスを許可', 'Allow lock access'),
+                        'setup': ('はじめる', 'Get started'),
                         'composeRepeat': ('繰り返し', 'Repeat'),
                         'composeDelayed': ('あとで開始', 'Start later'),
                         'activeLock': ('熊は眠っています', 'Bear is sleeping'),
