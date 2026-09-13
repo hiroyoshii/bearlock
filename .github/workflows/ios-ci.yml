@@ -117,6 +117,7 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testIntroductionAndContextualAccessFlow \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDeclinedAccessKeepsHomeUsable \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testReusingTargetRefreshesHomeCountsDetailsAndConfirmation \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testRecentTargetsSelectionFeedbackAndActions \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
@@ -136,6 +137,9 @@ jobs:
           for screenshot in \
             e2e-settings-support.png \
             e2e-immediate-active-lock.png \
+            e2e-target-summary-before-reuse.png \
+            e2e-target-summary-after-reuse.png \
+            e2e-target-summary-confirmation.png \
             e2e-target-flow-home.png \
             e2e-target-picker-open.png \
             e2e-target-picker-apps-selected.png \

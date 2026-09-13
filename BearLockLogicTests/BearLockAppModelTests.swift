@@ -4,6 +4,28 @@ import XCTest
 
 @MainActor
 final class BearLockAppModelTests: XCTestCase {
+    func testReuseChangesSelectionAndSummaryWithoutChangingTargetCatalog() async throws {
+        let first = LockTargetSelectionRef(id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!, displayName: "3 targets")
+        let second = LockTargetSelectionRef(id: UUID(uuidString: "13131313-1313-1313-1313-131313131313")!, displayName: "2 targets")
+        let recent = RecentLockTarget(targetSelectionID: second.id, lastUsedAt: Date())
+        let repository = MemoryRepository()
+        repository.state = LockState(targetSelections: [first, second], recentLockTargets: [recent])
+        repository.state.selectedTargetID = first.id
+        let codec = PreviewTargetSelectionCodec(usesSummaryFixtures: true)
+        let model = BearLockAppModel(authorizationService: PreviewAuthorizationService(status: .approved),
+            targetSelectionCodec: codec, shieldController: NoopShieldController(),
+            scheduleController: NoopScheduleController(), lockStore: LockStore(repository: repository))
+        await model.refresh()
+        XCTAssertEqual(try codec.summary(from: model.lockState.selectedTarget).total, 3)
+        await model.selectRecentLockTarget(recent)
+        XCTAssertEqual(model.lockState.targetSelections, [first, second])
+        XCTAssertEqual(model.lockState.selectedTarget, second)
+        let summary = try codec.summary(from: model.lockState.selectedTarget)
+        XCTAssertEqual(summary.total, 2)
+        XCTAssertEqual(summary.previewApplicationNames, ["Books", "Music"])
+        XCTAssertEqual(repository.state.selectedTargetID, second.id)
+    }
+
     func testTargetSaveFailureKeepsCurrentSelectionAndRetryCommitsIt() async throws {
         let h = try Harness()
         await h.model.refresh()

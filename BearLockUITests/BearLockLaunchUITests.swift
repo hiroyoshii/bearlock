@@ -194,6 +194,49 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-target-flow-recent-deleted")
     }
 
+    func testReusingTargetRefreshesHomeCountsDetailsAndConfirmation() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-target-summary"])
+        let count = app.staticTexts["selected-target-count"]
+        XCTAssertTrue(count.waitForExistence(timeout: 10))
+        XCTAssertEqual(count.label, "3 targets")
+        app.buttons["target-list-disclosure"].tap()
+        XCTAssertTrue(app.staticTexts["selected-target-detail-Messages"].exists)
+        XCTAssertFalse(app.staticTexts["selected-target-detail-Books"].exists)
+        captureScreenshot(named: "e2e-target-summary-before-reuse")
+
+        let sleepTarget = app.buttons["frequent-target-select-16161616-1616-1616-1616-161616161616"]
+        scrollToButton(sleepTarget, in: app)
+        sleepTarget.tap()
+        expectation(for: NSPredicate(format: "label == %@", "2 targets"), evaluatedWith: count)
+        waitForExpectations(timeout: 5)
+        XCTAssertTrue(app.staticTexts["selected-target-detail-Books"].exists)
+        XCTAssertTrue(app.staticTexts["selected-target-detail-Music"].exists)
+        XCTAssertFalse(app.staticTexts["selected-target-detail-Messages"].exists)
+        captureScreenshot(named: "e2e-target-summary-after-reuse")
+
+        // Switch back without navigating away: the summary must refresh both ways.
+        let initialTarget = app.buttons["frequent-target-select-15151515-1515-1515-1515-151515151515"]
+        scrollToButton(initialTarget, in: app)
+        initialTarget.tap()
+        expectation(for: NSPredicate(format: "label == %@", "3 targets"), evaluatedWith: count)
+        waitForExpectations(timeout: 5)
+        XCTAssertTrue(app.staticTexts["selected-target-detail-Messages"].exists)
+        XCTAssertFalse(app.staticTexts["selected-target-detail-Books"].exists)
+        scrollToButton(sleepTarget, in: app)
+        sleepTarget.tap()
+        expectation(for: NSPredicate(format: "label == %@", "2 targets"), evaluatedWith: count)
+        waitForExpectations(timeout: 5)
+        scrollToButton(app.buttons["target-list-disclosure"], in: app)
+        app.buttons["target-list-disclosure"].tap()
+        let create = app.buttons["lock-composer-primary-button"]
+        scrollToButton(create, in: app)
+        create.tap()
+        let confirmation = app.staticTexts["lock-confirmation-apps"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 5))
+        XCTAssertEqual(confirmation.label, "2 targets")
+        captureScreenshot(named: "e2e-target-summary-confirmation")
+    }
+
     func testScheduleEditAndDeleteDelayedLockWithMockServices() throws {
         let app = launchApprovedSeededApp()
 
@@ -231,6 +274,10 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["Repeat"].tap()
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
+        let end = app.staticTexts["lock-confirmation-wakes"]
+        XCTAssertTrue(end.exists)
+        XCTAssertFalse(end.label.contains("after start"))
+        XCTAssertTrue(end.label.contains("7:00"), "Expected configured end time, got \(end.label)")
         captureScreenshot(named: "e2e-recurring-confirmation")
 
         app.buttons["lock-confirmation-confirm-button"].tap()
@@ -311,6 +358,12 @@ final class BearLockLaunchUITests: XCTestCase {
         ] + extraArguments
         app.launch()
         return app
+    }
+
+    private func scrollToButton(_ button: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<4 where !button.isHittable { app.swipeDown() }
+        for _ in 0..<5 where !button.isHittable { app.swipeUp() }
+        XCTAssertTrue(button.isHittable)
     }
 
     private func tapFirstButton(_ app: XCUIApplication, identifier: String) {

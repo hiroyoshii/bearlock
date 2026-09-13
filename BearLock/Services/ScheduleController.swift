@@ -15,7 +15,7 @@ struct DeviceActivityScheduleController: ScheduleControlling, @unchecked Sendabl
             return MonitoringSchedule(name: name.rawValue, start: schedule.intervalStart,
                 end: schedule.intervalEnd, repeats: schedule.repeats)
         }
-        try MonitoringSchedule.synchronize(desired: .desired(for: rules, at: now), existing: existing,
+        try MonitoringSchedule.synchronize(desired: MonitoringSchedule.desired(for: rules, at: now), existing: existing,
             start: { schedule in
                 DiagnosticsLogger.shared.record("Schedule.register.begin", detail: schedule.name)
                 try center.startMonitoring(DeviceActivityName(schedule.name), during: DeviceActivitySchedule(

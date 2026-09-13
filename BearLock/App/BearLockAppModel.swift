@@ -50,7 +50,7 @@ final class BearLockAppModel: ObservableObject {
         let lockStore = LockStore(repository: repository)
 
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
-            let selectionStore = PreviewTargetSelectionCodec()
+            let selectionStore = PreviewTargetSelectionCodec(usesSummaryFixtures: ProcessInfo.processInfo.arguments.contains("--ui-testing-target-summary"))
             return BearLockAppModel(
                 authorizationService: UITestingAuthorizationService(status: uiTestingAuthorizationStatus, deny: ProcessInfo.processInfo.arguments.contains("--ui-testing-deny-authorization")),
                 targetSelectionCodec: selectionStore,

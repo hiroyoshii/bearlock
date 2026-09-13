@@ -13,6 +13,23 @@ struct PreviewAuthorizationService: AuthorizationServicing {
 }
 
 struct PreviewTargetSelectionCodec: TargetSelectionCoding {
+    var usesSummaryFixtures = false
+
+    func summary(from reference: LockTargetSelectionRef?) throws -> TargetSelectionSummary {
+        var result = TargetSelectionSummary.empty
+        guard usesSummaryFixtures else { return result }
+        switch reference?.id.uuidString {
+        case "11111111-1111-1111-1111-111111111111":
+            result.previewApplicationNames = ["Messages", "Video", "Games"]
+        case "13131313-1313-1313-1313-131313131313":
+            result.previewApplicationNames = ["Books", "Music"]
+        default:
+            break
+        }
+        result.applications = result.previewApplicationNames.count
+        return result
+    }
+
     func selection(from reference: LockTargetSelectionRef?) throws -> FamilyActivitySelection { FamilyActivitySelection() }
     func reference(for selection: FamilyActivitySelection) throws -> LockTargetSelectionRef {
         LockTargetSelectionRef(displayName: "UI test targets")

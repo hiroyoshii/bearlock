@@ -81,6 +81,7 @@ struct LockConfirmationSheet: View {
                 .foregroundStyle(AppTheme.navy.opacity(0.62))
             Spacer(minLength: 20)
             Text(value)
+                .accessibilityIdentifier("lock-confirmation-\(label.lowercased())")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(AppTheme.navy)
                 .multilineTextAlignment(.trailing)

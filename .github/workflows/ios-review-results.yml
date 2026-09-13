@@ -1,19 +1,24 @@
 name: Collect iOS review results
 
 on:
-  push:
+  workflow_run:
+    workflows: ['iOS CI', 'iOS Lock Lifecycle']
+    types: [completed]
     branches: [main]
-    paths: ['.github/workflows/ios-review-results.yml']
   workflow_dispatch:
     inputs:
       commit:
         description: 'Full source commit SHA to review'
         required: true
-        default: '9ab551df53f6bb4220a4b9df53a656ca9f00b928'
+
 
 permissions:
   actions: read
   contents: write
+
+concurrency:
+  group: ios-review-results
+  cancel-in-progress: false
 
 jobs:
   collect:
@@ -24,24 +29,19 @@ jobs:
       - name: Read iOS runs, jobs, and bounded log excerpts
         env:
           GH_TOKEN: ${{ github.token }}
-          REVIEW_COMMIT: ${{ inputs.commit || '9ab551df53f6bb4220a4b9df53a656ca9f00b928' }}
+          REVIEW_COMMIT: ${{ inputs.commit || github.event.workflow_run.head_sha }}
           REPOSITORY: ${{ github.repository }}
         run: |
           python3 - <<'PY'
-          import json, os, re, subprocess, time
+          import json, os, re, shutil, subprocess, tempfile, time
           from pathlib import Path
           sha = os.environ['REVIEW_COMMIT']
           assert re.fullmatch(r'[0-9a-fA-F]{40}', sha), 'A full commit SHA is required'
           repo = os.environ['REPOSITORY']
           def api(path):
               return json.loads(subprocess.check_output(['gh', 'api', f'repos/{repo}/{path}'], text=True))
-          deadline = time.monotonic() + 15 * 60
-          while True:
-              runs = [r for r in api(f'actions/runs?head_sha={sha}&per_page=100')['workflow_runs']
-                      if r['name'].startswith('iOS ') and r['event'] == 'push']
-              if not runs or all(r['status'] == 'completed' for r in runs) or time.monotonic() >= deadline:
-                  break
-              time.sleep(30)
+          runs = [r for r in api(f'actions/runs?head_sha={sha}&per_page=100')['workflow_runs']
+                  if r['name'].startswith('iOS ') and r['event'] == 'push']
           output = Path('ci-results/ios-review') / sha
           output.mkdir(parents=True, exist_ok=True)
           report = {'sourceCommit': sha, 'collectedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'runs': []}
@@ -57,6 +57,16 @@ jobs:
                   (output / f"{run['id']}.txt").write_text('\n'.join(lines[-600:]) + '\n')
                   item['logReadExitCode'] = log.returncode
                   item['matchingLogLines'] = len(lines)
+                  if run['name'] == 'iOS CI':
+                      with tempfile.TemporaryDirectory() as temp:
+                          download = subprocess.run(['gh', 'run', 'download', str(run['id']), '--repo', repo,
+                              '--name', 'bearlock-ios-ci-artifacts', '--dir', temp], capture_output=True, text=True)
+                          item['artifactReadExitCode'] = download.returncode
+                          for source in Path(temp).rglob('e2e-target-summary-*.png'):
+                              destination = output / 'screenshots'
+                              destination.mkdir(exist_ok=True)
+                              shutil.copyfile(source, destination / source.name)
+
           (output / 'summary.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
           print(json.dumps(report, ensure_ascii=False, indent=2))
           PY

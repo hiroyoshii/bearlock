@@ -3,6 +3,7 @@ import FamilyControls
 import Foundation
 
 protocol TargetSelectionCoding {
+    func summary(from reference: LockTargetSelectionRef?) throws -> TargetSelectionSummary
     func reference(for selection: FamilyActivitySelection) throws -> LockTargetSelectionRef
     func selection(from reference: LockTargetSelectionRef?) throws -> FamilyActivitySelection
 }
@@ -44,5 +45,30 @@ extension LockTargetSelectionRef {
             throw TargetSelectionStoreError.emptySelection
         }
         return selection
+    }
+}
+
+// A single decoded snapshot keeps the counts and details on the same selection.
+struct TargetSelectionSummary {
+    var selection: FamilyActivitySelection
+    var applications: Int
+    var categories: Int
+    var webDomains: Int
+    var previewApplicationNames: [String] = []
+
+    var total: Int { applications + categories + webDomains }
+    static var empty: Self { Self(selection: FamilyActivitySelection()) }
+
+    init(selection: FamilyActivitySelection) {
+        self.selection = selection
+        applications = selection.applicationTokens.count
+        categories = selection.categoryTokens.count
+        webDomains = selection.webDomainTokens.count
+    }
+}
+
+extension TargetSelectionCoding {
+    func summary(from reference: LockTargetSelectionRef?) throws -> TargetSelectionSummary {
+        TargetSelectionSummary(selection: try selection(from: reference))
     }
 }

@@ -256,7 +256,6 @@ private struct TargetSelectionPickerSheet: View {
 struct TargetSelectionSummaryView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var summary = TargetSelectionSummary.empty
-    @State private var loadedSelection: FamilyActivitySelection?
     @State private var isTargetListExpanded = false
 
     var body: some View {
@@ -267,6 +266,7 @@ struct TargetSelectionSummaryView: View {
                     .foregroundStyle(AppTheme.navy)
                 Spacer()
                 Text(summaryTitle)
+                    .accessibilityIdentifier("selected-target-count")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(summary.total == 0 ? AppTheme.navy.opacity(0.5) : AppTheme.navy)
             }
@@ -291,11 +291,11 @@ struct TargetSelectionSummaryView: View {
             }
 
             if showsSelectionDetails {
-                targetListDisclosure(selection: loadedSelection)
+                targetListDisclosure(selection: summary.selection)
             }
         }
         .onAppear(perform: refresh)
-        .onChange(of: model.lockState.targetSelections) { _, _ in
+        .onChange(of: model.lockState.selectedTarget) { _, _ in
             refresh()
         }
     }
@@ -340,7 +340,15 @@ struct TargetSelectionSummaryView: View {
             if isTargetListExpanded {
                 VStack(alignment: .leading, spacing: 12) {
                     if let selection, summary.total > 0 {
-                        TokenSelectionListView(selection: selection)
+                        if summary.previewApplicationNames.isEmpty {
+                            TokenSelectionListView(selection: selection)
+                        } else {
+                            // The preview codec supplies names only for simulator UI tests.
+                            ForEach(summary.previewApplicationNames, id: \.self) { name in
+                                Label(name, systemImage: "app")
+                                    .accessibilityIdentifier("selected-target-detail-\(name)")
+                            }
+                        }
                     }
 
                     if showsRecentTargets {
@@ -383,11 +391,8 @@ struct TargetSelectionSummaryView: View {
 
     private func refresh() {
         do {
-            let selection = try model.selectedActivitySelection()
-            loadedSelection = selection
-            summary = TargetSelectionSummary(selection: selection)
+            summary = try model.targetSelectionCodec.summary(from: model.lockState.selectedTarget)
         } catch {
-            loadedSelection = nil
             summary = .empty
         }
     }
@@ -474,31 +479,5 @@ private struct TargetTokenLabelStyle: LabelStyle {
             configuration.title
                 .foregroundStyle(AppTheme.navy)
         }
-    }
-}
-
-private struct TargetSelectionSummary: Equatable {
-    var applications: Int
-    var categories: Int
-    var webDomains: Int
-
-    var total: Int {
-        applications + categories + webDomains
-    }
-
-    static let empty = TargetSelectionSummary(applications: 0, categories: 0, webDomains: 0)
-
-    init(applications: Int, categories: Int, webDomains: Int) {
-        self.applications = applications
-        self.categories = categories
-        self.webDomains = webDomains
-    }
-
-    init(selection: FamilyActivitySelection) {
-        self.init(
-            applications: selection.applicationTokens.count,
-            categories: selection.categoryTokens.count,
-            webDomains: selection.webDomainTokens.count
-        )
     }
 }

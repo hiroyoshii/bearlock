@@ -79,6 +79,7 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testIntroductionAndContextualAccessFlow \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDeclinedAccessKeepsHomeUsable \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testReusingTargetRefreshesHomeCountsDetailsAndConfirmation \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringScheduleRemainsVisibleButCannotBeChanged \
