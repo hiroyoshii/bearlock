@@ -3,6 +3,7 @@ android {
     namespace = "com.hiyozoo.bearlock"
     compileSdk = 36
     defaultConfig { applicationId = "com.hiyozoo.bearlock"; minSdk = 26; targetSdk = 36; versionCode = 8; versionName = "0.2.3" }
+    sourceSets.getByName("test").resources.srcDir("../../Tests/ContractFixtures")
     buildFeatures { buildConfig = true }
     bundle { language { enableSplit = false } }
     val signingPath = System.getenv("BEARLOCK_KEYSTORE")

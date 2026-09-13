@@ -8,14 +8,13 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ScrollView
 
-class Shield(private val context: Context) {
-    private val manager = context.getSystemService(WindowManager::class.java)
+class Shield(private val context: Context, private val manager: WindowManager = context.getSystemService(WindowManager::class.java)) {
     private var view: ScrollView? = null
     private var identity: String? = null
-    fun show(session: Session, name: String) {
+    fun show(session: ActiveLock, name: String) {
         val id = "${session.key}:$name:${session.end}"
         if (view != null && identity == id) return
-        hide()
+        if (!hide()) return
         val ui = Ui(context)
         val body = ui.column().apply { gravity = Gravity.CENTER; setPadding(ui.dp(28),ui.dp(48),ui.dp(28),ui.dp(36)) }
         ui.add(body,ui.asset(R.drawable.bear_locked,220),24)
@@ -30,5 +29,19 @@ class Shield(private val context: Context) {
             view=scroll; identity=id; Store(context).event("shield_shown")
         } catch (e: RuntimeException) { Store(context).event("shield_failure:${e.javaClass.simpleName}") }
     }
-    fun hide() { view?.let { runCatching { manager.removeView(it) }; Store(context).event("shield_hidden") }; view=null; identity=null }
+    fun hide(): Boolean {
+        val current = view ?: return true
+        try {
+            manager.removeView(current)
+        } catch (e: RuntimeException) {
+            // Already detached is harmless. Otherwise retain the handle for the next tick.
+            if (current.parent != null) {
+                Store(context).event("shield_hide_failure:${e.javaClass.simpleName}")
+                return false
+            }
+        }
+        view = null; identity = null
+        Store(context).event("shield_hide_requested")
+        return true
+    }
 }

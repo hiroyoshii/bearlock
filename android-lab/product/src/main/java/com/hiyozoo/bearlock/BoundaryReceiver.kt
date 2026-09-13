@@ -7,23 +7,25 @@ import android.os.Build
 
 object Scheduling {
     fun permitted(c: Context) = Build.VERSION.SDK_INT < 31 || c.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
-    fun sync(c: Context) {
+    fun sync(c: Context, refresh: () -> Unit = { GuardService.instance?.refresh() }): Result<Unit> {
         val store = Store(c)
-        try {
-            val state = store.reconcile()
+        val result = runCatching {
+            val state = store.read()
             val alarm = c.getSystemService(AlarmManager::class.java)
             val pi = PendingIntent.getBroadcast(c, 1, Intent(c, BoundaryReceiver::class.java).setAction("com.hiyozoo.bearlock.BOUNDARY"), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            alarm.cancel(pi)
-            Planner.nextBoundary(state, System.currentTimeMillis())?.let {
+            val next = Planner.nextBoundary(state, System.currentTimeMillis())
+            if (next == null) alarm.cancel(pi) else next.let {
                 if (permitted(c)) alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it, pi)
                 else {
-                    // Active locks expire in GuardService using wall time. This alarm is cleanup only.
+                    // GuardService also evaluates wall time; a delayed alarm must not extend a lock.
                     alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, it, pi)
                     if (Planner.needsScheduledAlarm(state, System.currentTimeMillis())) store.event("alarm_permission_missing")
                 }
             }
-            GuardService.instance?.refresh()
-        } catch (e: Exception) { store.event("schedule_failure:${e.javaClass.simpleName}") }
+        }.onFailure { store.event("schedule_failure:${it.javaClass.simpleName}") }
+        // Expiry enforcement is independent of alarm registration success.
+        refresh()
+        return result
     }
 }
 class BoundaryReceiver : BroadcastReceiver() {

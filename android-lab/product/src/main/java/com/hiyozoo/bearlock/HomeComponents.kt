@@ -38,7 +38,7 @@ class SelectionSummary(private val a: MainActivity) {
                     val r=u.row().apply { background=u.bg(if(recent.targets==a.draft) Palette.ice else Palette.white,8,true).apply { setStroke(u.dp(if(recent.targets==a.draft) 2 else 1),if(recent.targets==a.draft) Palette.navy else Palette.line) }; setPadding(u.dp(4),u.dp(4),u.dp(2),u.dp(4)) }
                     r.addView(TargetRows(a).recent(recent) {
                         a.load()
-                        if(a.state.sessions.any { it.active(System.currentTimeMillis()) }) a.error("active_immutable")
+                        if(a.state.activeLocks(System.currentTimeMillis()).isNotEmpty()) a.error("active_immutable")
                         else { a.draft=recent.targets; a.persistSelection(); a.render() }
                     },LinearLayout.LayoutParams(0,-2,1f))
                     r.addView(u.iconButton("⋯",a.t("対象のメニュー","Selection menu")) {
@@ -85,23 +85,24 @@ class ScheduleList(private val a: MainActivity) {
     fun show(parent: LinearLayout) {
         val u=a.ui; val now=System.currentTimeMillis()
         u.add(parent,u.label(a.t("ロック予定","Scheduled Locks"),17f,true),12)
-        val rules=a.state.rules.filter { rule -> (rule.recurring || rule.start>now) && a.state.sessions.none { it.ruleId==rule.id && it.active(now) } }
+        val rules=a.state.rules.filter { rule -> rule.recurring || rule.start>now }
             .sortedBy { it.copy(enabled=true).occurrences(now,now+8*Planner.DAY).firstOrNull()?.start ?: it.start }
         if(rules.isEmpty()) { val c=u.card(); u.add(c,u.label(a.t("ロック予定はありません。","No scheduled locks."),15f,muted=true),0); u.add(parent,c,12) }
         for(rule in rules) {
+            val isActive=!Planner.editable(rule,now)
             val r=u.row().apply { background=u.bg(Palette.white,8); setPadding(u.dp(14),u.dp(14),u.dp(8),u.dp(14)) }
             r.addView(ImageView(a).apply { setImageDrawable(LineIcon(if(rule.recurring) "repeat" else "calendar",Palette.steel)) },LinearLayout.LayoutParams(u.dp(22),u.dp(22)).apply { rightMargin=u.dp(12) })
             val info=u.column(); u.add(info,u.label(if(rule.recurring) a.t("繰り返し","Repeats") else rule.title,15f,true),4)
             val next=rule.copy(enabled=true).occurrences(now,now+8*Planner.DAY).firstOrNull()
             u.add(info,u.label(next?.let { dateText(it.start)+"\n→ "+dateText(it.end) } ?: a.t("次の予定はありません","No upcoming lock"),12f,muted=true),0)
+            if(isActive) u.add(info,u.label(a.t("実行中です。終了後に変更できます。","This lock is active. Changes are available after it ends."),12f,muted=true),0)
             if(!rule.enabled) u.add(info,u.label(a.t("オフ","Off"),11f,true,true),0)
             r.addView(info,LinearLayout.LayoutParams(0,-2,1f))
-            r.addView(u.iconButton("✎",a.t("予約を編集","Edit scheduled lock")) { a.edit(rule) })
+            r.addView(u.iconButton("✎",a.t("予約を編集","Edit scheduled lock")) { a.edit(rule) }.apply { isEnabled=!isActive; alpha=if(isActive) .5f else 1f })
             r.addView(u.iconButton("♜",a.t("予約を削除","Delete scheduled lock")) {
                 AlertDialog.Builder(a).setTitle(a.t("予約を削除しますか？","Delete this schedule?"))
-                    .setMessage(a.t("実行中のロックは終了時刻まで続きます。","An active lock continues until its end time."))
                     .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Delete")) { _,_-> a.mutate { Planner.delete(it,rule.id,System.currentTimeMillis()) } }.show()
-            }.apply { setTextColor(android.graphics.Color.rgb(255,59,48)) })
+            }.apply { isEnabled=!isActive; alpha=if(isActive) .5f else 1f; setTextColor(android.graphics.Color.rgb(255,59,48)) })
             u.add(parent,r,12)
         }
     }

@@ -15,7 +15,7 @@ class Composer(private val a: MainActivity) {
         fun bind() {
             c.removeAllViews()
             val modes=listOf(t("今すぐ","Now"),t("後で","Later"),t("日時指定","Date"),t("繰り返し","Repeat"))
-            val controls=(0..3).filterNot { it==0 && a.state.sessions.any { session -> session.active(System.currentTimeMillis()) } }.map { i ->
+            val controls=(0..3).filterNot { it==0 && a.state.activeLocks(System.currentTimeMillis()).isNotEmpty() }.map { i ->
                 u.button(modes[i],a.mode==i) { a.mode=i; bind() }.apply {
                     val icon=LineIcon(listOf("bolt","timer","calendar","repeat")[i],if(a.mode==i) Palette.white else Palette.navy).apply { setBounds(0,0,u.dp(14),u.dp(14)) }
                     text=android.text.SpannableString("  "+modes[i]).apply { setSpan(android.text.style.ImageSpan(icon,android.text.style.ImageSpan.ALIGN_CENTER),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) }
@@ -35,7 +35,7 @@ class Composer(private val a: MainActivity) {
             setOnCheckedChangeListener { _,on -> a.enabled=on }
         },16)
         fields(c); u.add(parent,c,20)
-        u.add(parent,u.label(if(a.mode==3) t("繰り返しの変更は次回から適用されます。実行中のロックは短縮・解除できません。","Changes apply from the next interval. The current lock cannot be shortened or cleared.") else t("予約は開始前のみ編集できます。開始後は短縮、削除、対象の削減はできません。","Scheduled locks can only be edited before they start. Active locks cannot be shortened, deleted, or have targets reduced."),13f,muted=true),16)
+        u.add(parent,u.label(if(a.mode==3) t("繰り返し予定は、実行中には変更できません。","Repeating schedules cannot be changed while they are active.") else t("予約は開始前のみ編集できます。開始後は短縮、削除、対象の削減はできません。","Scheduled locks can only be edited before they start. Active locks cannot be shortened, deleted, or have targets reduced."),13f,muted=true),16)
         if(a.mode!=3) {
             val row=u.row(); val wake=u.label(dateText(a.at+a.duration*60_000L),15f).apply { gravity=Gravity.END }
             row.addView(u.label(t("起床","Wakes"),14f,false,true),LinearLayout.LayoutParams(0,-2,1f)); row.addView(wake,LinearLayout.LayoutParams(0,-2,2f)); u.add(parent,row,12)
@@ -148,7 +148,7 @@ class Composer(private val a: MainActivity) {
     fun saveEdit() {
         if(a.editing==null) return
         if(a.enabled && !permissionsReady(true, false)) return
-        try { val now=System.currentTimeMillis(); a.state=a.store.change { Planner.save(it,make(now),now) }; Scheduling.sync(a); a.editing=null; a.enabled=true; a.restoreSelection(); a.mode=0; a.navigate("home") } catch(e: Exception) { a.error(e.message) }
+        try { a.state=a.store.change { val now=System.currentTimeMillis(); Planner.replace(it,make(now),now) }; a.editing=null; a.enabled=true; a.restoreSelection(); a.mode=0; a.navigate("home"); a.syncSchedules() } catch(e: Exception) { a.error(e.message) }
     }
     fun confirm() {
         try {
@@ -157,10 +157,10 @@ class Composer(private val a: MainActivity) {
             val first=rule.occurrences(now,now+8*Planner.DAY).first()
             val dialog=Dialog(a)
             val content=ConfirmationContent(u).build(a.catalog.summary(rule.targets),when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.delay}分後","${a.delay} min after confirmation"); 3 -> daysText(a.days)+" %02d:%02d".format(a.repeatStart/60,a.repeatStart%60); else -> dateText(first.start) },
-                if(a.mode in listOf(0,1,3)) t("開始から${if(a.mode==3) rule.durationMinutes else a.duration}分後","${if(a.mode==3) rule.durationMinutes else a.duration} min after start") else dateText(first.end),a.mode==0,{ dialog.dismiss() }) {
+                if(a.mode in listOf(0,1)) t("開始から${a.duration}分後","${a.duration} min after start") else dateText(first.end),a.mode==0,{ dialog.dismiss() }) {
                 try {
-                    val savedAt=System.currentTimeMillis(); a.state=a.store.change { Planner.save(it,make(savedAt),savedAt) }
-                    a.persistSelection(); a.store.event("lock_saved"); Scheduling.sync(a); dialog.dismiss(); a.navigate("home")
+                    a.state=a.store.change { val savedAt=System.currentTimeMillis(); Planner.save(it,make(savedAt),savedAt) }
+                    a.persistSelection(); a.store.event("lock_saved"); dialog.dismiss(); a.navigate("home"); a.syncSchedules()
                 } catch(e: Exception) { a.error(e.message) }
             }
             dialog.setContentView(ScrollView(a).apply { setBackgroundColor(Palette.background); addView(content) })

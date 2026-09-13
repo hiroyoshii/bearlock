@@ -22,7 +22,7 @@ def record(text):
 
 def state():
     raw = q.sh('run-as', q.APP, 'sh', '-c', "'if [ -f files/locks-v1.json ]; then cat files/locks-v1.json; else echo {}; fi'")
-    return {'rules': [], 'sessions': [], 'recent': [], **json.loads(raw)}
+    return {'rules': [], 'recent': [], **json.loads(raw)}
 
 def tap(label):
     for _ in range(5):
@@ -113,7 +113,8 @@ try:
     os.environ['BEARLOCK_PROBE_OUT'] = str(out / 'blocking')
     runpy.run_path(str(Path(__file__).with_name('product_verify.py')), run_name='__main__')
     probe = json.loads((out/'blocking/result.json').read_text())
-    assert probe['passed'] and not probe['stateAfterEnd']['rules'] and not probe['stateAfterEnd']['sessions']
+    assert probe['passed'] and all(r['end'] <= int(q.sh('date', '+%s%3N')) for r in probe['stateAfterEnd']['rules'] if not r['days'])
+    assert 'sessions' not in probe['stateAfterEnd'] and 'completed' not in probe['stateAfterEnd']
     record('Actual Probe input blocked during a one-minute lock and restored after natural expiry')
     result['passed'] = True
 except Exception:

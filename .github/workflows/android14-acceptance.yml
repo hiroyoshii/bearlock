@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['android-lab/**', '.github/workflows/android14-acceptance.yml']
+    paths: ['android-lab/**', 'Tests/ContractFixtures/**', '.github/workflows/android14-acceptance.yml']
 permissions:
   contents: write
 concurrency:
@@ -49,6 +49,10 @@ jobs:
             adb shell am instrument -w com.hiyozoo.bearlock/.PickerInstrumentation > artifacts/android14/picker-test.log
             cat artifacts/android14/picker-test.log
             grep -q 'PASS: 1000 apps' artifacts/android14/picker-test.log
+            adb shell am instrument -w com.hiyozoo.bearlock/.LockInstrumentation > artifacts/android14/lock-test.log
+            cat artifacts/android14/lock-test.log
+            grep -q 'PASS: lock failure recovery' artifacts/android14/lock-test.log
+            BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_recurring_verify.py
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/onboarding_verify.py > artifacts/android14/onboarding-run.log 2>&1
             python3 android-lab/scripts/android14_verify.py
             python3 android-lab/scripts/permission_scope_verify.py

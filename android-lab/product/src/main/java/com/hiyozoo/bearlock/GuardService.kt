@@ -18,6 +18,7 @@ class GuardService : AccessibilityService() {
     private val catalog by lazy { Catalog(this) }
     private var current: Foreground? = null
     private var state = State()
+    private var activeKeys = emptyList<String>()
     private var disposed = false
     private var attempts = 0
     private var lastStateLoad = 0L
@@ -26,7 +27,7 @@ class GuardService : AccessibilityService() {
         override fun run() {
             if (disposed) return
             reconcile()
-            main.postDelayed(this, if (state.sessions.isNotEmpty()) 250 else 1500)
+            main.postDelayed(this, if (activeKeys.isNotEmpty()) 250 else 1500)
         }
     }
     override fun onServiceConnected() {
@@ -35,22 +36,21 @@ class GuardService : AccessibilityService() {
     fun appForeground() { current = Foreground(packageName, null); request(); reconcile() }
     fun refresh() { load(); request(); reconcile() }
     private fun load() {
-        runCatching { store.reconcile() }.onSuccess {
-            val changed = state.sessions != it.sessions
+        runCatching { store.read() }.onSuccess {
+            val changed = state.rules != it.rules
             state = it
             if (changed) request()
         }.onFailure { store.event("storage_unavailable") }
         lastStateLoad = SystemClock.elapsedRealtime()
     }
     private fun reconcile() {
-        val now = System.currentTimeMillis()
         if (SystemClock.elapsedRealtime() - lastStateLoad > 1000) load()
-        val active = state.sessions.filter { it.active(now) }
+        val now = System.currentTimeMillis()
+        val keys = state.activeLocks(now).map { it.key }
+        if (keys != activeKeys) { activeKeys = keys; request() }
         val front = current
-        val session = if (front == null || catalog.excluded(front.pkg)) null else active.firstOrNull {
-            front.pkg in it.targets.apps || catalog.category(front.pkg).let { cat -> cat >= 0 && cat in it.targets.categories } ||
-                front.host?.let { host -> it.targets.domains.any { domain -> Domain.matches(host, domain) } } == true
-        }
+        val session = if (front == null || catalog.excluded(front.pkg)) null
+            else state.blockingLock(now, front.pkg, catalog.category(front.pkg), front.host)
         if (session != null && getSystemService(PowerManager::class.java).isInteractive) {
             shield.show(session, if (front?.host != null && session.targets.domains.any { Domain.matches(front.host, it) }) tr(this,"このWebサイト","This website") else catalog.name(front!!.pkg))
         } else shield.hide()
@@ -68,12 +68,12 @@ class GuardService : AccessibilityService() {
     private fun request() {
         if (disposed) return
         gate.invalidate(); attempts = 0; main.removeCallbacks(read)
-        if (state.rules.isNotEmpty() || state.sessions.isNotEmpty()) main.postDelayed(read, 100)
+        if (state.rules.any { it.enabled && (it.recurring || it.end > System.currentTimeMillis()) }) main.postDelayed(read, 100)
     }
     private fun snapshot() {
         if (disposed) return
         val ticket = gate.begin() ?: return
-        val inspectAddress = state.sessions.any { it.active(System.currentTimeMillis()) && it.targets.domains.isNotEmpty() }
+        val inspectAddress = state.activeLocks(System.currentTimeMillis()).any { it.targets.domains.isNotEmpty() }
         worker.execute {
             val result = runCatching { foreground(inspectAddress) }.getOrNull()
             main.post {

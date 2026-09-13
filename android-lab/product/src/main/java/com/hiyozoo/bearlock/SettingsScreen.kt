@@ -42,7 +42,7 @@ class SettingsScreen(private val a: MainActivity) {
                 val alarm=if(Scheduling.permitted(a)) t("許可済み","Allowed") else t("未許可","Not allowed")
                 val storage=a.store.error?.let { t("エラー","Error") } ?: t("正常","OK")
                 val records=runCatching { a.store.logs().takeLast(6000) }.getOrDefault(t("診断ログを読み込めません","Cannot read diagnostic logs"))
-                val text="${t("OS","OS")}: Android ${Build.VERSION.RELEASE}\n${t("端末","Device")}: ${Build.MANUFACTURER} ${Build.MODEL}\n${t("制限サービス","Blocking service")}: $connected\n${t("予約権限","Scheduling permission")}: $alarm\n${t("保存状態","Storage")}: $storage\n${t("予定","Schedules")}: ${a.state.rules.size}\n${t("実行中","Active locks")}: ${a.state.sessions.size}\n\n${t("診断記録","Diagnostic records")}\n$records"
+                val text="${t("OS","OS")}: Android ${Build.VERSION.RELEASE}\n${t("端末","Device")}: ${Build.MANUFACTURER} ${Build.MODEL}\n${t("制限サービス","Blocking service")}: $connected\n${t("予約権限","Scheduling permission")}: $alarm\n${t("保存状態","Storage")}: $storage\n${t("予定","Schedules")}: ${a.state.rules.size}\n${t("実行中","Active locks")}: ${a.state.activeLocks(System.currentTimeMillis()).size}\n\n${t("診断記録","Diagnostic records")}\n$records"
                 val view=u.label(text,13f).apply { setTextIsSelectable(true); setPadding(u.dp(20),u.dp(12),u.dp(20),u.dp(12)) }
                 AlertDialog.Builder(a).setTitle(t("診断","Diagnostics")).setView(ScrollView(a).apply { addView(view) }).setPositiveButton("OK",null)
                     .setNeutralButton(t("共有","Share")) { _,_ ->

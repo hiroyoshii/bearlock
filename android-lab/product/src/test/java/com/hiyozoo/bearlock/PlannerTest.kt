@@ -12,8 +12,8 @@ class PlannerTest {
         val state = Planner.save(State(), rule(), now)
         assertFalse(Planner.needsScheduledAlarm(state, now))
         assertEquals(now + 60_000, Planner.nextBoundary(state, now))
-        assertFalse(state.sessions.single().active(now + 60_000))
-        assertTrue(Planner.reconcile(state, now + 60_000).sessions.isEmpty())
+        assertFalse(state.activeLocks(now).single().active(now + 60_000))
+        assertTrue(state.activeLocks(now + 60_000).isEmpty())
     }
     @Test fun onlyEnabledFutureOrRecurringRulesNeedScheduledWakeup() {
         val future = rule(now + 60_000)
@@ -25,10 +25,10 @@ class PlannerTest {
     }
     @Test fun exactEndAndMultipleTargets() {
         val s=Planner.save(State(),rule(),now)
-        assertEquals(2,s.sessions.single().targets.apps.size)
-        assertTrue(s.sessions.single().active(now))
-        assertFalse(s.sessions.single().active(now+60_000))
-        assertTrue(Planner.reconcile(s,now+60_000).sessions.isEmpty())
+        assertEquals(2,s.activeLocks(now).single().targets.apps.size)
+        assertTrue(s.activeLocks(now).single().active(now))
+        assertFalse(s.activeLocks(now).single().active(now+60_000))
+        assertTrue(s.activeLocks(now+60_000).isEmpty())
     }
     @Test fun adjacentAllowedOverlappingRejectedWithoutMutation() {
         val s=Planner.save(State(),rule(now+60_000,now+120_000),now)
@@ -47,14 +47,15 @@ class PlannerTest {
         assertEquals(now+120_000,edited.rules.single().start)
         assertTrue(Planner.delete(edited,r.id,now).rules.isEmpty())
     }
-    @Test fun editingRecurringParentPreservesActiveSnapshot() {
+    @Test fun activeRecurringCannotBeEditedDisabledOrDeleted() {
         val r=rule().copy(days=setOf(1),minute=9*60,durationMinutes=30)
         val s=Planner.save(State(),r,now)
-        val changed=Planner.save(s,r.copy(targets=Targets(apps=setOf("new")),durationMinutes=60),now+1)
-        assertEquals(target,changed.sessions.single().targets)
-        assertEquals(now+30*60_000,changed.sessions.single().end)
-        assertEquals(setOf("new"),changed.rules.single().targets.apps)
-        assertEquals(s.sessions,Planner.delete(changed,r.id,now+1).sessions)
+        for (draft in listOf(r.copy(targets=Targets(apps=setOf("new"))),r.copy(enabled=false))) {
+            assertThrows(IllegalArgumentException::class.java) { Planner.replace(s,draft,now+1) }
+        }
+        assertThrows(IllegalArgumentException::class.java) { Planner.delete(s,r.id,now+1) }
+        assertEquals(target,s.activeLocks(now+1).single().targets)
+        assertTrue(Planner.delete(s,r.id,now+30*60_000).rules.isEmpty())
     }
     @Test fun dailyCrossMidnightAndDstUseSavedZone() {
         val r=rule().copy(days=setOf(1),minute=23*60+30,durationMinutes=90)
@@ -64,6 +65,13 @@ class PlannerTest {
         val dst=r.copy(start=spring,end=spring+60_000,days=setOf(7),minute=150,zone="America/New_York")
         assertEquals(Instant.parse("2026-03-08T07:30:00Z").toEpochMilli(),dst.occurrences(spring,spring+Planner.DAY).single().start)
     }
+    @Test fun distantSingleHasBoundaryWithoutArtificialYearLimit() {
+        val future=rule(now+400*Planner.DAY)
+        val state=Planner.save(State(),future,now)
+        assertEquals(future.start,Planner.nextBoundary(state,now))
+        assertEquals(future.end,Planner.nextBoundary(state,future.start))
+        assertNull(Planner.nextBoundary(state,future.end))
+    }
     @Test fun futureRecurringConflictRejected() {
         val r=rule().copy(days=setOf(2),minute=540,durationMinutes=30)
         val s=Planner.save(State(),r,now)
@@ -71,12 +79,12 @@ class PlannerTest {
     }
     @Test fun missedExpiredOccurrenceDoesNotCreateLock() {
         val r=rule().copy(days=setOf(1),minute=540,durationMinutes=30)
-        assertTrue(Planner.reconcile(State(rules=listOf(r)),now+31*60_000).sessions.isEmpty())
+        assertTrue(State(rules=listOf(r)).activeLocks(now+31*60_000).isEmpty())
     }
-    @Test fun endedSessionDoesNotReplayOnClockRollback() {
+    @Test fun clockRollbackReevaluatesRulesWithoutCompletionHistory() {
         val s=Planner.save(State(),rule(),now)
-        val ended=Planner.reconcile(s,now+60_000)
-        assertTrue(Planner.reconcile(ended,now+10_000).sessions.isEmpty())
+        assertTrue(s.activeLocks(now+60_000).isEmpty())
+        assertEquals(1,s.activeLocks(now+10_000).size)
     }
     @Test fun recentRecordsConfirmedCreationButNotEditing() {
         val r=rule(now+60_000)
@@ -124,15 +132,42 @@ class PlannerTest {
         assertThrows(IllegalArgumentException::class.java) { Planner.save(State(),rule().copy(targets=Targets()),now) }
         assertThrows(IllegalArgumentException::class.java) { Planner.save(State(),rule(end=now+Planner.DAY+1),now) }
     }
-    @Test fun disablingRecurringPreservesActiveAndSkipsFutureBoundaries() {
+    @Test fun disabledRecurringHasNoActiveLockOrFutureBoundary() {
+        val r=rule().copy(days=setOf(1),minute=540,durationMinutes=30,enabled=false)
+        val off=Planner.save(State(),r,now)
+        assertTrue(off.activeLocks(now).isEmpty())
+        assertNull(Planner.nextBoundary(off,now))
+        assertTrue(off.activeLocks(now+7*Planner.DAY).isEmpty())
+    }
+    @Test fun overlappingRepeatsRemainBlockedUntilLatestMatchingDeadline() {
+        val a=rule().copy(days=setOf(1),minute=540,durationMinutes=30)
+        val b=a.copy(id="other",durationMinutes=60)
+        val state=Planner.save(Planner.save(State(),a,now),b,now)
+        assertEquals(now+60*60_000,state.blockingLock(now,"app.a")!!.end)
+        assertEquals(now+60*60_000,state.blockingLock(now+30*60_000,"app.a")!!.end)
+        assertNull(state.blockingLock(now+60*60_000,"app.a"))
+    }
+    @Test fun onlyMatchingAppCategoryOrDomainContributesToDeadline() {
+        val app=rule(end=now+60_000)
+        val category=rule(end=now+120_000).copy(targets=Targets(categories=setOf(3)))
+        val domain=rule(end=now+180_000).copy(targets=Targets(domains=setOf("example.com")))
+        val unrelated=rule(end=now+240_000).copy(targets=Targets(apps=setOf("other")))
+        val state=State(rules=listOf(app,category,domain,unrelated))
+        assertEquals(app.end,state.blockingLock(now,"app.a")!!.end)
+        assertEquals(category.end,state.blockingLock(now,"app.a",3)!!.end)
+        assertEquals(domain.end,state.blockingLock(now,"browser",3,"sub.example.com")!!.end)
+        assertNull(state.blockingLock(now,"browser",-1,"notexample.com"))
+        assertNull(state.blockingLock(domain.end,"browser",3,"example.com"))
+    }
+    @Test fun staleEditorCannotResurrectDeletedRule() {
+        val r=rule(now+60_000)
+        val state=Planner.delete(Planner.save(State(),r,now),r.id,now)
+        assertThrows(IllegalArgumentException::class.java) { Planner.replace(state,r,now) }
+    }
+    @Test fun expiredSingleDoesNotConflictWithFutureRepeat() {
+        val old=rule(now-7*Planner.DAY)
         val r=rule().copy(days=setOf(1),minute=540,durationMinutes=30)
-        val active=Planner.save(State(),r,now)
-        val off=Planner.save(active,r.copy(enabled=false),now+1)
-        assertEquals(active.sessions,off.sessions)
-        assertEquals(now+30*60_000,Planner.nextBoundary(off,now+1))
-        val ended=Planner.reconcile(off,now+31*60_000)
-        assertNull(Planner.nextBoundary(ended,now+31*60_000))
-        assertTrue(Planner.reconcile(ended,now+7*Planner.DAY).sessions.isEmpty())
+        assertEquals(2,Planner.save(State(rules=listOf(old)),r,now).rules.size)
     }
     @Test fun reenableRecurringRechecksConflicts() {
         val r=rule().copy(days=setOf(2),minute=540,durationMinutes=30,enabled=false)

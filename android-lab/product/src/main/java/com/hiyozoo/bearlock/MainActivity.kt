@@ -41,13 +41,25 @@ open class MainActivity : Activity() {
     private var countdown: TextView? = null
     private var countdownEnd = 0L
     private var lastStatus = ""
+    private var renderedActiveKeys = emptyList<String>()
+    private var renderedEditable = true
+    private fun editingAllowed(): Boolean {
+        val original = editing ?: return true
+        val saved = state.rules.find { it.id == original.id } ?: return false
+        val now = System.currentTimeMillis()
+        return Planner.editable(saved, now) && (saved.recurring || saved.start > now)
+    }
     private fun statusKey() = "${GuardService.instance != null}:${Scheduling.permitted(this)}:${store.error}"
     private val heartbeat = object : Runnable {
         override fun run() {
-            if (page == "home") {
-                val before=state.sessions.map { it.key }
+            if (page in listOf("home", "schedules")) {
                 load()
-                if (before != state.sessions.map { it.key }) render() else countdown?.text = remaining(countdownEnd)
+                if (renderedActiveKeys != state.activeLocks(System.currentTimeMillis()).map { it.key }) render()
+                else countdown?.text = remaining(countdownEnd)
+            }
+            if (page == "compose") {
+                load()
+                if (renderedEditable != editingAllowed()) render()
             }
             if(page in listOf("home","setup","settings") && lastStatus != statusKey()) render()
             handler.postDelayed(this,1000)
@@ -75,7 +87,7 @@ open class MainActivity : Activity() {
         }
         render()
     }
-    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); Scheduling.sync(this); load(); render(); handler.post(heartbeat) }
+    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); load(); render(); syncSchedules(); handler.post(heartbeat) }
     override fun onPause() { handler.removeCallbacks(heartbeat); super.onPause() }
     override fun onSaveInstanceState(out: Bundle) {
         out.putBoolean("returnToConfirmation",returnToConfirmation); out.putString("permissionsReturnPage",permissionsReturnPage)
@@ -92,7 +104,10 @@ open class MainActivity : Activity() {
         repeatStart=b.getInt("repeatStart",1380); repeatEnd=b.getInt("repeatEnd",420); enabled=b.getBoolean("enabled",true)
         pickerOriginal=runCatching { Codec.targets(org.json.JSONObject(b.getString("pickerOriginal", ""))) }.getOrDefault(draft)
         pickerReturn=b.getString("pickerReturn","home"); expandedTargets=b.getBoolean("expandedTargets")
-        days=b.getIntArray("days")?.toSet() ?: days; title=b.getString("title",""); editing=store.read().rules.find { it.id==b.getString("editing") }
+        days=b.getIntArray("days")?.toSet() ?: days; title=b.getString("title","")
+        val editingID=b.getString("editing")
+        editing=runCatching { store.read().rules.find { it.id==editingID } }.getOrNull()
+        if(editingID != null && editing == null) page="home"
     }
     @android.annotation.SuppressLint("GestureBackNavigation") // API 33+ uses the registered OnBackInvokedCallback above.
     @Deprecated("Used only by Android 8–12")
@@ -106,24 +121,26 @@ open class MainActivity : Activity() {
     fun restoreSelection() { draft=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(draft) }
     fun persistSelection() { getPreferences(0).edit().putString("selection",Codec.targets(draft).toString()).apply() }
     fun pickTargets() {
-        if(state.sessions.any { it.active(System.currentTimeMillis()) }) { error("active_immutable"); return }
+        if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { error("active_immutable"); return }
         pickerOriginal=draft; pickerReturn=page; navigate("targets")
     }
     fun saveSelection() {
         load()
-        if(state.sessions.any { it.active(System.currentTimeMillis()) }) { draft=pickerOriginal; error("active_immutable"); return }
+        if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { draft=pickerOriginal; error("active_immutable"); return }
         if(draft.empty) { error("empty_targets"); return }
         persistSelection()
         getPreferences(0).edit().putBoolean("onboarded",true).apply()
         navigate(if(pickerReturn=="setup") "home" else pickerReturn)
     }
-    open fun load() { runCatching { store.reconcile() }.onSuccess { state=it } }
+    open fun load() { runCatching { store.read() }.onSuccess { state=it } }
     fun requestPermissions(forConfirmation: Boolean = false) {
         permissionsReturnPage=page; returnToConfirmation=forConfirmation; navigate("permissions")
     }
     fun navigate(next: String) { page=next; render() }
     fun create(targets: Targets = Targets()) { editing=null; draft=targets; mode=0; duration=120; enabled=true; title=""; at=System.currentTimeMillis()+3_600_000; navigate("compose") }
     fun edit(rule: Rule) {
+        load()
+        if (!Planner.editable(rule, System.currentTimeMillis())) { error("active_immutable"); return }
         editing=rule; draft=rule.targets; title=rule.title; at=rule.start
         mode=if(rule.recurring) 3 else 2; duration=if(rule.recurring) rule.durationMinutes else ((rule.end-rule.start)/60_000).toInt()
         days=rule.days; enabled=rule.enabled; repeatStart=rule.minute; repeatEnd=(rule.minute+rule.durationMinutes)%1440
@@ -134,6 +151,8 @@ open class MainActivity : Activity() {
         val previousY=if(renderedPage==page) contentScroll?.scrollY ?: 0 else 0
         renderedPage=page
         countdown=null; pickerCount=null; pickerSave=null; load(); lastStatus=statusKey()
+        renderedActiveKeys=state.activeLocks(System.currentTimeMillis()).map { it.key }
+        renderedEditable=editingAllowed()
         val root=ui.column().apply { setBackgroundColor(Palette.background) }
         root.setOnApplyWindowInsetsListener { v,ins -> v.setPadding(ins.systemWindowInsetLeft,ins.systemWindowInsetTop,ins.systemWindowInsetRight,ins.systemWindowInsetBottom); ins }
         if(page!="setup") {
@@ -146,7 +165,7 @@ open class MainActivity : Activity() {
                 val toolbar=android.widget.RelativeLayout(this)
                 val isEditingPage=page=="targets" || page=="compose"
                 val cancel=ui.textButton(if(isEditingPage) t("キャンセル","Cancel") else t("戻る","Back")) { goBack() }.apply { id=View.generateViewId(); textSize=14f }
-                val save=ui.textButton(if(page=="compose") t("保存","Save") else "") { if(page=="compose") Composer(this).saveEdit() }.apply { id=View.generateViewId(); textSize=14f; visibility=if(page=="compose") View.VISIBLE else View.INVISIBLE }
+                val save=ui.textButton(if(page=="compose") t("保存","Save") else "") { if(page=="compose") Composer(this).saveEdit() }.apply { id=View.generateViewId(); textSize=14f; visibility=if(page=="compose") View.VISIBLE else View.INVISIBLE; isEnabled=renderedEditable }
                 val side=ui.dp(if(ui.compact) 132 else 96)
                 toolbar.addView(cancel,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_START) })
                 toolbar.addView(save,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_END) })
@@ -166,7 +185,7 @@ open class MainActivity : Activity() {
             scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
         }
         when(page) {
-            "setup" -> setup(body); "home" -> home(body); "compose" -> Composer(this).showEditor(body)
+            "setup" -> setup(body); "home" -> home(body); "compose" -> { Composer(this).showEditor(body); if (!renderedEditable) disableEditor(body) }
             "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body); "support" -> SupportScreen(this).show(body)
             "permissions" -> permissions(body)
         }
@@ -185,13 +204,26 @@ open class MainActivity : Activity() {
         else window.decorView.systemUiVisibility=View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
     }
     fun mutate(block: (State)->State) {
-        try { state=store.change(block); Scheduling.sync(this); render() } catch(e: Exception) { error(e.message) }
+        try { state=store.change(block); render(); syncSchedules() } catch(e: Exception) { error(e.message) }
+    }
+    private fun disableEditor(view: View) {
+        view.isEnabled=false
+        if(view is ViewGroup) for(i in 0 until view.childCount) disableEditor(view.getChildAt(i))
+    }
+    fun syncSchedules() {
+        Scheduling.sync(this).onFailure {
+            AlertDialog.Builder(this).setTitle(t("ロックの監視を更新できません", "Monitoring could not be updated"))
+                .setMessage(t("予約した時刻にロックが動作しない可能性があります。再試行するか、Bear Lockを開き直してください。", "Scheduled blocking may not work. Retry or reopen Bear Lock."))
+                .setNegativeButton(t("閉じる", "Close"),null)
+                .setPositiveButton(t("再試行", "Retry")) { _,_ -> syncSchedules() }.show()
+        }
     }
     fun error(key: String?) {
         val message=when(key) {
             "pin_limit" -> t("ピン留めできる対象は3件までです。","You can pin up to three targets.")
             "empty_targets" -> t("対象を1つ以上選んでください。","Choose at least one target.")
             "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps another lock. Choose a different time.")
+            "rule_not_found" -> t("この予定は削除されています。", "This schedule is no longer available.")
             "active_immutable" -> t("開始したロックは変更・削除できません。","An active lock cannot be changed or deleted.")
             "storage_error" -> t("保存データを読み込めません。上書きせず保持しています。設定の診断をご確認ください。","Saved data cannot be read. It has been preserved. Check diagnostics in Settings.")
             "invalid_domain" -> t("有効なドメインを入力してください。","Enter a valid domain.")
@@ -200,14 +232,16 @@ open class MainActivity : Activity() {
         AlertDialog.Builder(this).setTitle(t("保存できません","Cannot save")).setMessage(message).setPositiveButton("OK",null).show()
     }
     fun home(parent: LinearLayout) {
-        val active=state.sessions.filter { it.active(System.currentTimeMillis()) }
+        val now=System.currentTimeMillis()
+        val active=state.activeLocks(now)
+        val hasLocksToMonitor=state.rules.any { it.enabled && (it.recurring || it.end>now) }
         val missingScheduledAlarm = Planner.needsScheduledAlarm(state, System.currentTimeMillis()) && !Scheduling.permitted(this)
         SelectionSummary(this).show(parent,active.isNotEmpty())
         if(!visualPreview && store.error != null) {
             ui.add(parent,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
             ui.add(parent,ui.button(t("再読み込み","Retry")) { load(); render() },12)
             ui.add(parent,ui.button(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },16)
-        } else if(!visualPreview && state.rules.isNotEmpty() && GuardService.instance==null) {
+        } else if(!visualPreview && hasLocksToMonitor && GuardService.instance==null) {
             ui.add(parent,ui.label(t("アプリの制限は停止中です。ユーザー補助を接続してください。","App blocking is unavailable. Connect the accessibility service."),17f,true),16)
         } else if(!visualPreview && missingScheduledAlarm) {
             ui.add(parent,ui.label(t("予約時刻の動作に必要な権限がありません。設定を確認してください。","Scheduled timing permission is missing. Review permissions."),17f,true),16)
@@ -219,7 +253,7 @@ open class MainActivity : Activity() {
             if(mode==0) mode=1
         }
         if(active.isNotEmpty() && mode==0) mode=1
-        if(!visualPreview && state.rules.isNotEmpty() && (GuardService.instance==null || missingScheduledAlarm || store.error!=null)) {
+        if(!visualPreview && hasLocksToMonitor && (GuardService.instance==null || missingScheduledAlarm || store.error!=null)) {
             ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { requestPermissions() },16)
         }
         if(store.error == null) {
