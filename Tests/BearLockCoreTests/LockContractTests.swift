@@ -21,9 +21,9 @@ final class LockContractTests: XCTestCase {
                     weekdays: Set(c[2].split(separator: ",").map { Weekday(rawValue: Int($0)! % 7 + 1)! }),
                     startsAt: TimeOfDay(hour: start / 60, minute: start % 60),
                     endsAt: TimeOfDay(hour: end / 60, minute: end % 60), timeZoneIdentifier: c[5])
-                var rule = LockRule(kind: recurrence == nil ? .fixedDateTime : .recurring,
-                    startsAt: time(c[7]), duration: time(c[8]).timeIntervalSince(time(c[7])),
-                    recurrence: recurrence, targetSelectionID: targets[c[1]]!.id)
+                var rule = recurrence.map { LockRule(recurrence: $0, targetSelectionID: targets[c[1]]!.id) }
+                    ?? LockRule(kind: .fixedDateTime, startsAt: time(c[7]),
+                        duration: time(c[8]).timeIntervalSince(time(c[7])), targetSelectionID: targets[c[1]]!.id)
                 rule.status = c[6] == "true" ? .scheduled : .disabled
                 return rule
             }

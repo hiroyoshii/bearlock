@@ -4,22 +4,32 @@ public struct LockState: Codable, Equatable, Sendable {
     public var targetSelections: [LockTargetSelectionRef]
     public var recentLockTargets: [RecentLockTarget]
     public var rules: [LockRule]
+    public var selectedTargetID: UUID?
 
     public init(
         targetSelections: [LockTargetSelectionRef] = [],
         recentLockTargets: [RecentLockTarget] = [],
-        rules: [LockRule] = []
+        rules: [LockRule] = [],
+        selectedTargetID: UUID? = nil
     ) {
         self.targetSelections = targetSelections
         self.recentLockTargets = recentLockTargets
         self.rules = rules
+        self.selectedTargetID = selectedTargetID
+    }
+
+    public var selectedTarget: LockTargetSelectionRef? {
+        targetSelections.first { $0.id == selectedTargetID }
+    }
+
+    public func activeLockForDisplay(at date: Date) -> ActiveLock? {
+        activeLocks(at: date).max { $0.endsAt < $1.endsAt }
     }
 
     public func activeLocks(at date: Date) -> [ActiveLock] {
         rules.filter { $0.status == .scheduled }
             .compactMap { $0.occurrence(containing: date) }
-            .sorted { $0.startsAt < $1.startsAt }
-            .map { LockPlanner().activeLock(from: $0) }
+            .sorted { $0.startedAt < $1.startedAt }
     }
 
     public func displayedRecentLockTargets(limit: Int = 3) -> [RecentLockTarget] {
@@ -52,7 +62,7 @@ public protocol LockRepository: Sendable {
 public actor LockStore {
     private let repository: LockRepository
 
-    public init(repository: LockRepository) throws {
+    public init(repository: LockRepository) {
         self.repository = repository
     }
 
@@ -68,17 +78,36 @@ public actor LockStore {
     }
 
     @discardableResult
-    public func saveTargetSelection(_ selection: LockTargetSelectionRef) throws -> LockTargetSelectionRef {
+    public func saveTargetSelection(_ selection: LockTargetSelectionRef, now: Date? = nil) throws -> LockTargetSelectionRef {
         try update { state in
+            guard state.activeLocks(at: now ?? Date()).isEmpty else {
+                throw LockValidationError.activeLockIsImmutable
+            }
             var savedSelection = selection
             if let tokenData = selection.tokenData,
                let existing = state.targetSelections.last(where: { $0.tokenData == tokenData }) {
                 savedSelection.id = existing.id
             }
 
-            state.targetSelections.removeAll { $0.id == savedSelection.id }
-            state.targetSelections.append(savedSelection)
+            if let index = state.targetSelections.firstIndex(where: { $0.id == savedSelection.id }) {
+                state.targetSelections[index] = savedSelection
+            } else {
+                state.targetSelections.append(savedSelection)
+            }
+            state.selectedTargetID = savedSelection.id
             return savedSelection
+        }
+    }
+
+    public func selectTarget(id: UUID, now: Date? = nil) throws {
+        try update { state in
+            guard state.activeLocks(at: now ?? Date()).isEmpty else {
+                throw LockValidationError.activeLockIsImmutable
+            }
+            guard state.targetSelections.contains(where: { $0.id == id }) else {
+                throw RecentLockTargetError.targetSelectionNotFound
+            }
+            state.selectedTargetID = id
         }
     }
 

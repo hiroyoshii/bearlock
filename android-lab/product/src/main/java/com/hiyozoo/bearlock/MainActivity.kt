@@ -13,24 +13,12 @@ open class MainActivity : Activity() {
     val ui by lazy { Ui(this) }
     val store by lazy { Store(this) }
     val catalog by lazy { Catalog(this) }
-    var page = "home"
-    var returnToConfirmation = false
-    var permissionsReturnPage = "home"
-    var draft = Targets()
-    var editing: Rule? = null
-    var mode = 0
-    var duration = 120
-    var delay = 30
-    var at = System.currentTimeMillis()+3_600_000
-    var days = setOf(1,2,3,4,5)
-    var repeatStart = 23*60
-    var repeatEnd = 7*60
-    var enabled = true
+    var route: Route = Route.Home
+    val page get() = route.page
+    var editor = EditorDraft()
+    val mode get() = editor.mode.ordinal
     var expandedTargets = false
-    var pickerOriginal = Targets()
-    var pickerReturn = "home"
     var visualPreview = false
-    var title = ""
     var state = State()
     private lateinit var body: LinearLayout
     private var renderedPage: String? = null
@@ -44,10 +32,10 @@ open class MainActivity : Activity() {
     private var renderedActiveKeys = emptyList<String>()
     private var renderedEditable = true
     private fun editingAllowed(): Boolean {
-        val original = editing ?: return true
-        val saved = state.rules.find { it.id == original.id } ?: return false
+        val id = editor.originalID ?: return true
+        val saved = state.rules.find { it.id == id } ?: return false
         val now = System.currentTimeMillis()
-        return Planner.editable(saved, now) && (saved.recurring || saved.start > now)
+        return Planner.editable(saved, now) && (saved.recurring || saved.single!!.start > now)
     }
     private fun statusKey() = "${GuardService.instance != null}:${Scheduling.permitted(this)}:${store.error}"
     private val heartbeat = object : Runnable {
@@ -78,74 +66,78 @@ open class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= 33) onBackInvokedDispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { goBack() }
-        draft=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(Targets())
+        editor.targets=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(Targets())
         if (savedInstanceState != null) restore(savedInstanceState)
-        else if (!getPreferences(0).getBoolean("onboarded",false)) page="setup"
+        else if (!getPreferences(0).getBoolean("onboarded",false)) route=Route.Setup
         if(savedInstanceState == null && BuildConfig.DEBUG && intent.hasExtra("qaPage")) {
-            page=intent.getStringExtra("qaPage")!!.takeIf { it in listOf("home","setup","compose","targets","settings","schedules") } ?: "home"
-            if(intent.getBooleanExtra("qaDraft",false)) draft=Targets(apps=setOf("com.hiyozoo.bearlock.probe"))
+            route=routeForPage(intent.getStringExtra("qaPage")!!)
+            if(intent.getBooleanExtra("qaDraft",false)) editor.targets=Targets(apps=setOf("com.hiyozoo.bearlock.probe"))
         }
         render()
     }
     override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); load(); render(); syncSchedules(); handler.post(heartbeat) }
     override fun onPause() { handler.removeCallbacks(heartbeat); super.onPause() }
     override fun onSaveInstanceState(out: Bundle) {
-        out.putBoolean("returnToConfirmation",returnToConfirmation); out.putString("permissionsReturnPage",permissionsReturnPage)
-        out.putString("page",page); out.putString("targets",Codec.targets(draft).toString()); out.putInt("mode",mode)
-        out.putInt("duration",duration); out.putInt("delay",delay); out.putLong("at",at); out.putString("title",title)
-        out.putInt("repeatStart",repeatStart); out.putInt("repeatEnd",repeatEnd); out.putBoolean("enabled",enabled)
-        out.putString("pickerOriginal",Codec.targets(pickerOriginal).toString()); out.putString("pickerReturn",pickerReturn); out.putBoolean("expandedTargets",expandedTargets)
-        out.putIntArray("days",days.toIntArray()); out.putString("editing",editing?.id); super.onSaveInstanceState(out)
+        out.putSerializable("route",route)
+        out.putSerializable("editor",editor)
+        out.putBoolean("expandedTargets",expandedTargets)
+        super.onSaveInstanceState(out)
     }
+    @Suppress("DEPRECATION")
     private fun restore(b: Bundle) {
-        returnToConfirmation=b.getBoolean("returnToConfirmation"); permissionsReturnPage=b.getString("permissionsReturnPage","home")
-        page=b.getString("page","home"); draft=Codec.targets(org.json.JSONObject(b.getString("targets","{}")))
-        mode=b.getInt("mode"); duration=b.getInt("duration",120); delay=b.getInt("delay",30); at=b.getLong("at")
-        repeatStart=b.getInt("repeatStart",1380); repeatEnd=b.getInt("repeatEnd",420); enabled=b.getBoolean("enabled",true)
-        pickerOriginal=runCatching { Codec.targets(org.json.JSONObject(b.getString("pickerOriginal", ""))) }.getOrDefault(draft)
-        pickerReturn=b.getString("pickerReturn","home"); expandedTargets=b.getBoolean("expandedTargets")
-        days=b.getIntArray("days")?.toSet() ?: days; title=b.getString("title","")
-        val editingID=b.getString("editing")
-        editing=runCatching { store.read().rules.find { it.id==editingID } }.getOrNull()
-        if(editingID != null && editing == null) page="home"
+        route=b.getSerializable("route") as? Route ?: Route.Home
+        editor=b.getSerializable("editor") as? EditorDraft ?: EditorDraft()
+        expandedTargets=b.getBoolean("expandedTargets")
+        if(editor.originalID != null && runCatching { store.read().rules.none { it.id==editor.originalID } }.getOrDefault(true)) {
+            route=Route.Home; editor=EditorDraft(); restoreSelection()
+        }
     }
     @android.annotation.SuppressLint("GestureBackNavigation") // API 33+ uses the registered OnBackInvokedCallback above.
     @Deprecated("Used only by Android 8–12")
     override fun onBackPressed() { goBack() }
     fun goBack() {
-        if(page=="permissions") { val target=permissionsReturnPage; returnToConfirmation=false; navigate(target) }
-        else if(page=="support") { navigate("settings") }
-        else if(page=="targets") { draft=pickerOriginal; navigate(pickerReturn) }
-        else if(page!="home") { editing=null; enabled=true; restoreSelection(); navigate("home") } else finish()
+        when(val current=route) {
+            is Route.Permissions -> navigate(current.returnTo)
+            is Route.Picker -> { editor.targets=current.original; navigate(current.returnTo) }
+            Route.Support -> navigate(Route.Settings)
+            Route.Home -> finish()
+            Route.Editor -> { editor=EditorDraft(); restoreSelection(); navigate(Route.Home) }
+            else -> navigate(Route.Home)
+        }
     }
-    fun restoreSelection() { draft=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(draft) }
-    fun persistSelection() { getPreferences(0).edit().putString("selection",Codec.targets(draft).toString()).apply() }
+    fun restoreSelection() { editor.targets=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(Targets()) }
+    fun persistSelection() { getPreferences(0).edit().putString("selection",Codec.targets(editor.targets).toString()).apply() }
     fun pickTargets() {
         if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { error("active_immutable"); return }
-        pickerOriginal=draft; pickerReturn=page; navigate("targets")
+        navigate(Route.Picker(route,editor.targets))
     }
     fun saveSelection() {
         load()
-        if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { draft=pickerOriginal; error("active_immutable"); return }
-        if(draft.empty) { error("empty_targets"); return }
+        if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { error("active_immutable"); return }
+        if(editor.targets.empty) { error("empty_targets"); return }
         persistSelection()
         getPreferences(0).edit().putBoolean("onboarded",true).apply()
-        navigate(if(pickerReturn=="setup") "home" else pickerReturn)
+        val destination=(route as? Route.Picker)?.returnTo ?: Route.Home
+        navigate(if(destination == Route.Setup) Route.Home else destination)
     }
     open fun load() { runCatching { store.read() }.onSuccess { state=it } }
     fun requestPermissions(forConfirmation: Boolean = false) {
-        permissionsReturnPage=page; returnToConfirmation=forConfirmation; navigate("permissions")
+        navigate(Route.Permissions(route,if(forConfirmation) PermissionReturn.CONFIRM else PermissionReturn.BACK))
     }
-    fun navigate(next: String) { page=next; render() }
-    fun create(targets: Targets = Targets()) { editing=null; draft=targets; mode=0; duration=120; enabled=true; title=""; at=System.currentTimeMillis()+3_600_000; navigate("compose") }
+    fun navigate(next: Route) { route=next; render() }
+    // String entry points are limited to existing QA page names and simple navigation links.
+    fun routeForPage(name: String): Route = when(name) {
+        "setup" -> Route.Setup; "compose" -> Route.Editor; "settings" -> Route.Settings
+        "support" -> Route.Support; "schedules" -> Route.Schedules; "fixture" -> Route.Fixture
+        "targets" -> Route.Picker(route,editor.targets)
+        else -> Route.Home
+    }
+    fun navigate(next: String) = navigate(routeForPage(next))
     fun edit(rule: Rule) {
         load()
         if (!Planner.editable(rule, System.currentTimeMillis())) { error("active_immutable"); return }
-        editing=rule; draft=rule.targets; title=rule.title; at=rule.start
-        mode=if(rule.recurring) 3 else 2; duration=if(rule.recurring) rule.durationMinutes else ((rule.end-rule.start)/60_000).toInt()
-        days=rule.days; enabled=rule.enabled; repeatStart=rule.minute; repeatEnd=(rule.minute+rule.durationMinutes)%1440
-        if(rule.recurring) at=LocalDate.now(ZoneId.of(rule.zone)).atStartOfDay().plusMinutes(rule.minute.toLong()).atZone(ZoneId.of(rule.zone)).toInstant().toEpochMilli()
-        navigate("compose")
+        editor=EditorDraft.editing(rule)
+        navigate(Route.Editor)
     }
     open fun render() {
         val previousY=if(renderedPage==page) contentScroll?.scrollY ?: 0 else 0
@@ -191,9 +183,9 @@ open class MainActivity : Activity() {
         }
         if(page=="targets") {
             val footer=ui.column().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(12)); background=ui.bg(Palette.white,0) }
-            pickerCount=ui.label(t("${draft.count}件を選択中","${draft.count} selected"),13f,muted=true)
+            pickerCount=ui.label(t("${editor.targets.count}件を選択中","${editor.targets.count} selected"),13f,muted=true)
             ui.add(footer,pickerCount!!,8)
-            pickerSave=ui.button(t("保存","Save"),true) { saveSelection() }.apply { isEnabled=!draft.empty; alpha=if(isEnabled) 1f else .5f }
+            pickerSave=ui.button(t("保存","Save"),true) { saveSelection() }.apply { isEnabled=!editor.targets.empty; alpha=if(isEnabled) 1f else .5f }
             ui.add(footer,pickerSave!!,0); root.addView(footer)
         }
         setContentView(root); root.requestApplyInsets()
@@ -234,7 +226,7 @@ open class MainActivity : Activity() {
     fun home(parent: LinearLayout) {
         val now=System.currentTimeMillis()
         val active=state.activeLocks(now)
-        val hasLocksToMonitor=state.rules.any { it.enabled && (it.recurring || it.end>now) }
+        val hasLocksToMonitor=state.rules.any { it.enabled && (it.recurring || it.single!!.end>now) }
         val missingScheduledAlarm = Planner.needsScheduledAlarm(state, System.currentTimeMillis()) && !Scheduling.permitted(this)
         SelectionSummary(this).show(parent,active.isNotEmpty())
         if(!visualPreview && store.error != null) {
@@ -250,9 +242,9 @@ open class MainActivity : Activity() {
             countdownEnd=active.maxOf { it.end }
             countdown=ActiveCard(ui).show(parent,remaining(countdownEnd),timeText(countdownEnd))
             ui.add(parent,ui.label(t("ロック中は短縮、削除、対象アプリの削減はできません。","During a lock, you cannot shorten it, delete it, or reduce blocked apps."),13f,muted=true),20)
-            if(mode==0) mode=1
+            if(mode==0) editor.chooseMode(ComposerMode.LATER,System.currentTimeMillis())
         }
-        if(active.isNotEmpty() && mode==0) mode=1
+        if(active.isNotEmpty() && mode==0) editor.chooseMode(ComposerMode.LATER,System.currentTimeMillis())
         if(!visualPreview && hasLocksToMonitor && (GuardService.instance==null || missingScheduledAlarm || store.error!=null)) {
             ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { requestPermissions() },16)
         }
@@ -278,6 +270,8 @@ open class MainActivity : Activity() {
         ui.add(parent,group,0)
     }
     private fun permissions(parent: LinearLayout) {
+        val flow=route as Route.Permissions
+        val returnToConfirmation=flow.action == PermissionReturn.CONFIRM
         ui.heading(parent,t("ロックに必要な設定","Required settings"),t("ロックの開始と解除に必要な状態を確認します。","Check the settings used to start and end locks."))
 
         val c=ui.card()
@@ -295,8 +289,7 @@ open class MainActivity : Activity() {
         ui.add(parent,ui.label(t("ユーザー補助を解除した場合や、Bear Lockを強制停止した場合はロックが動作しません。","Locks do not work while accessibility access is disabled or Bear Lock is force-stopped."),14f,muted=true),20)
         ui.add(parent,ui.button(if(returnToConfirmation) t("確認に戻る","Return to confirmation") else t("戻る","Back"),true) {
             val confirm=returnToConfirmation
-            val destination=permissionsReturnPage
-            returnToConfirmation=false
+            val destination=flow.returnTo
             navigate(destination)
             if(confirm && GuardService.instance!=null && (mode == 0 || Scheduling.permitted(this))) Composer(this).confirm()
         })

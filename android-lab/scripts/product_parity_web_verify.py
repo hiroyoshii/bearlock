@@ -14,7 +14,7 @@ q.sh('input','tap',*point);time.sleep(3)
 assert any('iana.org' in (x[0] or '') for x in q.texts()),q.texts()
 q.sh('am','start','-W','-a','android.intent.action.VIEW','-d','https://example.com','-p','com.android.chrome');time.sleep(2)
 q.sh('am','start','-W','-f','0x10008000','-n',q.APP+'/.QAHarnessActivity','--es','action','webLock');time.sleep(1)
-window=next(s for s in state()['rules'] if 'example.com' in s['targets']['domains'] and s['start'] <= now() < s['end'])
+window=next(s['schedule'] for s in state()['rules'] if s['schedule']['type']=='single' and 'example.com' in s['targets']['domains'] and s['schedule']['start'] <= now() < s['schedule']['end'])
 q.sh('am','start','-W','-a','android.intent.action.VIEW','-d','https://example.com','-p','com.android.chrome');time.sleep(2)
 q.shot('web-shield-active',False)
 blocked=now();assert blocked<window['end']-1000

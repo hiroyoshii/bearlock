@@ -4,7 +4,7 @@ import XCTest
 final class LockStoreTests: XCTestCase {
     func testRecordingRecentTargetAddsItToHistory() async throws {
         let repository = InMemoryLockRepository()
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         let target = LockTargetSelectionRef(displayName: "Social", tokenData: Data([1, 2, 3]))
         let savedTarget = try await store.saveTargetSelection(target)
         let usedAt = date("2026-08-27T10:00:00Z")
@@ -20,7 +20,7 @@ final class LockStoreTests: XCTestCase {
 
     func testRecordingEquivalentTargetUpdatesExistingHistoryEntry() async throws {
         let repository = InMemoryLockRepository()
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         let first = try await store.saveTargetSelection(
             LockTargetSelectionRef(displayName: "First", tokenData: Data([4, 5, 6]))
         )
@@ -72,7 +72,7 @@ final class LockStoreTests: XCTestCase {
 
     func testDeletingRecentTargetDoesNotDeleteSelectionOrRule() async throws {
         let repository = InMemoryLockRepository()
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         let target = try await store.saveTargetSelection(
             LockTargetSelectionRef(displayName: "Social", tokenData: Data([7, 8, 9]))
         )
@@ -92,7 +92,7 @@ final class LockStoreTests: XCTestCase {
 
     func testOnlyThreeTargetsCanBePinned() async throws {
         let repository = InMemoryLockRepository()
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         var recentIDs: [UUID] = []
 
         for index in 0..<4 {
@@ -131,7 +131,7 @@ final class LockStoreTests: XCTestCase {
         // Both one-shot and recurring rules, including the overnight tail.
         for recurring in [false, true] {
             let repository = InMemoryLockRepository()
-            let store = try LockStore(repository: repository)
+            let store = LockStore(repository: repository)
             let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
                 endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
             let request: LockCreationRequest = recurring
@@ -141,7 +141,10 @@ final class LockStoreTests: XCTestCase {
             for timestamp in ["2026-08-27T23:00:00Z", "2026-08-28T03:00:00Z", "2026-08-28T06:59:59Z"] {
                 let now = date(timestamp)
                 var draft = rule
-                draft.duration = 3600
+                if var weekly = draft.recurrence {
+                    weekly.endsAt = TimeOfDay(hour: 0, minute: 0)
+                    draft.schedule = .recurring(weekly)
+                } else { var single = draft.single!; single.duration = 3600; draft.schedule = .single(single) }
                 draft.status = .disabled
                 do {
                     try await store.replaceRule(draft, now: now)
@@ -163,14 +166,14 @@ final class LockStoreTests: XCTestCase {
 
     func testDisabledRecurringRuleCanBeEditedDuringItsTimeWindow() async throws {
         let repository = InMemoryLockRepository()
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
             endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
         var rule = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: UUID()),
             now: date("2026-08-27T22:00:00Z"))
         rule.status = .disabled
         try await store.replaceRule(rule, now: date("2026-08-27T22:00:00Z"))
-        rule.recurrence?.endsAt = TimeOfDay(hour: 8, minute: 0)
+        var changedRecurrence = rule.recurrence!; changedRecurrence.endsAt = TimeOfDay(hour: 8, minute: 0); rule.schedule = .recurring(changedRecurrence)
         try await store.replaceRule(rule, now: date("2026-08-28T01:00:00Z"))
         let snapshot = try await store.snapshot()
         XCTAssertEqual(snapshot.rules.first?.status, .disabled)
@@ -178,7 +181,7 @@ final class LockStoreTests: XCTestCase {
     }
 
     func testStaleEditorCannotOverwriteDeletedRule() async throws {
-        let store = try LockStore(repository: InMemoryLockRepository())
+        let store = LockStore(repository: InMemoryLockRepository())
         let now = date("2026-08-27T22:00:00Z")
         let rule = try await store.createRule(.delayed(delay: 3600, duration: 3600, targetSelectionID: UUID()), now: now)
         try await store.deleteRule(id: rule.id, now: now)
@@ -189,7 +192,7 @@ final class LockStoreTests: XCTestCase {
     }
 
     func testCreateAndReplaceValidateConflictsAgainstSavedRules() async throws {
-        let store = try LockStore(repository: InMemoryLockRepository())
+        let store = LockStore(repository: InMemoryLockRepository())
         let now = date("2026-08-27T22:00:00Z")
         let request = LockCreationRequest.delayed(delay: 3600, duration: 3600, targetSelectionID: UUID())
         let first = try await store.createRule(request, now: now)
@@ -198,14 +201,16 @@ final class LockStoreTests: XCTestCase {
             XCTFail("Overlap accepted")
         } catch { XCTAssertEqual(error as? LockValidationError, .overlappingLock) }
         var second = try await store.createRule(.delayed(delay: 7200, duration: 3600, targetSelectionID: UUID()), now: now)
-        second.startsAt = first.startsAt
+        var single = second.single!
+        single.startsAt = first.single!.startsAt
+        second.schedule = .single(single)
         do {
             try await store.replaceRule(second, now: now)
             XCTFail("Overlapping edit accepted")
         } catch { XCTAssertEqual(error as? LockValidationError, .overlappingLock) }
         let snapshot = try await store.snapshot()
         XCTAssertEqual(snapshot.rules.count, 2)
-        XCTAssertNotEqual(snapshot.rules[1].startsAt, first.startsAt)
+        XCTAssertNotEqual(snapshot.rules[1].single!.startsAt, first.single!.startsAt)
     }
 
     private func date(_ string: String) -> Date {

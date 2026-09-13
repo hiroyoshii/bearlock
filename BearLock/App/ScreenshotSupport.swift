@@ -235,9 +235,6 @@ private enum ScreenshotFixtures {
         )
         return LockRule(
             id: UUID(uuidString: "55555555-5555-5555-5555-555555555555")!,
-            kind: .recurring,
-            startsAt: recurrence.nextInterval(after: Date())?.start ?? Date().addingTimeInterval(24 * 60 * 60),
-            duration: recurrence.duration,
             recurrence: recurrence,
             targetSelectionID: targetID
         )
@@ -254,7 +251,7 @@ private enum ScreenshotFixtures {
         LockState(
             targetSelections: [workTarget, sleepTarget, target],
             recentLockTargets: recentLockTargets,
-            rules: [delayedRule, fixedRule, recurringRule, disabledRecurringRule]
+            rules: [delayedRule, fixedRule, recurringRule, disabledRecurringRule], selectedTargetID: targetID
         )
     }
 
@@ -262,7 +259,7 @@ private enum ScreenshotFixtures {
         LockState(
             targetSelections: [workTarget, sleepTarget, target],
             recentLockTargets: recentLockTargets,
-            rules: [recurringRule, LockRule(kind: .immediate, startsAt: activeLock.startedAt, duration: activeLock.endsAt.timeIntervalSince(activeLock.startedAt), targetSelectionID: targetID)]
+            rules: [recurringRule, LockRule(kind: .immediate, startsAt: activeLock.startedAt, duration: activeLock.endsAt.timeIntervalSince(activeLock.startedAt), targetSelectionID: targetID)], selectedTargetID: targetID
         )
     }
 
@@ -306,16 +303,11 @@ private extension BearLockAppModel {
             status = .approved
         }
 
-        let lockStore: LockStore
-        do {
-            lockStore = try LockStore(repository: StaticLockRepository(state: state))
-        } catch {
-            fatalError("Failed to initialize screenshot store: \(error)")
-        }
+        let lockStore = LockStore(repository: StaticLockRepository(state: state))
 
         return BearLockAppModel(
             authorizationService: PreviewAuthorizationService(status: status),
-            targetSelectionStore: PreviewTargetSelectionStore(),
+            targetSelectionCodec: PreviewTargetSelectionCodec(),
             shieldController: NoopShieldController(),
             scheduleController: NoopScheduleController(),
             lockStore: lockStore

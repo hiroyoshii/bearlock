@@ -50,8 +50,8 @@ struct ScheduledLockListView: View {
             }
             Button("Cancel", role: .cancel) { pendingDeletion = nil }
         } message: {
-            if let rule = pendingDeletion {
-                Text("\(rule.displayInterval.start.formatted()) → \(rule.displayInterval.end.formatted())")
+            if let interval = pendingDeletion?.displayInterval {
+                Text("\(interval.start.formatted()) → \(interval.end.formatted())")
             }
         }
         .sheet(item: $editingSheet) { sheet in
@@ -94,13 +94,13 @@ struct ScheduledLockListView: View {
 
     private var scheduledRules: [LockRule] {
         model.lockState.rules
-            .filter { $0.kind != .immediate && (!$0.isOneShot || $0.endsAt > Date()) }
-            .sorted { $0.displayInterval.start < $1.displayInterval.start }
+            .filter { $0.kind != .immediate && (!$0.isOneShot || $0.single!.endsAt > Date()) }
+            .sorted { ($0.displayInterval?.start ?? .distantFuture) < ($1.displayInterval?.start ?? .distantFuture) }
     }
 
     private func canEdit(_ rule: LockRule) -> Bool {
         (try? rule.validateEditable(at: Date())) != nil &&
-            (rule.kind == .recurring || rule.startsAt > Date())
+            (rule.kind == .recurring || rule.single!.startsAt > Date())
     }
 }
 
@@ -134,9 +134,11 @@ private struct ScheduledLockRow: View {
                 Text(LocalizedStringKey(title))
                     .font(.subheadline.bold())
                     .foregroundStyle(AppTheme.navy)
-                Text("\(rule.displayInterval.start.formatted(date: .abbreviated, time: .shortened)) -> \(rule.displayInterval.end.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.navy.opacity(0.62))
+                if let interval = rule.displayInterval {
+                    Text("\(interval.start.formatted(date: .abbreviated, time: .shortened)) -> \(interval.end.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.navy.opacity(0.62))
+                }
                 if !canEdit {
                     Text("This lock is active. Changes are available after it ends.")
                         .font(.caption)
@@ -190,7 +192,7 @@ private struct ScheduledLockRow: View {
 }
 
 private extension LockRule {
-    var displayInterval: DateInterval {
-        recurrence?.nextInterval(after: Date()) ?? DateInterval(start: startsAt, end: endsAt)
+    var displayInterval: DateInterval? {
+        nextInterval(after: Date()) ?? single?.interval
     }
 }

@@ -17,7 +17,7 @@ struct HomeView: View {
                         }
                         .padding().background(AppTheme.snow)
                     }
-                    if model.lockState.targetSelections.isEmpty {
+                    if model.lockState.selectedTarget == nil {
                         targetSelectionPrompt
                     } else {
                         selectedTargetSummary

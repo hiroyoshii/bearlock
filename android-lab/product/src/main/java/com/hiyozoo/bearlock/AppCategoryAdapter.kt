@@ -40,9 +40,9 @@ internal class AppCategoryAdapter(
         check.setOnCheckedChangeListener(null)
         check.visibility=if(id<0) View.INVISIBLE else View.VISIBLE
         check.contentDescription=a.t("カテゴリ全体を選択: ","Select entire category: ")+a.catalog.categoryName(id)
-        check.isChecked=id in a.draft.categories
+        check.isChecked=id in a.editor.targets.categories
         check.setOnCheckedChangeListener { _,on ->
-            a.draft=a.draft.copy(categories=if(on) a.draft.categories+id else a.draft.categories-id)
+            a.editor.targets=a.editor.targets.copy(categories=if(on) a.editor.targets.categories+id else a.editor.targets.categories-id)
             onSelectionChanged(); notifyDataSetChanged()
         }
         (row.getChildAt(1) as TextView).text="${a.catalog.categoryName(id)} (${groups[position].size})"

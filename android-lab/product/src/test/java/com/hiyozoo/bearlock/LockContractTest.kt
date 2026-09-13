@@ -16,10 +16,9 @@ class LockContractTest {
             val rules = group.mapIndexed { index, c ->
                 val minute = c[3].toInt(); val endMinute = c[4].toInt()
                 Rule(id="$name-$index", title=name, targets=Targets(apps=setOf(c[1])),
-                    start=time(c[7]), end=time(c[8]),
-                    days=if(c[2]=="-") emptySet() else c[2].split(',').map(String::toInt).toSet(),
-                    minute=minute, durationMinutes=if(c[2]=="-") 60 else (endMinute-minute+1439)%1440+1,
-                    zone=c[5], enabled=c[6].toBoolean())
+                    schedule=if(c[2]=="-") LockSchedule.Single(time(c[7]),time(c[8])) else
+                        LockSchedule.Weekly(c[2].split(',').map(String::toInt).toSet(),minute,endMinute,c[5]),
+                    enabled=c[6].toBoolean())
             }
             val state = State(rules=rules)
             group.forEachIndexed { index, c ->

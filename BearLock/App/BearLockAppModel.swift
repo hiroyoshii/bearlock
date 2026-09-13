@@ -14,24 +14,24 @@ final class BearLockAppModel: ObservableObject {
     @Published private(set) var diagnosticsWritable = false
 
     let authorizationService: AuthorizationServicing
-    let targetSelectionStore: TargetSelectionStoring
+    let targetSelectionCodec: TargetSelectionCoding
     let shieldController: ShieldControlling
     let scheduleController: ScheduleControlling
     private let lockStore: LockStore
     private var isRefreshing = false
 
-    var activeLock: ActiveLock? { lockState.activeLocks(at: Date()).first }
+    var activeLock: ActiveLock? { lockState.activeLockForDisplay(at: Date()) }
     private let diagnostics = DiagnosticsLogger.shared
 
     init(
         authorizationService: AuthorizationServicing,
-        targetSelectionStore: TargetSelectionStoring,
+        targetSelectionCodec: TargetSelectionCoding,
         shieldController: ShieldControlling,
         scheduleController: ScheduleControlling,
         lockStore: LockStore
     ) {
         self.authorizationService = authorizationService
-        self.targetSelectionStore = targetSelectionStore
+        self.targetSelectionCodec = targetSelectionCodec
         self.shieldController = shieldController
         self.scheduleController = scheduleController
         self.lockStore = lockStore
@@ -47,18 +47,13 @@ final class BearLockAppModel: ObservableObject {
             repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
         }
 
-        let lockStore: LockStore
-        do {
-            lockStore = try LockStore(repository: repository)
-        } catch {
-            fatalError("Failed to initialize Bear Lock store: \(error)")
-        }
+        let lockStore = LockStore(repository: repository)
 
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
-            let selectionStore = PreviewTargetSelectionStore()
+            let selectionStore = PreviewTargetSelectionCodec()
             return BearLockAppModel(
                 authorizationService: UITestingAuthorizationService(status: uiTestingAuthorizationStatus, deny: ProcessInfo.processInfo.arguments.contains("--ui-testing-deny-authorization")),
-                targetSelectionStore: selectionStore,
+                targetSelectionCodec: selectionStore,
                 shieldController: NoopShieldController(),
                 scheduleController: NoopScheduleController(),
                 lockStore: lockStore
@@ -67,7 +62,7 @@ final class BearLockAppModel: ObservableObject {
 
         return BearLockAppModel(
             authorizationService: FamilyControlsAuthorizationService(),
-            targetSelectionStore: FamilyActivityTargetSelectionStore(),
+            targetSelectionCodec: FamilyActivityTargetSelectionCodec(),
             shieldController: ManagedSettingsShieldController(),
             scheduleController: DeviceActivityScheduleController(),
             lockStore: lockStore
@@ -126,7 +121,7 @@ final class BearLockAppModel: ObservableObject {
                 lastUsedAt: now.addingTimeInterval(-1_800)
             )
         ]
-        let state: LockState
+        var state: LockState
         if arguments.contains("--ui-testing-active-lock") {
             state = LockState(
                 targetSelections: targetSelections,
@@ -146,7 +141,7 @@ final class BearLockAppModel: ObservableObject {
                 startsAt: TimeOfDay(hour: calendar.component(.hour, from: start), minute: calendar.component(.minute, from: start)),
                 endsAt: TimeOfDay(hour: calendar.component(.hour, from: end), minute: calendar.component(.minute, from: end)))
             state = LockState(targetSelections: targetSelections, recentLockTargets: recentLockTargets,
-                rules: [LockRule(kind: .recurring, startsAt: start, duration: recurrence.duration,
+                rules: [LockRule(
                     recurrence: recurrence, targetSelectionID: target.id)])
         } else if arguments.contains("--ui-testing-disabled-recurring") {
             let recurrence = RecurrenceRule(
@@ -159,9 +154,6 @@ final class BearLockAppModel: ObservableObject {
                 recentLockTargets: recentLockTargets,
                 rules: [
                     LockRule(
-                        kind: .recurring,
-                        startsAt: recurrence.nextInterval(after: Date())?.start ?? Date().addingTimeInterval(24 * 60 * 60),
-                        duration: recurrence.duration,
                         recurrence: recurrence,
                         targetSelectionID: target.id,
                         status: .disabled
@@ -175,12 +167,14 @@ final class BearLockAppModel: ObservableObject {
             )
         }
 
+        state.selectedTargetID = target.id
         do {
             var existingState = try repository.load()
             if existingState.targetSelections.isEmpty {
                 existingState.targetSelections = state.targetSelections
                 existingState.recentLockTargets = state.recentLockTargets
                 existingState.rules = state.rules
+                existingState.selectedTargetID = state.selectedTargetID
                 try repository.save(existingState)
             }
         } catch {
@@ -245,12 +239,7 @@ final class BearLockAppModel: ObservableObject {
     func saveSelection(_ selection: FamilyActivitySelection) async -> Bool {
         diagnostics.record("Selection.save.started")
         do {
-            let state = try await lockStore.snapshot()
-            if !state.activeLocks(at: Date()).isEmpty {
-                throw TargetSelectionStoreError.activeLockInProgress
-            }
-
-            let ref = try targetSelectionStore.save(selection)
+            let ref = try targetSelectionCodec.reference(for: selection)
             let savedRef = try await lockStore.saveTargetSelection(ref)
             lockState = try await lockStore.snapshot()
             diagnostics.record("Selection.save.succeeded", detail: "\(savedRef.displayName) id=\(savedRef.id.uuidString)")
@@ -261,6 +250,10 @@ final class BearLockAppModel: ObservableObject {
         }
         refreshDiagnostics()
         return false
+    }
+
+    func selectedActivitySelection() throws -> FamilyActivitySelection {
+        try targetSelectionCodec.selection(from: lockState.selectedTarget)
     }
 
     func saveUITestingSelection(count: Int) async {
@@ -320,15 +313,12 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("RecentTarget.select.started", detail: recentTarget.id.uuidString)
         do {
             let state = try await lockStore.snapshot()
-            if !state.activeLocks(at: Date()).isEmpty {
-                throw TargetSelectionStoreError.activeLockInProgress
-            }
             guard let selection = state.targetSelections.last(where: { $0.id == recentTarget.targetSelectionID }) else {
                 throw RecentLockTargetError.targetSelectionNotFound
             }
 
-            try targetSelectionStore.activate(selection)
-            _ = try await lockStore.saveTargetSelection(selection)
+            _ = try targetSelectionCodec.selection(from: selection)
+            try await lockStore.selectTarget(id: selection.id)
             lockState = try await lockStore.snapshot()
             diagnostics.record("RecentTarget.select.succeeded", detail: recentTarget.id.uuidString)
             refreshDiagnostics()
@@ -366,17 +356,18 @@ final class BearLockAppModel: ObservableObject {
 
     @discardableResult
     func updateScheduledRule(_ original: LockRule, startsAt: Date, duration: TimeInterval) async -> Bool {
+        guard var single = original.single else { return false }
+        single.startsAt = startsAt
+        single.duration = duration
         var replacement = original
-        replacement.startsAt = startsAt
-        replacement.duration = duration
+        replacement.schedule = .single(single)
         return await saveRule(replacement)
     }
 
     @discardableResult
     func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule, enabled: Bool) async -> Bool {
         var replacement = original
-        replacement.recurrence = recurrence
-        replacement.duration = recurrence.duration
+        replacement.schedule = .recurring(recurrence)
         replacement.status = enabled ? .scheduled : .disabled
         return await saveRule(replacement)
     }
@@ -386,7 +377,7 @@ final class BearLockAppModel: ObservableObject {
         isUpdatingLock = true
         defer { isUpdatingLock = false; refreshDiagnostics() }
         do {
-            try BearLockSafetyPolicy.validateDuration(replacement.duration)
+            try BearLockSafetyPolicy.validateDuration(replacement.single?.duration ?? replacement.recurrence!.duration)
             try await lockStore.replaceRule(replacement)
             await synchronizeAndReconcile()
             return true
@@ -476,14 +467,14 @@ final class BearLockAppModel: ObservableObject {
 
     private func lockDetail(for rule: LockRule, active: ActiveLock? = nil) -> String {
         let activeID = active.map { " active=\($0.id.uuidString)" } ?? ""
-        return "\(rule.kind.rawValue) rule=\(rule.id.uuidString) start=\(rule.startsAt.ISO8601Format()) end=\(rule.endsAt.ISO8601Format())\(activeID)"
+        return "\(rule.kind.rawValue) rule=\(rule.id.uuidString) schedule=\(rule.schedule)\(activeID)"
     }
 
     private var latestTargetSelectionCount: Int {
-        guard let tokenData = lockState.targetSelections.last?.tokenData,
+        guard let tokenData = lockState.selectedTarget?.tokenData,
               let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: tokenData)
         else {
-            return lockState.targetSelections.isEmpty ? 0 : 1
+            return lockState.selectedTarget == nil ? 0 : 1
         }
 
         return selection.applicationTokens.count + selection.categoryTokens.count + selection.webDomainTokens.count

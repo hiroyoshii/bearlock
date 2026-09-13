@@ -1,8 +1,25 @@
 import BearLockCore
+import FamilyControls
 import XCTest
 
 @MainActor
 final class BearLockAppModelTests: XCTestCase {
+    func testTargetSaveFailureKeepsCurrentSelectionAndRetryCommitsIt() async throws {
+        let h = try Harness()
+        await h.model.refresh()
+        h.repository.failWrite = true
+        let failed = await h.model.saveSelection(FamilyActivitySelection())
+        XCTAssertFalse(failed)
+        XCTAssertEqual(h.model.lockState.selectedTargetID, h.target.id)
+        XCTAssertEqual(h.repository.state.targetSelections, [h.target])
+        h.repository.failWrite = false
+        let saved = await h.model.saveSelection(FamilyActivitySelection())
+        XCTAssertTrue(saved)
+        XCTAssertNotEqual(h.model.lockState.selectedTargetID, h.target.id)
+        XCTAssertEqual(h.model.lockState, h.repository.state)
+        XCTAssertEqual(h.repository.state.selectedTarget?.displayName, "UI test targets")
+    }
+
     func testMonitoringFailureKeepsSavedRuleAndRefreshRetriesWithoutCreatingAnother() async throws {
         let h = try Harness()
         await h.model.refresh()
@@ -48,7 +65,7 @@ final class BearLockAppModelTests: XCTestCase {
         let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases),
             startsAt: TimeOfDay(hour: calendar.component(.hour, from: start), minute: calendar.component(.minute, from: start)),
             endsAt: TimeOfDay(hour: calendar.component(.hour, from: end), minute: calendar.component(.minute, from: end)))
-        let rule = LockRule(kind: .recurring, startsAt: start, duration: recurrence.duration,
+        let rule = LockRule(
             recurrence: recurrence, targetSelectionID: h.target.id)
         h.repository.state.rules = [rule]
         await h.model.refresh()
@@ -85,9 +102,10 @@ private final class Harness {
     let model: BearLockAppModel
     init() throws {
         repository.state.targetSelections = [target]
+        repository.state.selectedTargetID = target.id
         model = BearLockAppModel(authorizationService: PreviewAuthorizationService(status: .approved),
-            targetSelectionStore: PreviewTargetSelectionStore(), shieldController: shield,
-            scheduleController: schedule, lockStore: try LockStore(repository: repository))
+            targetSelectionCodec: PreviewTargetSelectionCodec(), shieldController: shield,
+            scheduleController: schedule, lockStore: LockStore(repository: repository))
     }
 }
 private enum TestFailure: Error { case unavailable }

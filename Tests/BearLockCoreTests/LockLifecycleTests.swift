@@ -13,7 +13,7 @@ final class LockLifecycleTests: XCTestCase {
             let state = try lifecycle.reconcile(at: start.addingTimeInterval(offset), apply: {
                 XCTAssertEqual($0, [self.target])
             })
-            XCTAssertEqual(state.activeLocks(at: start.addingTimeInterval(offset)).first?.endsAt, rule.endsAt)
+            XCTAssertEqual(state.activeLocks(at: start.addingTimeInterval(offset)).first?.endsAt, rule.single!.endsAt)
         }
         XCTAssertEqual(repository.saveCount, 0)
     }
@@ -42,7 +42,7 @@ final class LockLifecycleTests: XCTestCase {
         let nextTarget = LockTargetSelectionRef(displayName: "Other apps")
         let next = LockRule(kind: .fixedDateTime, startsAt: start.addingTimeInterval(3600), duration: 3600, targetSelectionID: nextTarget.id)
         let repository = FaultRepository(LockState(targetSelections: [target, nextTarget], rules: [oneShot(), next]))
-        try LockLifecycle(repository: repository).reconcile(at: next.startsAt, apply: { XCTAssertEqual($0, [nextTarget]) })
+        try LockLifecycle(repository: repository).reconcile(at: next.single!.startsAt, apply: { XCTAssertEqual($0, [nextTarget]) })
     }
 
     func testRecurringRuleUsesCurrentOccurrenceAfterMidnightAndNextWeek() throws {
@@ -62,7 +62,7 @@ final class LockLifecycleTests: XCTestCase {
         var later = recurring()
         later.id = UUID()
         later.targetSelectionID = other.id
-        later.recurrence?.endsAt = TimeOfDay(hour: 8, minute: 0)
+        var recurrence = later.recurrence!; recurrence.endsAt = TimeOfDay(hour: 8, minute: 0); later.schedule = .recurring(recurrence)
         var duplicate = recurring()
         duplicate.id = UUID()
         let state = LockState(targetSelections: [target, other], rules: [recurring(), later, duplicate])
@@ -111,7 +111,7 @@ final class LockLifecycleTests: XCTestCase {
 
     func testFailedMutationCannotLeakIntoLaterSuccessfulSave() async throws {
         let repository = FaultRepository(LockState())
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         repository.failWrite = true
         do {
             _ = try await store.createRule(.now(duration: 3600, targetSelectionID: target.id), now: start)
@@ -124,7 +124,7 @@ final class LockLifecycleTests: XCTestCase {
     }
 
     func testActorEntryPointAppliesBeforeReturning() async throws {
-        let store = try LockStore(repository: FaultRepository(LockState()))
+        let store = LockStore(repository: FaultRepository(LockState()))
         let applied = AppliedFlag()
         _ = try await store.reconcile(at: start, apply: { _ in applied.value = true }, record: { _ in })
         XCTAssertTrue(applied.value)
@@ -133,16 +133,18 @@ final class LockLifecycleTests: XCTestCase {
     func testSecondPrecisionAndFractionalRoundingShareTheMonitoringDeadline() throws {
         let rule = try LockPlanner().makeRule(from: .now(duration: 901.125, targetSelectionID: target.id),
             now: start.addingTimeInterval(0.75), existingRules: [])
-        let components = rule.monitoringComponents()
-        XCTAssertEqual(Calendar.current.date(from: components.end), rule.endsAt)
-        XCTAssertEqual(rule.startsAt, start)
-        XCTAssertEqual(rule.endsAt, start.addingTimeInterval(902))
+        let components = rule.single!.monitoringComponents()
+        XCTAssertEqual(Calendar.current.date(from: components.end), rule.single!.endsAt)
+        XCTAssertEqual(rule.single!.startsAt, start)
+        XCTAssertEqual(rule.single!.endsAt, start.addingTimeInterval(902))
         var future = oneShot()
-        future.startsAt = start.addingTimeInterval(0.125)
-        future.duration = 900.75
+        var single = future.single!
+        single.startsAt = start.addingTimeInterval(0.125)
+        single.duration = 900.75
+        future.schedule = .single(single)
         let rounded = future.normalizedForMonitoring()
-        XCTAssertGreaterThanOrEqual(rounded.duration, future.duration)
-        XCTAssertGreaterThanOrEqual(rounded.startsAt, future.startsAt)
+        XCTAssertGreaterThanOrEqual(rounded.single!.duration, future.single!.duration)
+        XCTAssertGreaterThanOrEqual(rounded.single!.startsAt, future.single!.startsAt)
     }
 
     private func oneShot() -> LockRule {
@@ -150,7 +152,7 @@ final class LockLifecycleTests: XCTestCase {
     }
 
     private func recurring() -> LockRule {
-        LockRule(kind: .recurring, startsAt: start, duration: 8 * 3600,
+        LockRule(
             recurrence: RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
                 endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC"), targetSelectionID: target.id)
     }

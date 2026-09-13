@@ -12,10 +12,6 @@ enum AppGroup {
         containerURL.appending(path: "lock-state.json")
     }
 
-    static var selectionURL: URL {
-        containerURL.appending(path: "family-activity-selection.plist")
-    }
-
     static var diagnosticsURL: URL {
         containerURL.appending(path: "diagnostics.json")
     }

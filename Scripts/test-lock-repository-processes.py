@@ -15,14 +15,11 @@ with tempfile.TemporaryDirectory(prefix="bearlock-process-test-") as temporary:
     harness = directory / "Writer.swift"
     harness.write_text('''import Foundation
 @main struct Writer {
-    static func main() throws {
+    static func main() async throws {
         let repository = JSONFileLockRepository(fileURL: URL(fileURLWithPath: CommandLine.arguments[1]))
+        let store = LockStore(repository: repository)
         for _ in 0..<40 {
-            try repository.withExclusiveAccess {
-                var state = try repository.load()
-                state.targetSelections.append(LockTargetSelectionRef())
-                try repository.save(state)
-            }
+            _ = try await store.saveTargetSelection(LockTargetSelectionRef())
         }
     }
 }
@@ -45,4 +42,5 @@ with tempfile.TemporaryDirectory(prefix="bearlock-process-test-") as temporary:
     targets = state["targetSelections"]
     assert len(targets) == 160, f"Lost updates: {len(targets)} of 160 survived"
     assert len({target["id"] for target in targets}) == 160
-    print("PASS: 4 independent processes preserved all 160 updates")
+    assert state["selectedTargetID"] == targets[-1]["id"], "Selected target and saved data diverged"
+    print("PASS: 4 independent processes preserved all 160 updates and the matching selected target ID")

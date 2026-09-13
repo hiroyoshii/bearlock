@@ -21,8 +21,8 @@ class TargetPicker(private val a: MainActivity) {
 
         // Selection count is shown once in the fixed footer.
         fun update() {
-            a.pickerCount?.text=t("${a.draft.count}件を選択中","${a.draft.count} selected")
-            a.pickerSave?.apply { isEnabled=!a.draft.empty; alpha=if(isEnabled) 1f else .5f }
+            a.pickerCount?.text=t("${a.editor.targets.count}件を選択中","${a.editor.targets.count} selected")
+            a.pickerSave?.apply { isEnabled=!a.editor.targets.empty; alpha=if(isEnabled) 1f else .5f }
         }
         val tabIds=List(3) { android.view.View.generateViewId() }
         val tabs=RadioGroup(a).apply { orientation=if(u.compact) RadioGroup.VERTICAL else RadioGroup.HORIZONTAL }
@@ -65,9 +65,9 @@ class TargetPicker(private val a: MainActivity) {
             val adapter=AppPickerAdapter(a,available,::update)
             val notes=u.column()
             u.add(notes,u.label(t("ホーム・設定・電話など、端末の操作に必要なアプリは除外しています。","Home, Settings and dialer apps are excluded."),13f,muted=true),8)
-            val missing=a.draft.apps-available.map { it.pkg }.toSet()
+            val missing=a.editor.targets.apps-available.map { it.pkg }.toSet()
             for(pkg in missing) u.add(notes,u.button(t("未インストールの対象を外す: ","Remove unavailable target: ")+pkg) {
-                a.draft=a.draft.copy(apps=a.draft.apps-pkg); update(); apps()
+                a.editor.targets=a.editor.targets.copy(apps=a.editor.targets.apps-pkg); update(); apps()
             })
             list.addFooterView(notes,null,false)
             list.adapter=adapter
@@ -94,9 +94,9 @@ class TargetPicker(private val a: MainActivity) {
             u.add(content,input,8)
             u.add(content,u.button(t("Webサイトを追加","Add website")) {
                 val domain=Domain.normalize(input.text.toString())
-                if(domain==null) a.error("invalid_domain") else { a.draft=a.draft.copy(domains=a.draft.domains+domain); update(); web() }
+                if(domain==null) a.error("invalid_domain") else { a.editor.targets=a.editor.targets.copy(domains=a.editor.targets.domains+domain); update(); web() }
             },16)
-            for(domain in a.draft.domains) u.add(content,u.button("×  $domain") { a.draft=a.draft.copy(domains=a.draft.domains-domain); update(); web() },8)
+            for(domain in a.editor.targets.domains) u.add(content,u.button("×  $domain") { a.editor.targets=a.editor.targets.copy(domains=a.editor.targets.domains-domain); update(); web() },8)
             u.add(content,u.label(t("ChromeとFirefoxの通常タブに対応しています。シークレットタブ、カスタムタブ、その他のブラウザには対応していません。","Supports regular tabs in Chrome and Firefox. Private tabs, custom tabs, and other browsers are not supported."),14f,muted=true),0)
         }
         fun categories() {

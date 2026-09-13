@@ -20,11 +20,15 @@ class LockInstrumentation : Instrumentation() {
         try {
             val store = Store(context)
             val now = System.currentTimeMillis()
-            val rule = Rule(title="Fixture", targets=Targets(apps=setOf("fixture.app")), start=now, end=now+60_000)
+            val rule = Rule(title="Fixture", targets=Targets(apps=setOf("fixture.app")), schedule=LockSchedule.Single(now,now+60_000))
             val saved = store.change { Planner.save(it, rule, now) }
             val file = File(directory, "locks-v1.json")
             val original = file.readText()
             check(!original.contains("sessions") && !original.contains("completed"))
+            val weekly = rule.copy(schedule=LockSchedule.Weekly(setOf(1,5),1380,420,"UTC"))
+            val weeklyJSON = Codec.encode(State(rules=listOf(weekly)))
+            check(!weeklyJSON.contains("\"start\"") && !weeklyJSON.contains("\"duration\""))
+            check(Codec.decode(weeklyJSON).rules.single() == weekly)
             check(store.read() == saved)
             check(store.read().activeLocks(now+60_000).isEmpty())
             check(file.readText() == original) { "Expiry wrote execution state" }

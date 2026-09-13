@@ -10,6 +10,8 @@ results=[]
 def record(name):
     results.append(name);print('PASS: '+name,flush=True)
     (q.OUT/'result.json').write_text(json.dumps({'passed':results},ensure_ascii=False,indent=2))
+def duration(rule): return (rule['schedule']['end']-rule['schedule']['start'])//60000
+
 def state():return json.loads(q.adb('exec-out','run-as',q.APP,'cat','files/locks-v1.json'))
 def tap(label,scroll=False):
     for attempt in range(5 if scroll else 1):
@@ -51,7 +53,7 @@ assert {r['id'] for r in state()['rules']}==before
 assert state()['recent']==recent_before
 record('Confirmation cancel creates no schedule or recent history')
 tap('ロックを予約');tap('ロックを予約')
-new=[r for r in state()['rules'] if r['id'] not in before];assert len(new)==1 and new[0]['duration']==15
+new=[r for r in state()['rules'] if r['id'] not in before];assert len(new)==1 and duration(new[0])==15
 record('Delayed schedule saved through confirmation')
 assert any(r['targets']==new[0]['targets'] for r in state()['recent'])
 assert state()['recent']!=recent_before
@@ -64,14 +66,14 @@ tap('対象一覧')
 
 recent_before=state()['recent']
 tap('予約を編集',True);q.shot('scheduled-editor');tap('30分');tap('保存')
-assert next(r for r in state()['rules'] if r['id']==new[0]['id'])['duration']==30
+assert duration(next(r for r in state()['rules'] if r['id']==new[0]['id']))==30
 assert state()['recent']==recent_before
 record('Pending schedule duration edited without changing recent history')
 tap('予約を削除',True);tap('削除');assert new[0]['id'] not in {r['id'] for r in state()['rules']}
 record('Pending schedule deleted')
 q.page('home',True);tap('繰り返し');q.shot('compose-repeat-home');tap('ロックを予約');tap('ロックを予約')
-repeat=next(r for r in state()['rules'] if r['days'])
-assert repeat['days']==[1,2,3,4,5] and repeat['minute']==1380 and repeat['duration']==480
+repeat=next(r for r in state()['rules'] if r['schedule']['type']=='weekly')
+assert repeat['schedule']['days']==[1,2,3,4,5] and repeat['schedule']['startMinute']==1380 and repeat['schedule']['endMinute']==420
 record('Weekday overnight repeat saved as 23:00–07:00')
 tap('予約を編集',True);q.shot('recurring-editor');tap('有効')
 assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']

@@ -20,6 +20,8 @@ def record(text):
     result['checks'].append(text)
     print('PASS: ' + text, flush=True)
 
+def duration(rule): return (rule['schedule']['end']-rule['schedule']['start'])//60000
+
 def state():
     raw = q.sh('run-as', q.APP, 'sh', '-c', "'if [ -f files/locks-v1.json ]; then cat files/locks-v1.json; else echo {}; fi'")
     return {'rules': [], 'recent': [], **json.loads(raw)}
@@ -97,14 +99,14 @@ try:
     tap('ロックを予約')
     tap('ロックを予約')
     saved = state()
-    assert len(saved['rules'])==1 and saved['rules'][0]['duration']==15
+    assert len(saved['rules'])==1 and duration(saved['rules'][0])==15
     assert len(saved['recent'])==1
     q.shot('saved-schedule')
     record('Confirmed delayed schedule persists and records recent targets')
     tap('予約を編集')
     tap('30分')
     tap('保存')
-    assert state()['rules'][0]['duration']==30
+    assert duration(state()['rules'][0])==30
     assert state()['recent']==saved['recent']
     tap('予約を削除')
     tap('削除')
@@ -113,7 +115,7 @@ try:
     os.environ['BEARLOCK_PROBE_OUT'] = str(out / 'blocking')
     runpy.run_path(str(Path(__file__).with_name('product_verify.py')), run_name='__main__')
     probe = json.loads((out/'blocking/result.json').read_text())
-    assert probe['passed'] and all(r['end'] <= int(q.sh('date', '+%s%3N')) for r in probe['stateAfterEnd']['rules'] if not r['days'])
+    assert probe['passed'] and all(r['schedule']['end'] <= int(q.sh('date', '+%s%3N')) for r in probe['stateAfterEnd']['rules'] if r['schedule']['type']=='single')
     assert 'sessions' not in probe['stateAfterEnd'] and 'completed' not in probe['stateAfterEnd']
     record('Actual Probe input blocked during a one-minute lock and restored after natural expiry')
     result['passed'] = True

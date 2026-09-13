@@ -12,16 +12,11 @@ struct PreviewAuthorizationService: AuthorizationServicing {
     func requestAuthorization() async throws {}
 }
 
-struct PreviewTargetSelectionStore: TargetSelectionStoring {
-    func load() throws -> FamilyActivitySelection {
-        FamilyActivitySelection()
-    }
-
-    func save(_ selection: FamilyActivitySelection) throws -> LockTargetSelectionRef {
+struct PreviewTargetSelectionCodec: TargetSelectionCoding {
+    func selection(from reference: LockTargetSelectionRef?) throws -> FamilyActivitySelection { FamilyActivitySelection() }
+    func reference(for selection: FamilyActivitySelection) throws -> LockTargetSelectionRef {
         LockTargetSelectionRef(displayName: "UI test targets")
     }
-
-    func activate(_ selection: LockTargetSelectionRef) throws {}
 }
 
 struct NoopShieldController: ShieldControlling {

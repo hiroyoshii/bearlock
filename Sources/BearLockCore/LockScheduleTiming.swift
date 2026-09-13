@@ -1,24 +1,15 @@
 import Foundation
 
 public extension LockRule {
-    /// Immediate starts may round down by less than a second; future starts round up.
-    /// End dates always round up so the promised duration is never shortened.
     func normalizedForMonitoring() -> LockRule {
+        guard var single else { return self }
+        let start = single.kind == .immediate ? floor(single.startsAt.timeIntervalSince1970) : ceil(single.startsAt.timeIntervalSince1970)
+        let end = ceil(max(single.endsAt.timeIntervalSince1970, start + single.duration))
+        single.startsAt = Date(timeIntervalSince1970: start)
+        single.duration = max(1, end - start)
         var rule = self
-        let start = kind == .immediate ? floor(startsAt.timeIntervalSince1970) : ceil(startsAt.timeIntervalSince1970)
-        let end = ceil(max(endsAt.timeIntervalSince1970, start + duration))
-        rule.startsAt = Date(timeIntervalSince1970: start)
-        rule.duration = max(1, end - start)
+        rule.schedule = .single(single)
         return rule
-    }
-
-    func monitoringComponents(calendar: Calendar = .current) -> (start: DateComponents, end: DateComponents) {
-        let components: Set<Calendar.Component> = [.era, .year, .month, .day, .hour, .minute, .second]
-        var start = calendar.dateComponents(components, from: startsAt)
-        var end = calendar.dateComponents(components, from: Date(timeIntervalSince1970: ceil(endsAt.timeIntervalSince1970)))
-        start.timeZone = calendar.timeZone
-        end.timeZone = calendar.timeZone
-        return (start, end)
     }
 
     func validateEditable(at date: Date) throws {
@@ -27,13 +18,19 @@ public extension LockRule {
         }
     }
 
-    func occurrence(containing date: Date) -> LockRule? {
-        guard kind == .recurring else { return contains(date) ? self : nil }
-        guard let interval = recurrence?.nextInterval(after: date),
-              interval.start <= date, date < interval.end else { return nil }
-        var occurrence = self
-        occurrence.startsAt = interval.start
-        occurrence.duration = interval.duration
-        return occurrence
+    func occurrence(containing date: Date) -> ActiveLock? {
+        guard let interval = nextInterval(after: date), interval.start <= date, date < interval.end else { return nil }
+        return ActiveLock(id: id, startedAt: interval.start, endsAt: interval.end, targetSelectionID: targetSelectionID)
+    }
+}
+
+public extension SingleLockSchedule {
+    func monitoringComponents(calendar: Calendar = .current) -> (start: DateComponents, end: DateComponents) {
+        let components: Set<Calendar.Component> = [.era, .year, .month, .day, .hour, .minute, .second]
+        var start = calendar.dateComponents(components, from: startsAt)
+        var end = calendar.dateComponents(components, from: Date(timeIntervalSince1970: ceil(endsAt.timeIntervalSince1970)))
+        start.timeZone = calendar.timeZone
+        end.timeZone = calendar.timeZone
+        return (start, end)
     }
 }

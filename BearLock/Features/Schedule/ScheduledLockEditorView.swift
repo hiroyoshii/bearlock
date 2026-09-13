@@ -20,8 +20,8 @@ struct ScheduledLockEditorView: View {
         self.isSaving = isSaving
         self.onCancel = onCancel
         self.onSave = onSave
-        _startsAt = State(initialValue: rule.startsAt)
-        let initialDuration = rule.duration / 60
+        _startsAt = State(initialValue: rule.single!.startsAt)
+        let initialDuration = rule.single!.duration / 60
         let lowerBound = BearLockSafetyPolicy.maximumDuration == nil ? 15.0 : 5.0
         let upperBound = BearLockSafetyPolicy.maximumDuration.map { max(5.0, $0 / 60) } ?? 720.0
         _durationMinutes = State(initialValue: min(max(lowerBound, initialDuration), upperBound))
@@ -29,7 +29,7 @@ struct ScheduledLockEditorView: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
-            let hasStarted = rule.startsAt <= context.date
+            let hasStarted = rule.single!.startsAt <= context.date
             NavigationStack {
                 Form {
                     Section("Schedule") {

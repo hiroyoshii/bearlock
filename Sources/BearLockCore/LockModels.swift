@@ -35,43 +35,72 @@ public struct RecentLockTarget: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
-public struct LockRule: Codable, Equatable, Identifiable, Sendable {
-    public var id: UUID
-    public var kind: LockRuleKind
+public struct SingleLockSchedule: Codable, Equatable, Sendable {
+    public var kind: SingleLockKind
     public var startsAt: Date
     public var duration: TimeInterval
-    public var recurrence: RecurrenceRule?
+    public var endsAt: Date { startsAt.addingTimeInterval(duration) }
+    public var interval: DateInterval { DateInterval(start: startsAt, end: endsAt) }
+}
+
+public enum SingleLockKind: String, Codable, Sendable {
+    case immediate, delayed, fixedDateTime
+}
+
+public enum LockSchedule: Codable, Equatable, Sendable {
+    case single(SingleLockSchedule)
+    case recurring(RecurrenceRule)
+}
+
+public struct LockRule: Codable, Equatable, Identifiable, Sendable {
+    public var id: UUID
+    public var schedule: LockSchedule
     public var targetSelectionID: UUID
     public var status: LockRuleStatus
 
-    public init(
-        id: UUID = UUID(),
-        kind: LockRuleKind,
-        startsAt: Date,
-        duration: TimeInterval,
-        recurrence: RecurrenceRule? = nil,
-        targetSelectionID: UUID,
-        status: LockRuleStatus = .scheduled
-    ) {
+    public init(id: UUID = UUID(), kind: SingleLockKind, startsAt: Date, duration: TimeInterval,
+                targetSelectionID: UUID, status: LockRuleStatus = .scheduled) {
         self.id = id
-        self.kind = kind
-        self.startsAt = startsAt
-        self.duration = duration
-        self.recurrence = recurrence
+        self.schedule = .single(SingleLockSchedule(kind: kind, startsAt: startsAt, duration: duration))
         self.targetSelectionID = targetSelectionID
         self.status = status
     }
 
-    public var endsAt: Date {
-        startsAt.addingTimeInterval(duration)
+    public init(id: UUID = UUID(), recurrence: RecurrenceRule, targetSelectionID: UUID,
+                status: LockRuleStatus = .scheduled) {
+        self.id = id
+        self.schedule = .recurring(recurrence)
+        self.targetSelectionID = targetSelectionID
+        self.status = status
     }
 
-    public var isOneShot: Bool {
-        kind == .immediate || kind == .delayed || kind == .fixedDateTime
+    public var single: SingleLockSchedule? {
+        if case let .single(value) = schedule { return value }
+        return nil
     }
+    public var recurrence: RecurrenceRule? {
+        if case let .recurring(value) = schedule { return value }
+        return nil
+    }
+    public var kind: LockRuleKind {
+        switch schedule {
+        case .recurring: return .recurring
+        case let .single(value):
+            switch value.kind {
+            case .immediate: return .immediate
+            case .delayed: return .delayed
+            case .fixedDateTime: return .fixedDateTime
+            }
+        }
+    }
+    public var isOneShot: Bool { single != nil }
 
-    public func contains(_ date: Date) -> Bool {
-        startsAt <= date && date < endsAt
+    /// The interval to display/register; disabled schedules can still be previewed.
+    public func nextInterval(after date: Date) -> DateInterval? {
+        switch schedule {
+        case let .single(value): return value.endsAt > date ? value.interval : nil
+        case let .recurring(value): return value.nextInterval(after: date)
+        }
     }
 }
 

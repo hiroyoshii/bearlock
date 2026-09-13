@@ -35,10 +35,10 @@ internal class AppPickerAdapter(
         // Rebinding must not turn a recycled row's previous selection into a user action.
         check.setOnCheckedChangeListener(null)
         check.text=app.name
-        check.isChecked=app.pkg in a.draft.apps || app.category in a.draft.categories
-        check.isEnabled=app.category !in a.draft.categories
+        check.isChecked=app.pkg in a.editor.targets.apps || app.category in a.editor.targets.categories
+        check.isEnabled=app.category !in a.editor.targets.categories
         check.setOnCheckedChangeListener { _,on ->
-            a.draft=a.draft.copy(apps=if(on) a.draft.apps+app.pkg else a.draft.apps-app.pkg)
+            a.editor.targets=a.editor.targets.copy(apps=if(on) a.editor.targets.apps+app.pkg else a.editor.targets.apps-app.pkg)
             onSelectionChanged()
         }
         row.setOnClickListener { if(check.isEnabled) check.toggle() }

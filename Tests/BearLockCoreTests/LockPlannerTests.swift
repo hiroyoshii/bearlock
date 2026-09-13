@@ -28,11 +28,11 @@ final class LockPlannerTests: XCTestCase {
             now: now,
             existingRules: []
         )
-        let active = planner.activeLock(from: rule)
+        let active = rule.occurrence(containing: now)!
 
         XCTAssertEqual(rule.kind, .immediate)
-        XCTAssertEqual(rule.startsAt, now)
-        XCTAssertEqual(rule.endsAt, date("2026-08-27T07:00:00Z"))
+        XCTAssertEqual(rule.single!.startsAt, now)
+        XCTAssertEqual(rule.single!.endsAt, date("2026-08-27T07:00:00Z"))
         XCTAssertEqual(active.startedAt, now)
         XCTAssertEqual(active.endsAt, date("2026-08-27T07:00:00Z"))
     }
@@ -83,8 +83,8 @@ final class LockPlannerTests: XCTestCase {
         )
 
         XCTAssertEqual(rule.kind, .delayed)
-        XCTAssertEqual(rule.startsAt, date("2026-08-27T05:30:00Z"))
-        XCTAssertEqual(rule.endsAt, date("2026-08-27T07:30:00Z"))
+        XCTAssertEqual(rule.single!.startsAt, date("2026-08-27T05:30:00Z"))
+        XCTAssertEqual(rule.single!.endsAt, date("2026-08-27T07:30:00Z"))
     }
 
     func testOvernightRecurringRuleProducesNextMorningEnd() throws {
@@ -133,8 +133,10 @@ final class LockPlannerTests: XCTestCase {
             targetSelectionID: targetID
         )
         var replacement = original
-        replacement.startsAt = date("2026-08-27T07:00:00Z")
-        replacement.duration = 2 * 60 * 60
+        var single = replacement.single!
+        single.startsAt = date("2026-08-27T07:00:00Z")
+        single.duration = 2 * 60 * 60
+        replacement.schedule = .single(single)
 
         let validated = try planner.validateScheduledReplacement(
             replacement,
@@ -144,8 +146,8 @@ final class LockPlannerTests: XCTestCase {
         )
 
         XCTAssertEqual(validated.id, original.id)
-        XCTAssertEqual(validated.startsAt, date("2026-08-27T07:00:00Z"))
-        XCTAssertEqual(validated.endsAt, date("2026-08-27T09:00:00Z"))
+        XCTAssertEqual(validated.single!.startsAt, date("2026-08-27T07:00:00Z"))
+        XCTAssertEqual(validated.single!.endsAt, date("2026-08-27T09:00:00Z"))
         XCTAssertEqual(validated.status, .scheduled)
     }
 
@@ -186,7 +188,9 @@ final class LockPlannerTests: XCTestCase {
             targetSelectionID: targetID
         )
         var replacement = original
-        replacement.startsAt = date("2026-08-27T08:30:00Z")
+        var single = replacement.single!
+        single.startsAt = date("2026-08-27T08:30:00Z")
+        replacement.schedule = .single(single)
 
         XCTAssertThrowsError(
             try planner.validateScheduledReplacement(
@@ -211,7 +215,7 @@ final class LockPlannerTests: XCTestCase {
 
         let found = LockState(rules: [rule]).activeLocks(at: date("2026-08-27T06:30:00Z"))
 
-        XCTAssertEqual(found, [planner.activeLock(from: rule)])
+        XCTAssertEqual(found, [rule.occurrence(containing: date("2026-08-27T06:30:00Z"))!])
     }
 
     func testRecurringReplacementRecomputesNextOccurrenceAndKeepsRuleID() throws {
@@ -219,9 +223,6 @@ final class LockPlannerTests: XCTestCase {
         let ruleID = UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!
         let original = LockRule(
             id: ruleID,
-            kind: .recurring,
-            startsAt: date("2026-08-27T23:00:00Z"),
-            duration: 8 * 60 * 60,
             recurrence: RecurrenceRule(
                 weekdays: [.thursday],
                 startsAt: TimeOfDay(hour: 23, minute: 0),
@@ -231,12 +232,12 @@ final class LockPlannerTests: XCTestCase {
             targetSelectionID: targetID
         )
         var replacement = original
-        replacement.recurrence = RecurrenceRule(
+        replacement.schedule = .recurring(RecurrenceRule(
             weekdays: [.friday],
             startsAt: TimeOfDay(hour: 22, minute: 0),
             endsAt: TimeOfDay(hour: 6, minute: 0),
             timeZoneIdentifier: "UTC"
-        )
+        ))
 
         let validated = try planner.validateRecurringReplacement(
             replacement,
@@ -247,17 +248,14 @@ final class LockPlannerTests: XCTestCase {
 
         XCTAssertEqual(validated.id, ruleID)
         XCTAssertEqual(validated.kind, .recurring)
-        XCTAssertEqual(validated.startsAt, date("2026-08-28T22:00:00Z"))
-        XCTAssertEqual(validated.endsAt, date("2026-08-29T06:00:00Z"))
+        XCTAssertEqual(validated.nextInterval(after: date("2026-08-27T12:00:00Z"))!.start, date("2026-08-28T22:00:00Z"))
+        XCTAssertEqual(validated.nextInterval(after: date("2026-08-27T12:00:00Z"))!.end, date("2026-08-29T06:00:00Z"))
         XCTAssertEqual(validated.status, .scheduled)
     }
 
     func testRecurringReplacementWithNoWeekdaysIsRejected() {
         let planner = LockPlanner()
         let original = LockRule(
-            kind: .recurring,
-            startsAt: date("2026-08-27T23:00:00Z"),
-            duration: 8 * 60 * 60,
             recurrence: RecurrenceRule(
                 weekdays: [.thursday],
                 startsAt: TimeOfDay(hour: 23, minute: 0),
@@ -267,12 +265,12 @@ final class LockPlannerTests: XCTestCase {
             targetSelectionID: targetID
         )
         var replacement = original
-        replacement.recurrence = RecurrenceRule(
+        replacement.schedule = .recurring(RecurrenceRule(
             weekdays: [],
             startsAt: TimeOfDay(hour: 22, minute: 0),
             endsAt: TimeOfDay(hour: 6, minute: 0),
             timeZoneIdentifier: "UTC"
-        )
+        ))
 
         XCTAssertThrowsError(
             try planner.validateRecurringReplacement(
@@ -291,9 +289,6 @@ final class LockPlannerTests: XCTestCase {
         let ruleID = UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!
         let rule = LockRule(
             id: ruleID,
-            kind: .recurring,
-            startsAt: date("2026-08-27T23:00:00Z"),
-            duration: 8 * 60 * 60,
             recurrence: RecurrenceRule(
                 weekdays: [.thursday],
                 startsAt: TimeOfDay(hour: 23, minute: 0),
@@ -321,7 +316,7 @@ final class LockPlannerTests: XCTestCase {
         let targetID = UUID()
         let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
             endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
-        let recurring = LockRule(kind: .recurring, startsAt: date("2026-09-03T23:00:00Z"), duration: 28800,
+        let recurring = LockRule(
             recurrence: recurrence, targetSelectionID: targetID)
         XCTAssertThrowsError(try LockPlanner().makeRule(from: .fixed(startsAt: date("2026-09-11T03:00:00Z"),
             duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingRules: [recurring])) {

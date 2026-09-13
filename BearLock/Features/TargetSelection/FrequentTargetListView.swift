@@ -19,7 +19,7 @@ struct FrequentTargetListView: View {
                             FrequentTargetRow(
                                 recentTarget: recentTarget,
                                 selection: selection,
-                                isSelected: model.lockState.targetSelections.last?.id == selection.id,
+                                isSelected: model.lockState.selectedTarget?.id == selection.id,
                                 onSelect: {
                                     Task {
                                         await model.selectRecentLockTarget(recentTarget)

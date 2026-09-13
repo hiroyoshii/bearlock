@@ -39,7 +39,7 @@ class TargetRows(private val a: MainActivity) {
         if(overflow>0) u.add(parent,u.label(a.t("ほか${overflow}件","+$overflow more"),13f,true,true),12)
     }
     fun recent(recent: Recent, select: ()->Unit): LinearLayout {
-        val t=recent.targets; val selected=t==a.draft
+        val t=recent.targets; val selected=t==a.editor.targets
         val pkg=t.apps.sorted().firstOrNull()
         val name=pkg?.let(a.catalog::name) ?: t.categories.sorted().firstOrNull()?.let(a.catalog::categoryName) ?: t.domains.sorted().firstOrNull().orEmpty()
         val row=u.row().apply {

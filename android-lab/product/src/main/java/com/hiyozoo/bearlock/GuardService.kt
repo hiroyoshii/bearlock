@@ -68,7 +68,7 @@ class GuardService : AccessibilityService() {
     private fun request() {
         if (disposed) return
         gate.invalidate(); attempts = 0; main.removeCallbacks(read)
-        if (state.rules.any { it.enabled && (it.recurring || it.end > System.currentTimeMillis()) }) main.postDelayed(read, 100)
+        if (state.rules.any { it.enabled && (it.recurring || it.single!!.end > System.currentTimeMillis()) }) main.postDelayed(read, 100)
     }
     private fun snapshot() {
         if (disposed) return

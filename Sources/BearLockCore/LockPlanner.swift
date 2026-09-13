@@ -43,13 +43,7 @@ public struct LockPlanner: Sendable {
         case let .recurring(recurrence, targetSelectionID):
             try validateDuration(recurrence.duration)
             guard !recurrence.weekdays.isEmpty else { throw LockValidationError.emptyWeekdays }
-            guard let interval = recurrence.nextInterval(after: now) else {
-                throw LockValidationError.emptyWeekdays
-            }
             rule = LockRule(
-                kind: .recurring,
-                startsAt: interval.start,
-                duration: interval.duration,
                 recurrence: recurrence,
                 targetSelectionID: targetSelectionID
             )
@@ -64,30 +58,19 @@ public struct LockPlanner: Sendable {
         return rule
     }
 
-    public func activeLock(from rule: LockRule) -> ActiveLock {
-        // Callback delivery must not move the deadline. Recurring callers pass an
-        // occurrence-specific rule.
-        return ActiveLock(
-            id: rule.id,
-            startedAt: rule.startsAt,
-            endsAt: rule.endsAt,
-            targetSelectionID: rule.targetSelectionID
-        )
-    }
-
     public func validateScheduledReplacement(
         _ replacement: LockRule,
         replacing original: LockRule,
         now: Date,
         existingRules: [LockRule]
     ) throws -> LockRule {
-        guard original.startsAt > now else {
+        guard let originalSingle = original.single, originalSingle.startsAt > now else {
             throw LockValidationError.ruleAlreadyStarted
         }
-        guard replacement.startsAt > now else {
+        guard let replacementSingle = replacement.single, replacementSingle.startsAt > now else {
             throw LockValidationError.startDateInPast
         }
-        try validateDuration(replacement.duration)
+        try validateDuration(replacementSingle.duration)
 
         var normalized = replacement
         normalized.id = original.id
@@ -118,15 +101,8 @@ public struct LockPlanner: Sendable {
         guard !recurrence.weekdays.isEmpty else { throw LockValidationError.emptyWeekdays }
         try validateDuration(recurrence.duration)
 
-        guard let interval = recurrence.nextInterval(after: now) else {
-            throw LockValidationError.emptyWeekdays
-        }
-
         var normalized = replacement
         normalized.id = original.id
-        normalized.kind = .recurring
-        normalized.startsAt = interval.start
-        normalized.duration = interval.duration
         normalized.status = (enabled ?? (original.status != .disabled)) ? .scheduled : .disabled
 
         normalized = normalized.normalizedForMonitoring()
@@ -147,16 +123,13 @@ public struct LockPlanner: Sendable {
         existingRules: [LockRule],
         now: Date
     ) -> Bool {
-        existingRules.filter { $0.id != rule.id && $0.status == .scheduled && (!$0.isOneShot || $0.endsAt > now) }.contains { other in
+        existingRules.filter { $0.id != rule.id && $0.status == .scheduled && ($0.single == nil || $0.single!.endsAt > now) }.contains { other in
             // Preserve the existing policy allowing multiple repeating rules.
             // Enforcement takes the union of all currently active target sets.
             if !rule.isOneShot && !other.isOneShot { return false }
-            let fixed = rule.isOneShot ? rule : other
+            let fixed = (rule.single ?? other.single)!
             let candidate = rule.isOneShot ? other : rule
-            let interval = candidate.isOneShot
-                ? DateInterval(start: candidate.startsAt, end: candidate.endsAt)
-                : candidate.recurrence?.nextInterval(after: fixed.startsAt)
-            guard let interval else { return false }
+            guard let interval = candidate.nextInterval(after: fixed.startsAt) else { return false }
             return fixed.startsAt < interval.end && interval.start < fixed.endsAt
         }
     }

@@ -98,7 +98,7 @@ struct TargetSelectionButton: View {
     }
 
     private func openPicker() {
-        do { selection = try model.targetSelectionStore.load() }
+        do { selection = try model.selectedActivitySelection() }
         catch { model.lastErrorMessage = error.localizedDescription; return }
         saveError = nil
         isPickerPresented = true
@@ -378,12 +378,12 @@ struct TargetSelectionSummaryView: View {
     }
 
     private var fallbackSelectionName: String? {
-        model.lockState.targetSelections.last?.displayName
+        model.lockState.selectedTarget?.displayName
     }
 
     private func refresh() {
         do {
-            let selection = try model.targetSelectionStore.load()
+            let selection = try model.selectedActivitySelection()
             loadedSelection = selection
             summary = TargetSelectionSummary(selection: selection)
         } catch {

@@ -23,7 +23,7 @@ class PickerInstrumentation : Instrumentation() {
             lateinit var adapter: AppPickerAdapter
             val entries=(0 until 1000).map { AppEntry("fixture.app.$it","App %04d".format(it),it%8,"fixture-$it") }
             runOnMainSync {
-                a.draft=Targets()
+                a.editor.targets=Targets()
                 adapter=AppPickerAdapter(a,entries) {}
                 list=ListView(a).apply { this.adapter=adapter }
                 a.setContentView(list)
@@ -35,22 +35,22 @@ class PickerInstrumentation : Instrumentation() {
                 check(initialRows in 1..40) { "List inflated $initialRows rows for 1000 apps" }
                 val row=adapter.getView(0,null,list) as LinearLayout
                 (row.getChildAt(1) as CheckBox).performClick()
-                check(a.draft.apps==setOf("fixture.app.0"))
+                check(a.editor.targets.apps==setOf("fixture.app.0"))
                 val recycled=adapter.getView(1,row,list) as LinearLayout
                 check(recycled===row)
                 check(!(recycled.getChildAt(1) as CheckBox).isChecked) { "Recycled checkbox leaked" }
-                check(a.draft.apps==setOf("fixture.app.0")) { "Rebinding changed selection" }
+                check(a.editor.targets.apps==setOf("fixture.app.0")) { "Rebinding changed selection" }
                 adapter.filter("App 0999")
                 check(adapter.count==1 && adapter.getItem(0).pkg=="fixture.app.999")
                 adapter.filter("no-such-app")
                 check(adapter.count==0)
                 adapter.filter("")
-                check(a.draft.apps==setOf("fixture.app.0"))
-                a.draft=a.draft.copy(categories=setOf(1))
+                check(a.editor.targets.apps==setOf("fixture.app.0"))
+                a.editor.targets=a.editor.targets.copy(categories=setOf(1))
                 val inherited=adapter.getView(1,recycled,list) as LinearLayout
                 check((inherited.getChildAt(1) as CheckBox).isChecked)
                 check(!(inherited.getChildAt(1) as CheckBox).isEnabled)
-                a.draft=a.draft.copy(categories=emptySet())
+                a.editor.targets=a.editor.targets.copy(categories=emptySet())
                 adapter.getView(1,inherited,list)
                 check(!(inherited.getChildAt(1) as CheckBox).isChecked)
                 check((inherited.getChildAt(1) as CheckBox).isEnabled)
@@ -64,13 +64,13 @@ class PickerInstrumentation : Instrumentation() {
                 check(groups.getChildrenCount(0)==125)
                 val group=groups.getGroupView(0,false,null,list) as LinearLayout
                 (group.getChildAt(0) as CheckBox).performClick()
-                check(0 in a.draft.categories)
+                check(0 in a.editor.targets.categories)
                 (group.getChildAt(0) as CheckBox).performClick()
-                check(0 !in a.draft.categories)
-                a.draft=Targets(apps=setOf("fixture.app.0")); a.page="home"
+                check(0 !in a.editor.targets.categories)
+                a.editor.targets=Targets(apps=setOf("fixture.app.0")); a.route=Route.Home
                 a.pickTargets()
-                a.draft=Targets(apps=setOf("fixture.app.1")); a.goBack()
-                check(a.draft.apps==setOf("fixture.app.0")) { "Cancel did not restore selection" }
+                a.editor.targets=Targets(apps=setOf("fixture.app.1")); a.goBack()
+                check(a.editor.targets.apps==setOf("fixture.app.0")) { "Cancel did not restore selection" }
             }
             lateinit var categories: ExpandableListView
             runOnMainSync {

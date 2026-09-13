@@ -41,7 +41,7 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let repository = JSONFileLockRepository(fileURL: directory.appending(path: "state.json"))
-        let store = try LockStore(repository: repository)
+        let store = LockStore(repository: repository)
         let targetID = UUID(uuidString: "44444444-AAAA-BBBB-CCCC-444444444444")!
 
         try await store.saveTargetSelection(LockTargetSelectionRef(id: targetID, displayName: "Old Apps"))
@@ -106,8 +106,8 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let url = directory.appending(path: "state.json")
-        let app = try LockStore(repository: JSONFileLockRepository(fileURL: url))
-        let other = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+        let app = LockStore(repository: JSONFileLockRepository(fileURL: url))
+        let other = LockStore(repository: JSONFileLockRepository(fileURL: url))
         let now = date("2026-08-27T10:00:00Z")
         let rule = try await app.createRule(.delayed(delay: 3600, duration: 3600, targetSelectionID: UUID()), now: now)
         try await other.deleteRule(id: rule.id, now: now)
@@ -124,7 +124,7 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         try await withThrowingTaskGroup(of: Void.self) { group in
             for _ in 0..<24 {
                 group.addTask {
-                    let store = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+                    let store = LockStore(repository: JSONFileLockRepository(fileURL: url))
                     _ = try await store.saveTargetSelection(LockTargetSelectionRef())
                 }
             }
@@ -137,7 +137,7 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let url = directory.appending(path: "state.json")
-        let store = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+        let store = LockStore(repository: JSONFileLockRepository(fileURL: url))
         _ = try await store.snapshot() // UI snapshot predates the new rule.
         let now = Date()
         let rule = try await store.createRule(.delayed(delay: 3600, duration: 900, targetSelectionID: UUID()), now: now)

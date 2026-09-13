@@ -13,7 +13,7 @@ public struct MonitoringSchedule: Equatable, Sendable {
     public static func desired(for rules: [LockRule], at now: Date) -> [Self] {
         rules.filter { $0.status == .scheduled }.flatMap { rule -> [Self] in
             let name = "bearlock.\(rule.id.uuidString)"
-            if let recurrence = rule.recurrence, rule.kind == .recurring {
+            if let recurrence = rule.recurrence {
                 var calendar = Calendar(identifier: recurrence.calendarIdentifier)
                 calendar.timeZone = TimeZone(identifier: recurrence.timeZoneIdentifier) ?? .current
                 return recurrence.weekdays.sorted().map { day in
@@ -26,8 +26,8 @@ public struct MonitoringSchedule: Equatable, Sendable {
                     return Self(name: "\(name).\(day.rawValue)", start: start, end: end, repeats: true)
                 }
             }
-            guard rule.endsAt > now else { return [] }
-            let components = rule.monitoringComponents()
+            guard let single = rule.single, single.endsAt > now else { return [] }
+            let components = single.monitoringComponents()
             return [Self(name: name, start: components.start, end: components.end, repeats: false)]
         }
     }

@@ -7,7 +7,7 @@ final class MonitoringScheduleTests: XCTestCase {
     func testRecurringRegistrationUsesWeekdayAndWallTimeWithoutAnExpiredDate() throws {
         let recurrence = RecurrenceRule(weekdays: [.thursday, .saturday], startsAt: TimeOfDay(hour: 23, minute: 0),
             endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "Asia/Tokyo")
-        let rule = LockRule(kind: .recurring, startsAt: now.addingTimeInterval(-86400 * 30), duration: 28800,
+        let rule = LockRule(
             recurrence: recurrence, targetSelectionID: UUID())
         let schedules = MonitoringSchedule.desired(for: [rule], at: now)
         XCTAssertEqual(schedules.count, 2)
@@ -28,12 +28,14 @@ final class MonitoringScheduleTests: XCTestCase {
     func testDisabledAndExpiredRulesHaveNoMonitorWhileFutureAndActiveOneShotsDo() {
         let active = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-123), duration: 900, targetSelectionID: UUID())
         var disabled = active; disabled.id = UUID(); disabled.status = .disabled
-        var expired = active; expired.id = UUID(); expired.startsAt = now.addingTimeInterval(-900)
-        var future = active; future.id = UUID(); future.startsAt = now.addingTimeInterval(61)
+        var expired = active; expired.id = UUID()
+        var expiredSchedule = expired.single!; expiredSchedule.startsAt = now.addingTimeInterval(-900); expired.schedule = .single(expiredSchedule)
+        var future = active; future.id = UUID()
+        var futureSchedule = future.single!; futureSchedule.startsAt = now.addingTimeInterval(61); future.schedule = .single(futureSchedule)
         let schedules = MonitoringSchedule.desired(for: [active, disabled, expired, future], at: now)
         XCTAssertEqual(schedules.count, 2)
-        XCTAssertEqual(Calendar.current.date(from: schedules[0].end), active.endsAt)
-        XCTAssertEqual(Calendar.current.date(from: schedules[1].start), future.startsAt)
+        XCTAssertEqual(Calendar.current.date(from: schedules[0].end), active.single!.endsAt)
+        XCTAssertEqual(Calendar.current.date(from: schedules[1].start), future.single!.startsAt)
         XCTAssertTrue(schedules.allSatisfy { !$0.repeats })
     }
 

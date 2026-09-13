@@ -45,16 +45,26 @@ object Codec {
     private fun <T> JSONArray.mapObjects(f: (JSONObject) -> T) = (0 until length()).map { f(getJSONObject(it)) }
     fun targets(t: Targets) = JSONObject().put("apps", JSONArray(t.apps.toList())).put("domains", JSONArray(t.domains.toList())).put("categories", JSONArray(t.categories.toList()))
     fun targets(j: JSONObject) = Targets(j.getJSONArray("apps").strings(), j.getJSONArray("domains").strings(), j.getJSONArray("categories").ints())
-    fun encode(s: State): String = JSONObject().put("schema", 2).put("rules", JSONArray(s.rules.map {
-        JSONObject().put("id", it.id).put("title", it.title).put("targets", targets(it.targets)).put("start", it.start).put("end", it.end)
-            .put("days", JSONArray(it.days.toList())).put("minute", it.minute).put("duration", it.durationMinutes).put("zone", it.zone).put("enabled", it.enabled)
+    fun schedule(value: LockSchedule): JSONObject = when(value) {
+        is LockSchedule.Single -> JSONObject().put("type", "single").put("start",value.start).put("end",value.end)
+        is LockSchedule.Weekly -> JSONObject().put("type", "weekly").put("days",JSONArray(value.days.toList()))
+            .put("startMinute",value.startMinute).put("endMinute",value.endMinute).put("zone",value.zone)
+    }
+    fun schedule(value: JSONObject): LockSchedule = when(value.getString("type")) {
+        "single" -> LockSchedule.Single(value.getLong("start"),value.getLong("end"))
+        "weekly" -> LockSchedule.Weekly(value.getJSONArray("days").ints(),value.getInt("startMinute"),value.getInt("endMinute"),value.getString("zone"))
+        else -> error("invalid_schedule")
+    }
+    fun encode(s: State): String = JSONObject().put("schema", 3).put("rules", JSONArray(s.rules.map {
+        JSONObject().put("id", it.id).put("title", it.title).put("targets", targets(it.targets))
+            .put("schedule", schedule(it.schedule)).put("enabled", it.enabled)
     }))
         .put("recent", JSONArray(s.recent.map { JSONObject().put("targets", targets(it.targets)).put("used", it.usedAt).put("pinned", it.pinned).put("pinnedAt", it.pinnedAt ?: JSONObject.NULL) })).toString()
     fun decode(text: String): State {
-        val j = JSONObject(text); require(j.getInt("schema") == 2)
+        val j = JSONObject(text); require(j.getInt("schema") == 3)
         return State(j.getJSONArray("rules").mapObjects {
-            Rule(it.getString("id"), it.getString("title"), targets(it.getJSONObject("targets")), it.getLong("start"), it.getLong("end"),
-                it.getJSONArray("days").ints(), it.getInt("minute"), it.getInt("duration"), it.getString("zone"), it.optBoolean("enabled", true))
+            Rule(it.getString("id"), it.getString("title"), targets(it.getJSONObject("targets")),
+                schedule(it.getJSONObject("schedule")), it.getBoolean("enabled"))
         }, Planner.trimRecent(j.getJSONArray("recent").mapObjects { Recent(targets(it.getJSONObject("targets")), it.getLong("used"), it.getBoolean("pinned"), if(it.isNull("pinnedAt")) null else it.getLong("pinnedAt")) }))
     }
 }

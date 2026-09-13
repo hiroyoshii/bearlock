@@ -16,17 +16,17 @@ class ScreenshotActivity: MainActivity() {
         }
         visualPreview=true
         super.onCreate(savedInstanceState)
-        page=when(screen) { "home","setup","settings" -> screen; else->"fixture" }
-        draft=Targets(apps=setOf("com.hiyozoo.bearlock.probe","com.android.chrome"),domains=setOf("example.com"))
-        mode=when(screen) { "composeRepeat"->3; "composeDelayed"->1; "composeDate"->2;else->0 }
+        route=routeForPage(when(screen) { "home","setup","settings" -> screen; else->"fixture" })
+        editor.targets=Targets(apps=setOf("com.hiyozoo.bearlock.probe","com.android.chrome"),domains=setOf("example.com"))
+        editor.chooseMode(ComposerMode.entries[when(screen) { "composeRepeat"->3; "composeDelayed"->1; "composeDate"->2;else->0 }],fixtureNow)
         render()
     }
     override fun dispatchTouchEvent(event: android.view.MotionEvent) = true
     override fun load() {
         val targets=Targets(apps=setOf("com.hiyozoo.bearlock.probe","com.android.chrome"),domains=setOf("example.com"))
-        val delayed=Rule(id="visual-delayed",title=t("あとで開始","Starts later"),targets=targets,start=fixtureNow+30*60_000,end=fixtureNow+150*60_000,durationMinutes=120)
-        val fixed=delayed.copy(id="visual-fixed",title=t("日時指定","Date & Time"),start=fixtureNow+7*3_600_000,end=fixtureNow+9*3_600_000)
-        val repeat=delayed.copy(id="visual-repeat",title=t("繰り返し","Repeats"),days=setOf(1,2,3,4,5),minute=1380,durationMinutes=480)
+        val delayed=Rule(id="visual-delayed",title=t("あとで開始","Starts later"),targets=targets,schedule=LockSchedule.Single(fixtureNow+30*60_000,fixtureNow+150*60_000))
+        val fixed=delayed.copy(id="visual-fixed",title=t("日時指定","Date & Time"),schedule=LockSchedule.Single(fixtureNow+7*3_600_000,fixtureNow+9*3_600_000))
+        val repeat=delayed.copy(id="visual-repeat",title=t("繰り返し","Repeats"),schedule=LockSchedule.Weekly(setOf(1,2,3,4,5),1380,420))
         state=State(rules=listOf(delayed,fixed,repeat,repeat.copy(id="visual-off",enabled=false)))
     }
     override fun render() {
