@@ -6,6 +6,52 @@ final class BearLockLaunchUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    func testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets() throws {
+        let app = XCUIApplication()
+        let base = ["--ui-testing", "--ui-testing-approved", "--ui-testing-target-summary"]
+        app.launchArguments = base + ["--reset-ui-testing-state", "--ui-testing-seeded", "--ui-testing-read-failure"]
+        app.launch()
+        XCTAssertTrue(app.buttons["storage-retry"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["Get started"].exists)
+        XCTAssertFalse(app.buttons["lock-composer-primary-button"].exists)
+        app.buttons["storage-retry"].tap()
+        XCTAssertTrue(app.staticTexts["Saved data could not be read"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-recovery-storage-error")
+        app.buttons["storage-diagnostics"].tap()
+        XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["storage-retry"].exists)
+        app.terminate()
+        // Remove the injected failure; keep the same persisted repository.
+        app.launchArguments = base
+        app.launch()
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["storage-retry"].exists)
+        XCTAssertEqual(app.staticTexts["selected-target-count"].label, "3 targets")
+        captureScreenshot(named: "e2e-recovery-storage-restored")
+    }
+
+    func testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds() throws {
+        let app = XCUIApplication()
+        let base = ["--ui-testing", "--ui-testing-approved"]
+        app.launchArguments = base + ["--reset-ui-testing-state", "--ui-testing-seeded", "--ui-testing-monitoring-failure"]
+        app.launch()
+        XCTAssertTrue(app.buttons["monitoring-retry"].waitForExistence(timeout: 10))
+        app.buttons["monitoring-retry"].tap()
+        XCTAssertTrue(app.staticTexts["Monitoring could not be updated"].exists)
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["monitoring-retry"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-recovery-monitoring-error")
+        app.terminate()
+        app.launchArguments = base
+        app.launch()
+        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["monitoring-retry"].exists)
+        captureScreenshot(named: "e2e-recovery-monitoring-restored")
+    }
+
     func testLaunchSetupScreenAndCaptureScreenshot() throws {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing", "--reset-ui-testing-state"]

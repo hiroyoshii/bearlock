@@ -6,6 +6,8 @@ import android.content.*
 import android.os.Build
 
 object Scheduling {
+    @Volatile var updateFailed = false
+        private set
     fun permitted(c: Context) = Build.VERSION.SDK_INT < 31 || c.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
     fun sync(c: Context, refresh: () -> Unit = { GuardService.instance?.refresh() }): Result<Unit> {
         val store = Store(c)
@@ -23,6 +25,7 @@ object Scheduling {
                 }
             }
         }.onFailure { store.event("schedule_failure:${it.javaClass.simpleName}") }
+        updateFailed = result.isFailure
         // Expiry enforcement is independent of alarm registration success.
         refresh()
         return result

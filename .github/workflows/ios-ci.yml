@@ -112,6 +112,8 @@ jobs:
             -resultBundlePath "$E2E_RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testUnavailableAccessKeepsRecoveryAndSettingsReachable \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testIntroductionAndContextualAccessFlow \

@@ -9,6 +9,20 @@ struct HomeView: View {
         TimelineView(.periodic(from: .now, by: 1)) { _ in
             ScrollView {
                 VStack(spacing: 20) {
+                    if model.monitoringUpdateFailed {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("Monitoring could not be updated", systemImage: "exclamationmark.triangle")
+                                .font(.headline)
+                            Text("Your schedules are saved. Scheduled blocking may not work until monitoring is updated.")
+                            Button("Retry") { Task { await model.refresh() } }
+                                .disabled(model.isRefreshing)
+                                .accessibilityIdentifier("monitoring-retry")
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
+                        .accessibilityIdentifier("monitoring-update-error")
+                    }
                     if model.authorizationStatus != .approved && (model.authorizationStatus == .denied || !model.lockState.targetSelections.isEmpty || !model.lockState.rules.isEmpty) {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Screen Time access is unavailable. Blocking may not be active.")

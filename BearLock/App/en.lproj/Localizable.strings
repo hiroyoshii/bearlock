@@ -229,3 +229,11 @@
 "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.";
 "Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule." = "Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule.";
 "One-time locks cannot be ended early. Delete a repeating schedule to end its lock." = "One-time locks cannot be ended early. Delete a repeating schedule to end its lock.";
+
+"Saved data could not be read" = "Saved data could not be read";
+
+"Your data has not been replaced. Retry to load your targets and schedules." = "Your data has not been replaced. Retry to load your targets and schedules.";
+
+"Monitoring could not be updated" = "Monitoring could not be updated";
+
+"Your schedules are saved. Scheduled blocking may not work until monitoring is updated." = "Your schedules are saved. Scheduled blocking may not work until monitoring is updated.";

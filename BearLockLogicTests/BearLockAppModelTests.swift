@@ -26,6 +26,49 @@ final class BearLockAppModelTests: XCTestCase {
         XCTAssertEqual(repository.state.selectedTargetID, second.id)
     }
 
+    func testInitialReadFailureStaysFailedUntilRetryLoadsSavedData() async throws {
+        let h = try Harness()
+        let original = h.repository.state
+        h.repository.failRead = true
+        await h.model.refresh()
+        XCTAssertEqual(h.model.readStatus, .failed)
+        XCTAssertFalse(h.model.hasLoadedInitialState)
+        XCTAssertNil(h.model.lastErrorMessage)
+        XCTAssertEqual(h.schedule.calls, 0)
+        await h.model.refresh()
+        XCTAssertEqual(h.model.readStatus, .failed)
+        XCTAssertEqual(h.repository.state, original)
+        h.repository.failRead = false
+        await h.model.refresh()
+        XCTAssertEqual(h.model.readStatus, .loaded)
+        XCTAssertTrue(h.model.hasLoadedInitialState)
+        XCTAssertEqual(h.model.lockState, original)
+    }
+
+    func testLaterReadFailurePreservesLastSnapshotShieldAndMonitoringError() async throws {
+        let h = try Harness()
+        h.repository.state.rules = [LockRule(kind: .immediate, startsAt: Date().addingTimeInterval(-60),
+            duration: 3600, targetSelectionID: h.target.id)]
+        h.schedule.fail = true
+        await h.model.refresh()
+        let original = h.model.lockState
+        let applied = h.shield.selections
+        let calls = h.schedule.calls
+        h.repository.failRead = true
+        h.schedule.fail = false
+        await h.model.refresh()
+        XCTAssertEqual(h.model.readStatus, .failed)
+        XCTAssertEqual(h.model.lockState, original)
+        XCTAssertEqual(h.shield.selections, applied)
+        XCTAssertEqual(h.schedule.calls, calls)
+        XCTAssertTrue(h.model.monitoringUpdateFailed)
+        h.repository.failRead = false
+        await h.model.refresh()
+        XCTAssertEqual(h.model.readStatus, .loaded)
+        XCTAssertFalse(h.model.monitoringUpdateFailed)
+        XCTAssertEqual(h.model.lockState, original)
+    }
+
     func testTargetSaveFailureKeepsCurrentSelectionAndRetryCommitsIt() async throws {
         let h = try Harness()
         await h.model.refresh()
@@ -49,11 +92,16 @@ final class BearLockAppModelTests: XCTestCase {
         let saved = await h.model.createLock(.now(duration: 300, targetSelectionID: h.target.id))
         XCTAssertTrue(saved)
         XCTAssertEqual(h.model.lockState.rules.count, 1)
-        XCTAssertNotNil(h.model.lastErrorMessage)
+        XCTAssertTrue(h.model.monitoringUpdateFailed)
+        XCTAssertNil(h.model.lastErrorMessage)
         XCTAssertNotNil(h.model.activeLock)
         let rule = try XCTUnwrap(h.model.lockState.rules.first)
+        await h.model.refresh()
+        XCTAssertTrue(h.model.monitoringUpdateFailed)
+        XCTAssertEqual(h.model.lockState.rules, [rule])
         h.schedule.fail = false
         await h.model.refresh()
+        XCTAssertFalse(h.model.monitoringUpdateFailed)
         XCTAssertEqual(h.schedule.rules, [rule])
         XCTAssertEqual(h.model.lockState.rules, [rule])
     }
@@ -157,12 +205,18 @@ private final class TestShieldController: ShieldControlling, @unchecked Sendable
 }
 private final class MemoryRepository: LockRepository, @unchecked Sendable {
     var state = LockState()
+    var failRead = false
     var failWrite = false
     private let lock = NSRecursiveLock()
     func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T {
         lock.lock(); defer { lock.unlock() }; return try body()
     }
-    func load() throws -> LockState { try withExclusiveAccess { state } }
+    func load() throws -> LockState {
+        try withExclusiveAccess {
+            if failRead { throw TestFailure.unavailable }
+            return state
+        }
+    }
     func save(_ state: LockState) throws {
         try withExclusiveAccess {
             if failWrite { throw TestFailure.unavailable }

@@ -74,6 +74,8 @@ jobs:
           xcodebuild -project BearLock.xcodeproj -scheme BearLock \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -resultBundlePath artifacts/lock-ui-tests.xcresult \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testUnavailableAccessKeepsRecoveryAndSettingsReachable \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testIntroductionAndContextualAccessFlow \

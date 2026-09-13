@@ -37,7 +37,7 @@ open class MainActivity : Activity() {
         val now = System.currentTimeMillis()
         return Planner.editable(saved, now) && (saved.recurring || saved.single!!.start > now)
     }
-    private fun statusKey() = "${GuardService.instance != null}:${Scheduling.permitted(this)}:${store.error}"
+    private fun statusKey() = "${GuardService.instance != null}:${Scheduling.permitted(this)}:${store.error}:${Scheduling.updateFailed}"
     private val heartbeat = object : Runnable {
         override fun run() {
             if (page in listOf("home", "schedules")) {
@@ -49,7 +49,7 @@ open class MainActivity : Activity() {
                 load()
                 if (renderedEditable != editingAllowed()) render()
             }
-            if(page in listOf("home","setup","settings") && lastStatus != statusKey()) render()
+            if(page in listOf("home","setup","settings","schedules") && lastStatus != statusKey()) render()
             handler.postDelayed(this,1000)
         }
     }
@@ -176,6 +176,13 @@ open class MainActivity : Activity() {
         } else {
             scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
         }
+        if (page in listOf("home", "schedules", "settings") && Scheduling.updateFailed) {
+            val warning = ui.card()
+            ui.add(warning, ui.label(t("ロックの監視を更新できません", "Monitoring could not be updated"), 17f, true), 12)
+            ui.add(warning, ui.label(t("監視を更新するまで、予定時刻にロックが動作しない可能性があります。保存された予定は変更していません。", "Scheduled blocking may not work until monitoring is updated. Your saved schedules have not been changed."), 15f), 12)
+            ui.add(warning, ui.button(t("再試行", "Retry")) { syncSchedules() }.apply { tag="monitoring-retry" }, 0)
+            ui.add(body, warning, 20)
+        }
         when(page) {
             "setup" -> setup(body); "home" -> home(body); "compose" -> { Composer(this).showEditor(body); if (!renderedEditable) disableEditor(body) }
             "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body); "support" -> SupportScreen(this).show(body)
@@ -202,13 +209,10 @@ open class MainActivity : Activity() {
         view.isEnabled=false
         if(view is ViewGroup) for(i in 0 until view.childCount) disableEditor(view.getChildAt(i))
     }
+    open fun updateMonitoring(): Result<Unit> = Scheduling.sync(this)
     fun syncSchedules() {
-        Scheduling.sync(this).onFailure {
-            AlertDialog.Builder(this).setTitle(t("ロックの監視を更新できません", "Monitoring could not be updated"))
-                .setMessage(t("予約した時刻にロックが動作しない可能性があります。再試行するか、Bear Lockを開き直してください。", "Scheduled blocking may not work. Retry or reopen Bear Lock."))
-                .setNegativeButton(t("閉じる", "Close"),null)
-                .setPositiveButton(t("再試行", "Retry")) { _,_ -> syncSchedules() }.show()
-        }
+        updateMonitoring()
+        render()
     }
     fun error(key: String?) {
         val message=when(key) {

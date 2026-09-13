@@ -6,7 +6,10 @@ import FamilyControls
 final class BearLockAppModel: ObservableObject {
     @Published private(set) var authorizationStatus: AuthorizationState = .unknown
     @Published private(set) var lockState = LockState()
-    @Published private(set) var hasLoadedInitialState = false
+    enum ReadStatus { case loading, loaded, failed }
+    @Published private(set) var readStatus: ReadStatus = .loading
+    var hasLoadedInitialState: Bool { readStatus == .loaded }
+    @Published private(set) var monitoringUpdateFailed = false
     @Published private(set) var isCreatingLock = false
     @Published private(set) var isUpdatingLock = false
     @Published var lastErrorMessage: String?
@@ -18,7 +21,7 @@ final class BearLockAppModel: ObservableObject {
     let shieldController: ShieldControlling
     let scheduleController: ScheduleControlling
     private let lockStore: LockStore
-    private var isRefreshing = false
+    @Published private(set) var isRefreshing = false
 
     var activeLock: ActiveLock? { lockState.activeLockForDisplay(at: Date()) }
     private let diagnostics = DiagnosticsLogger.shared
@@ -55,8 +58,8 @@ final class BearLockAppModel: ObservableObject {
                 authorizationService: UITestingAuthorizationService(status: uiTestingAuthorizationStatus, deny: ProcessInfo.processInfo.arguments.contains("--ui-testing-deny-authorization")),
                 targetSelectionCodec: selectionStore,
                 shieldController: NoopShieldController(),
-                scheduleController: NoopScheduleController(),
-                lockStore: lockStore
+                scheduleController: UITestingScheduleController(),
+                lockStore: LockStore(repository: UITestingLockRepository(base: repository))
             )
         }
 
@@ -185,7 +188,7 @@ final class BearLockAppModel: ObservableObject {
     func refresh() async {
         guard !isRefreshing, !isCreatingLock, !isUpdatingLock else { return }
         isRefreshing = true
-        defer { isRefreshing = false; hasLoadedInitialState = true; refreshDiagnostics() }
+        defer { isRefreshing = false; refreshDiagnostics() }
         authorizationStatus = authorizationService.currentStatus()
         await synchronizeAndReconcile(isRefresh: true)
     }
@@ -195,8 +198,10 @@ final class BearLockAppModel: ObservableObject {
     private func synchronizeAndReconcile(isRefresh: Bool = false) async {
         do {
             lockState = try await lockStore.snapshot()
+            readStatus = .loaded
         } catch {
-            recordError("Lock.load.failed", error)
+            readStatus = .failed
+            recordError("Lock.load.failed", error, presentAlert: false)
             return
         }
         if isRefresh && (isCreatingLock || isUpdatingLock) { return }
@@ -204,10 +209,11 @@ final class BearLockAppModel: ObservableObject {
             if authorizationStatus == .approved {
                 let schedule = scheduleController
                 try await lockStore.synchronizeMonitoring { try schedule.synchronize($0, at: $1) }
+                monitoringUpdateFailed = false
             }
         } catch {
-            recordError("Schedule.synchronize.failed", error)
-            lastErrorMessage = L10n.string("Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry.")
+            monitoringUpdateFailed = true
+            recordError("Schedule.synchronize.failed", error, presentAlert: false)
         }
         let shield = shieldController
         let logger = diagnostics
@@ -419,8 +425,8 @@ final class BearLockAppModel: ObservableObject {
         )
     }
 
-    private func recordError(_ name: String, _ error: Error) {
-        lastErrorMessage = userFacingMessage(for: error)
+    private func recordError(_ name: String, _ error: Error, presentAlert: Bool = true) {
+        if presentAlert { lastErrorMessage = userFacingMessage(for: error) }
         diagnostics.record(name, level: .error, detail: diagnosticDetail(for: error))
     }
 

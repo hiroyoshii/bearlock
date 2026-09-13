@@ -52,3 +52,23 @@ final class UITestingAuthorizationService: AuthorizationServicing {
     func currentStatus() -> AuthorizationState { status }
     func requestAuthorization() async throws { status = deny ? .denied : .approved }
 }
+
+// Fault injection is reachable only from BearLockAppModel's --ui-testing path.
+struct UITestingScheduleController: ScheduleControlling {
+    func synchronize(_ rules: [LockRule], at now: Date) throws {
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-monitoring-failure") {
+            throw CocoaError(.fileReadUnknown)
+        }
+    }
+}
+struct UITestingLockRepository: LockRepository {
+    let base: JSONFileLockRepository
+    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try base.withExclusiveAccess(body) }
+    func load() throws -> LockState {
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-read-failure") {
+            throw CocoaError(.fileReadUnknown)
+        }
+        return try base.load()
+    }
+    func save(_ state: LockState) throws { try base.save(state) }
+}
