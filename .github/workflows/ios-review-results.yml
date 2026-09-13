@@ -2,7 +2,7 @@ name: Collect iOS review results
 
 on:
   workflow_run:
-    workflows: ['iOS CI', 'iOS Lock Lifecycle']
+    workflows: ['iOS CI', 'iOS Lock Lifecycle', 'Android CI', 'Android 14 Acceptance']
     types: [completed]
     branches: [main]
   workflow_dispatch:
@@ -41,11 +41,11 @@ jobs:
           def api(path):
               return json.loads(subprocess.check_output(['gh', 'api', f'repos/{repo}/{path}'], text=True))
           runs = [r for r in api(f'actions/runs?head_sha={sha}&per_page=100')['workflow_runs']
-                  if r['name'].startswith('iOS ') and r['event'] == 'push']
+                  if r['name'].startswith(('iOS ', 'Android ')) and r['event'] == 'push']
           output = Path('ci-results/ios-review') / sha
           output.mkdir(parents=True, exist_ok=True)
           report = {'sourceCommit': sha, 'collectedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'runs': []}
-          pattern = re.compile(r'error:|warning:|Test Case .* (passed|failed)|Test Suite |Executed \d+ tests|\*\*.*(SUCCEEDED|FAILED)|fatal error|Assertion|Failing tests|Testing failed|Error:')
+          pattern = re.compile(r'error:|warning:|Test Case .* (passed|failed)|Test Suite |Executed \d+ tests|\*\*.*(SUCCEEDED|FAILED)|fatal error|Assertion|Failing tests|Testing failed|Error:|PASS:|FAIL:|BUILD SUCCESSFUL|FAILURE:|AssertionError|Traceback|tests completed')
           for run in runs:
               jobs = api(f"actions/runs/{run['id']}/attempts/{run['run_attempt']}/jobs?per_page=100")['jobs']
               item = {k: run[k] for k in ['id', 'name', 'head_sha', 'status', 'conclusion', 'html_url', 'run_attempt']}
