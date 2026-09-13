@@ -36,7 +36,10 @@ final class BearLockLaunchUITests: XCTestCase {
         let base = ["--ui-testing", "--ui-testing-approved"]
         app.launchArguments = base + ["--reset-ui-testing-state", "--ui-testing-seeded", "--ui-testing-monitoring-failure"]
         app.launch()
-        XCTAssertTrue(app.buttons["monitoring-retry"].waitForExistence(timeout: 10))
+        let retry = app.buttons["monitoring-retry"]
+        let hasRetry = retry.waitForExistence(timeout: 10)
+        captureScreenshot(named: "e2e-recovery-monitoring-initial")
+        XCTAssertTrue(hasRetry, app.debugDescription)
         app.buttons["monitoring-retry"].tap()
         XCTAssertTrue(app.staticTexts["Monitoring could not be updated"].exists)
         app.buttons["Settings"].tap()

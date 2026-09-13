@@ -237,3 +237,5 @@
 "Monitoring could not be updated" = "Monitoring could not be updated";
 
 "Your schedules are saved. Scheduled blocking may not work until monitoring is updated." = "Your schedules are saved. Scheduled blocking may not work until monitoring is updated.";
+
+"Retry" = "Retry";

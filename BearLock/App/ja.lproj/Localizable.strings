@@ -237,3 +237,5 @@
 "Monitoring could not be updated" = "ロックの監視を更新できません";
 
 "Your schedules are saved. Scheduled blocking may not work until monitoring is updated." = "予定は保存されています。監視を更新するまで、予定時刻にロックが動作しない可能性があります。";
+
+"Retry" = "再試行";

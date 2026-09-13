@@ -21,7 +21,6 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
                         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
-                        .accessibilityIdentifier("monitoring-update-error")
                     }
                     if model.authorizationStatus != .approved && (model.authorizationStatus == .denied || !model.lockState.targetSelections.isEmpty || !model.lockState.rules.isEmpty) {
                         VStack(alignment: .leading, spacing: 12) {
