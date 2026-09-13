@@ -1,6 +1,9 @@
 name: Collect iOS review results
 
 on:
+  push:
+    branches: [main]
+    paths: [docs/qa/ci-review-request.json]
   workflow_run:
     workflows: ['iOS CI', 'iOS Lock Lifecycle', 'Android CI', 'Android 14 Acceptance']
     types: [completed]
@@ -35,7 +38,7 @@ jobs:
           python3 - <<'PY'
           import json, os, re, shutil, subprocess, tempfile, time
           from pathlib import Path
-          sha = os.environ['REVIEW_COMMIT']
+          sha = os.environ['REVIEW_COMMIT'] or json.loads(Path('docs/qa/ci-review-request.json').read_text())['commit']
           assert re.fullmatch(r'[0-9a-fA-F]{40}', sha), 'A full commit SHA is required'
           repo = os.environ['REPOSITORY']
           def api(path):
