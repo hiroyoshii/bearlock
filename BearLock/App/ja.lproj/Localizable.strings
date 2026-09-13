@@ -222,3 +222,10 @@
 "This schedule is no longer available." = "この予定は削除されています。";
 "This lock is active. Changes are available after it ends." = "実行中です。終了後に変更できます。";
 "Repeating schedules cannot be changed while they are active." = "繰り返し予定は、実行中には変更できません。";
+
+"Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets." = "この予定による実行中のロックも終了します。他の予定によるロックは続きます。";
+"Active. You can delete this schedule to end its lock." = "実行中です。予定を削除すると、このロックも終了します。";
+"You can delete this schedule at any time. Deleting it also ends its active lock." = "予定はいつでも削除できます。削除すると、実行中のロックも終了します。";
+"Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "実行中は時刻・曜日を変更できません。予定はいつでも削除できます。";
+"Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule." = "指定時刻になると自動で解除します。単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。";
+"One-time locks cannot be ended early. Delete a repeating schedule to end its lock." = "単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。";

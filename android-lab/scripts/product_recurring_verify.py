@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Overlapping repeats: immutable UI, first deadline still blocked, final deadline releases.
+"""Overlapping repeats: immutable editing, first deadline still blocked, final deadline releases.
 Only writes fixtures on an explicitly disposable emulator; never use on a personal device.
 """
 import json, os, re, subprocess, time
@@ -42,7 +42,8 @@ subprocess.run([q.ADB,'-s',q.SERIAL,'shell','run-as',q.APP,'sh','-c',"'cat > fil
 q.page('schedules',language='en')
 nodes = list(q.tree().iter('node'))
 buttons = [n for n in nodes if n.get('content-desc') in ('Edit scheduled lock','Delete scheduled lock')]
-assert len(buttons)==4 and all(n.get('enabled')=='false' for n in buttons)
+assert len(buttons)==4
+assert all(n.get('enabled') == ('true' if n.get('content-desc')=='Delete scheduled lock' else 'false') for n in buttons)
 q.shot('active-repeats')
 q.sh('am','start','-W','-n',probe+'/.ProbeActivity'); time.sleep(2)
 assert now() < end1

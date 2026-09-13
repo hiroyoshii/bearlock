@@ -62,7 +62,8 @@ jobs:
                           download = subprocess.run(['gh', 'run', 'download', str(run['id']), '--repo', repo,
                               '--name', 'bearlock-ios-ci-artifacts', '--dir', temp], capture_output=True, text=True)
                           item['artifactReadExitCode'] = download.returncode
-                          for source in Path(temp).rglob('e2e-target-summary-*.png'):
+                          for source in Path(temp).rglob('e2e-*.png'):
+                              if not source.name.startswith(('e2e-target-summary-', 'e2e-active-recurring-')): continue
                               destination = output / 'screenshots'
                               destination.mkdir(exist_ok=True)
                               shutil.copyfile(source, destination / source.name)

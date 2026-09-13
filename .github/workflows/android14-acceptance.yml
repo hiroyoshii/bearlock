@@ -55,6 +55,7 @@ jobs:
             adb shell am instrument -w com.hiyozoo.bearlock/.EditorInstrumentation > artifacts/android14/editor-test.log
             cat artifacts/android14/editor-test.log
             grep -q 'PASS: editor recreation' artifacts/android14/editor-test.log
+            BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_recurring_delete_verify.py
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_recurring_verify.py
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/onboarding_verify.py > artifacts/android14/onboarding-run.log 2>&1
             python3 android-lab/scripts/android14_verify.py

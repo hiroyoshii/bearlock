@@ -38,7 +38,7 @@ class ScreenshotActivity: MainActivity() {
         when(screen) {
             "confirmation" -> {
                 root.setBackgroundColor(Palette.white); body.setPadding(0,0,0,0); body.gravity=Gravity.CENTER
-                ui.add(body,ConfirmationContent(ui).build(t("3件の対象","3 targets"),dateText(fixtureNow+30*60_000),dateText(fixtureNow+150*60_000),false,{},{}),0)
+                ui.add(body,ConfirmationContent(ui).build(t("3件の対象","3 targets"),dateText(fixtureNow+30*60_000),dateText(fixtureNow+150*60_000),false,false,{},{}),0)
             }
             "activeLock" -> {
                 ui.add(body,ui.label(t("熊は眠っています","Bear is sleeping"),34f,true),24)

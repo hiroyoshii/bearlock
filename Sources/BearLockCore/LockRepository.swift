@@ -201,7 +201,7 @@ public actor LockStore {
     public func deleteRule(id: UUID, now: Date? = nil) throws {
         try update { state in
             guard let rule = state.rules.first(where: { $0.id == id }) else { return }
-            try rule.validateEditable(at: now ?? Date())
+            if rule.isOneShot { try rule.validateEditable(at: now ?? Date()) }
             state.rules.removeAll { $0.id == id }
         }
     }

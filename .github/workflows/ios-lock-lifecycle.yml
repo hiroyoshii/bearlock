@@ -82,7 +82,7 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testReusingTargetRefreshesHomeCountsDetailsAndConfirmation \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringScheduleRemainsVisibleButCannotBeChanged \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringCanBeDeletedWithConfirmation \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringDraftCancelsWithoutChangingSavedStatus \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/ui-tests.log
       - uses: actions/upload-artifact@v4

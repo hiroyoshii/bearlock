@@ -105,7 +105,7 @@ struct ScreenshotHostView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     ActiveLockView(activeLock: ScreenshotFixtures.activeLock)
-                    Text("During a lock, you cannot shorten it, delete it, or reduce blocked apps.")
+                    Text("One-time locks cannot be ended early. Delete a repeating schedule to end its lock.")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(AppTheme.navy.opacity(0.62))

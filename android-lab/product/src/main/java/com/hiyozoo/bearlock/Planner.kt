@@ -113,7 +113,7 @@ object Planner {
     }
     fun delete(state: State, id: String, now: Long): State {
         val rule = state.rules.find { it.id == id } ?: return state
-        require(editable(rule, now)) { "active_immutable" }
+        require(rule.recurring || editable(rule, now)) { "active_immutable" }
         return state.copy(rules = state.rules.filter { it.id != id })
     }
     // Keep stored history; the three-item limit applies to display, as on iOS.

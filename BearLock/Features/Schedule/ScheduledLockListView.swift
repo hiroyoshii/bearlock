@@ -50,7 +50,9 @@ struct ScheduledLockListView: View {
             }
             Button("Cancel", role: .cancel) { pendingDeletion = nil }
         } message: {
-            if let interval = pendingDeletion?.displayInterval {
+            if pendingDeletion?.kind == .recurring {
+                Text("Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.")
+            } else if let interval = pendingDeletion?.displayInterval {
                 Text("\(interval.start.formatted()) → \(interval.end.formatted())")
             }
         }
@@ -140,7 +142,7 @@ private struct ScheduledLockRow: View {
                         .foregroundStyle(AppTheme.navy.opacity(0.62))
                 }
                 if !canEdit {
-                    Text("This lock is active. Changes are available after it ends.")
+                    Text(LocalizedStringKey(rule.kind == .recurring ? "Active. You can delete this schedule to end its lock." : "This lock is active. Changes are available after it ends."))
                         .font(.caption)
                         .foregroundStyle(AppTheme.steel)
                 }
@@ -168,7 +170,7 @@ private struct ScheduledLockRow: View {
                 } label: {
                     Image(systemName: "trash")
                 }
-                .disabled(!canEdit)
+                .disabled(rule.kind != .recurring && !canEdit)
                 .accessibilityLabel("Delete scheduled lock")
                 .accessibilityIdentifier("scheduled-lock-delete-button")
             }

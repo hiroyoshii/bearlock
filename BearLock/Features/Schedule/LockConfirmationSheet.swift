@@ -9,6 +9,7 @@ struct LockConfirmationDetails: Equatable {
     var startSummary: String? = nil
     var endSummary: String? = nil
     var isImmediate: Bool
+    var isRecurring: Bool = false
 }
 
 struct LockConfirmationSheet: View {
@@ -29,7 +30,7 @@ struct LockConfirmationSheet: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy)
 
-                Text("After this starts, it cannot be shortened or ended early.")
+                Text(LocalizedStringKey(details.isRecurring ? "You can delete this schedule at any time. Deleting it also ends its active lock." : "After this starts, it cannot be shortened or ended early."))
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.68))

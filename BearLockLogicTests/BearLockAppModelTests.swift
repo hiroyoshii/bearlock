@@ -80,7 +80,7 @@ final class BearLockAppModelTests: XCTestCase {
         XCTAssertEqual(h.shield.selections, [])
     }
 
-    func testActiveRecurringEditDisableAndDeleteLeaveRuleAndMonitoringUnchanged() async throws {
+    func testActiveRecurringDeletionFailureKeepsLockAndRetryClearsDespiteMonitorFailure() async throws {
         let h = try Harness()
         let now = Date(), calendar = Calendar.current
         let start = now.addingTimeInterval(-60), end = now.addingTimeInterval(180)
@@ -94,10 +94,20 @@ final class BearLockAppModelTests: XCTestCase {
         let calls = h.schedule.calls
         let saved = await h.model.updateRecurringRule(rule, recurrence: recurrence, enabled: false)
         XCTAssertFalse(saved)
+        h.repository.failWrite = true
         await h.model.deleteScheduledRule(rule)
         XCTAssertEqual(h.model.lockState.rules, [rule])
         XCTAssertEqual(h.schedule.calls, calls)
         XCTAssertEqual(h.shield.selections, [h.target])
+        h.repository.failWrite = false
+        h.schedule.fail = true
+        await h.model.deleteScheduledRule(rule)
+        XCTAssertTrue(h.model.lockState.rules.isEmpty)
+        XCTAssertEqual(h.shield.selections, [])
+        XCTAssertNil(h.model.activeLock)
+        h.schedule.fail = false
+        await h.model.refresh()
+        XCTAssertEqual(h.schedule.rules, [])
     }
 
     func testFailedMonitorRemovalRetriesFromDeletedDesiredRule() async throws {

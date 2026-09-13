@@ -49,15 +49,28 @@ class PlannerTest {
         assertEquals(now+120_000,edited.rules.single().single!!.start)
         assertTrue(Planner.delete(edited,r.id,now).rules.isEmpty())
     }
-    @Test fun activeRecurringCannotBeEditedDisabledOrDeleted() {
+    @Test fun activeRecurringCannotBeEditedOrDisabledButCanBeDeleted() {
         val r=weekly(days=setOf(1),minute=9*60,durationMinutes=30)
         val s=Planner.save(State(),r,now)
         for (draft in listOf(r.copy(targets=Targets(apps=setOf("new"))),r.copy(enabled=false))) {
             assertThrows(IllegalArgumentException::class.java) { Planner.replace(s,draft,now+1) }
         }
-        assertThrows(IllegalArgumentException::class.java) { Planner.delete(s,r.id,now+1) }
+        assertTrue(Planner.delete(s,r.id,now+1).rules.isEmpty())
         assertEquals(target,s.activeLocks(now+1).single().targets)
         assertTrue(Planner.delete(s,r.id,now+30*60_000).rules.isEmpty())
+    }
+    @Test fun deletingAllDayRepeatPreservesOtherRuleThenReleases() {
+        val a=weekly(days=(1..7).toSet(),minute=540,durationMinutes=1440)
+        val b=a.copy(id="other")
+        val both=Planner.save(Planner.save(State(),a,now),b,now)
+        val one=Planner.delete(both,a.id,now)
+        assertEquals(listOf(b),one.rules)
+        assertNotNull(one.blockingLock(now,"app.a"))
+        val none=Planner.delete(one,b.id,now)
+        assertTrue(none.rules.isEmpty())
+        assertNull(none.blockingLock(now,"app.a"))
+        assertNull(Planner.nextBoundary(none,now))
+        assertTrue(none.activeLocks(now+Planner.DAY).isEmpty())
     }
     @Test fun dailyCrossMidnightAndDstUseSavedZone() {
         val r=weekly(days=setOf(1),minute=23*60+30,durationMinutes=90)

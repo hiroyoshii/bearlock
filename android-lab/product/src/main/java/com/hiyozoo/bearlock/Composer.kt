@@ -35,7 +35,7 @@ class Composer(private val a: MainActivity) {
             setOnCheckedChangeListener { _,on -> a.editor.enabled=on }
         },16)
         fields(c); u.add(parent,c,20)
-        u.add(parent,u.label(if(a.mode==3) t("繰り返し予定は、実行中には変更できません。","Repeating schedules cannot be changed while they are active.") else t("予約は開始前のみ編集できます。開始後は短縮、削除、対象の削減はできません。","Scheduled locks can only be edited before they start. Active locks cannot be shortened, deleted, or have targets reduced."),13f,muted=true),16)
+        u.add(parent,u.label(if(a.mode==3) t("実行中は時刻・曜日を変更できません。予定はいつでも削除できます。","Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.") else t("予約は開始前のみ編集できます。開始後は短縮、削除、対象の削減はできません。","Scheduled locks can only be edited before they start. Active locks cannot be shortened, deleted, or have targets reduced."),13f,muted=true),16)
         if(a.mode!=3) {
             val row=u.row(); val wake=u.label(dateText(a.editor.at+a.editor.duration*60_000L),15f).apply { gravity=Gravity.END }
             row.addView(u.label(t("起床","Wakes"),14f,false,true),LinearLayout.LayoutParams(0,-2,1f)); row.addView(wake,LinearLayout.LayoutParams(0,-2,2f)); u.add(parent,row,12)
@@ -155,7 +155,7 @@ class Composer(private val a: MainActivity) {
             val first=rule.nextOccurrence(now) ?: error("invalid_time")
             val dialog=Dialog(a)
             val content=ConfirmationContent(u).build(a.catalog.summary(rule.targets),when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.editor.delay}分後","${a.editor.delay} min after confirmation"); 3 -> daysText(a.editor.days)+" %02d:%02d".format(a.editor.repeatStart/60,a.editor.repeatStart%60); else -> dateText(first.start) },
-                if(a.mode in listOf(0,1)) t("開始から${a.editor.duration}分後","${a.editor.duration} min after start") else dateText(first.end),a.mode==0,{ dialog.dismiss() }) {
+                if(a.mode in listOf(0,1)) t("開始から${a.editor.duration}分後","${a.editor.duration} min after start") else dateText(first.end),a.mode==0,a.mode==3,{ dialog.dismiss() }) {
                 try {
                     a.state=a.store.change { val savedAt=System.currentTimeMillis(); Planner.save(it,make(savedAt),savedAt) }
                     a.persistSelection(); a.store.event("lock_saved"); dialog.dismiss(); a.navigate("home"); a.syncSchedules()
@@ -171,11 +171,11 @@ class Composer(private val a: MainActivity) {
 }
 
 class ConfirmationContent(private val u: Ui) {
-    fun build(targets: String, start: String, end: String, immediate: Boolean, cancel: ()->Unit, confirm: ()->Unit): LinearLayout {
+    fun build(targets: String, start: String, end: String, immediate: Boolean, recurring: Boolean, cancel: ()->Unit, confirm: ()->Unit): LinearLayout {
         val c=u.column().apply { setPadding(u.dp(24),u.dp(20),u.dp(24),u.dp(24)); gravity=Gravity.CENTER_HORIZONTAL; setBackgroundColor(Palette.background) }
         u.add(c,u.asset(R.drawable.bear_arming,112),16)
         u.add(c,u.label(tr(u.c,if(immediate) "熊を眠らせます。" else "ロックを予約します。",if(immediate) "Put Bear to sleep." else "Schedule Bear’s sleep."),22f,true).apply { gravity=Gravity.CENTER },12)
-        u.add(c,u.label(tr(u.c,"開始後は短縮・解除できません。","Once started, you cannot shorten or end it early."),15f,muted=true).apply { gravity=Gravity.CENTER },22)
+        u.add(c,u.label(if(recurring) tr(u.c,"予定はいつでも削除できます。削除すると、実行中のロックも終了します。","You can delete this schedule at any time. Deleting it also ends its active lock.") else tr(u.c,"開始後は短縮・解除できません。","Once started, you cannot shorten or end it early."),15f,muted=true).apply { gravity=Gravity.CENTER },22)
         val summary=u.card().apply { background=u.bg(Palette.ice) }
         u.pair(summary,tr(u.c,"対象アプリ","Apps"),targets,8,emphasized=true)
         u.pair(summary,tr(u.c,"開始","Starts"),start,8,emphasized=true)

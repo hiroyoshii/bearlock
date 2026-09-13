@@ -127,7 +127,7 @@ final class LockStoreTests: XCTestCase {
         }
     }
 
-    func testActiveRulesRejectEditDisableAndDeleteAtSaveTime() async throws {
+    func testActiveRulesRejectEditsAndSingleLocksRejectDeletion() async throws {
         // Both one-shot and recurring rules, including the overnight tail.
         for recurring in [false, true] {
             let repository = InMemoryLockRepository()
@@ -150,10 +150,12 @@ final class LockStoreTests: XCTestCase {
                     try await store.replaceRule(draft, now: now)
                     XCTFail("An active rule was changed")
                 } catch { XCTAssertEqual(error as? LockValidationError, .activeLockIsImmutable) }
-                do {
-                    try await store.deleteRule(id: rule.id, now: now)
-                    XCTFail("An active rule was deleted")
-                } catch { XCTAssertEqual(error as? LockValidationError, .activeLockIsImmutable) }
+                if !recurring {
+                    do {
+                        try await store.deleteRule(id: rule.id, now: now)
+                        XCTFail("An active single lock was deleted")
+                    } catch { XCTAssertEqual(error as? LockValidationError, .activeLockIsImmutable) }
+                }
                 let snapshot = try await store.snapshot()
                 XCTAssertEqual(snapshot.rules, [rule])
             }
@@ -162,6 +164,26 @@ final class LockStoreTests: XCTestCase {
             let snapshot = try await store.snapshot()
             XCTAssertTrue(snapshot.rules.isEmpty)
         }
+    }
+
+    func testDeleteAllDayRecurringDuringLockPreservesOtherRuleThenReleases() async throws {
+        let store = LockStore(repository: InMemoryLockRepository())
+        let now = date("2026-09-13T09:00:00Z")
+        let target = try await store.saveTargetSelection(LockTargetSelectionRef(displayName: "Apps"), now: now)
+        let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases), startsAt: TimeOfDay(hour: 9, minute: 0),
+            endsAt: TimeOfDay(hour: 9, minute: 0), timeZoneIdentifier: "UTC")
+        let a = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: target.id), now: now)
+        let b = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: target.id), now: now)
+        try await store.deleteRule(id: a.id, now: now)
+        var state = try await store.snapshot()
+        XCTAssertEqual(state.rules, [b])
+        XCTAssertEqual(try state.selectionsToShield(at: now), [target])
+        try await store.deleteRule(id: b.id, now: now)
+        state = try await store.snapshot()
+        XCTAssertTrue(state.rules.isEmpty)
+        XCTAssertTrue(try state.selectionsToShield(at: now).isEmpty)
+        XCTAssertTrue(state.activeLocks(at: now.addingTimeInterval(86400)).isEmpty)
+        XCTAssertTrue(MonitoringSchedule.desired(for: state.rules, at: now).isEmpty)
     }
 
     func testDisabledRecurringRuleCanBeEditedDuringItsTimeWindow() async throws {

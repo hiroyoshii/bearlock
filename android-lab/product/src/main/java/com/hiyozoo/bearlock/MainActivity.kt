@@ -241,7 +241,7 @@ open class MainActivity : Activity() {
         if(active.isNotEmpty() && (visualPreview || (store.error == null && GuardService.instance != null))) {
             countdownEnd=active.maxOf { it.end }
             countdown=ActiveCard(ui).show(parent,remaining(countdownEnd),timeText(countdownEnd))
-            ui.add(parent,ui.label(t("ロック中は短縮、削除、対象アプリの削減はできません。","During a lock, you cannot shorten it, delete it, or reduce blocked apps."),13f,muted=true),20)
+            ui.add(parent,ui.label(t("単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。","One-time locks cannot be ended early. Delete a repeating schedule to end its lock."),13f,muted=true),20)
             if(mode==0) editor.chooseMode(ComposerMode.LATER,System.currentTimeMillis())
         }
         if(active.isNotEmpty() && mode==0) editor.chooseMode(ComposerMode.LATER,System.currentTimeMillis())
@@ -263,7 +263,7 @@ open class MainActivity : Activity() {
         val group=ui.column().apply { setPadding(ui.dp(4),0,ui.dp(4),0) }
         ui.add(group,ui.asset(R.drawable.brand_hero,175).apply { layoutParams=LinearLayout.LayoutParams(minOf(ui.dp(310),resources.displayMetrics.widthPixels-ui.dp(48)),ui.dp(175)).apply { gravity=Gravity.CENTER_HORIZONTAL } },18)
         ui.add(group,ui.label(t("アプリを選び、時間を\n決めて、ロックします。","Choose apps, set a time,\nand lock them."),20f,true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },28)
-        ui.add(group,ui.label(t("開始後は途中で解除できません。終了時刻になると、自動で解除されます。","Once started, the lock cannot be ended early. It ends automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
+        ui.add(group,ui.label(t("指定時刻になると自動で解除します。単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。","Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
         ui.add(group,ui.button(t("はじめる","Get started"),true) {
             getPreferences(0).edit().putBoolean("onboarded",true).apply(); navigate("home")
         },0)

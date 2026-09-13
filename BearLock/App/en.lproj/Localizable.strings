@@ -222,3 +222,10 @@
 "This schedule is no longer available." = "This schedule is no longer available.";
 "This lock is active. Changes are available after it ends." = "This lock is active. Changes are available after it ends.";
 "Repeating schedules cannot be changed while they are active." = "Repeating schedules cannot be changed while they are active.";
+
+"Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets." = "Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.";
+"Active. You can delete this schedule to end its lock." = "Active. You can delete this schedule to end its lock.";
+"You can delete this schedule at any time. Deleting it also ends its active lock." = "You can delete this schedule at any time. Deleting it also ends its active lock.";
+"Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.";
+"Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule." = "Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule.";
+"One-time locks cannot be ended early. Delete a repeating schedule to end its lock." = "One-time locks cannot be ended early. Delete a repeating schedule to end its lock.";

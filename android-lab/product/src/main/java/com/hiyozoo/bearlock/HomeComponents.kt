@@ -95,14 +95,15 @@ class ScheduleList(private val a: MainActivity) {
             val info=u.column(); u.add(info,u.label(if(rule.recurring) a.t("繰り返し","Repeats") else rule.title,15f,true),4)
             val next=rule.copy(enabled=true).nextOccurrence(now)
             u.add(info,u.label(next?.let { dateText(it.start)+"\n→ "+dateText(it.end) } ?: a.t("次の予定はありません","No upcoming lock"),12f,muted=true),0)
-            if(isActive) u.add(info,u.label(a.t("実行中です。終了後に変更できます。","This lock is active. Changes are available after it ends."),12f,muted=true),0)
+            if(isActive) u.add(info,u.label(if(rule.recurring) a.t("実行中です。予定を削除すると、このロックも終了します。","Active. You can delete this schedule to end its lock.") else a.t("実行中です。終了後に変更できます。","This lock is active. Changes are available after it ends."),12f,muted=true),0)
             if(!rule.enabled) u.add(info,u.label(a.t("オフ","Off"),11f,true,true),0)
             r.addView(info,LinearLayout.LayoutParams(0,-2,1f))
             r.addView(u.iconButton("✎",a.t("予約を編集","Edit scheduled lock")) { a.edit(rule) }.apply { isEnabled=!isActive; alpha=if(isActive) .5f else 1f })
             r.addView(u.iconButton("♜",a.t("予約を削除","Delete scheduled lock")) {
                 AlertDialog.Builder(a).setTitle(a.t("予約を削除しますか？","Delete this schedule?"))
+                    .setMessage(if(rule.recurring) a.t("この予定による実行中のロックも終了します。他の予定によるロックは続きます。","Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.") else null)
                     .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Delete")) { _,_-> a.mutate { Planner.delete(it,rule.id,System.currentTimeMillis()) } }.show()
-            }.apply { isEnabled=!isActive; alpha=if(isActive) .5f else 1f; setTextColor(android.graphics.Color.rgb(255,59,48)) })
+            }.apply { isEnabled=rule.recurring || !isActive; alpha=if(isEnabled) 1f else .5f; setTextColor(android.graphics.Color.rgb(255,59,48)) })
             u.add(parent,r,12)
         }
     }

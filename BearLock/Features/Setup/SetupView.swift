@@ -22,7 +22,7 @@ struct SetupView: View {
             }
 
             VStack(spacing: 12) {
-                Text("Once started, the lock cannot be ended early. It ends automatically at the chosen time.")
+                Text("Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule.")
                     .font(.footnote)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)

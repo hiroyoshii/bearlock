@@ -135,7 +135,7 @@ final class BearLockAppModel: ObservableObject {
             )
         } else if arguments.contains("--ui-testing-active-recurring") {
             let start = now.addingTimeInterval(-300)
-            let end = now.addingTimeInterval(3600)
+            let end = arguments.contains("--ui-testing-all-day-recurring") ? start : now.addingTimeInterval(3600)
             let calendar = Calendar.current
             let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases),
                 startsAt: TimeOfDay(hour: calendar.component(.hour, from: start), minute: calendar.component(.minute, from: start)),
