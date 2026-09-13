@@ -70,3 +70,15 @@ struct FamilyActivityTargetSelectionStore: TargetSelectionStoring {
         try data.write(to: AppGroup.selectionURL, options: [.atomic])
     }
 }
+
+// Shared by enforcement and the shield's deadline label.
+extension LockTargetSelectionRef {
+    func decodedSelection() throws -> FamilyActivitySelection {
+        guard let data = tokenData else { throw TargetSelectionStoreError.selectionDataUnavailable }
+        let selection = try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
+        guard !selection.applicationTokens.isEmpty || !selection.categoryTokens.isEmpty || !selection.webDomainTokens.isEmpty else {
+            throw TargetSelectionStoreError.emptySelection
+        }
+        return selection
+    }
+}

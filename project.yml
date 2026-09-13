@@ -13,6 +13,14 @@ packages:
   BearLockCore:
     path: .
 schemes:
+  BearLockLogic:
+    build:
+      targets:
+        BearLockPurchaseTestHost: all
+        BearLockLogicTests: all
+    test:
+      targets:
+        - BearLockLogicTests
   BearLockPurchases:
     build:
       targets:
@@ -100,6 +108,11 @@ targets:
     platform: iOS
     sources:
       - BearLock/Extensions/ShieldConfiguration
+      - path: BearLock/Services/AppGroup.swift
+      - path: BearLock/Services/ShieldController.swift
+      - path: BearLock/Services/DiagnosticsLogger.swift
+      - path: BearLock/Services/TargetSelectionStore.swift
+      - path: BearLock/Services/Localization.swift
     dependencies:
       - package: BearLockCore
         product: BearLockCore
@@ -171,3 +184,21 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGNING_ALLOWED: NO
         TARGETED_DEVICE_FAMILY: "1"
+
+  BearLockLogicTests:
+    type: bundle.unit-test
+    platform: iOS
+    dependencies:
+      - target: BearLockPurchaseTestHost
+      - package: BearLockCore
+        product: BearLockCore
+    sources:
+      - BearLockLogicTests
+      - BearLock/App/BearLockAppModel.swift
+      - BearLock/App/BearLockSafetyPolicy.swift
+      - BearLock/Services
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.logic-tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO

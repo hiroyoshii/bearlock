@@ -67,7 +67,6 @@
 "Open a blocked app" = "対象アプリを開く";
 "Quietly hibernate selected apps until the chosen time." = "選んだアプリを終了時刻までロックします。";
 "Recent Events" = "最近のイベント";
-"Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared." = "繰り返しルールの変更は次回以降に反映されます。現在のロックは短縮・解除されません。";
 "Recurring rules" = "繰り返し予定";
 "Uses selected schedule" = "選択した予定に従います";
 "Repeat" = "繰り返し";
@@ -218,3 +217,8 @@
 "Screen Time access" = "スクリーンタイムへのアクセス";
 
 "Not now" = "あとで";
+
+"Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry." = "予定は保存されていますが、ロックの監視を更新できませんでした。Bear Lockを開き直して再試行してください。";
+"This schedule is no longer available." = "この予定は削除されています。";
+"This lock is active. Changes are available after it ends." = "実行中です。終了後に変更できます。";
+"Repeating schedules cannot be changed while they are active." = "繰り返し予定は、実行中には変更できません。";

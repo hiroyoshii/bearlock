@@ -28,42 +28,46 @@ struct ScheduledLockEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Schedule") {
-                    DatePicker("Starts", selection: $startsAt, displayedComponents: [.date, .hourAndMinute])
-                    DurationPickerControl(
-                        minutes: $durationMinutes,
-                        minimumMinutes: minimumDurationMinutes,
-                        maximumMinutes: maximumDurationMinutes
-                    )
-                }
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            let hasStarted = rule.startsAt <= context.date
+            NavigationStack {
+                Form {
+                    Section("Schedule") {
+                        DatePicker("Starts", selection: $startsAt, displayedComponents: [.date, .hourAndMinute])
+                        DurationPickerControl(
+                            minutes: $durationMinutes,
+                            minimumMinutes: minimumDurationMinutes,
+                            maximumMinutes: maximumDurationMinutes
+                        )
+                    }
+                    .disabled(isSaving || hasStarted)
 
-                Section("Confirmation") {
-                    LabeledContent("Wakes") {
-                        Text(endsAt.formatted(date: .abbreviated, time: .shortened))
+                    Section("Confirmation") {
+                        LabeledContent("Wakes") {
+                            Text(endsAt.formatted(date: .abbreviated, time: .shortened))
+                        }
+                        if let safetyLimitText {
+                            Label(safetyLimitText, systemImage: "exclamationmark.shield")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(AppTheme.steel)
+                        }
+                        Text("Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
-                    if let safetyLimitText {
-                        Label(safetyLimitText, systemImage: "exclamationmark.shield")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(AppTheme.steel)
-                    }
-                    Text("Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                 }
-            }
-            .navigationTitle("Edit Lock")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .disabled(isSaving)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        onSave(startsAt, durationMinutes * 60)
+                .navigationTitle("Edit Lock")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", action: onCancel)
+                            .disabled(isSaving)
                     }
-                    .disabled(isSaving || startsAt <= Date() || isOverSafetyLimit)
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            onSave(startsAt, durationMinutes * 60)
+                        }
+                        .disabled(hasStarted || isSaving || startsAt <= Date() || isOverSafetyLimit)
+                    }
                 }
             }
         }

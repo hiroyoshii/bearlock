@@ -2,9 +2,11 @@ name: iOS Lock Lifecycle
 
 on:
   push:
-    branches: [main, 'codex/fix-lock-expiry']
+    branches: [main]
     paths:
       - 'BearLock/**'
+      - 'BearLockLogicTests/**'
+      - 'BearLockUITests/**'
       - 'Sources/**'
       - 'Tests/**'
       - 'Scripts/test-lock-repository-processes.py'
@@ -40,6 +42,13 @@ jobs:
           brew install xcodegen
           bash Scripts/validate-ios-project.sh
           xcodegen generate
+      - name: App save and retry integration tests
+        run: |
+          set -o pipefail
+          xcodebuild -project BearLock.xcodeproj -scheme BearLockLogic \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -resultBundlePath artifacts/logic-tests.xcresult \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/logic-tests.log
       - name: Build app and all Screen Time extensions
         run: |
           set -o pipefail
@@ -72,6 +81,8 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringScheduleRemainsVisibleButCannotBeChanged \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringDraftCancelsWithoutChangingSavedStatus \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/ui-tests.log
       - uses: actions/upload-artifact@v4
         if: always()

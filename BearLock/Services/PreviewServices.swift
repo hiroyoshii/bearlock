@@ -25,13 +25,11 @@ struct PreviewTargetSelectionStore: TargetSelectionStoring {
 }
 
 struct NoopShieldController: ShieldControlling {
-    func applyShield(for activeLock: ActiveLock, selection: LockTargetSelectionRef?) throws {}
-    func clearShield() {}
+    func applyShield(selections: [LockTargetSelectionRef]) throws {}
 }
 
 struct NoopScheduleController: ScheduleControlling {
-    func schedule(_ rule: LockRule) throws {}
-    func cancel(_ rule: LockRule) throws {}
+    func synchronize(_ rules: [LockRule], at now: Date) throws {}
 }
 
 // Used only by the existing --ui-testing launch path; no system prompt is simulated as real consent.

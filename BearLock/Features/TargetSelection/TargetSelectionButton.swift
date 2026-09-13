@@ -105,7 +105,7 @@ struct TargetSelectionButton: View {
     }
 
     private var isLocked: Bool {
-        model.lockState.activeLock?.isActive(at: Date()) == true
+        model.activeLock?.isActive(at: Date()) == true
     }
 
     private var usesUITestingPicker: Bool {
@@ -357,7 +357,7 @@ struct TargetSelectionSummaryView: View {
     }
 
     private var showsRecentTargets: Bool {
-        model.lockState.activeLock?.isActive(at: Date()) != true
+        model.activeLock?.isActive(at: Date()) != true
             && !model.lockState.displayedRecentLockTargets(limit: 3).isEmpty
     }
 

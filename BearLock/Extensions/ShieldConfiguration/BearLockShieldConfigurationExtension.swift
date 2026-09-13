@@ -1,3 +1,4 @@
+import FamilyControls
 import ManagedSettings
 import ManagedSettingsUI
 import UIKit
@@ -7,25 +8,35 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     private let expiryRecovery = ShieldExpiryRecovery()
 
     override func configuration(shielding application: Application) -> ShieldConfiguration {
-        return configuration(title: title(for: application.localizedDisplayName, fallbackKey: "This app is sleeping."))
+        return configuration(title: title(for: application.localizedDisplayName, fallbackKey: "This app is sleeping.")) { selection in
+            application.token.map { selection.applicationTokens.contains($0) } ?? false
+        }
     }
 
     override func configuration(shielding application: Application, in category: ActivityCategory) -> ShieldConfiguration {
         let displayName = application.localizedDisplayName ?? category.localizedDisplayName
-        return configuration(title: title(for: displayName, fallbackKey: "This app is sleeping."))
+        return configuration(title: title(for: displayName, fallbackKey: "This app is sleeping.")) { selection in
+            (application.token.map { selection.applicationTokens.contains($0) } ?? false) ||
+            (category.token.map { selection.categoryTokens.contains($0) } ?? false)
+        }
     }
 
     override func configuration(shielding webDomain: WebDomain) -> ShieldConfiguration {
-        return configuration(title: localized("This website is sleeping."))
+        return configuration(title: localized("This website is sleeping.")) { selection in
+            webDomain.token.map { selection.webDomainTokens.contains($0) } ?? false
+        }
     }
 
     override func configuration(shielding webDomain: WebDomain, in category: ActivityCategory) -> ShieldConfiguration {
-        return configuration(title: title(for: category.localizedDisplayName, fallbackKey: "This website is sleeping."))
+        return configuration(title: title(for: category.localizedDisplayName, fallbackKey: "This website is sleeping.")) { selection in
+            (webDomain.token.map { selection.webDomainTokens.contains($0) } ?? false) ||
+            (category.token.map { selection.categoryTokens.contains($0) } ?? false)
+        }
     }
 
-    private func configuration(title: String) -> ShieldConfiguration {
-        expiryRecovery.reconcile()
-        let subtitle = activeLockReader.unlockText() ?? localized("Locked until the scheduled time.")
+    private func configuration(title: String, matches: (FamilyActivitySelection) -> Bool) -> ShieldConfiguration {
+        let state = expiryRecovery.reconcile()
+        let subtitle = activeLockReader.unlockText(state: state, matches: matches) ?? localized("Locked until the scheduled time.")
 
         return ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterialLight,

@@ -1,17 +1,12 @@
 import Foundation
 
 public struct LockPlanner: Sendable {
-    public var calendar: Calendar
-
-    public init(calendar: Calendar = .current) {
-        self.calendar = calendar
-    }
+    public init() {}
 
     public func makeRule(
         from request: LockCreationRequest,
         now: Date,
-        existingRules: [LockRule],
-        activeLock: ActiveLock?
+        existingRules: [LockRule]
     ) throws -> LockRule {
         var rule: LockRule
 
@@ -62,7 +57,7 @@ public struct LockPlanner: Sendable {
 
         rule = rule.normalizedForMonitoring()
 
-        if overlaps(rule: rule, existingRules: existingRules, activeLock: activeLock, now: now) {
+        if overlaps(rule: rule, existingRules: existingRules, now: now) {
             throw LockValidationError.overlappingLock
         }
 
@@ -73,11 +68,10 @@ public struct LockPlanner: Sendable {
         // Callback delivery must not move the deadline. Recurring callers pass an
         // occurrence-specific rule.
         return ActiveLock(
-            sourceRuleID: rule.id,
+            id: rule.id,
             startedAt: rule.startsAt,
             endsAt: rule.endsAt,
-            targetSelectionID: rule.targetSelectionID,
-            scheduledEndsAt: rule.endsAt
+            targetSelectionID: rule.targetSelectionID
         )
     }
 
@@ -85,8 +79,7 @@ public struct LockPlanner: Sendable {
         _ replacement: LockRule,
         replacing original: LockRule,
         now: Date,
-        existingRules: [LockRule],
-        activeLock: ActiveLock?
+        existingRules: [LockRule]
     ) throws -> LockRule {
         guard original.startsAt > now else {
             throw LockValidationError.ruleAlreadyStarted
@@ -96,17 +89,13 @@ public struct LockPlanner: Sendable {
         }
         try validateDuration(replacement.duration)
 
-        if let activeLock, activeLock.sourceRuleID == original.id, activeLock.isActive(at: now) {
-            throw LockValidationError.activeLockIsImmutable
-        }
-
         var normalized = replacement
         normalized.id = original.id
         normalized.status = .scheduled
 
         normalized = normalized.normalizedForMonitoring()
 
-        if overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
+        if overlaps(rule: normalized, existingRules: existingRules, now: now) {
             throw LockValidationError.overlappingLock
         }
 
@@ -118,9 +107,9 @@ public struct LockPlanner: Sendable {
         replacing original: LockRule,
         now: Date,
         existingRules: [LockRule],
-        activeLock: ActiveLock?,
         enabled: Bool? = nil
     ) throws -> LockRule {
+        try original.validateEditable(at: now)
         guard original.kind == .recurring,
               let recurrence = replacement.recurrence
         else {
@@ -142,51 +131,11 @@ public struct LockPlanner: Sendable {
 
         normalized = normalized.normalizedForMonitoring()
 
-        if normalized.status == .scheduled && overlaps(rule: normalized, existingRules: existingRules, activeLock: activeLock, now: now) {
+        if normalized.status == .scheduled && overlaps(rule: normalized, existingRules: existingRules, now: now) {
             throw LockValidationError.overlappingLock
         }
 
         return normalized
-    }
-
-    public func recurringRule(_ rule: LockRule, enabled: Bool, now: Date) throws -> LockRule {
-        guard rule.kind == .recurring,
-              let recurrence = rule.recurrence
-        else {
-            throw LockValidationError.notRecurringRule
-        }
-
-        var updated = rule
-        updated.status = enabled ? .scheduled : .disabled
-
-        if enabled, let interval = recurrence.nextInterval(after: now) {
-            updated.startsAt = interval.start
-            updated.duration = interval.duration
-        }
-
-        return updated
-    }
-
-    public func nextRuleOccurrence(for rule: LockRule, after date: Date) -> LockRule? {
-        guard let recurrence = rule.recurrence,
-              let interval = recurrence.nextInterval(after: date)
-        else {
-            return nil
-        }
-
-        var next = rule
-        next.startsAt = interval.start
-        next.duration = interval.duration
-        next.status = .scheduled
-        return next
-    }
-
-    public func scheduledRuleContaining(_ date: Date, in rules: [LockRule]) -> LockRule? {
-        rules
-            .filter { $0.status == .scheduled }
-            .compactMap { $0.occurrence(containing: date) }
-            .sorted { $0.startsAt < $1.startsAt }
-            .first
     }
 
     private func validateDuration(_ duration: TimeInterval) throws {
@@ -196,26 +145,19 @@ public struct LockPlanner: Sendable {
     private func overlaps(
         rule: LockRule,
         existingRules: [LockRule],
-        activeLock: ActiveLock?,
         now: Date
     ) -> Bool {
-        let interval = DateInterval(start: rule.startsAt, end: rule.endsAt)
-
-        if let activeLock, activeLock.isActive(at: now) {
-            let activeInterval = DateInterval(start: activeLock.startedAt, end: activeLock.endsAt)
-            if interval.intersects(activeInterval) {
-                return true
-            }
+        existingRules.filter { $0.id != rule.id && $0.status == .scheduled && (!$0.isOneShot || $0.endsAt > now) }.contains { other in
+            // Preserve the existing policy allowing multiple repeating rules.
+            // Enforcement takes the union of all currently active target sets.
+            if !rule.isOneShot && !other.isOneShot { return false }
+            let fixed = rule.isOneShot ? rule : other
+            let candidate = rule.isOneShot ? other : rule
+            let interval = candidate.isOneShot
+                ? DateInterval(start: candidate.startsAt, end: candidate.endsAt)
+                : candidate.recurrence?.nextInterval(after: fixed.startsAt)
+            guard let interval else { return false }
+            return fixed.startsAt < interval.end && interval.start < fixed.endsAt
         }
-
-        return existingRules
-            .filter { $0.status == .scheduled }
-            .contains { existing in
-                guard existing.id != rule.id else { return false }
-                if existing.kind == .recurring && rule.kind == .recurring {
-                    return false
-                }
-                return interval.intersects(DateInterval(start: existing.startsAt, end: existing.endsAt))
-            }
     }
 }

@@ -4,38 +4,22 @@ public struct LockState: Codable, Equatable, Sendable {
     public var targetSelections: [LockTargetSelectionRef]
     public var recentLockTargets: [RecentLockTarget]
     public var rules: [LockRule]
-    public var activeLock: ActiveLock?
-    public var completedLocks: [ActiveLock]
 
     public init(
         targetSelections: [LockTargetSelectionRef] = [],
         recentLockTargets: [RecentLockTarget] = [],
-        rules: [LockRule] = [],
-        activeLock: ActiveLock? = nil,
-        completedLocks: [ActiveLock] = []
+        rules: [LockRule] = []
     ) {
         self.targetSelections = targetSelections
         self.recentLockTargets = recentLockTargets
         self.rules = rules
-        self.activeLock = activeLock
-        self.completedLocks = completedLocks
     }
 
-    private enum CodingKeys: String, CodingKey {
-        case targetSelections
-        case recentLockTargets
-        case rules
-        case activeLock
-        case completedLocks
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        targetSelections = try container.decodeIfPresent([LockTargetSelectionRef].self, forKey: .targetSelections) ?? []
-        recentLockTargets = try container.decodeIfPresent([RecentLockTarget].self, forKey: .recentLockTargets) ?? []
-        rules = try container.decodeIfPresent([LockRule].self, forKey: .rules) ?? []
-        activeLock = try container.decodeIfPresent(ActiveLock.self, forKey: .activeLock)
-        completedLocks = try container.decodeIfPresent([ActiveLock].self, forKey: .completedLocks) ?? []
+    public func activeLocks(at date: Date) -> [ActiveLock] {
+        rules.filter { $0.status == .scheduled }
+            .compactMap { $0.occurrence(containing: date) }
+            .sorted { $0.startsAt < $1.startsAt }
+            .map { LockPlanner().activeLock(from: $0) }
     }
 
     public func displayedRecentLockTargets(limit: Int = 3) -> [RecentLockTarget] {
@@ -153,85 +137,36 @@ public actor LockStore {
         }
     }
 
-    public func addRule(_ rule: LockRule) throws {
+    public func createRule(_ request: LockCreationRequest, now: Date? = nil) throws -> LockRule {
         try update { state in
-            state.rules.removeAll { $0.id == rule.id }
+            let rule = try LockPlanner().makeRule(from: request, now: now ?? Date(), existingRules: state.rules)
             state.rules.append(rule)
+            return rule
         }
     }
 
-    public func replaceRule(_ rule: LockRule, now: Date) throws {
+    public func replaceRule(_ replacement: LockRule, now: Date? = nil) throws {
         try update { state in
-            if let active = state.activeLock, active.sourceRuleID == rule.id, active.isActive(at: now) {
-                if rule.kind != .recurring {
-                    throw LockValidationError.activeLockIsImmutable
-                }
+            guard let index = state.rules.firstIndex(where: { $0.id == replacement.id }) else {
+                throw LockValidationError.ruleNotFound
             }
-            if let original = state.rules.first(where: { $0.id == rule.id }), original.startsAt <= now {
-                if original.kind != .recurring {
-                    throw LockValidationError.ruleAlreadyStarted
-                }
-            }
-            state.rules.removeAll { $0.id == rule.id }
-            state.rules.append(rule)
+            let original = state.rules[index]
+            let now = now ?? Date()
+            try original.validateEditable(at: now)
+            let planner = LockPlanner()
+            state.rules[index] = try original.kind == .recurring
+                ? planner.validateRecurringReplacement(replacement, replacing: original, now: now,
+                    existingRules: state.rules, enabled: replacement.status == .scheduled)
+                : planner.validateScheduledReplacement(replacement, replacing: original, now: now,
+                    existingRules: state.rules)
         }
     }
 
-    public func deleteRule(id: UUID, now: Date) throws {
+    public func deleteRule(id: UUID, now: Date? = nil) throws {
         try update { state in
-            if let active = state.activeLock, active.sourceRuleID == id, active.isActive(at: now) {
-                throw LockValidationError.activeLockIsImmutable
-            }
+            guard let rule = state.rules.first(where: { $0.id == id }) else { return }
+            try rule.validateEditable(at: now ?? Date())
             state.rules.removeAll { $0.id == id }
-        }
-    }
-
-    public func activate(_ activeLock: ActiveLock) throws {
-        try update { state in
-            state.activeLock = activeLock
-        }
-    }
-
-    public func clearActiveLock(id: UUID) throws {
-        try update { state in
-            guard state.activeLock?.id == id else {
-                return
-            }
-
-            state.activeLock = nil
-        }
-    }
-
-    public func completeActiveLock(at date: Date) throws -> ActiveLock? {
-        try update { state in
-            guard let active = state.activeLock, active.endsAt <= date else {
-                return nil
-            }
-
-            state.activeLock = nil
-            state.completedLocks.append(active)
-            return active
-        }
-    }
-
-    public func completeExpiredOneShotRules(at date: Date) throws -> [LockRule] {
-        try update { state in
-            var completed: [LockRule] = []
-
-            for index in state.rules.indices {
-                guard state.rules[index].status == .scheduled,
-                      state.rules[index].isOneShot,
-                      state.rules[index].endsAt <= date
-                else {
-                    continue
-                }
-
-                state.rules[index].status = .completed
-                completed.append(state.rules[index])
-            }
-
-
-            return completed
         }
     }
 
@@ -246,14 +181,10 @@ public actor LockStore {
     }
 
     public func reconcile(
-        event: LockLifecycleEvent,
-        at now: Date,
-        apply: @Sendable (ActiveLock, LockTargetSelectionRef?) throws -> Void,
-        clear: @Sendable () -> Void,
+        at now: Date? = nil,
+        apply: @Sendable ([LockTargetSelectionRef]) throws -> Void,
         record: @Sendable (String) -> Void
     ) throws -> LockState {
-        try LockLifecycle(repository: repository).reconcile(
-            event: event, at: now, apply: apply, clear: clear, record: record
-        )
+        try LockLifecycle(repository: repository).reconcile(at: now, apply: apply, record: record)
     }
 }

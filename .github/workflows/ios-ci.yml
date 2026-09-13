@@ -123,6 +123,8 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringScheduleRemainsVisibleButCannotBeChanged \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringDraftCancelsWithoutChangingSavedStatus \
             test-without-building | tee artifacts/xcodebuild-ui-e2e.log || touch artifacts/e2e-ui.failed
 
       - name: Collect mock UI e2e screenshots
@@ -143,7 +145,8 @@ jobs:
             e2e-target-flow-recent-deleted.png \
             e2e-delayed-deleted.png \
             e2e-recurring-disabled-list.png \
-            e2e-active-lock-constraints.png
+            e2e-active-lock-constraints.png \
+            e2e-active-recurring-readonly.png
           do
             if [ ! -s "$E2E_SCREENSHOT_DIR/$screenshot" ]; then
               echo "Missing e2e screenshot: $screenshot"

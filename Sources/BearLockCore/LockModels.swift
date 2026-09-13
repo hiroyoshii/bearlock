@@ -85,30 +85,24 @@ public enum LockRuleKind: String, Codable, Equatable, Sendable {
 public enum LockRuleStatus: String, Codable, Equatable, Sendable {
     case scheduled
     case disabled
-    case completed
 }
 
-public struct ActiveLock: Codable, Equatable, Identifiable, Sendable {
+/// A presentation value derived from a rule occurrence; never persisted.
+public struct ActiveLock: Equatable, Identifiable, Sendable {
     public var id: UUID
-    public var sourceRuleID: UUID?
     public var startedAt: Date
     public var endsAt: Date
-    public var scheduledEndsAt: Date?
     public var targetSelectionID: UUID
 
     public init(
         id: UUID = UUID(),
-        sourceRuleID: UUID?,
         startedAt: Date,
         endsAt: Date,
-        targetSelectionID: UUID,
-        scheduledEndsAt: Date? = nil
+        targetSelectionID: UUID
     ) {
         self.id = id
-        self.sourceRuleID = sourceRuleID
         self.startedAt = startedAt
         self.endsAt = endsAt
-        self.scheduledEndsAt = scheduledEndsAt
         self.targetSelectionID = targetSelectionID
     }
 
@@ -129,6 +123,7 @@ public enum LockCreationRequest: Equatable, Sendable {
 }
 
 public enum LockValidationError: Error, Equatable, Sendable {
+    case ruleNotFound
     case nonPositiveDuration
     case startDateInPast
     case emptyWeekdays

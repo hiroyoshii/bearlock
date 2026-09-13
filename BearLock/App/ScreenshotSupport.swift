@@ -201,7 +201,6 @@ private enum ScreenshotFixtures {
     static var activeLock: ActiveLock {
         let now = Date()
         return ActiveLock(
-            sourceRuleID: UUID(uuidString: "22222222-2222-2222-2222-222222222222"),
             startedAt: now.addingTimeInterval(-26 * 60),
             endsAt: now.addingTimeInterval(94 * 60),
             targetSelectionID: targetID
@@ -255,8 +254,7 @@ private enum ScreenshotFixtures {
         LockState(
             targetSelections: [workTarget, sleepTarget, target],
             recentLockTargets: recentLockTargets,
-            rules: [delayedRule, fixedRule, recurringRule, disabledRecurringRule],
-            activeLock: nil
+            rules: [delayedRule, fixedRule, recurringRule, disabledRecurringRule]
         )
     }
 
@@ -264,8 +262,7 @@ private enum ScreenshotFixtures {
         LockState(
             targetSelections: [workTarget, sleepTarget, target],
             recentLockTargets: recentLockTargets,
-            rules: [recurringRule],
-            activeLock: activeLock
+            rules: [recurringRule, LockRule(kind: .immediate, startsAt: activeLock.startedAt, duration: activeLock.endsAt.timeIntervalSince(activeLock.startedAt), targetSelectionID: targetID)]
         )
     }
 

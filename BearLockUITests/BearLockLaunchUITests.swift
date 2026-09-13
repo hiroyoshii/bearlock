@@ -237,6 +237,10 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Repeats"].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-recurring-scheduled")
 
+        if !app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.isEnabled {
+            XCTAssertTrue(app.staticTexts["This lock is active. Changes are available after it ends."].exists)
+            return
+        }
         tapFirstButton(app, identifier: "scheduled-lock-edit-button")
         XCTAssertTrue(app.navigationBars["Repeat"].waitForExistence(timeout: 5))
         tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
@@ -269,6 +273,32 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
         captureScreenshot(named: "e2e-active-lock-constraints")
+    }
+
+    func testDisabledRecurringDraftCancelsWithoutChangingSavedStatus() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring"])
+        scrollToStaticText("Repeats", in: app)
+        tapFirstButton(app, identifier: "scheduled-lock-edit-button")
+        XCTAssertTrue(app.navigationBars["Repeat"].waitForExistence(timeout: 5))
+        tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
+        app.buttons["Cancel"].tap()
+        tapFirstButton(app, identifier: "scheduled-lock-edit-button")
+        XCTAssertEqual(app.switches["recurring-rule-enabled-toggle"].value as? String, "0")
+        app.buttons["Cancel"].tap()
+    }
+
+    func testActiveRecurringScheduleRemainsVisibleButCannotBeChanged() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-recurring"])
+        XCTAssertTrue(app.staticTexts["Bear is sleeping."].waitForExistence(timeout: 10))
+        scrollToStaticText("Repeats", in: app)
+        let edit = app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch
+        let delete = app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch
+        XCTAssertTrue(edit.exists)
+        XCTAssertTrue(delete.exists)
+        XCTAssertFalse(edit.isEnabled)
+        XCTAssertFalse(delete.isEnabled)
+        XCTAssertTrue(app.staticTexts["This lock is active. Changes are available after it ends."].exists)
+        captureScreenshot(named: "e2e-active-recurring-readonly")
     }
 
     private func launchApprovedSeededApp(extraArguments: [String] = []) -> XCUIApplication {

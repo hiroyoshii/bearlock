@@ -48,12 +48,11 @@ public struct RecurrenceRule: Codable, Equatable, Sendable {
             components.second = 0
 
             guard let start = calendar.date(from: components) else { continue }
-            let end = start.addingTimeInterval(duration)
+            guard let endDay = calendar.date(byAdding: .day, value: endsAt <= startsAt ? 1 : 0, to: day),
+                  let end = calendar.date(bySettingHour: endsAt.hour, minute: endsAt.minute, second: 0, of: endDay),
+                  end > start else { continue }
 
             if end > date {
-                if start <= date {
-                    return DateInterval(start: start, end: end)
-                }
                 return DateInterval(start: start, end: end)
             }
         }

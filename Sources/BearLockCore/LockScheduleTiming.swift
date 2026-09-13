@@ -21,6 +21,12 @@ public extension LockRule {
         return (start, end)
     }
 
+    func validateEditable(at date: Date) throws {
+        if status == .scheduled && occurrence(containing: date) != nil {
+            throw LockValidationError.activeLockIsImmutable
+        }
+    }
+
     func occurrence(containing date: Date) -> LockRule? {
         guard kind == .recurring else { return contains(date) ? self : nil }
         guard let interval = recurrence?.nextInterval(after: date),
@@ -29,14 +35,5 @@ public extension LockRule {
         occurrence.startsAt = interval.start
         occurrence.duration = interval.duration
         return occurrence
-    }
-}
-
-public extension ActiveLock {
-    /// Keeps the current occurrence's end independent of edits to its parent rule.
-    var completionMonitoringRule: LockRule {
-        LockRule(kind: .fixedDateTime, startsAt: startedAt,
-                 duration: (scheduledEndsAt ?? endsAt).timeIntervalSince(startedAt),
-                 targetSelectionID: targetSelectionID)
     }
 }

@@ -67,7 +67,6 @@
 "Open a blocked app" = "Open a blocked app";
 "Quietly hibernate selected apps until the chosen time." = "Quietly hibernate selected apps until the chosen time.";
 "Recent Events" = "Recent Events";
-"Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared." = "Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared.";
 "Recurring rules" = "Recurring rules";
 "Uses selected schedule" = "Uses selected schedule";
 "Repeat" = "Repeat";
@@ -218,3 +217,8 @@
 "Screen Time access" = "Screen Time access";
 
 "Not now" = "Not now";
+
+"Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry." = "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry.";
+"This schedule is no longer available." = "This schedule is no longer available.";
+"This lock is active. Changes are available after it ends." = "This lock is active. Changes are available after it ends.";
+"Repeating schedules cannot be changed while they are active." = "Repeating schedules cannot be changed while they are active.";

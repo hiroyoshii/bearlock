@@ -18,7 +18,9 @@ final class BearLockAppModel: ObservableObject {
     let shieldController: ShieldControlling
     let scheduleController: ScheduleControlling
     private let lockStore: LockStore
-    private let planner: LockPlanner
+    private var isRefreshing = false
+
+    var activeLock: ActiveLock? { lockState.activeLocks(at: Date()).first }
     private let diagnostics = DiagnosticsLogger.shared
 
     init(
@@ -26,15 +28,13 @@ final class BearLockAppModel: ObservableObject {
         targetSelectionStore: TargetSelectionStoring,
         shieldController: ShieldControlling,
         scheduleController: ScheduleControlling,
-        lockStore: LockStore,
-        planner: LockPlanner = LockPlanner()
+        lockStore: LockStore
     ) {
         self.authorizationService = authorizationService
         self.targetSelectionStore = targetSelectionStore
         self.shieldController = shieldController
         self.scheduleController = scheduleController
         self.lockStore = lockStore
-        self.planner = planner
         diagnostics.record("AppModel.initialized")
     }
 
@@ -131,13 +131,23 @@ final class BearLockAppModel: ObservableObject {
             state = LockState(
                 targetSelections: targetSelections,
                 recentLockTargets: recentLockTargets,
-                activeLock: ActiveLock(
-                    sourceRuleID: nil,
-                    startedAt: now.addingTimeInterval(-5 * 60),
-                    endsAt: now.addingTimeInterval(115 * 60),
+                rules: [LockRule(
+                    kind: .immediate,
+                    startsAt: now.addingTimeInterval(-5 * 60),
+                    duration: 120 * 60,
                     targetSelectionID: target.id
-                )
+                )]
             )
+        } else if arguments.contains("--ui-testing-active-recurring") {
+            let start = now.addingTimeInterval(-300)
+            let end = now.addingTimeInterval(3600)
+            let calendar = Calendar.current
+            let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases),
+                startsAt: TimeOfDay(hour: calendar.component(.hour, from: start), minute: calendar.component(.minute, from: start)),
+                endsAt: TimeOfDay(hour: calendar.component(.hour, from: end), minute: calendar.component(.minute, from: end)))
+            state = LockState(targetSelections: targetSelections, recentLockTargets: recentLockTargets,
+                rules: [LockRule(kind: .recurring, startsAt: start, duration: recurrence.duration,
+                    recurrence: recurrence, targetSelectionID: target.id)])
         } else if arguments.contains("--ui-testing-disabled-recurring") {
             let recurrence = RecurrenceRule(
                 weekdays: [.monday, .tuesday, .wednesday, .thursday, .friday],
@@ -171,8 +181,6 @@ final class BearLockAppModel: ObservableObject {
                 existingState.targetSelections = state.targetSelections
                 existingState.recentLockTargets = state.recentLockTargets
                 existingState.rules = state.rules
-                existingState.activeLock = state.activeLock
-                existingState.completedLocks = state.completedLocks
                 try repository.save(existingState)
             }
         } catch {
@@ -181,27 +189,41 @@ final class BearLockAppModel: ObservableObject {
     }
 
     func refresh() async {
-        diagnostics.record("App.refresh.started")
-        let now = Date()
+        guard !isRefreshing, !isCreatingLock, !isUpdatingLock else { return }
+        isRefreshing = true
+        defer { isRefreshing = false; hasLoadedInitialState = true; refreshDiagnostics() }
         authorizationStatus = authorizationService.currentStatus()
-        do {
-            lockState = try await reconcileLocks(event: .refresh, at: now)
-        } catch {
-            recordError("App.refresh.failed", error)
-        }
-        refreshDiagnostics()
-        hasLoadedInitialState = true
+        await synchronizeAndReconcile(isRefresh: true)
     }
 
-    private func reconcileLocks(event: LockLifecycleEvent, at now: Date) async throws -> LockState {
+    /// Persisted rules are the desired state. Failed OS registration is retried on
+    /// the next refresh or rule operation; it must not prevent expiry reconciliation.
+    private func synchronizeAndReconcile(isRefresh: Bool = false) async {
+        do {
+            lockState = try await lockStore.snapshot()
+        } catch {
+            recordError("Lock.load.failed", error)
+            return
+        }
+        if isRefresh && (isCreatingLock || isUpdatingLock) { return }
+        do {
+            if authorizationStatus == .approved {
+                try scheduleController.synchronize(lockState.rules, at: Date())
+            }
+        } catch {
+            recordError("Schedule.synchronize.failed", error)
+            lastErrorMessage = L10n.string("Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry.")
+        }
         let shield = shieldController
         let logger = diagnostics
-        return try await lockStore.reconcile(
-            event: event, at: now,
-            apply: { try shield.applyShield(for: $0, selection: $1) },
-            clear: { shield.clearShield() },
-            record: { logger.record("ActiveLock.reconcile", detail: $0) }
-        )
+        do {
+            lockState = try await lockStore.reconcile(
+                apply: { try shield.applyShield(selections: $0) },
+                record: { logger.record("Lock.reconcile", detail: $0) }
+            )
+        } catch {
+            recordError("Lock.reconcile.failed", error)
+        }
     }
 
     func requestAuthorization() async {
@@ -210,6 +232,7 @@ final class BearLockAppModel: ObservableObject {
             try await authorizationService.requestAuthorization()
             authorizationStatus = authorizationService.currentStatus()
             diagnostics.record("Authorization.request.succeeded", detail: authorizationStatus.diagnosticsText)
+            await refresh()
         } catch {
             recordError("Authorization.request.failed", error)
             authorizationStatus = authorizationService.currentStatus()
@@ -222,7 +245,7 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("Selection.save.started")
         do {
             let state = try await lockStore.snapshot()
-            if let active = state.activeLock, active.isActive(at: Date()) {
+            if !state.activeLocks(at: Date()).isEmpty {
                 throw TargetSelectionStoreError.activeLockInProgress
             }
 
@@ -257,78 +280,38 @@ final class BearLockAppModel: ObservableObject {
 
     @discardableResult
     func createLock(_ request: LockCreationRequest) async -> Bool {
+        guard !isCreatingLock, !isUpdatingLock else { return false }
         isCreatingLock = true
-        defer { isCreatingLock = false }
-        diagnostics.record("Lock.create.started", detail: request.diagnosticsText)
-
+        defer { isCreatingLock = false; refreshDiagnostics() }
         do {
             try BearLockSafetyPolicy.validate(request)
-
-            let now = Date()
-            let state = try await lockStore.snapshot()
-            let rule = try planner.makeRule(
-                from: request,
-                now: now,
-                existingRules: state.rules,
-                activeLock: state.activeLock
-            )
-
-            switch rule.kind {
-            case .immediate:
-                diagnostics.record("Schedule.create.started", detail: rule.kind.rawValue)
-                try await lockStore.addRule(rule)
-                do {
-                    try scheduleController.schedule(rule)
-                } catch {
-                    try? await lockStore.deleteRule(id: rule.id, now: now)
-                    throw error
-                }
-                lockState = try await reconcileLocks(event: .intervalStarted(ruleID: rule.id), at: Date())
-                diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule, active: lockState.activeLock))
-            case .delayed, .fixedDateTime, .recurring:
-                diagnostics.record("Schedule.create.started", detail: rule.kind.rawValue)
-                // Publish the rule before monitoring can synchronously deliver its start.
-                try await lockStore.addRule(rule)
-                do {
-                    try scheduleController.schedule(rule)
-                    diagnostics.record("Lock.create.succeeded", detail: lockDetail(for: rule))
-                } catch {
-                    try? await lockStore.deleteRule(id: rule.id, now: now)
-                    throw error
-                }
-            }
-
+            let rule = try await lockStore.createRule(request)
             do {
-                try await lockStore.recordRecentLockTarget(
-                    targetSelectionID: rule.targetSelectionID,
-                    usedAt: now
-                )
-                diagnostics.record("RecentTarget.record.succeeded", detail: rule.targetSelectionID.uuidString)
+                try await lockStore.recordRecentLockTarget(targetSelectionID: rule.targetSelectionID, usedAt: Date())
             } catch {
                 diagnostics.record("RecentTarget.record.failed", level: .warning, detail: error.localizedDescription)
             }
-
-            lockState = try await lockStore.snapshot()
-            refreshDiagnostics()
+            await synchronizeAndReconcile()
+            diagnostics.record("Lock.create.saved", detail: lockDetail(for: rule))
+            // The rule is saved even if OS registration failed. Close the editor
+            // so retrying registration cannot accidentally create another rule.
             return true
         } catch {
             recordError("Lock.create.failed", error)
-            refreshDiagnostics()
             return false
         }
     }
 
     func deleteScheduledRule(_ rule: LockRule) async {
-        diagnostics.record("Schedule.delete.started", detail: rule.kind.rawValue)
+        guard !isCreatingLock, !isUpdatingLock else { return }
+        isUpdatingLock = true
+        defer { isUpdatingLock = false; refreshDiagnostics() }
         do {
-            try await lockStore.deleteRule(id: rule.id, now: Date())
-            try scheduleController.cancel(rule)
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("Schedule.delete.succeeded", detail: rule.kind.rawValue)
+            try await lockStore.deleteRule(id: rule.id)
+            await synchronizeAndReconcile()
         } catch {
             recordError("Schedule.delete.failed", error)
         }
-        refreshDiagnostics()
     }
 
     @discardableResult
@@ -336,7 +319,7 @@ final class BearLockAppModel: ObservableObject {
         diagnostics.record("RecentTarget.select.started", detail: recentTarget.id.uuidString)
         do {
             let state = try await lockStore.snapshot()
-            if let active = state.activeLock, active.isActive(at: Date()) {
+            if !state.activeLocks(at: Date()).isEmpty {
                 throw TargetSelectionStoreError.activeLockInProgress
             }
             guard let selection = state.targetSelections.last(where: { $0.id == recentTarget.targetSelectionID }) else {
@@ -382,127 +365,32 @@ final class BearLockAppModel: ObservableObject {
 
     @discardableResult
     func updateScheduledRule(_ original: LockRule, startsAt: Date, duration: TimeInterval) async -> Bool {
-        isUpdatingLock = true
-        defer { isUpdatingLock = false }
-        diagnostics.record("Schedule.update.started", detail: original.kind.rawValue)
-
-        do {
-            try BearLockSafetyPolicy.validateDuration(duration)
-
-            let now = Date()
-            let state = try await lockStore.snapshot()
-            var replacement = original
-            replacement.startsAt = startsAt
-            replacement.duration = duration
-
-            let validated = try planner.validateScheduledReplacement(
-                replacement,
-                replacing: original,
-                now: now,
-                existingRules: state.rules,
-                activeLock: state.activeLock
-            )
-
-            do {
-                try scheduleController.schedule(validated)
-                try await lockStore.replaceRule(validated, now: now)
-            } catch {
-                try? scheduleController.schedule(original)
-                throw error
-            }
-
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("Schedule.update.succeeded", detail: validated.kind.rawValue)
-            refreshDiagnostics()
-            return true
-        } catch {
-            recordError("Schedule.update.failed", error)
-            refreshDiagnostics()
-            return false
-        }
+        var replacement = original
+        replacement.startsAt = startsAt
+        replacement.duration = duration
+        return await saveRule(replacement)
     }
 
     @discardableResult
     func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule, enabled: Bool) async -> Bool {
-        isUpdatingLock = true
-        defer { isUpdatingLock = false }
-        diagnostics.record("Recurring.update.started")
-
-        do {
-            try BearLockSafetyPolicy.validateDuration(recurrence.duration)
-
-            let now = Date()
-            let state = try await lockStore.snapshot()
-            var replacement = original
-            replacement.recurrence = recurrence
-
-            let validated = try planner.validateRecurringReplacement(
-                replacement,
-                replacing: original,
-                now: now,
-                existingRules: state.rules,
-                activeLock: state.activeLock,
-                enabled: enabled
-            )
-
-            do {
-                if validated.status == .scheduled {
-                    try scheduleController.schedule(validated)
-                } else {
-                    try scheduleController.cancel(validated)
-                }
-                try await lockStore.replaceRule(validated, now: now)
-            } catch {
-                if original.status == .scheduled {
-                    try? scheduleController.schedule(original)
-                } else {
-                    try? scheduleController.cancel(original)
-                }
-                throw error
-            }
-
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("Recurring.update.succeeded")
-            refreshDiagnostics()
-            return true
-        } catch {
-            recordError("Recurring.update.failed", error)
-            refreshDiagnostics()
-            return false
-        }
+        var replacement = original
+        replacement.recurrence = recurrence
+        replacement.duration = recurrence.duration
+        replacement.status = enabled ? .scheduled : .disabled
+        return await saveRule(replacement)
     }
 
-    @discardableResult
-    func setRecurringRule(_ rule: LockRule, enabled: Bool) async -> Bool {
+    private func saveRule(_ replacement: LockRule) async -> Bool {
+        guard !isCreatingLock, !isUpdatingLock else { return false }
         isUpdatingLock = true
-        defer { isUpdatingLock = false }
-        diagnostics.record("Recurring.setEnabled.started", detail: enabled ? "enabled" : "disabled")
-
+        defer { isUpdatingLock = false; refreshDiagnostics() }
         do {
-            let now = Date()
-            let updated = try planner.recurringRule(rule, enabled: enabled, now: now)
-
-            do {
-                if enabled {
-                    try scheduleController.schedule(updated)
-                } else {
-                    try scheduleController.cancel(updated)
-                }
-                try await lockStore.replaceRule(updated, now: now)
-            } catch {
-                if rule.status == .scheduled {
-                    try? scheduleController.schedule(rule)
-                }
-                throw error
-            }
-
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("Recurring.setEnabled.succeeded", detail: enabled ? "enabled" : "disabled")
-            refreshDiagnostics()
+            try BearLockSafetyPolicy.validateDuration(replacement.duration)
+            try await lockStore.replaceRule(replacement)
+            await synchronizeAndReconcile()
             return true
         } catch {
-            recordError("Recurring.setEnabled.failed", error)
-            refreshDiagnostics()
+            recordError("Schedule.update.failed", error)
             return false
         }
     }
@@ -523,7 +411,7 @@ final class BearLockAppModel: ObservableObject {
             targetSelectionCount: latestTargetSelectionCount,
             scheduledRuleCount: lockState.rules.filter { $0.status == .scheduled }.count,
             recurringRuleCount: lockState.rules.filter { $0.kind == .recurring }.count,
-            activeLockStatus: lockState.activeLock.map { L10n.format("Active until %@", $0.endsAt.formatted(date: .omitted, time: .shortened)) } ?? L10n.string("None"),
+            activeLockStatus: activeLock.map { L10n.format("Active until %@", $0.endsAt.formatted(date: .omitted, time: .shortened)) } ?? L10n.string("None"),
             lastError: lastErrorMessage ?? L10n.string("None"),
             lastWarning: diagnosticsSnapshot.lastEvent(level: .warning)?.summary ?? L10n.string("None"),
             lastSelectionEvent: diagnosticsSnapshot.lastEvent(named: "Selection.")?.summary ?? L10n.string("None"),
@@ -559,6 +447,8 @@ final class BearLockAppModel: ObservableObject {
                 return L10n.string("This lock is already active and cannot be changed.")
             case .ruleAlreadyStarted:
                 return L10n.string("This lock has already started and cannot be changed.")
+            case .ruleNotFound:
+                return L10n.string("This schedule is no longer available.")
             case .notRecurringRule:
                 return L10n.string("Only repeating locks can be changed here.")
             }

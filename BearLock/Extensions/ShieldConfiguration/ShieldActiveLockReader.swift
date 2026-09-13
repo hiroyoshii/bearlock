@@ -1,88 +1,20 @@
+import BearLockCore
 import Foundation
+import FamilyControls
 
 struct ShieldActiveLockReader {
-    private let appGroupIdentifier = "group.com.hiyozoo.bearlock"
-    private let fileName = "lock-state.json"
-
-    func unlockText(now: Date = Date()) -> String? {
-        guard let activeLock = activeLock(now: now) else {
-            return nil
+    func unlockText(state: LockState?, now: Date = Date(), matches: (FamilyActivitySelection) -> Bool) -> String? {
+        guard let state else { return nil }
+        let deadlines = state.activeLocks(at: now).compactMap { lock -> Date? in
+            guard let ref = state.targetSelections.first(where: { $0.id == lock.targetSelectionID }),
+                  let selection = try? ref.decodedSelection(), matches(selection) else { return nil }
+            return lock.endsAt
         }
-
-        let text = String(
-            format: localized("Unlocks at %@"),
-            formattedUnlockTime(activeLock.endsAt)
-        )
-        ShieldConfigurationDiagnostics.record(
-            "ShieldConfiguration.activeLock.loaded",
-            detail: iso8601String(from: activeLock.endsAt)
-        )
-        return text
-    }
-
-    private func activeLock(now: Date) -> ShieldActiveLock? {
-        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)
-            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let url = containerURL.appendingPathComponent(fileName)
-
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            return nil
-        }
-
-        do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .custom { decoder in
-                let container = try decoder.singleValueContainer()
-                let value = try container.decode(String.self)
-                let formatter = ISO8601DateFormatter()
-                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-                if let date = formatter.date(from: value) { return date }
-                formatter.formatOptions = [.withInternetDateTime]
-                guard let date = formatter.date(from: value) else {
-                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date")
-                }
-                return date
-            }
-            let state = try decoder.decode(ShieldLockState.self, from: Data(contentsOf: url))
-            guard let activeLock = state.activeLock, activeLock.isActive(at: now) else {
-                return nil
-            }
-            return activeLock
-        } catch {
-            ShieldConfigurationDiagnostics.record(
-                "ShieldConfiguration.activeLock.readFailed",
-                detail: error.localizedDescription
-            )
-            return nil
-        }
-    }
-
-    private func formattedUnlockTime(_ date: Date) -> String {
+        guard let endsAt = deadlines.max() else { return nil }
         let formatter = DateFormatter()
         formatter.locale = .current
-        formatter.dateStyle = Calendar.current.isDateInToday(date) ? .none : .short
+        formatter.dateStyle = Calendar.current.isDate(endsAt, inSameDayAs: now) ? .none : .short
         formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
-
-    private func iso8601String(from date: Date) -> String {
-        ISO8601DateFormatter().string(from: date)
-    }
-
-    private func localized(_ key: String) -> String {
-        NSLocalizedString(key, comment: "")
-    }
-}
-
-private struct ShieldLockState: Decodable {
-    var activeLock: ShieldActiveLock?
-}
-
-private struct ShieldActiveLock: Decodable {
-    var startedAt: Date
-    var endsAt: Date
-
-    func isActive(at date: Date) -> Bool {
-        startedAt <= date && date < endsAt
+        return String(format: NSLocalizedString("Unlocks at %@", comment: ""), formatter.string(from: endsAt))
     }
 }

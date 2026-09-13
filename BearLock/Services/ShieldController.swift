@@ -4,36 +4,38 @@ import Foundation
 import ManagedSettings
 
 protocol ShieldControlling: Sendable {
-    func applyShield(for activeLock: ActiveLock, selection: LockTargetSelectionRef?) throws
-    func clearShield()
+    /// An empty list removes Bear Lock's restriction; invalid selection data is an error.
+    func applyShield(selections: [LockTargetSelectionRef]) throws
 }
 
-// ManagedSettings is used from both app and extension execution contexts. Every
-// lifecycle operation is serialized by the repository's cross-process transaction.
 struct ManagedSettingsShieldController: ShieldControlling, @unchecked Sendable {
     private let store = ManagedSettingsStore(named: .bearLock)
-    private let diagnostics = DiagnosticsLogger.shared
 
-    func applyShield(for activeLock: ActiveLock, selection: LockTargetSelectionRef?) throws {
-        // Use tokens from the transaction's snapshot. Reading another repository here
-        // would both race with selection changes and reenter the file lock.
-        guard selection?.id == activeLock.targetSelectionID, let data = selection?.tokenData else {
-            throw TargetSelectionStoreError.selectionDataUnavailable
+    func applyShield(selections: [LockTargetSelectionRef]) throws {
+        // A private-directory fallback must never be mistaken for empty shared state.
+        guard FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: AppGroup.identifier) != nil else {
+            throw CocoaError(.fileReadNoPermission)
         }
-        let selected = try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
-        let targetCount = selected.applicationTokens.count + selected.categoryTokens.count + selected.webDomainTokens.count
-        guard targetCount > 0 else { throw TargetSelectionStoreError.emptySelection }
-
-        store.shield.applications = selected.applicationTokens.isEmpty ? nil : selected.applicationTokens
-        store.shield.applicationCategories = selected.categoryTokens.isEmpty ? nil : .specific(selected.categoryTokens)
-        store.shield.webDomains = selected.webDomainTokens.isEmpty ? nil : selected.webDomainTokens
-        diagnostics.record("Shield.apply.requested", detail: "active=\(activeLock.id) targets=\(targetCount)")
-    }
-
-    func clearShield() {
-        store.clearAllSettings()
-        // The API has no acknowledgement of enforcement on other apps.
-        diagnostics.record("Shield.clear.requested")
+        // Decode everything before changing settings, so corrupt data cannot partially apply.
+        var combined = FamilyActivitySelection()
+        for selection in selections {
+            let selected = try selection.decodedSelection()
+            combined.applicationTokens.formUnion(selected.applicationTokens)
+            combined.categoryTokens.formUnion(selected.categoryTokens)
+            combined.webDomainTokens.formUnion(selected.webDomainTokens)
+        }
+        if selections.isEmpty {
+            store.clearAllSettings()
+        } else {
+            let apps = combined.applicationTokens.isEmpty ? nil : combined.applicationTokens
+            let categories: ShieldSettings.ActivityCategoryPolicy<Application>? = combined.categoryTokens.isEmpty ? nil : .specific(combined.categoryTokens)
+            let domains = combined.webDomainTokens.isEmpty ? nil : combined.webDomainTokens
+            // Configuration callbacks may reconcile again. Do not rewrite unchanged settings.
+            if store.shield.applications != apps { store.shield.applications = apps }
+            if store.shield.applicationCategories != categories { store.shield.applicationCategories = categories }
+            if store.shield.webDomains != domains { store.shield.webDomains = domains }
+        }
+        DiagnosticsLogger.shared.record(selections.isEmpty ? "Shield.clear.requested" : "Shield.apply.requested")
     }
 }
 

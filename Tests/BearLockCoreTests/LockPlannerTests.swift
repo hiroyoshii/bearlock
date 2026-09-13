@@ -5,29 +5,28 @@ final class LockPlannerTests: XCTestCase {
     private let targetID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
 
     func testRecurringEditValidatesTheDraftEnabledState() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
         let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 6, minute: 0), endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
-        let original = try planner.makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID), now: now, existingRules: [], activeLock: nil)
-        let conflict = try planner.makeRule(from: .fixed(startsAt: date("2026-08-27T06:15:00Z"), duration: 900, targetSelectionID: targetID), now: now, existingRules: [], activeLock: nil)
-        let disabled = try planner.validateRecurringReplacement(original, replacing: original, now: now, existingRules: [original, conflict], activeLock: nil, enabled: false)
+        let original = try planner.makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID), now: now, existingRules: [])
+        let conflict = try planner.makeRule(from: .fixed(startsAt: date("2026-08-27T06:15:00Z"), duration: 900, targetSelectionID: targetID), now: now, existingRules: [])
+        let disabled = try planner.validateRecurringReplacement(original, replacing: original, now: now, existingRules: [original, conflict], enabled: false)
         XCTAssertEqual(disabled.status, .disabled)
         XCTAssertEqual(original.status, .scheduled)
-        XCTAssertThrowsError(try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled, conflict], activeLock: nil, enabled: true))
-        let enabled = try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled], activeLock: nil, enabled: true)
+        XCTAssertThrowsError(try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled, conflict], enabled: true))
+        let enabled = try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled], enabled: true)
         XCTAssertEqual(enabled.status, .scheduled)
         XCTAssertEqual(enabled.id, original.id)
     }
 
     func testImmediateLockUsesCurrentTime() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
 
         let rule = try planner.makeRule(
             from: .now(duration: 2 * 60 * 60, targetSelectionID: targetID),
             now: now,
-            existingRules: [],
-            activeLock: nil
+            existingRules: []
         )
         let active = planner.activeLock(from: rule)
 
@@ -39,14 +38,13 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testNonPositiveImmediateDurationIsRejected() {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
 
         XCTAssertThrowsError(
             try planner.makeRule(
                 from: .now(duration: 0, targetSelectionID: targetID),
                 now: date("2026-08-27T05:00:00Z"),
-                existingRules: [],
-                activeLock: nil
+                existingRules: []
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .nonPositiveDuration)
@@ -54,12 +52,12 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testImmediateLockOverlappingActiveLockIsRejected() {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:30:00Z")
-        let active = ActiveLock(
-            sourceRuleID: nil,
-            startedAt: date("2026-08-27T05:00:00Z"),
-            endsAt: date("2026-08-27T06:00:00Z"),
+        let active = LockRule(
+            kind: .immediate,
+            startsAt: date("2026-08-27T05:00:00Z"),
+            duration: 3600,
             targetSelectionID: targetID
         )
 
@@ -67,8 +65,7 @@ final class LockPlannerTests: XCTestCase {
             try planner.makeRule(
                 from: .now(duration: 60 * 60, targetSelectionID: targetID),
                 now: now,
-                existingRules: [],
-                activeLock: active
+                existingRules: [active]
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .overlappingLock)
@@ -76,14 +73,13 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testDelayedLockComputesConcreteStartAndEnd() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
 
         let rule = try planner.makeRule(
             from: .delayed(delay: 30 * 60, duration: 2 * 60 * 60, targetSelectionID: targetID),
             now: now,
-            existingRules: [],
-            activeLock: nil
+            existingRules: []
         )
 
         XCTAssertEqual(rule.kind, .delayed)
@@ -106,28 +102,8 @@ final class LockPlannerTests: XCTestCase {
         XCTAssertEqual(interval.duration, 8 * 60 * 60)
     }
 
-    func testActiveLockSnapshotDoesNotChangeWhenParentRuleChanges() {
-        let planner = LockPlanner(calendar: gregorianUTC)
-        let ruleID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
-        let originalRule = LockRule(
-            id: ruleID,
-            kind: .fixedDateTime,
-            startsAt: date("2026-08-27T23:00:00Z"),
-            duration: 8 * 60 * 60,
-            targetSelectionID: targetID
-        )
-
-        let active = planner.activeLock(from: originalRule)
-        var editedRule = originalRule
-        editedRule.duration = 60 * 60
-
-        XCTAssertEqual(active.sourceRuleID, editedRule.id)
-        XCTAssertEqual(active.endsAt, date("2026-08-28T07:00:00Z"))
-        XCTAssertEqual(editedRule.endsAt, date("2026-08-28T00:00:00Z"))
-    }
-
     func testOverlappingScheduledLocksAreRejected() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
         let existing = LockRule(
             kind: .fixedDateTime,
@@ -140,8 +116,7 @@ final class LockPlannerTests: XCTestCase {
             try planner.makeRule(
                 from: .fixed(startsAt: date("2026-08-27T06:30:00Z"), duration: 60 * 60, targetSelectionID: targetID),
                 now: now,
-                existingRules: [existing],
-                activeLock: nil
+                existingRules: [existing]
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .overlappingLock)
@@ -149,7 +124,7 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testFutureScheduledLockReplacementIsAllowed() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
         let original = LockRule(
             kind: .fixedDateTime,
@@ -165,8 +140,7 @@ final class LockPlannerTests: XCTestCase {
             replacement,
             replacing: original,
             now: now,
-            existingRules: [original],
-            activeLock: nil
+            existingRules: [original]
         )
 
         XCTAssertEqual(validated.id, original.id)
@@ -176,7 +150,7 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testStartedScheduledLockReplacementIsRejected() {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let original = LockRule(
             kind: .fixedDateTime,
             startsAt: date("2026-08-27T06:00:00Z"),
@@ -189,8 +163,7 @@ final class LockPlannerTests: XCTestCase {
                 original,
                 replacing: original,
                 now: date("2026-08-27T06:00:00Z"),
-                existingRules: [original],
-                activeLock: nil
+                existingRules: [original]
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .ruleAlreadyStarted)
@@ -198,7 +171,7 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testReplacementOverlappingAnotherRuleIsRejected() {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
         let original = LockRule(
             kind: .fixedDateTime,
@@ -220,8 +193,7 @@ final class LockPlannerTests: XCTestCase {
                 replacement,
                 replacing: original,
                 now: now,
-                existingRules: [original, other],
-                activeLock: nil
+                existingRules: [original, other]
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .overlappingLock)
@@ -229,7 +201,7 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testFindsScheduledRuleContainingDate() {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let rule = LockRule(
             kind: .delayed,
             startsAt: date("2026-08-27T06:00:00Z"),
@@ -237,13 +209,13 @@ final class LockPlannerTests: XCTestCase {
             targetSelectionID: targetID
         )
 
-        let found = planner.scheduledRuleContaining(date("2026-08-27T06:30:00Z"), in: [rule])
+        let found = LockState(rules: [rule]).activeLocks(at: date("2026-08-27T06:30:00Z"))
 
-        XCTAssertEqual(found, rule)
+        XCTAssertEqual(found, [planner.activeLock(from: rule)])
     }
 
     func testRecurringReplacementRecomputesNextOccurrenceAndKeepsRuleID() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let ruleID = UUID(uuidString: "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB")!
         let original = LockRule(
             id: ruleID,
@@ -270,8 +242,7 @@ final class LockPlannerTests: XCTestCase {
             replacement,
             replacing: original,
             now: date("2026-08-27T12:00:00Z"),
-            existingRules: [original],
-            activeLock: nil
+            existingRules: [original]
         )
 
         XCTAssertEqual(validated.id, ruleID)
@@ -282,7 +253,7 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testRecurringReplacementWithNoWeekdaysIsRejected() {
-        let planner = LockPlanner(calendar: gregorianUTC)
+        let planner = LockPlanner()
         let original = LockRule(
             kind: .recurring,
             startsAt: date("2026-08-27T23:00:00Z"),
@@ -308,16 +279,15 @@ final class LockPlannerTests: XCTestCase {
                 replacement,
                 replacing: original,
                 now: date("2026-08-27T12:00:00Z"),
-                existingRules: [original],
-                activeLock: nil
+                existingRules: [original]
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .emptyWeekdays)
         }
     }
 
-    func testDisablingRecurringRulePreservesCurrentActiveLockSnapshot() throws {
-        let planner = LockPlanner(calendar: gregorianUTC)
+    func testDisablingActiveRecurringRuleIsRejected() throws {
+        let planner = LockPlanner()
         let ruleID = UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!
         let rule = LockRule(
             id: ruleID,
@@ -332,19 +302,33 @@ final class LockPlannerTests: XCTestCase {
             ),
             targetSelectionID: targetID
         )
-        let active = planner.activeLock(from: rule)
-
-        let disabled = try planner.recurringRule(rule, enabled: false, now: date("2026-08-27T23:30:00Z"))
-
-        XCTAssertEqual(disabled.status, .disabled)
-        XCTAssertEqual(active.startedAt, date("2026-08-27T23:00:00Z"))
-        XCTAssertEqual(active.endsAt, date("2026-08-28T07:00:00Z"))
+        XCTAssertThrowsError(try planner.validateRecurringReplacement(rule, replacing: rule,
+            now: date("2026-08-27T23:30:00Z"), existingRules: [rule], enabled: false)) {
+            XCTAssertEqual($0 as? LockValidationError, .activeLockIsImmutable)
+        }
     }
 
-    private var gregorianUTC: Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-        return calendar
+    func testExpiredOneShotDoesNotConflictWithANewRecurringSchedule() throws {
+        let targetID = UUID()
+        let old = LockRule(kind: .fixedDateTime, startsAt: date("2026-09-03T23:00:00Z"), duration: 3600, targetSelectionID: targetID)
+        let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
+            endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
+        XCTAssertNoThrow(try LockPlanner().makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID),
+            now: date("2026-09-10T12:00:00Z"), existingRules: [old]))
+    }
+
+    func testOneShotConflictUsesNextRecurringOccurrenceInsteadOfInitialRegistrationDate() {
+        let targetID = UUID()
+        let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
+            endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
+        let recurring = LockRule(kind: .recurring, startsAt: date("2026-09-03T23:00:00Z"), duration: 28800,
+            recurrence: recurrence, targetSelectionID: targetID)
+        XCTAssertThrowsError(try LockPlanner().makeRule(from: .fixed(startsAt: date("2026-09-11T03:00:00Z"),
+            duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingRules: [recurring])) {
+            XCTAssertEqual($0 as? LockValidationError, .overlappingLock)
+        }
+        XCTAssertNoThrow(try LockPlanner().makeRule(from: .fixed(startsAt: date("2026-09-11T07:00:00Z"),
+            duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingRules: [recurring]))
     }
 
     private func date(_ string: String) -> Date {

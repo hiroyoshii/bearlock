@@ -6,30 +6,32 @@ struct HomeView: View {
     @State private var composerMode: LockComposerMode = .now
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                if model.authorizationStatus != .approved && (model.authorizationStatus == .denied || !model.lockState.targetSelections.isEmpty || !model.lockState.rules.isEmpty) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Screen Time access is unavailable. Blocking may not be active.")
-                        Button("Review access") { Task { await model.requestAuthorization() } }
-                        Link("Open Settings", destination: URL(string: UIApplication.openSettingsURLString)!)
+        TimelineView(.periodic(from: .now, by: 1)) { _ in
+            ScrollView {
+                VStack(spacing: 20) {
+                    if model.authorizationStatus != .approved && (model.authorizationStatus == .denied || !model.lockState.targetSelections.isEmpty || !model.lockState.rules.isEmpty) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Screen Time access is unavailable. Blocking may not be active.")
+                            Button("Review access") { Task { await model.requestAuthorization() } }
+                            Link("Open Settings", destination: URL(string: UIApplication.openSettingsURLString)!)
+                        }
+                        .padding().background(AppTheme.snow)
                     }
-                    .padding().background(AppTheme.snow)
-                }
-                if model.lockState.targetSelections.isEmpty {
-                    targetSelectionPrompt
-                } else {
-                    selectedTargetSummary
-                }
+                    if model.lockState.targetSelections.isEmpty {
+                        targetSelectionPrompt
+                    } else {
+                        selectedTargetSummary
+                    }
 
-                if model.authorizationStatus == .approved, let activeLock = model.lockState.activeLock, activeLock.isActive(at: Date()) {
-                    ActiveLockView(activeLock: activeLock)
-                }
+                    if model.authorizationStatus == .approved, let activeLock = model.activeLock, activeLock.isActive(at: Date()) {
+                        ActiveLockView(activeLock: activeLock)
+                    }
 
-                LockComposerView(mode: $composerMode, allowsImmediateLock: !hasActiveLock)
-                ScheduledLockListView()
+                    LockComposerView(mode: $composerMode, allowsImmediateLock: !hasActiveLock)
+                    ScheduledLockListView()
+                }
+                .padding(20)
             }
-            .padding(20)
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -80,6 +82,6 @@ struct HomeView: View {
     }
 
     private var hasActiveLock: Bool {
-        model.lockState.activeLock?.isActive(at: Date()) == true
+        model.activeLock?.isActive(at: Date()) == true
     }
 }

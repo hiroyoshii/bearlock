@@ -35,48 +35,54 @@ struct RecurringRuleEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Status") {
-                    Toggle("Enabled", isOn: $isEnabled)
-                        .disabled(isSaving)
-                        .accessibilityIdentifier("recurring-rule-enabled-toggle")
-                }
-
-                Section("Weekdays") {
-                    weekdayGrid
-                }
-
-                Section("Time") {
-                    timePicker(title: "Starts", components: $startsAt)
-                    timePicker(title: "Ends", components: $endsAt)
-                    LabeledContent("Next") {
-                        Text(nextIntervalText)
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            let isActive = rule.status == .scheduled && rule.occurrence(containing: context.date) != nil
+            NavigationStack {
+                Form {
+                    Section("Status") {
+                        Toggle("Enabled", isOn: $isEnabled)
+                            .disabled(isSaving || isActive)
+                            .accessibilityIdentifier("recurring-rule-enabled-toggle")
                     }
-                    if let safetyLimitText {
-                        Label(safetyLimitText, systemImage: "exclamationmark.shield")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(AppTheme.steel)
-                    }
-                }
 
-                Section {
-                    Text("Recurring rule changes apply from the next interval. The current Active Lock cannot be shortened or cleared.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("Repeat")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .disabled(isSaving)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        onSave(makeRecurrence(), isEnabled)
+                    Section("Weekdays") {
+                        weekdayGrid
+                            .disabled(isSaving || isActive)
                     }
-                    .disabled(isSaving || selectedWeekdays.isEmpty || isOverSafetyLimit)
+
+                    Section("Time") {
+                        timePicker(title: "Starts", components: $startsAt)
+                            .disabled(isSaving || isActive)
+                        timePicker(title: "Ends", components: $endsAt)
+                            .disabled(isSaving || isActive)
+                        LabeledContent("Next") {
+                            Text(nextIntervalText)
+                        }
+                        if let safetyLimitText {
+                            Label(safetyLimitText, systemImage: "exclamationmark.shield")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(AppTheme.steel)
+                        }
+                    }
+
+                    Section {
+                        Text("Repeating schedules cannot be changed while they are active.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .navigationTitle("Repeat")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", action: onCancel)
+                            .disabled(isSaving)
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            onSave(makeRecurrence(), isEnabled)
+                        }
+                        .disabled(isActive || isSaving || selectedWeekdays.isEmpty || isOverSafetyLimit)
+                    }
                 }
             }
         }
@@ -123,7 +129,9 @@ struct RecurringRuleEditorView: View {
         RecurrenceRule(
             weekdays: selectedWeekdays,
             startsAt: TimeOfDay(hour: startsAt.hour ?? 23, minute: startsAt.minute ?? 0),
-            endsAt: TimeOfDay(hour: endsAt.hour ?? 7, minute: endsAt.minute ?? 0)
+            endsAt: TimeOfDay(hour: endsAt.hour ?? 7, minute: endsAt.minute ?? 0),
+            calendarIdentifier: rule.recurrence?.calendarIdentifier ?? .gregorian,
+            timeZoneIdentifier: rule.recurrence?.timeZoneIdentifier ?? TimeZone.current.identifier
         )
     }
 
