@@ -2,11 +2,11 @@ import BearLockCore
 import DeviceActivity
 import Foundation
 
-protocol ScheduleControlling {
+protocol ScheduleControlling: Sendable {
     func synchronize(_ rules: [LockRule], at now: Date) throws
 }
 
-struct DeviceActivityScheduleController: ScheduleControlling {
+struct DeviceActivityScheduleController: ScheduleControlling, @unchecked Sendable {
     private let center = DeviceActivityCenter()
 
     func synchronize(_ rules: [LockRule], at now: Date) throws {

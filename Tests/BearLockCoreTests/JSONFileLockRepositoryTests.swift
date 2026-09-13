@@ -133,6 +133,30 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         XCTAssertEqual(try JSONFileLockRepository(fileURL: url).load().targetSelections.count, 24)
     }
 
+    func testMonitoringSynchronizationReloadsAndReleasesFileLockBeforeCallingOS() async throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "state.json")
+        let store = try LockStore(repository: JSONFileLockRepository(fileURL: url))
+        _ = try await store.snapshot() // UI snapshot predates the new rule.
+        let now = Date()
+        let rule = try await store.createRule(.delayed(delay: 3600, duration: 900, targetSelectionID: UUID()), now: now)
+        try await store.synchronizeMonitoring { rules, _ in
+            XCTAssertEqual(rules, [rule])
+            // A synchronous OS callback uses a separate repository/process.
+            // It must be able to acquire the file lock while registration is in progress.
+            let done = DispatchSemaphore(value: 0)
+            DispatchQueue.global().async {
+                defer { done.signal() }
+                do {
+                    let callbackState = try JSONFileLockRepository(fileURL: url).load()
+                    XCTAssertEqual(callbackState.rules, [rule])
+                } catch { XCTFail("Callback could not read: \(error)") }
+            }
+            XCTAssertEqual(done.wait(timeout: .now() + 2), .success)
+        }
+    }
+
     private func uniqueTemporaryDirectory() -> URL {
         FileManager.default.temporaryDirectory
             .appending(path: "bearlock-tests-\(UUID().uuidString)", directoryHint: .isDirectory)

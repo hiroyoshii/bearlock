@@ -60,6 +60,13 @@ public actor LockStore {
         try repository.load()
     }
 
+    /// Serialize the fresh read and OS registration with app mutations, without
+    /// holding the file lock while the OS may synchronously invoke an extension.
+    public func synchronizeMonitoring(_ synchronize: @Sendable ([LockRule], Date) throws -> Void) throws {
+        let rules = try repository.load().rules
+        try synchronize(rules, Date())
+    }
+
     @discardableResult
     public func saveTargetSelection(_ selection: LockTargetSelectionRef) throws -> LockTargetSelectionRef {
         try update { state in

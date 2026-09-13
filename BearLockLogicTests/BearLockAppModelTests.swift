@@ -91,7 +91,7 @@ private final class Harness {
     }
 }
 private enum TestFailure: Error { case unavailable }
-private final class TestScheduleController: ScheduleControlling {
+private final class TestScheduleController: ScheduleControlling, @unchecked Sendable {
     var fail = false
     var rules: [LockRule] = []
     var calls = 0

@@ -208,7 +208,8 @@ final class BearLockAppModel: ObservableObject {
         if isRefresh && (isCreatingLock || isUpdatingLock) { return }
         do {
             if authorizationStatus == .approved {
-                try scheduleController.synchronize(lockState.rules, at: Date())
+                let schedule = scheduleController
+                try await lockStore.synchronizeMonitoring { try schedule.synchronize($0, at: $1) }
             }
         } catch {
             recordError("Schedule.synchronize.failed", error)
