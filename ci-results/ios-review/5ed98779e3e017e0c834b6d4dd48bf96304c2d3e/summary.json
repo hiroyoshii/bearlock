@@ -1,130 +1,7 @@
 {
   "sourceCommit": "5ed98779e3e017e0c834b6d4dd48bf96304c2d3e",
-  "collectedAt": "2026-09-13T07:54:55Z",
+  "collectedAt": "2026-09-13T07:59:29Z",
   "runs": [
-    {
-      "id": 34746014766,
-      "name": "Android 14 Acceptance",
-      "head_sha": "5ed98779e3e017e0c834b6d4dd48bf96304c2d3e",
-      "status": "in_progress",
-      "conclusion": null,
-      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014766",
-      "run_attempt": 1,
-      "jobs": [
-        {
-          "name": "acceptance",
-          "status": "in_progress",
-          "conclusion": null,
-          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014766/job/103693978825",
-          "steps": [
-            {
-              "name": "Set up job",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 1,
-              "started_at": "2026-09-13T07:45:31Z",
-              "completed_at": "2026-09-13T07:45:40Z"
-            },
-            {
-              "name": "Run actions/checkout@v4",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 2,
-              "started_at": "2026-09-13T07:45:40Z",
-              "completed_at": "2026-09-13T07:45:47Z"
-            },
-            {
-              "name": "Run actions/setup-java@v4",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 3,
-              "started_at": "2026-09-13T07:45:47Z",
-              "completed_at": "2026-09-13T07:45:47Z"
-            },
-            {
-              "name": "Run android-actions/setup-android@v3",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 4,
-              "started_at": "2026-09-13T07:45:47Z",
-              "completed_at": "2026-09-13T07:46:21Z"
-            },
-            {
-              "name": "Run gradle/actions/setup-gradle@v4",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 5,
-              "started_at": "2026-09-13T07:46:21Z",
-              "completed_at": "2026-09-13T07:46:28Z"
-            },
-            {
-              "name": "Build and unit test",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 6,
-              "started_at": "2026-09-13T07:46:28Z",
-              "completed_at": "2026-09-13T07:47:21Z"
-            },
-            {
-              "name": "Enable KVM",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 7,
-              "started_at": "2026-09-13T07:47:21Z",
-              "completed_at": "2026-09-13T07:47:21Z"
-            },
-            {
-              "name": "Verify real behavior on Android 14",
-              "status": "in_progress",
-              "conclusion": null,
-              "number": 8,
-              "started_at": "2026-09-13T07:47:21Z",
-              "completed_at": null
-            },
-            {
-              "name": "Run actions/upload-artifact@v4",
-              "status": "pending",
-              "conclusion": null,
-              "number": 9,
-              "started_at": null,
-              "completed_at": null
-            },
-            {
-              "name": "Save evidence",
-              "status": "pending",
-              "conclusion": null,
-              "number": 10,
-              "started_at": null,
-              "completed_at": null
-            },
-            {
-              "name": "Post Run gradle/actions/setup-gradle@v4",
-              "status": "pending",
-              "conclusion": null,
-              "number": 18,
-              "started_at": null,
-              "completed_at": null
-            },
-            {
-              "name": "Post Run actions/setup-java@v4",
-              "status": "pending",
-              "conclusion": null,
-              "number": 19,
-              "started_at": null,
-              "completed_at": null
-            },
-            {
-              "name": "Post Run actions/checkout@v4",
-              "status": "pending",
-              "conclusion": null,
-              "number": 20,
-              "started_at": null,
-              "completed_at": null
-            }
-          ]
-        }
-      ]
-    },
     {
       "id": 34746014690,
       "name": "Android Store Assets",
@@ -657,6 +534,139 @@
       "logReadExitCode": 0,
       "matchingLogLines": 126,
       "artifactReadExitCode": 0
+    },
+    {
+      "id": 34746014766,
+      "name": "Android 14 Acceptance",
+      "head_sha": "5ed98779e3e017e0c834b6d4dd48bf96304c2d3e",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014766",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "acceptance",
+          "status": "completed",
+          "conclusion": "failure",
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014766/job/103693978825",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-13T07:45:31Z",
+              "completed_at": "2026-09-13T07:45:40Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-13T07:45:40Z",
+              "completed_at": "2026-09-13T07:45:47Z"
+            },
+            {
+              "name": "Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-09-13T07:45:47Z",
+              "completed_at": "2026-09-13T07:45:47Z"
+            },
+            {
+              "name": "Run android-actions/setup-android@v3",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4,
+              "started_at": "2026-09-13T07:45:47Z",
+              "completed_at": "2026-09-13T07:46:21Z"
+            },
+            {
+              "name": "Run gradle/actions/setup-gradle@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5,
+              "started_at": "2026-09-13T07:46:21Z",
+              "completed_at": "2026-09-13T07:46:28Z"
+            },
+            {
+              "name": "Build and unit test",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-09-13T07:46:28Z",
+              "completed_at": "2026-09-13T07:47:21Z"
+            },
+            {
+              "name": "Enable KVM",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-09-13T07:47:21Z",
+              "completed_at": "2026-09-13T07:47:21Z"
+            },
+            {
+              "name": "Verify real behavior on Android 14",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 8,
+              "started_at": "2026-09-13T07:47:21Z",
+              "completed_at": "2026-09-13T07:58:40Z"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9,
+              "started_at": "2026-09-13T07:58:40Z",
+              "completed_at": "2026-09-13T07:58:41Z"
+            },
+            {
+              "name": "Save evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10,
+              "started_at": "2026-09-13T07:58:41Z",
+              "completed_at": "2026-09-13T07:58:41Z"
+            },
+            {
+              "name": "Post Run gradle/actions/setup-gradle@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18,
+              "started_at": "2026-09-13T07:58:41Z",
+              "completed_at": "2026-09-13T07:59:11Z"
+            },
+            {
+              "name": "Post Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19,
+              "started_at": "2026-09-13T07:59:11Z",
+              "completed_at": "2026-09-13T07:59:11Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20,
+              "started_at": "2026-09-13T07:59:11Z",
+              "completed_at": "2026-09-13T07:59:11Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21,
+              "started_at": "2026-09-13T07:59:11Z",
+              "completed_at": "2026-09-13T07:59:11Z"
+            }
+          ]
+        }
+      ],
+      "logReadExitCode": 0,
+      "matchingLogLines": 12
     }
   ]
 }
