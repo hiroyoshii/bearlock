@@ -1,122 +1,7 @@
 {
   "sourceCommit": "5ed98779e3e017e0c834b6d4dd48bf96304c2d3e",
-  "collectedAt": "2026-09-13T07:50:46Z",
+  "collectedAt": "2026-09-13T07:52:15Z",
   "runs": [
-    {
-      "id": 34746014749,
-      "name": "iOS Lock Lifecycle",
-      "head_sha": "5ed98779e3e017e0c834b6d4dd48bf96304c2d3e",
-      "status": "in_progress",
-      "conclusion": null,
-      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014749",
-      "run_attempt": 1,
-      "jobs": [
-        {
-          "name": "lifecycle",
-          "status": "in_progress",
-          "conclusion": null,
-          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014749/job/103693978628",
-          "steps": [
-            {
-              "name": "Set up job",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 1,
-              "started_at": "2026-09-13T07:45:33Z",
-              "completed_at": "2026-09-13T07:45:34Z"
-            },
-            {
-              "name": "Run actions/checkout@v4",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 2,
-              "started_at": "2026-09-13T07:45:34Z",
-              "completed_at": "2026-09-13T07:45:42Z"
-            },
-            {
-              "name": "Unit tests",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 3,
-              "started_at": "2026-09-13T07:45:42Z",
-              "completed_at": "2026-09-13T07:46:00Z"
-            },
-            {
-              "name": "Cross-process repository transactions",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 4,
-              "started_at": "2026-09-13T07:46:00Z",
-              "completed_at": "2026-09-13T07:46:05Z"
-            },
-            {
-              "name": "Generate Xcode project",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 5,
-              "started_at": "2026-09-13T07:46:05Z",
-              "completed_at": "2026-09-13T07:46:06Z"
-            },
-            {
-              "name": "App save and retry integration tests",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 6,
-              "started_at": "2026-09-13T07:46:06Z",
-              "completed_at": "2026-09-13T07:47:10Z"
-            },
-            {
-              "name": "Build app and all Screen Time extensions",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 7,
-              "started_at": "2026-09-13T07:47:10Z",
-              "completed_at": "2026-09-13T07:47:28Z"
-            },
-            {
-              "name": "Build release app with diagnostics",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 8,
-              "started_at": "2026-09-13T07:47:28Z",
-              "completed_at": "2026-09-13T07:47:47Z"
-            },
-            {
-              "name": "Build screenshot app",
-              "status": "completed",
-              "conclusion": "success",
-              "number": 9,
-              "started_at": "2026-09-13T07:47:47Z",
-              "completed_at": "2026-09-13T07:47:53Z"
-            },
-            {
-              "name": "Mock UI regression tests",
-              "status": "in_progress",
-              "conclusion": null,
-              "number": 10,
-              "started_at": "2026-09-13T07:47:53Z",
-              "completed_at": null
-            },
-            {
-              "name": "Run actions/upload-artifact@v4",
-              "status": "pending",
-              "conclusion": null,
-              "number": 11,
-              "started_at": null,
-              "completed_at": null
-            },
-            {
-              "name": "Post Run actions/checkout@v4",
-              "status": "pending",
-              "conclusion": null,
-              "number": 22,
-              "started_at": null,
-              "completed_at": null
-            }
-          ]
-        }
-      ]
-    },
     {
       "id": 34746014759,
       "name": "iOS CI",
@@ -636,6 +521,131 @@
       ],
       "logReadExitCode": 0,
       "matchingLogLines": 2
+    },
+    {
+      "id": 34746014749,
+      "name": "iOS Lock Lifecycle",
+      "head_sha": "5ed98779e3e017e0c834b6d4dd48bf96304c2d3e",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014749",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "lifecycle",
+          "status": "completed",
+          "conclusion": "failure",
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/34746014749/job/103693978628",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-13T07:45:33Z",
+              "completed_at": "2026-09-13T07:45:34Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-13T07:45:34Z",
+              "completed_at": "2026-09-13T07:45:42Z"
+            },
+            {
+              "name": "Unit tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-09-13T07:45:42Z",
+              "completed_at": "2026-09-13T07:46:00Z"
+            },
+            {
+              "name": "Cross-process repository transactions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4,
+              "started_at": "2026-09-13T07:46:00Z",
+              "completed_at": "2026-09-13T07:46:05Z"
+            },
+            {
+              "name": "Generate Xcode project",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5,
+              "started_at": "2026-09-13T07:46:05Z",
+              "completed_at": "2026-09-13T07:46:06Z"
+            },
+            {
+              "name": "App save and retry integration tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-09-13T07:46:06Z",
+              "completed_at": "2026-09-13T07:47:10Z"
+            },
+            {
+              "name": "Build app and all Screen Time extensions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-09-13T07:47:10Z",
+              "completed_at": "2026-09-13T07:47:28Z"
+            },
+            {
+              "name": "Build release app with diagnostics",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8,
+              "started_at": "2026-09-13T07:47:28Z",
+              "completed_at": "2026-09-13T07:47:47Z"
+            },
+            {
+              "name": "Build screenshot app",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9,
+              "started_at": "2026-09-13T07:47:47Z",
+              "completed_at": "2026-09-13T07:47:53Z"
+            },
+            {
+              "name": "Mock UI regression tests",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 10,
+              "started_at": "2026-09-13T07:47:53Z",
+              "completed_at": "2026-09-13T07:51:51Z"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11,
+              "started_at": "2026-09-13T07:51:51Z",
+              "completed_at": "2026-09-13T07:51:55Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22,
+              "started_at": "2026-09-13T07:51:55Z",
+              "completed_at": "2026-09-13T07:51:55Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23,
+              "started_at": "2026-09-13T07:51:55Z",
+              "completed_at": "2026-09-13T07:51:56Z"
+            }
+          ]
+        }
+      ],
+      "logReadExitCode": 0,
+      "matchingLogLines": 151
     }
   ]
 }
