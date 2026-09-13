@@ -1,0 +1,2 @@
+product	Run android-actions/setup-android@v3	2026-09-13T06:39:50.3609241Z 1.3 A "compatible implementation" means any Android device that (i) complies with the Android Compatibility Definition document, which can be found at the Android compatibility website (http://source.android.com/compatibility) and which may be updated from time to time; and (ii) successfully passes the Android Compatibility Test Suite (CTS).
+product	Build and check	2026-09-13T06:44:34.9394957Z BUILD SUCCESSFUL in 4m 27s
