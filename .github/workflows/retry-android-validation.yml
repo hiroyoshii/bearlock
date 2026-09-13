@@ -1,0 +1,27 @@
+name: Retry Android validation
+on:
+  push:
+    branches: [main]
+    paths: ['docs/qa/retry-android-validation.json']
+permissions:
+  actions: write
+  contents: read
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retry the specified failed runs on the verified source commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          request = json.load(open('docs/qa/retry-android-validation.json'))
+          for run_id in request['runs']:
+              run = json.loads(subprocess.check_output(['gh', 'api', f"repos/{os.environ['GH_REPO']}/actions/runs/{run_id}"], text=True))
+              assert run['head_sha'] == request['sourceCommit']
+              assert run['conclusion'] == 'failure' and run['run_attempt'] == 1
+              subprocess.run(['gh', 'run', 'rerun', str(run_id), '--failed'], check=True)
+          PY
