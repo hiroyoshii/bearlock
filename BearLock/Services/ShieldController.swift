@@ -20,7 +20,7 @@ struct ManagedSettingsShieldController: ShieldControlling, @unchecked Sendable {
         let activeNames = Set(decoded.map(\.0))
         let desiredNames = state.shieldStoreNames(at: date)
         var existingNames: Set<ManagedSettingsStore.Name> = []
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.5, *) {
             existingNames.formUnion(ManagedSettingsStore.stores.filter { $0.rawValue.hasPrefix("bearlock.") })
         }
 
@@ -34,7 +34,7 @@ struct ManagedSettingsShieldController: ShieldControlling, @unchecked Sendable {
         for name in orphanNames {
             ManagedSettingsStore(named: name).clearAllSettings()
         }
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.5, *) {
             ManagedSettingsStore.deleteStores(orphanNames)
         }
     }
