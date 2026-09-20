@@ -98,11 +98,24 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         try repository.save(state)
         XCTAssertEqual(try repository.load(), state)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-        XCTAssertEqual(Set(json.keys), ["targetSelections", "recentLockTargets", "rules"])
+        XCTAssertEqual(Set(json.keys), ["targetSelections", "recentLockTargets", "rules", "wakeState"])
         XCTAssertTrue(try repository.load().activeLocks(at: end).isEmpty)
     }
 
-    func testFreshReadsSeeRuleDeletedByAnotherStore() async throws {
+    func testStateSavedBeforeWakeFeatureLoadsWithEmptyWakeState() throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "state.json")
+        let repository = JSONFileLockRepository(fileURL: url)
+        try repository.save(LockState())
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        json.removeValue(forKey: "wakeState")
+        try JSONSerialization.data(withJSONObject: json).write(to: url)
+
+        XCTAssertEqual(try repository.load().wakeState, WakeState())
+    }
+
+    func testActorReloadsStateBeforeEachMutation() async throws {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let url = directory.appending(path: "state.json")
@@ -117,14 +130,14 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         XCTAssertEqual(fresh.targetSelections.count, 1)
     }
 
-    func testConcurrentRepositoryInstancesDoNotLoseUpdates() async throws {
+    func testSingleWriterActorDoesNotLoseConcurrentUpdates() async throws {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let url = directory.appending(path: "state.json")
+        let store = LockStore(repository: JSONFileLockRepository(fileURL: url))
         try await withThrowingTaskGroup(of: Void.self) { group in
             for _ in 0..<24 {
                 group.addTask {
-                    let store = LockStore(repository: JSONFileLockRepository(fileURL: url))
                     _ = try await store.saveTargetSelection(LockTargetSelectionRef())
                 }
             }
@@ -133,7 +146,7 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         XCTAssertEqual(try JSONFileLockRepository(fileURL: url).load().targetSelections.count, 24)
     }
 
-    func testMonitoringSynchronizationReloadsAndReleasesFileLockBeforeCallingOS() async throws {
+    func testMonitoringSynchronizationPublishesStateBeforeCallingOS() async throws {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let url = directory.appending(path: "state.json")
@@ -141,10 +154,10 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         _ = try await store.snapshot() // UI snapshot predates the new rule.
         let now = Date()
         let rule = try await store.createRule(.delayed(delay: 3600, duration: 900, targetSelectionID: UUID()), now: now)
-        try await store.synchronizeMonitoring { rules, _ in
-            XCTAssertEqual(rules, [rule])
-            // A synchronous OS callback uses a separate repository/process.
-            // It must be able to acquire the file lock while registration is in progress.
+        try await store.synchronizeMonitoring { state, _ in
+            XCTAssertEqual(state.rules, [rule])
+            // A synchronous OS callback uses a separate repository/process and reads the
+            // complete snapshot without participating in app-side serialization.
             let done = DispatchSemaphore(value: 0)
             DispatchQueue.global().async {
                 defer { done.signal() }

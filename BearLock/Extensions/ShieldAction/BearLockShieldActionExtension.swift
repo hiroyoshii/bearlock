@@ -8,7 +8,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         DiagnosticsLogger.shared.record("ShieldAction.application", detail: action.diagnosticsText)
-        completionHandler(.close)
+        completionHandler(response(for: action))
     }
 
     override func handle(
@@ -17,7 +17,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         DiagnosticsLogger.shared.record("ShieldAction.webDomain", detail: action.diagnosticsText)
-        completionHandler(.close)
+        completionHandler(response(for: action))
     }
 
     override func handle(
@@ -26,7 +26,16 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
         completionHandler: @escaping (ShieldActionResponse) -> Void
     ) {
         DiagnosticsLogger.shared.record("ShieldAction.category", detail: action.diagnosticsText)
-        completionHandler(.close)
+        completionHandler(response(for: action))
+    }
+
+    private func response(for action: ShieldAction) -> ShieldActionResponse {
+        guard action == .primaryButtonPressed else { return .close }
+        if #available(iOS 26.0, *) {
+            WakeLaunchRequest.record()
+            return .openParentalControlsApp
+        }
+        return .close
     }
 }
 

@@ -177,11 +177,11 @@ final class LockStoreTests: XCTestCase {
         try await store.deleteRule(id: a.id, now: now)
         var state = try await store.snapshot()
         XCTAssertEqual(state.rules, [b])
-        XCTAssertEqual(try state.selectionsToShield(at: now), [target])
+        XCTAssertEqual(try state.shieldSlotDecisions(at: now).map(\.selection), [target])
         try await store.deleteRule(id: b.id, now: now)
         state = try await store.snapshot()
         XCTAssertTrue(state.rules.isEmpty)
-        XCTAssertTrue(try state.selectionsToShield(at: now).isEmpty)
+        XCTAssertTrue(try state.shieldSlotDecisions(at: now).isEmpty)
         XCTAssertTrue(state.activeLocks(at: now.addingTimeInterval(86400)).isEmpty)
         XCTAssertTrue(MonitoringSchedule.desired(for: state.rules, at: now).isEmpty)
     }
@@ -243,7 +243,6 @@ final class LockStoreTests: XCTestCase {
 private final class InMemoryLockRepository: LockRepository, @unchecked Sendable {
     private var state = LockState()
 
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try body() }
 
     func load() throws -> LockState {
         state

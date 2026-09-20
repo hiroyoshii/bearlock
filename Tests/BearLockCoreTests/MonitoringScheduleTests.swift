@@ -88,6 +88,26 @@ final class MonitoringScheduleTests: XCTestCase {
         }
     }
 
+    func testCapacityLeavesTwoManagedSettingsStoresReserved() throws {
+        let targetID = UUID()
+        let rules = (0..<MonitoringSchedule.maximumOwnedStoreCount + 1).map { offset in
+            LockRule(
+                kind: .fixedDateTime,
+                startsAt: now.addingTimeInterval(Double(offset + 1) * 10_000),
+                duration: 900,
+                targetSelectionID: targetID
+            )
+        }
+
+        XCTAssertNoThrow(try MonitoringSchedule.validateCapacity(
+            for: Array(rules.prefix(MonitoringSchedule.maximumOwnedStoreCount)),
+            at: now
+        ))
+        XCTAssertThrowsError(try MonitoringSchedule.validateCapacity(for: rules, at: now)) { error in
+            XCTAssertEqual(error as? LockValidationError, .monitoringCapacityExceeded)
+        }
+    }
+
     private func descriptor(_ name: String) -> MonitoringSchedule {
         MonitoringSchedule(name: "bearlock.\(name)", start: DateComponents(hour: 10), end: DateComponents(hour: 11), repeats: false)
     }

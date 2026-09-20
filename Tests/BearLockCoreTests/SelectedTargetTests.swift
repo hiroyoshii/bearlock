@@ -66,5 +66,4 @@ private final class SelectionRepository: LockRepository, @unchecked Sendable {
         if failWrite { throw CocoaError(.fileWriteUnknown) }
         self.state = state
     }
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try body() }
 }

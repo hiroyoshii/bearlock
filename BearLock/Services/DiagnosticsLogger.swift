@@ -78,79 +78,31 @@ final class DiagnosticsLogger: @unchecked Sendable {
     static let shared = DiagnosticsLogger()
 
     private let logger = Logger(subsystem: "com.hiyozoo.bearlock", category: "diagnostics")
-    private let queue = DispatchQueue(label: "bearlock.diagnostics")
+    private let queue = DispatchQueue(label: "bearlock.diagnostics.memory")
+    private var events: [DiagnosticEvent] = []
     private let maxEvents = 50
-    private let encoder: JSONEncoder
-    private let decoder: JSONDecoder
-
-    private init() {
-        encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-    }
+    private init() {}
 
     func record(_ name: String, level: DiagnosticLevel = .info, detail: String? = nil) {
         logger.log(level: osLogType(for: level), "\(name, privacy: .public) \(detail ?? "", privacy: .public)")
-
         queue.sync {
-            var snapshot = self.loadUnlocked()
-            snapshot.events.insert(DiagnosticEvent(level: level, name: name, detail: detail), at: 0)
-            if snapshot.events.count > self.maxEvents {
-                snapshot.events.removeLast(snapshot.events.count - self.maxEvents)
+            events.insert(DiagnosticEvent(level: level, name: name, detail: detail), at: 0)
+            if events.count > maxEvents {
+                events.removeLast(events.count - maxEvents)
             }
-            self.saveUnlocked(snapshot)
         }
     }
 
     func snapshot() -> DiagnosticsSnapshot {
-        queue.sync {
-            loadUnlocked()
-        }
+        queue.sync { DiagnosticsSnapshot(events: events) }
     }
 
     func clear() {
-        queue.sync {
-            saveUnlocked(.empty)
-        }
+        queue.sync { events.removeAll() }
     }
 
     func isWritable() -> Bool {
-        let probeURL = AppGroup.containerURL.appending(path: "diagnostics-write-probe.txt")
-        do {
-            try FileManager.default.createDirectory(at: AppGroup.containerURL, withIntermediateDirectories: true)
-            try "ok".write(to: probeURL, atomically: true, encoding: .utf8)
-            try? FileManager.default.removeItem(at: probeURL)
-            return true
-        } catch {
-            record("Diagnostics.writeProbe.failed", level: .error, detail: error.localizedDescription)
-            return false
-        }
-    }
-
-    private func loadUnlocked() -> DiagnosticsSnapshot {
-        guard FileManager.default.fileExists(atPath: AppGroup.diagnosticsURL.path) else {
-            return .empty
-        }
-
-        do {
-            let data = try Data(contentsOf: AppGroup.diagnosticsURL)
-            return try decoder.decode(DiagnosticsSnapshot.self, from: data)
-        } catch {
-            logger.error("Diagnostics.load.failed \(error.localizedDescription, privacy: .public)")
-            return .empty
-        }
-    }
-
-    private func saveUnlocked(_ snapshot: DiagnosticsSnapshot) {
-        do {
-            try FileManager.default.createDirectory(at: AppGroup.containerURL, withIntermediateDirectories: true)
-            let data = try encoder.encode(snapshot)
-            try data.write(to: AppGroup.diagnosticsURL, options: [.atomic])
-        } catch {
-            logger.error("Diagnostics.save.failed \(error.localizedDescription, privacy: .public)")
-        }
+        false
     }
 
     private func osLogType(for level: DiagnosticLevel) -> OSLogType {

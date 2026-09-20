@@ -12,6 +12,8 @@ final class BearLockAppModel: ObservableObject {
     @Published private(set) var monitoringUpdateFailed = false
     @Published private(set) var isCreatingLock = false
     @Published private(set) var isUpdatingLock = false
+    @Published private(set) var isHandlingWake = false
+    @Published private(set) var wakeCompletionID: UUID?
     @Published var lastErrorMessage: String?
     @Published private(set) var diagnosticsSnapshot = DiagnosticsSnapshot.empty
     @Published private(set) var diagnosticsWritable = false
@@ -186,7 +188,7 @@ final class BearLockAppModel: ObservableObject {
     }
 
     func refresh() async {
-        guard !isRefreshing, !isCreatingLock, !isUpdatingLock else { return }
+        guard !isRefreshing, !isCreatingLock, !isUpdatingLock, !isHandlingWake else { return }
         isRefreshing = true
         defer { isRefreshing = false; refreshDiagnostics() }
         authorizationStatus = authorizationService.currentStatus()
@@ -204,7 +206,7 @@ final class BearLockAppModel: ObservableObject {
             recordError("Lock.load.failed", error, presentAlert: false)
             return
         }
-        if isRefresh && (isCreatingLock || isUpdatingLock) { return }
+        if isRefresh && (isCreatingLock || isUpdatingLock || isHandlingWake) { return }
         do {
             if authorizationStatus == .approved {
                 let schedule = scheduleController
@@ -215,13 +217,10 @@ final class BearLockAppModel: ObservableObject {
             monitoringUpdateFailed = true
             recordError("Schedule.synchronize.failed", error, presentAlert: false)
         }
-        let shield = shieldController
-        let logger = diagnostics
         do {
-            lockState = try await lockStore.reconcile(
-                apply: { try shield.applyShield(selections: $0) },
-                record: { logger.record("Lock.reconcile", detail: $0) }
-            )
+            let now = Date()
+            try shieldController.reconcile(state: lockState, at: now)
+            diagnostics.record("Lock.reconcile", detail: "now=\(now.ISO8601Format()) stores=\(try lockState.shieldSlotDecisions(at: now).map(\.storeName))")
         } catch {
             recordError("Lock.reconcile.failed", error)
         }
@@ -311,6 +310,97 @@ final class BearLockAppModel: ObservableObject {
             await synchronizeAndReconcile()
         } catch {
             recordError("Schedule.delete.failed", error)
+        }
+    }
+
+    func freeWakeRequest(for lock: ActiveLock) -> WakeRequest? {
+        lockState.wakeState.request(for: lock).flatMap { request in
+            request.source == .delayed && request.wakesAt > Date() ? request : nil
+        }
+    }
+
+    var hasWakeCredit: Bool {
+        !lockState.wakeState.creditTransactionIDs.isEmpty
+    }
+
+    func scheduleFreeWake(for lock: ActiveLock) async -> Bool {
+        guard !isHandlingWake else { return false }
+        isHandlingWake = true
+        defer { isHandlingWake = false; refreshDiagnostics() }
+        do {
+            _ = try await lockStore.scheduleFreeWake(for: lock, at: Date())
+            await synchronizeAndReconcile()
+            diagnostics.record("Wake.delayed.scheduled", detail: lock.id.uuidString)
+            return true
+        } catch {
+            recordError("Wake.delayed.failed", error)
+            return false
+        }
+    }
+
+    func cancelFreeWake(for lock: ActiveLock) async {
+        guard !isHandlingWake else { return }
+        isHandlingWake = true
+        defer { isHandlingWake = false; refreshDiagnostics() }
+        do {
+            try await lockStore.cancelFreeWake(for: lock, at: Date())
+            await synchronizeAndReconcile()
+            diagnostics.record("Wake.delayed.cancelled", detail: lock.id.uuidString)
+        } catch {
+            recordError("Wake.delayed.cancel.failed", error)
+        }
+    }
+
+    func beginWakePurchase(for lock: ActiveLock) async -> Bool {
+        guard !isHandlingWake else { return false }
+        isHandlingWake = true
+        defer { isHandlingWake = false; refreshDiagnostics() }
+        do {
+            try await lockStore.beginWakePurchase(for: lock, at: Date())
+            lockState = try await lockStore.snapshot()
+            diagnostics.record("Wake.purchase.started", detail: lock.id.uuidString)
+            return true
+        } catch {
+            recordError("Wake.purchase.begin.failed", error)
+            return false
+        }
+    }
+
+    func abandonWakePurchase() async {
+        do {
+            try await lockStore.abandonWakePurchase()
+            lockState = try await lockStore.snapshot()
+        } catch {
+            recordError("Wake.purchase.abandon.failed", error, presentAlert: false)
+        }
+    }
+
+    func deliverWakePurchase(transactionID: UInt64) async -> WakePurchaseDelivery? {
+        do {
+            let delivery = try await lockStore.deliverWakePurchase(transactionID: transactionID, at: Date())
+            await synchronizeAndReconcile()
+            if delivery == .unlocked { wakeCompletionID = UUID() }
+            diagnostics.record("Wake.purchase.delivered", detail: "transaction=\(transactionID) result=\(delivery)")
+            return delivery
+        } catch {
+            recordError("Wake.purchase.delivery.failed", error)
+            return nil
+        }
+    }
+
+    func useWakeCredit(for lock: ActiveLock) async -> Bool {
+        guard !isHandlingWake else { return false }
+        isHandlingWake = true
+        defer { isHandlingWake = false; refreshDiagnostics() }
+        do {
+            try await lockStore.useWakeCredit(for: lock, at: Date())
+            await synchronizeAndReconcile()
+            wakeCompletionID = UUID()
+            diagnostics.record("Wake.credit.used", detail: lock.id.uuidString)
+            return true
+        } catch {
+            recordError("Wake.credit.failed", error)
+            return false
         }
     }
 
@@ -449,6 +539,8 @@ final class BearLockAppModel: ObservableObject {
                 return L10n.string("This schedule is no longer available.")
             case .notRecurringRule:
                 return L10n.string("Only repeating locks can be changed here.")
+            case .monitoringCapacityExceeded:
+                return L10n.string("Too many schedules are configured. Remove an existing schedule and try again.")
             }
         }
 
@@ -458,6 +550,19 @@ final class BearLockAppModel: ObservableObject {
                 return L10n.string("This saved target is no longer available.")
             case .pinnedTargetLimitReached:
                 return L10n.string("You can pin up to three targets.")
+            }
+        }
+
+        if let wakeError = error as? WakeError {
+            switch wakeError {
+            case .activeLockNotFound:
+                return L10n.string("This lock has already ended.")
+            case .freeWakeUnavailable:
+                return L10n.string("Less than 30 minutes remain. Wait for the scheduled wake time.")
+            case .noWakeRequest:
+                return L10n.string("The wake-up request is no longer active.")
+            case .noWakeCredit:
+                return L10n.string("No wake-up ticket is available.")
             }
         }
 

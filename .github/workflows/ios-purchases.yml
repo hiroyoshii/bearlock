@@ -1,9 +1,12 @@
-name: iOS Support Purchases
+name: iOS Purchases
 on:
   push:
     branches: [main]
     paths:
       - 'BearLock/Features/Home/SupportStore.swift'
+      - 'BearLock/Features/Home/WakePurchaseStore.swift'
+      - 'Sources/BearLockCore/WakePolicy.swift'
+      - 'Sources/BearLockCore/LockRepository.swift'
       - 'BearLock/Services/Localization.swift'
       - 'BearLockPurchaseTests/**'
       - 'BearLockPurchaseTestHost/**'

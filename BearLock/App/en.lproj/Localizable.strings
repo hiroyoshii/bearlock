@@ -62,8 +62,6 @@
 "None" = "None";
 "OK" = "OK";
 "Off" = "Off";
-"Once Bear falls asleep, you can't wake him early." = "After this starts, it cannot be shortened or ended early.";
-"After this starts, Bear Lock cannot shorten or end it early." = "After this starts, it cannot be shortened or ended early.";
 "Open a blocked app" = "Open a blocked app";
 "Quietly hibernate selected apps until the chosen time." = "Quietly hibernate selected apps until the chosen time.";
 "Recent Events" = "Recent Events";
@@ -72,8 +70,6 @@
 "Repeat" = "Repeat";
 "Repeats" = "Repeats";
 "Save" = "Save";
-"Saved" = "Saved";
-"Saved selection" = "Saved selection";
 "Schedule" = "Schedule";
 "Schedule Bear's sleep." = "Schedule Bear's sleep.";
 "Schedule Hibernation" = "Schedule Lock";
@@ -122,6 +118,39 @@
 "Existing schedules and the active lock will not change." = "Existing schedules and the active lock will not change.";
 "Remove" = "Remove";
 "This saved target is no longer available." = "This saved target is no longer available.";
+"Unavailable" = "Unavailable";
+"Do you really need to wake the bear?" = "Do you really need to wake the bear?";
+"Wake the bear in 30 minutes?" = "Wake the bear in 30 minutes?";
+"Start 30-minute wake-up" = "Start 30-minute wake-up";
+"The lock stays active for another 30 minutes. You can cancel the request before then." = "The lock stays active for another 30 minutes. You can cancel the request before then.";
+"Wake the bear now?" = "Wake the bear now?";
+"This purchase ends only the current lock. Future repeating locks stay scheduled." = "This purchase ends only the current lock. Future repeating locks stay scheduled.";
+"Waking the bear" = "Waking the bear";
+"Cancel wake-up" = "Cancel wake-up";
+"Use wake-up ticket" = "Use wake-up ticket";
+"Purchase approval is pending" = "Purchase approval is pending";
+"Wake now" = "Wake now";
+"Wake now for %@" = "Wake now for %@";
+"Wake in 30 minutes for free" = "Wake in 30 minutes for free";
+"Less than 30 minutes remain. The bear will wake at the scheduled time." = "Less than 30 minutes remain. The bear will wake at the scheduled time.";
+"Woken up with honey…" = "Woken up with honey…";
+"The current lock has ended." = "The current lock has ended.";
+"Get up" = "Get up";
+"Immediate wake-up is not available yet." = "Immediate wake-up is not available yet.";
+"Immediate wake-up could not be loaded." = "Immediate wake-up could not be loaded.";
+"Immediate wake-up could not be purchased." = "Immediate wake-up could not be purchased.";
+"The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket." = "The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket.";
+"This lock already ended. Your wake-up ticket is saved for next time." = "This lock already ended. Your wake-up ticket is saved for next time.";
+"Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up." = "Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up.";
+"A wake-up ends only the current lock. Future repeating locks stay scheduled." = "A wake-up ends only the current lock. Future repeating locks stay scheduled.";
+"After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up." = "After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up.";
+"This lock has already ended." = "This lock has already ended.";
+"Less than 30 minutes remain. Wait for the scheduled wake time." = "Less than 30 minutes remain. Wait for the scheduled wake time.";
+"The wake-up request is no longer active." = "The wake-up request is no longer active.";
+"No wake-up ticket is available." = "No wake-up ticket is available.";
+"The selected apps are available again." = "The selected apps are available again.";
+"Wake the bear" = "Wake the bear";
+"Close" = "Close";
 "You can pin up to three targets." = "You can pin up to three targets.";
 "Target list" = "Target list";
 "Show target list" = "Show target list";
@@ -134,7 +163,6 @@
 "Locks start at 15 minutes or longer." = "Locks start at 15 minutes or longer.";
 "iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection." = "iOS keeps selected app names private. Counts and saved selections are used for enforcement.";
 "Target apps cannot be changed during an active lock." = "Target apps cannot be changed during an active lock.";
-"After this starts, it cannot be shortened or ended early." = "After this starts, it cannot be shortened or ended early.";
 "+%d more" = "+%d more";
 "Selected apps" = "Selected apps";
 "Settings" = "Settings";
@@ -225,10 +253,7 @@
 
 "Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets." = "Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.";
 "Active. You can delete this schedule to end its lock." = "Active. You can delete this schedule to end its lock.";
-"You can delete this schedule at any time. Deleting it also ends its active lock." = "You can delete this schedule at any time. Deleting it also ends its active lock.";
 "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.";
-"Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule." = "Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule.";
-"One-time locks cannot be ended early. Delete a repeating schedule to end its lock." = "One-time locks cannot be ended early. Delete a repeating schedule to end its lock.";
 
 "Saved data could not be read" = "Saved data could not be read";
 
@@ -239,3 +264,4 @@
 "Your schedules are saved. Scheduled blocking may not work until monitoring is updated." = "Your schedules are saved. Scheduled blocking may not work until monitoring is updated.";
 
 "Retry" = "Retry";
+"Too many schedules are configured. Remove an existing schedule and try again." = "Too many schedules are configured. Remove an existing schedule and try again.";

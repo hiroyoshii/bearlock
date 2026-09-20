@@ -193,32 +193,34 @@ private final class TestScheduleController: ScheduleControlling, @unchecked Send
     var fail = false
     var rules: [LockRule] = []
     var calls = 0
-    func synchronize(_ rules: [LockRule], at now: Date) throws {
+    func synchronize(_ state: LockState, at now: Date) throws {
         calls += 1
         if fail { throw TestFailure.unavailable }
-        self.rules = rules
+        self.rules = state.rules
     }
 }
 private final class TestShieldController: ShieldControlling, @unchecked Sendable {
     var selections: [LockTargetSelectionRef]?
-    func applyShield(selections: [LockTargetSelectionRef]) throws { self.selections = selections }
+    func reconcile(state: LockState, at date: Date) throws {
+        selections = try state.shieldSlotDecisions(at: date).map(\.selection)
+    }
 }
 private final class MemoryRepository: LockRepository, @unchecked Sendable {
     var state = LockState()
     var failRead = false
     var failWrite = false
     private let lock = NSRecursiveLock()
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T {
+    private func synchronized<T>(_ body: () throws -> T) rethrows -> T {
         lock.lock(); defer { lock.unlock() }; return try body()
     }
     func load() throws -> LockState {
-        try withExclusiveAccess {
+        try synchronized {
             if failRead { throw TestFailure.unavailable }
             return state
         }
     }
     func save(_ state: LockState) throws {
-        try withExclusiveAccess {
+        try synchronized {
             if failWrite { throw TestFailure.unavailable }
             self.state = state
         }

@@ -256,6 +256,7 @@ private struct TargetSelectionPickerSheet: View {
 struct TargetSelectionSummaryView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var summary = TargetSelectionSummary.empty
+    @State private var selectionUnavailable = false
     @State private var isTargetListExpanded = false
 
     var body: some View {
@@ -271,12 +272,9 @@ struct TargetSelectionSummaryView: View {
                     .foregroundStyle(summary.total == 0 ? AppTheme.navy.opacity(0.5) : AppTheme.navy)
             }
 
-            if summary.total == 0, let fallbackSelectionName {
-                Text(fallbackSelectionName)
+            if selectionUnavailable {
+                Text("This saved target is no longer available.")
                     .font(.subheadline)
-                    .foregroundStyle(AppTheme.navy.opacity(0.72))
-                Text("Saved selection")
-                    .font(.caption)
                     .foregroundStyle(AppTheme.navy.opacity(0.62))
             } else if summary.total == 0 {
                 Text("No targets are selected.")
@@ -374,26 +372,24 @@ struct TargetSelectionSummaryView: View {
     }
 
     private var summaryTitle: String {
-        if summary.total > 0 {
-            return L10n.format("%d targets", summary.total)
+        if selectionUnavailable {
+            return L10n.string("Unavailable")
         }
 
-        if fallbackSelectionName != nil {
-            return L10n.string("Saved")
+        if summary.total > 0 {
+            return L10n.format("%d targets", summary.total)
         }
 
         return L10n.string("None")
     }
 
-    private var fallbackSelectionName: String? {
-        model.lockState.selectedTarget?.displayName
-    }
-
     private func refresh() {
         do {
             summary = try model.targetSelectionCodec.summary(from: model.lockState.selectedTarget)
+            selectionUnavailable = false
         } catch {
             summary = .empty
+            selectionUnavailable = true
         }
     }
 }

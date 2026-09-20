@@ -22,7 +22,7 @@ struct SetupView: View {
             }
 
             VStack(spacing: 12) {
-                Text("Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule.")
+                Text("Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up.")
                     .font(.footnote)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)

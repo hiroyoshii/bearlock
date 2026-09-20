@@ -5,17 +5,33 @@ public struct LockState: Codable, Equatable, Sendable {
     public var recentLockTargets: [RecentLockTarget]
     public var rules: [LockRule]
     public var selectedTargetID: UUID?
+    public var wakeState: WakeState
 
     public init(
         targetSelections: [LockTargetSelectionRef] = [],
         recentLockTargets: [RecentLockTarget] = [],
         rules: [LockRule] = [],
-        selectedTargetID: UUID? = nil
+        selectedTargetID: UUID? = nil,
+        wakeState: WakeState = WakeState()
     ) {
         self.targetSelections = targetSelections
         self.recentLockTargets = recentLockTargets
         self.rules = rules
         self.selectedTargetID = selectedTargetID
+        self.wakeState = wakeState
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case targetSelections, recentLockTargets, rules, selectedTargetID, wakeState
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        targetSelections = try container.decode([LockTargetSelectionRef].self, forKey: .targetSelections)
+        recentLockTargets = try container.decode([RecentLockTarget].self, forKey: .recentLockTargets)
+        rules = try container.decode([LockRule].self, forKey: .rules)
+        selectedTargetID = try container.decodeIfPresent(UUID.self, forKey: .selectedTargetID)
+        wakeState = try container.decodeIfPresent(WakeState.self, forKey: .wakeState) ?? WakeState()
     }
 
     public var selectedTarget: LockTargetSelectionRef? {
@@ -29,6 +45,7 @@ public struct LockState: Codable, Equatable, Sendable {
     public func activeLocks(at date: Date) -> [ActiveLock] {
         rules.filter { $0.status == .scheduled }
             .compactMap { $0.occurrence(containing: date) }
+            .filter { !wakeState.isAwake($0, at: date) }
             .sorted { $0.startedAt < $1.startedAt }
     }
 
@@ -55,8 +72,6 @@ public enum RecentLockTargetError: Error, Equatable, Sendable {
 public protocol LockRepository: Sendable {
     func load() throws -> LockState
     func save(_ state: LockState) throws
-    /// Serializes the whole read/decide/effect/write operation, including across processes.
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T
 }
 
 public actor LockStore {
@@ -70,11 +85,10 @@ public actor LockStore {
         try repository.load()
     }
 
-    /// Serialize the fresh read and OS registration with app mutations, without
-    /// holding the file lock while the OS may synchronously invoke an extension.
-    public func synchronizeMonitoring(_ synchronize: @Sendable ([LockRule], Date) throws -> Void) throws {
-        let rules = try repository.load().rules
-        try synchronize(rules, Date())
+    /// Serialize the fresh read and OS registration with app mutations.
+    public func synchronizeMonitoring(_ synchronize: @Sendable (LockState, Date) throws -> Void) throws {
+        let state = try repository.load()
+        try synchronize(state, Date())
     }
 
     @discardableResult
@@ -175,8 +189,10 @@ public actor LockStore {
 
     public func createRule(_ request: LockCreationRequest, now: Date? = nil) throws -> LockRule {
         try update { state in
-            let rule = try LockPlanner().makeRule(from: request, now: now ?? Date(), existingRules: state.rules)
+            let now = now ?? Date()
+            let rule = try LockPlanner().makeRule(from: request, now: now, existingRules: state.rules)
             state.rules.append(rule)
+            try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
             return rule
         }
     }
@@ -195,6 +211,7 @@ public actor LockStore {
                     existingRules: state.rules, enabled: replacement.status == .scheduled)
                 : planner.validateScheduledReplacement(replacement, replacing: original, now: now,
                     existingRules: state.rules)
+            try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
         }
     }
 
@@ -203,24 +220,123 @@ public actor LockStore {
             guard let rule = state.rules.first(where: { $0.id == id }) else { return }
             if rule.isOneShot { try rule.validateEditable(at: now ?? Date()) }
             state.rules.removeAll { $0.id == id }
+            state.wakeState.requests.removeAll { $0.ruleID == id }
+            if state.wakeState.pendingPurchase?.ruleID == id {
+                state.wakeState.pendingPurchase = nil
+            }
         }
+    }
+
+    @discardableResult
+    public func scheduleFreeWake(for lock: ActiveLock, at now: Date) throws -> WakeRequest {
+        try update { state in
+            let active = try activeOccurrence(matching: lock, in: state, at: now)
+            guard active.endsAt.timeIntervalSince(now) > WakePolicy.freeDelay else {
+                throw WakeError.freeWakeUnavailable
+            }
+            if let existing = state.wakeState.request(for: active), existing.source == .delayed {
+                return existing
+            }
+            state.wakeState.requests.removeAll { $0.matches(active) }
+            let request = WakeRequest(
+                ruleID: active.id,
+                occurrenceStartedAt: active.startedAt,
+                requestedAt: now,
+                wakesAt: now.addingTimeInterval(WakePolicy.freeDelay),
+                source: .delayed
+            )
+            state.wakeState.requests.append(request)
+            return request
+        }
+    }
+
+    public func cancelFreeWake(for lock: ActiveLock, at now: Date) throws {
+        try update { state in
+            _ = try activeOccurrence(matching: lock, in: state, at: now)
+            let originalCount = state.wakeState.requests.count
+            state.wakeState.requests.removeAll { $0.matches(lock) && $0.source == .delayed && $0.wakesAt > now }
+            guard state.wakeState.requests.count != originalCount else { throw WakeError.noWakeRequest }
+        }
+    }
+
+    public func beginWakePurchase(for lock: ActiveLock, at now: Date) throws {
+        try update { state in
+            let active = try activeOccurrence(matching: lock, in: state, at: now)
+            state.wakeState.pendingPurchase = WakePurchaseIntent(
+                ruleID: active.id,
+                occurrenceStartedAt: active.startedAt,
+                requestedAt: now
+            )
+        }
+    }
+
+    public func abandonWakePurchase() throws {
+        try update { state in
+            state.wakeState.pendingPurchase = nil
+        }
+    }
+
+    @discardableResult
+    public func deliverWakePurchase(transactionID: UInt64, at now: Date) throws -> WakePurchaseDelivery {
+        try update { state in
+            guard !state.wakeState.hasHandled(transactionID: transactionID) else { return .alreadyHandled }
+            guard let intent = state.wakeState.pendingPurchase,
+                  let rule = state.rules.first(where: { $0.id == intent.ruleID }),
+                  let active = rule.occurrence(containing: now),
+                  active.startedAt == intent.occurrenceStartedAt,
+                  !state.wakeState.isAwake(active, at: now)
+            else {
+                state.wakeState.pendingPurchase = nil
+                state.wakeState.creditTransactionIDs.append(transactionID)
+                return .credited
+            }
+            state.wakeState.requests.removeAll { $0.matches(active) }
+            state.wakeState.requests.append(WakeRequest(
+                ruleID: active.id,
+                occurrenceStartedAt: active.startedAt,
+                requestedAt: intent.requestedAt,
+                wakesAt: now,
+                source: .purchase,
+                transactionID: transactionID
+            ))
+            state.wakeState.pendingPurchase = nil
+            return .unlocked
+        }
+    }
+
+    public func useWakeCredit(for lock: ActiveLock, at now: Date) throws {
+        try update { state in
+            let active = try activeOccurrence(matching: lock, in: state, at: now)
+            guard let transactionID = state.wakeState.creditTransactionIDs.first else {
+                throw WakeError.noWakeCredit
+            }
+            state.wakeState.creditTransactionIDs.removeFirst()
+            state.wakeState.requests.removeAll { $0.matches(active) }
+            state.wakeState.requests.append(WakeRequest(
+                ruleID: active.id,
+                occurrenceStartedAt: active.startedAt,
+                requestedAt: now,
+                wakesAt: now,
+                source: .purchase,
+                transactionID: transactionID
+            ))
+        }
+    }
+
+    private func activeOccurrence(matching lock: ActiveLock, in state: LockState, at now: Date) throws -> ActiveLock {
+        guard let rule = state.rules.first(where: { $0.id == lock.id }),
+              let active = rule.occurrence(containing: now),
+              active.startedAt == lock.startedAt,
+              !state.wakeState.isAwake(active, at: now)
+        else { throw WakeError.activeLockNotFound }
+        return active
     }
 
     private func update<T>(_ body: (inout LockState) throws -> T) throws -> T {
-        try repository.withExclusiveAccess {
-            let original = try repository.load()
-            var state = original
-            let result = try body(&state)
-            if state != original { try repository.save(state) }
-            return result
-        }
-    }
-
-    public func reconcile(
-        at now: Date? = nil,
-        apply: @Sendable ([LockTargetSelectionRef]) throws -> Void,
-        record: @Sendable (String) -> Void
-    ) throws -> LockState {
-        try LockLifecycle(repository: repository).reconcile(at: now, apply: apply, record: record)
+        let original = try repository.load()
+        var state = original
+        let result = try body(&state)
+        if state != original { try repository.save(state) }
+        return result
     }
 }

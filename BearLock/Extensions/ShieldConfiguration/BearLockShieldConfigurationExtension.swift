@@ -51,10 +51,24 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 0.72)
             ),
             primaryButtonLabel: ShieldConfiguration.Label(
-                text: localized("OK"),
+                text: localized(primaryButtonKey),
                 color: .white
             ),
-            primaryButtonBackgroundColor: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0)
+            primaryButtonBackgroundColor: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0),
+            secondaryButtonLabel: secondaryButtonLabel
+        )
+    }
+
+    private var primaryButtonKey: String {
+        if #available(iOS 26.0, *) { return "Wake the bear" }
+        return "OK"
+    }
+
+    private var secondaryButtonLabel: ShieldConfiguration.Label? {
+        guard #available(iOS 26.0, *) else { return nil }
+        return ShieldConfiguration.Label(
+            text: localized("Keep sleeping"),
+            color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 0.72)
         )
     }
 

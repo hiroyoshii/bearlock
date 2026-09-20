@@ -62,8 +62,6 @@
 "None" = "なし";
 "OK" = "OK";
 "Off" = "オフ";
-"Once Bear falls asleep, you can't wake him early." = "開始後は短縮・解除できません。";
-"After this starts, Bear Lock cannot shorten or end it early." = "開始後は短縮・解除できません。";
 "Open a blocked app" = "対象アプリを開く";
 "Quietly hibernate selected apps until the chosen time." = "選んだアプリを終了時刻までロックします。";
 "Recent Events" = "最近のイベント";
@@ -72,8 +70,6 @@
 "Repeat" = "繰り返し";
 "Repeats" = "繰り返し";
 "Save" = "保存";
-"Saved" = "保存済み";
-"Saved selection" = "保存済みの選択";
 "Schedule" = "予定";
 "Schedule Bear's sleep." = "ロックを予約します。";
 "Schedule Hibernation" = "ロックを予約";
@@ -122,6 +118,39 @@
 "Existing schedules and the active lock will not change." = "作成済みの予定と実行中のロックは変更されません。";
 "Remove" = "削除";
 "This saved target is no longer available." = "この保存済み対象は利用できません。";
+"Unavailable" = "利用不可";
+"Do you really need to wake the bear?" = "本当に熊を起こしますか？";
+"Wake the bear in 30 minutes?" = "30分かけて熊を起こしますか？";
+"Start 30-minute wake-up" = "30分の起床を始める";
+"The lock stays active for another 30 minutes. You can cancel the request before then." = "あと30分はロックが続きます。それまでは起床を取り消せます。";
+"Wake the bear now?" = "今すぐ熊を起こしますか？";
+"This purchase ends only the current lock. Future repeating locks stay scheduled." = "今回のロックだけを終了します。今後の繰り返し予定は残ります。";
+"Waking the bear" = "熊を起こしています";
+"Cancel wake-up" = "起床を取り消す";
+"Use wake-up ticket" = "起床券を使う";
+"Purchase approval is pending" = "購入の承認待ちです";
+"Wake now" = "今すぐ起こす";
+"Wake now for %@" = "%@ですぐ起こす";
+"Wake in 30 minutes for free" = "無料で30分後に起こす";
+"Less than 30 minutes remain. The bear will wake at the scheduled time." = "残り30分未満です。予定時刻までそのまま眠ります。";
+"Woken up with honey…" = "はちみつで起こされました…";
+"The current lock has ended." = "今回のロックを終了しました。";
+"Get up" = "しかたなく起きる";
+"Immediate wake-up is not available yet." = "今すぐ起こす機能はまだ利用できません。";
+"Immediate wake-up could not be loaded." = "今すぐ起こす機能を読み込めませんでした。";
+"Immediate wake-up could not be purchased." = "今すぐ起こす購入を完了できませんでした。";
+"The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket." = "購入は承認待ちです。先にロックが終了した場合は、次回使える起床券になります。";
+"This lock already ended. Your wake-up ticket is saved for next time." = "このロックは終了済みです。起床券を次回用に保存しました。";
+"Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up." = "指定時刻になると自動で解除します。必要な場合は無料で30分後に起こすか、購入してすぐ起こせます。";
+"A wake-up ends only the current lock. Future repeating locks stay scheduled." = "起床で終了するのは今回のロックだけです。今後の繰り返し予定は残ります。";
+"After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up." = "開始後は予定を変更できません。早く起こすには30分かかります。購入するとすぐ起こせます。";
+"This lock has already ended." = "このロックはすでに終了しています。";
+"Less than 30 minutes remain. Wait for the scheduled wake time." = "残り30分未満です。予定した起床時刻までお待ちください。";
+"The wake-up request is no longer active." = "起床リクエストはすでに終了しています。";
+"No wake-up ticket is available." = "利用できる起床券がありません。";
+"The selected apps are available again." = "選択したアプリを利用できます。";
+"Wake the bear" = "熊を起こす";
+"Close" = "閉じる";
 "You can pin up to three targets." = "固定できる対象は3件までです。";
 "Target list" = "対象一覧";
 "Show target list" = "対象一覧を表示";
@@ -134,7 +163,6 @@
 "Locks start at 15 minutes or longer." = "ロック時間は15分以上から設定できます。";
 "iOS keeps selected app names private. Bear Lock can show counts and enforce the saved selection." = "iOSのプライバシー保護により、アプリ名ではなく件数で表示します。";
 "Target apps cannot be changed during an active lock." = "ロック中は対象アプリを変更できません。";
-"After this starts, it cannot be shortened or ended early." = "開始後は短縮・解除できません。";
 "+%d more" = "他%d件";
 "Selected apps" = "選択済みアプリ";
 "Settings" = "設定";
@@ -225,10 +253,7 @@
 
 "Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets." = "この予定による実行中のロックも終了します。他の予定によるロックは続きます。";
 "Active. You can delete this schedule to end its lock." = "実行中です。予定を削除すると、このロックも終了します。";
-"You can delete this schedule at any time. Deleting it also ends its active lock." = "予定はいつでも削除できます。削除すると、実行中のロックも終了します。";
 "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "実行中は時刻・曜日を変更できません。予定はいつでも削除できます。";
-"Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule." = "指定時刻になると自動で解除します。単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。";
-"One-time locks cannot be ended early. Delete a repeating schedule to end its lock." = "単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。";
 
 "Saved data could not be read" = "保存データを読み込めません";
 
@@ -239,3 +264,4 @@
 "Your schedules are saved. Scheduled blocking may not work until monitoring is updated." = "予定は保存されています。監視を更新するまで、予定時刻にロックが動作しない可能性があります。";
 
 "Retry" = "再試行";
+"Too many schedules are configured. Remove an existing schedule and try again." = "スケジュール数が上限に達しています。既存のスケジュールを削除してから再試行してください。";

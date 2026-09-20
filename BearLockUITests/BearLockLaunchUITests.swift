@@ -369,7 +369,24 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["In"].exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.exists)
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
+        XCTAssertTrue(app.buttons["schedule-free-wake"].exists)
+        XCTAssertTrue(app.buttons["purchase-immediate-wake"].exists)
+        XCTAssertFalse(app.buttons["purchase-immediate-wake"].isEnabled)
         captureScreenshot(named: "e2e-active-lock-constraints")
+    }
+
+    func testFreeWakeCanBeScheduledAndCancelledWithMockServices() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-lock"])
+        let schedule = app.buttons["schedule-free-wake"]
+        XCTAssertTrue(schedule.waitForExistence(timeout: 10))
+        scrollToButton(schedule, in: app)
+        schedule.tap()
+        app.buttons["Start 30-minute wake-up"].tap()
+
+        let cancel = app.buttons["cancel-free-wake"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+        cancel.tap()
+        XCTAssertTrue(schedule.waitForExistence(timeout: 10))
     }
 
     func testDisabledRecurringDraftCancelsWithoutChangingSavedStatus() throws {

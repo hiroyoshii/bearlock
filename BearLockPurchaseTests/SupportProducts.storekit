@@ -48,6 +48,26 @@
       "type": "Consumable"
     },
     {
+      "displayPrice": "500",
+      "familyShareable": false,
+      "internalID": "1004",
+      "localizations": [
+        {
+          "description": "End the current Bear Lock once",
+          "displayName": "Wake now",
+          "locale": "en_US"
+        },
+        {
+          "description": "現在のBear Lockを1回だけ終了します",
+          "displayName": "今すぐ起こす",
+          "locale": "ja"
+        }
+      ],
+      "productID": "com.hiyozoo.bearlock.wake.now",
+      "referenceName": "Wake Now",
+      "type": "Consumable"
+    },
+    {
       "displayPrice": "100",
       "familyShareable": false,
       "internalID": "2001",

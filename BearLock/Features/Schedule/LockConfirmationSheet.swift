@@ -30,7 +30,7 @@ struct LockConfirmationSheet: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy)
 
-                Text(LocalizedStringKey(details.isRecurring ? "You can delete this schedule at any time. Deleting it also ends its active lock." : "After this starts, it cannot be shortened or ended early."))
+                Text(LocalizedStringKey(details.isRecurring ? "A wake-up ends only the current lock. Future repeating locks stay scheduled." : "After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up."))
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppTheme.navy.opacity(0.68))

@@ -8,9 +8,8 @@ final class LockLifecycleTests: XCTestCase {
     func testLateOrDuplicateCallsNeverMoveTheDeadline() throws {
         let rule = oneShot()
         let repository = FaultRepository(LockState(targetSelections: [target], rules: [rule]))
-        let lifecycle = LockLifecycle(repository: repository)
         for offset in [0.0, 100, 100, 3599] {
-            let state = try lifecycle.reconcile(at: start.addingTimeInterval(offset), apply: {
+            let state = try reconcile(repository, at: start.addingTimeInterval(offset), apply: {
                 XCTAssertEqual($0, [self.target])
             })
             XCTAssertEqual(state.activeLocks(at: start.addingTimeInterval(offset)).first?.endsAt, rule.single!.endsAt)
@@ -22,7 +21,7 @@ final class LockLifecycleTests: XCTestCase {
         for offset in [3600.0, 3601, 86400] {
             let repository = FaultRepository(LockState(targetSelections: [target], rules: [oneShot()]))
             var applied: [LockTargetSelectionRef]?
-            try LockLifecycle(repository: repository).reconcile(at: start.addingTimeInterval(offset), apply: { applied = $0 })
+            try reconcile(repository, at: start.addingTimeInterval(offset), apply: { applied = $0 })
             XCTAssertEqual(applied, [])
             XCTAssertEqual(repository.saveCount, 0)
         }
@@ -32,7 +31,7 @@ final class LockLifecycleTests: XCTestCase {
         // Callback IDs and callback types are intentionally absent from the API.
         let repository = FaultRepository(LockState(targetSelections: [target], rules: [oneShot()]))
         for _ in 0..<3 {
-            try LockLifecycle(repository: repository).reconcile(at: start.addingTimeInterval(1800), apply: {
+            try reconcile(repository, at: start.addingTimeInterval(1800), apply: {
                 XCTAssertEqual($0, [self.target])
             })
         }
@@ -42,7 +41,7 @@ final class LockLifecycleTests: XCTestCase {
         let nextTarget = LockTargetSelectionRef(displayName: "Other apps")
         let next = LockRule(kind: .fixedDateTime, startsAt: start.addingTimeInterval(3600), duration: 3600, targetSelectionID: nextTarget.id)
         let repository = FaultRepository(LockState(targetSelections: [target, nextTarget], rules: [oneShot(), next]))
-        try LockLifecycle(repository: repository).reconcile(at: next.single!.startsAt, apply: { XCTAssertEqual($0, [nextTarget]) })
+        try reconcile(repository, at: next.single!.startsAt, apply: { XCTAssertEqual($0, [nextTarget]) })
     }
 
     func testRecurringRuleUsesCurrentOccurrenceAfterMidnightAndNextWeek() throws {
@@ -66,38 +65,37 @@ final class LockLifecycleTests: XCTestCase {
         var duplicate = recurring()
         duplicate.id = UUID()
         let state = LockState(targetSelections: [target, other], rules: [recurring(), later, duplicate])
-        XCTAssertEqual(Set(try state.selectionsToShield(at: start).map(\.id)), [target.id, other.id])
-        XCTAssertEqual(try state.selectionsToShield(at: start.addingTimeInterval(8 * 3600)), [other])
+        XCTAssertEqual(Set(try state.shieldSlotDecisions(at: start).map(\.selection.id)), [target.id, other.id])
+        XCTAssertEqual(try state.shieldSlotDecisions(at: start.addingTimeInterval(8 * 3600)).map(\.selection), [other])
     }
 
     func testDisabledRuleAndEmptyStateClearResidualShield() throws {
         var disabled = oneShot()
         disabled.status = .disabled
         for state in [LockState(), LockState(targetSelections: [target], rules: [disabled])] {
-            try LockLifecycle(repository: FaultRepository(state)).reconcile(at: start, apply: { XCTAssertTrue($0.isEmpty) })
+            try reconcile(FaultRepository(state), at: start, apply: { XCTAssertTrue($0.isEmpty) })
         }
     }
 
     func testReadFailureDoesNotChangeShieldAndNextReadCanRecover() throws {
         let repository = FaultRepository(LockState(rules: [oneShot()]))
         repository.failRead = true
-        XCTAssertThrowsError(try LockLifecycle(repository: repository).reconcile(at: start, apply: { _ in XCTFail("Changed shield after read failure") }))
+        XCTAssertThrowsError(try reconcile(repository, at: start, apply: { _ in XCTFail("Changed shield after read failure") }))
         repository.failRead = false
-        try LockLifecycle(repository: repository).reconcile(at: start.addingTimeInterval(3600), apply: { XCTAssertTrue($0.isEmpty) })
+        try reconcile(repository, at: start.addingTimeInterval(3600), apply: { XCTAssertTrue($0.isEmpty) })
     }
 
     func testMissingActiveTargetIsAnErrorInsteadOfPartialApply() throws {
         let repository = FaultRepository(LockState(rules: [oneShot()]))
-        XCTAssertThrowsError(try LockLifecycle(repository: repository).reconcile(at: start, apply: { _ in XCTFail("Partial apply") }))
+        XCTAssertThrowsError(try reconcile(repository, at: start, apply: { _ in XCTFail("Partial apply") }))
     }
 
     func testNoStateWriteIsRequiredToApplyOrClearAndApplyFailureCanRetry() throws {
         let repository = FaultRepository(LockState(targetSelections: [target], rules: [oneShot()]))
         repository.failWrite = true
-        let lifecycle = LockLifecycle(repository: repository)
-        XCTAssertThrowsError(try lifecycle.reconcile(at: start, apply: { _ in throw Fault.failure }))
-        try lifecycle.reconcile(at: start, apply: { XCTAssertEqual($0, [self.target]) })
-        try lifecycle.reconcile(at: start.addingTimeInterval(3600), apply: { XCTAssertTrue($0.isEmpty) })
+        XCTAssertThrowsError(try reconcile(repository, at: start, apply: { _ in throw Fault.failure }))
+        try reconcile(repository, at: start, apply: { XCTAssertEqual($0, [self.target]) })
+        try reconcile(repository, at: start.addingTimeInterval(3600), apply: { XCTAssertTrue($0.isEmpty) })
         XCTAssertEqual(repository.saveCount, 0)
     }
 
@@ -106,7 +104,7 @@ final class LockLifecycleTests: XCTestCase {
         let rule = LockRule(kind: .immediate, startsAt: end.addingTimeInterval(-3600), duration: 3600, targetSelectionID: target.id)
         let repository = FaultRepository(LockState(targetSelections: [target], rules: [rule]))
         repository.beforeLoad = { Thread.sleep(forTimeInterval: 0.05) }
-        try LockLifecycle(repository: repository).reconcile(apply: { XCTAssertTrue($0.isEmpty) })
+        try reconcile(repository, apply: { XCTAssertTrue($0.isEmpty) })
     }
 
     func testFailedMutationCannotLeakIntoLaterSuccessfulSave() async throws {
@@ -123,11 +121,38 @@ final class LockLifecycleTests: XCTestCase {
         XCTAssertTrue(state.rules.isEmpty)
     }
 
-    func testActorEntryPointAppliesBeforeReturning() async throws {
-        let store = LockStore(repository: FaultRepository(LockState()))
-        let applied = AppliedFlag()
-        _ = try await store.reconcile(at: start, apply: { _ in applied.value = true }, record: { _ in })
-        XCTAssertTrue(applied.value)
+    func testDelayedOrReversedCallbackUsesCurrentStateForItsOwnSlot() throws {
+        let rule = oneShot()
+        let state = LockState(targetSelections: [target], rules: [rule])
+        let storeName = try XCTUnwrap(rule.shieldStoreNames.first)
+
+        XCTAssertNotNil(try state.shieldSlotDecision(named: storeName, at: start.addingTimeInterval(1800)))
+        XCTAssertNil(try state.shieldSlotDecision(named: storeName, at: start.addingTimeInterval(3600)))
+        XCTAssertNotNil(try state.shieldSlotDecision(named: storeName, at: start.addingTimeInterval(1800)))
+    }
+
+    func testLateEndForOldRuleCannotClearNewRulesStore() throws {
+        let newTarget = LockTargetSelectionRef(displayName: "New apps")
+        let oldRule = oneShot()
+        let newRule = LockRule(
+            kind: .fixedDateTime,
+            startsAt: start.addingTimeInterval(1800),
+            duration: 7200,
+            targetSelectionID: newTarget.id
+        )
+        let state = LockState(targetSelections: [target, newTarget], rules: [oldRule, newRule])
+        let lateCallbackTime = start.addingTimeInterval(3600)
+        let oldStore = try XCTUnwrap(oldRule.shieldStoreNames.first)
+        let newStore = try XCTUnwrap(newRule.shieldStoreNames.first)
+
+        // A delayed intervalDidEnd reconciles only the old slot. The new slot remains active
+        // and has a distinct identity, so clearing the old slot cannot unlock the new rule.
+        XCTAssertNil(try state.shieldSlotDecision(named: oldStore, at: lateCallbackTime))
+        XCTAssertEqual(
+            try state.shieldSlotDecision(named: newStore, at: lateCallbackTime)?.selection,
+            newTarget
+        )
+        XCTAssertNotEqual(oldStore, newStore)
     }
 
     func testSecondPrecisionAndFractionalRoundingShareTheMonitoringDeadline() throws {
@@ -156,6 +181,21 @@ final class LockLifecycleTests: XCTestCase {
             recurrence: RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
                 endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC"), targetSelectionID: target.id)
     }
+
+    @discardableResult
+    private func reconcile(
+        _ repository: FaultRepository,
+        at date: Date? = nil,
+        apply: ([LockTargetSelectionRef]) throws -> Void
+    ) throws -> LockState {
+        let state = try repository.load()
+        var seen = Set<UUID>()
+        let selections = try state.shieldSlotDecisions(at: date ?? Date()).compactMap { decision in
+            seen.insert(decision.selection.id).inserted ? decision.selection : nil
+        }
+        try apply(selections)
+        return state
+    }
 }
 
 private enum Fault: Error { case failure }
@@ -166,7 +206,6 @@ private final class FaultRepository: LockRepository, @unchecked Sendable {
     var saveCount = 0
     var beforeLoad: (() -> Void)?
     init(_ state: LockState) { self.state = state }
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try body() }
     func load() throws -> LockState {
         beforeLoad?()
         if failRead { throw Fault.failure }
@@ -178,4 +217,3 @@ private final class FaultRepository: LockRepository, @unchecked Sendable {
         self.state = state
     }
 }
-private final class AppliedFlag: @unchecked Sendable { var value = false }

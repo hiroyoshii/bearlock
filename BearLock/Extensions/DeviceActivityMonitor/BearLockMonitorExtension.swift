@@ -18,9 +18,13 @@ final class BearLockMonitorExtension: DeviceActivityMonitor {
         diagnostics.record("DeviceActivity.\(callback)", detail: activity.rawValue)
         guard activity.rawValue.hasPrefix("bearlock.") else { return }
         do {
-            try LockLifecycle(repository: JSONFileLockRepository(fileURL: AppGroup.lockStateURL)).reconcile(
-                apply: { try ManagedSettingsShieldController().applyShield(selections: $0) },
-                record: { diagnostics.record("DeviceActivity.reconcile", detail: $0) })
+            let state = try JSONFileLockRepository(fileURL: AppGroup.lockStateURL).load()
+            let controller = ManagedSettingsShieldController()
+            if activity.rawValue.hasPrefix("bearlock.wake.") {
+                try controller.reconcile(state: state, at: Date())
+            } else {
+                try controller.reconcile(storeName: activity.rawValue, state: state, at: Date())
+            }
             diagnostics.record("DeviceActivity.\(callback).finished")
         } catch {
             diagnostics.record("DeviceActivity.\(callback).failed", level: .error, detail: String(describing: error))

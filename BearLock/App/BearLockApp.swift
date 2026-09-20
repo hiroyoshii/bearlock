@@ -5,6 +5,7 @@ struct BearLockApp: App {
     @StateObject private var model = BearLockAppModel.live()
 
     @StateObject private var supportStore = SupportStore()
+    @StateObject private var wakePurchaseStore = WakePurchaseStore()
 
     var body: some Scene {
         WindowGroup {
@@ -15,11 +16,20 @@ struct BearLockApp: App {
                     RootView()
                         .environmentObject(model)
                         .task {
-                            await model.refresh()
+                            wakePurchaseStore.start(
+                                deliver: { transactionID in
+                                    await model.deliverWakePurchase(transactionID: transactionID)
+                                },
+                                abandon: {
+                                    await model.abandonWakePurchase()
+                                }
+                            )
+                            await wakePurchaseStore.loadProduct()
                         }
                 }
             }
             .environmentObject(supportStore)
+            .environmentObject(wakePurchaseStore)
         }
     }
 }

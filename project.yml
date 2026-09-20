@@ -161,12 +161,15 @@ targets:
   BearLockPurchaseTests:
     type: bundle.unit-test
     platform: iOS
-    dependencies:
-      - target: BearLockPurchaseTestHost
     sources:
       - BearLockPurchaseTests
       - BearLock/Features/Home/SupportStore.swift
+      - BearLock/Features/Home/WakePurchaseStore.swift
       - BearLock/Services/Localization.swift
+    dependencies:
+      - target: BearLockPurchaseTestHost
+      - package: BearLockCore
+        product: BearLockCore
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.hiyozoo.bearlock.purchase-tests

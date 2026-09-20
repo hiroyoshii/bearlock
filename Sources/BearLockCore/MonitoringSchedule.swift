@@ -1,6 +1,7 @@
 import Foundation
 
 public struct MonitoringSchedule: Equatable, Sendable {
+    public static let maximumOwnedStoreCount = 48
     public var name: String
     public var start: DateComponents
     public var end: DateComponents
@@ -32,9 +33,32 @@ public struct MonitoringSchedule: Equatable, Sendable {
         }
     }
 
+    public static func desired(for state: LockState, at now: Date) -> [Self] {
+        desired(for: state.rules, at: now) + state.wakeState.requests.compactMap { request in
+            guard request.source == .delayed, request.wakesAt > now,
+                  let rule = state.rules.first(where: { $0.id == request.ruleID }),
+                  let interval = rule.nextInterval(after: request.occurrenceStartedAt),
+                  interval.start == request.occurrenceStartedAt,
+                  request.wakesAt < interval.end
+            else { return nil }
+            let calendar = Calendar.current
+            let components: Set<Calendar.Component> = [.era, .year, .month, .day, .hour, .minute, .second]
+            var start = calendar.dateComponents(components, from: request.wakesAt)
+            var end = calendar.dateComponents(components, from: request.wakesAt.addingTimeInterval(15 * 60))
+            start.timeZone = calendar.timeZone
+            end.timeZone = calendar.timeZone
+            return Self(name: "bearlock.wake.\(request.id.uuidString)", start: start, end: end, repeats: false)
+        }
+    }
+
+    public static func validateCapacity(for rules: [LockRule], at now: Date) throws {
+        guard desired(for: rules, at: now).count <= maximumOwnedStoreCount else {
+            throw LockValidationError.monitoringCapacityExceeded
+        }
+    }
+
     /// Retry derives the missing work from the saved rules and OS registrations.
     /// Attempt independent registrations even if one fails; surface the first error.
-    /// Never call this while holding the state file lock: start/stop may invoke a monitor.
     public static func synchronize(
         desired: [Self], existing: [Self],
         start: (Self) throws -> Void, stop: (String) throws -> Void

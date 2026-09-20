@@ -37,11 +37,11 @@ struct PreviewTargetSelectionCodec: TargetSelectionCoding {
 }
 
 struct NoopShieldController: ShieldControlling {
-    func applyShield(selections: [LockTargetSelectionRef]) throws {}
+    func reconcile(state: LockState, at date: Date) throws {}
 }
 
 struct NoopScheduleController: ScheduleControlling {
-    func synchronize(_ rules: [LockRule], at now: Date) throws {}
+    func synchronize(_ state: LockState, at now: Date) throws {}
 }
 
 // Used only by the existing --ui-testing launch path; no system prompt is simulated as real consent.
@@ -55,7 +55,7 @@ final class UITestingAuthorizationService: AuthorizationServicing {
 
 // Fault injection is reachable only from BearLockAppModel's --ui-testing path.
 struct UITestingScheduleController: ScheduleControlling {
-    func synchronize(_ rules: [LockRule], at now: Date) throws {
+    func synchronize(_ state: LockState, at now: Date) throws {
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-monitoring-failure") {
             throw CocoaError(.fileReadUnknown)
         }
@@ -63,7 +63,6 @@ struct UITestingScheduleController: ScheduleControlling {
 }
 struct UITestingLockRepository: LockRepository {
     let base: JSONFileLockRepository
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try base.withExclusiveAccess(body) }
     func load() throws -> LockState {
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-read-failure") {
             throw CocoaError(.fileReadUnknown)

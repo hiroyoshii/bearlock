@@ -24,7 +24,7 @@ Choose distracting apps, set a wake time, and let Bear Lock keep them asleep whi
 
 ## Description
 
-Bear Lock helps you protect focused time by scheduling app locks you cannot end early from inside the app.
+Bear Lock helps you protect focused time by scheduling app locks that resist impulsive changes. If you truly need to stop, you can request a free wake-up after 30 minutes or purchase an immediate wake-up.
 
 Choose the apps or categories you want to avoid, decide when the lock starts and ends, and confirm the plan. During the lock window, Bear Lock uses iOS Screen Time shields to keep those distractions outside. When the scheduled wake time arrives, access is restored automatically.
 
@@ -44,7 +44,8 @@ Core features:
 - Pick a fixed date and time.
 - Create recurring weekday locks.
 - See active lock status and wake time.
-- No in-app early unlock once a lock starts.
+- Request a free wake-up after 30 minutes.
+- Purchase a one-time immediate wake-up.
 
 Privacy:
 
@@ -72,7 +73,7 @@ First release: iPhone only. Use iPhone screenshots in App Store Connect.
 
 ## Age Rating Notes
 
-Bear Lock does not contain user-generated content, web browsing, commerce, gambling, or social features. It uses Screen Time permissions to restrict selected apps at the user's request.
+Bear Lock does not contain user-generated content, web browsing, gambling, or social features. It offers consumable in-app purchases and uses Screen Time permissions to restrict selected apps at the user's request.
 
 ## Privacy Nutrition Label Draft
 
@@ -96,12 +97,24 @@ Local-only data:
 
 - Screen Time selection tokens.
 - Lock schedules.
+- Wake-up requests and processed purchase identifiers.
 
 ## Review Notes
 
 Bear Lock uses Screen Time APIs for voluntary self-control app blocking. To test, grant Screen Time authorization, select at least one app or category, create a short Now lock, and open the selected app to confirm the Bear Lock shield appears.
 
-The app intentionally does not include an in-app early unlock button after a lock starts. This is the main commitment feature.
+During an active lock, the user can choose a free wake-up that keeps the shield active for another 30 minutes, or purchase an immediate wake-up. The immediate wake-up is a consumable In-App Purchase with product ID `com.hiyozoo.bearlock.wake.now`. It ends only the current lock occurrence; future repeating occurrences remain scheduled. If Ask to Buy is approved after the original lock ends, the purchase becomes a wake-up ticket for a later lock.
+
+## Immediate Wake-Up In-App Purchase
+
+- Product ID: `com.hiyozoo.bearlock.wake.now`
+- Type: Consumable
+- Reference name: `Wake Now`
+- Japanese display name: `今すぐ起こす`
+- Japanese description: `現在のBear Lockを1回だけ終了します`
+- English display name: `Wake now`
+- English description: `End the current Bear Lock once`
+- Price: App Store Connectの日本価格が500円になる価格ポイント
 
 
 ## Screenshot Candidates
@@ -110,4 +123,5 @@ The app intentionally does not include an in-app early unlock button after a loc
 - Home / composer.
 - Confirmation sheet.
 - Active lock screen.
+- Wake-up completion screen.
 - Settings.

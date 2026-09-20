@@ -38,6 +38,7 @@ struct HomeView: View {
 
                     if model.authorizationStatus == .approved, let activeLock = model.activeLock, activeLock.isActive(at: Date()) {
                         ActiveLockView(activeLock: activeLock)
+                        WakeOptionsView(activeLock: activeLock)
                     }
 
                     LockComposerView(mode: $composerMode, allowsImmediateLock: !hasActiveLock)

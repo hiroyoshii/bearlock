@@ -12,6 +12,7 @@ enum ScreenshotScreen: String, CaseIterable {
     case confirmation
     case scheduledList
     case activeLock
+    case wakeResult
     case scheduledEditor
     case recurringEditor
     case settings
@@ -105,14 +106,13 @@ struct ScreenshotHostView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     ActiveLockView(activeLock: ScreenshotFixtures.activeLock)
-                    Text("One-time locks cannot be ended early. Delete a repeating schedule to end its lock.")
-                        .font(.footnote)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(AppTheme.navy.opacity(0.62))
+                    WakeOptionsView(activeLock: ScreenshotFixtures.activeLock)
                 }
                 .padding(20)
             }
             .navigationTitle("Bear is sleeping")
+        case .wakeResult:
+            WakeResultView()
         case .scheduledEditor:
             ScheduledLockEditorView(
                 rule: ScreenshotFixtures.delayedRule,
@@ -276,7 +276,6 @@ private enum ScreenshotFixtures {
 }
 
 private struct StaticLockRepository: LockRepository {
-    func withExclusiveAccess<T>(_ body: () throws -> T) throws -> T { try body() }
     let state: LockState
 
     func load() throws -> LockState {

@@ -35,7 +35,7 @@ final class LockContractTests: XCTestCase {
                 XCTAssertEqual(active?.startedAt, c[10] == "-" ? nil : time(c[10]), name)
                 XCTAssertEqual(active?.endsAt, c[11] == "-" ? nil : time(c[11]), name)
             }
-            XCTAssertEqual(Set(try state.selectionsToShield(at: now).map(\.displayName)),
+            XCTAssertEqual(Set(try state.shieldSlotDecisions(at: now).map(\.selection.displayName)),
                            Set(group.filter { $0[11] != "-" }.map { $0[1] }), name)
             for (label, target) in targets {
                 let end = group.filter { $0[1] == label && $0[11] != "-" }.map { time($0[11]) }.max()

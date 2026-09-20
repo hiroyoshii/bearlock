@@ -1,6 +1,6 @@
 # Bear Lock
 
-Bear Lock is an iOS Screen Time app MVP for scheduling app hibernation windows that cannot be ended early from inside Bear Lock.
+Bear Lock is an iOS Screen Time app for scheduling app hibernation windows. An active lock can be woken after a 30-minute delay for free or immediately with a consumable in-app purchase.
 
 ## Current State
 

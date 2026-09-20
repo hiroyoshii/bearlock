@@ -160,4 +160,5 @@ public enum LockValidationError: Error, Equatable, Sendable {
     case activeLockIsImmutable
     case ruleAlreadyStarted
     case notRecurringRule
+    case monitoringCapacityExceeded
 }

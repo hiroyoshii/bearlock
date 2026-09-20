@@ -3,10 +3,13 @@ import SwiftUI
 struct RootView: View {
     @AppStorage("hasSeenIntroduction") private var hasSeenIntroduction = false
     @EnvironmentObject private var model: BearLockAppModel
+    @EnvironmentObject private var wakePurchaseStore: WakePurchaseStore
     @Environment(\.scenePhase) private var scenePhase
+    @State private var navigationPath = NavigationPath()
+    @State private var wakeSheet: WakeSheet?
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             Group {
                 if model.readStatus == .failed {
                     ScrollView {
@@ -44,10 +47,26 @@ struct RootView: View {
                 Text(model.lastErrorMessage ?? "")
             }
         }
+        .task {
+            await activate()
+        }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task {
-                await model.refresh()
+                await activate()
+            }
+        }
+        .onChange(of: model.wakeCompletionID) { _, completionID in
+            if completionID != nil { wakeSheet = .result }
+        }
+        .sheet(item: $wakeSheet, onDismiss: wakePurchaseStore.clearResult) { sheet in
+            switch sheet {
+            case .options:
+                WakeOptionsSheet()
+            case .result:
+                WakeResultView()
+                    .presentationDetents([.large])
+                    .interactiveDismissDisabled()
             }
         }
     }
@@ -58,4 +77,24 @@ struct RootView: View {
             set: { if !$0 { model.lastErrorMessage = nil } }
         )
     }
+
+    @MainActor
+    private func activate() async {
+        let opensWakeOptions = WakeLaunchRequest.consume()
+        if opensWakeOptions { navigationPath = NavigationPath() }
+        await model.refresh()
+        if opensWakeOptions {
+            for _ in 0..<40 where model.isRefreshing {
+                try? await Task.sleep(for: .milliseconds(50))
+            }
+        }
+        if opensWakeOptions, model.activeLock != nil {
+            wakeSheet = .options
+        }
+    }
+}
+
+private enum WakeSheet: String, Identifiable {
+    case options, result
+    var id: String { rawValue }
 }
