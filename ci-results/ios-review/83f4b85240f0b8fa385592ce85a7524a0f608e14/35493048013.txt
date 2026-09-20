@@ -1,0 +1,32 @@
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:00:54.2346390Z 2026-09-20 06:00:54.180 appintentsmetadataprocessor[33829:89248] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:00:54.3593890Z 2026-09-20 06:00:54.357 appintentsmetadataprocessor[33833:89277] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:33.4256960Z Test Suite 'All tests' started at 2026-09-20 06:02:30.270.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:33.5064760Z Test Suite 'BearLockPurchaseTests.xctest' started at 2026-09-20 06:02:30.270.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:33.5065960Z Test Suite 'SupportPurchaseTests' started at 2026-09-20 06:02:30.271.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:40.8556900Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly]' passed (10.291 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:40.8688750Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess]' passed (0.113 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:41.6150320Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testPendingPurchaseFinishesWhenApproved]' passed (0.814 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:43.9273560Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testPurchaseFailureCanBeRetried]' passed (1.822 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:02:44.0591790Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction]' passed (0.010 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:04.3366230Z /Users/runner/work/bearlock/bearlock/BearLockPurchaseTests/SupportPurchaseTests.swift:97: error: -[BearLockPurchaseTests.SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase] : XCTAssertTrue failed
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:05.5287800Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase]' failed (22.048 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:12.8354750Z Test Case '-[BearLockPurchaseTests.SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore]' passed (7.416 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:12.8507280Z Test Suite 'SupportPurchaseTests' failed at 2026-09-20 06:03:12.787.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:12.8617770Z 	 Executed 7 tests, with 1 failure (0 unexpected) in 42.514 (42.516) seconds
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:12.8767050Z Test Suite 'WakePurchaseTests' started at 2026-09-20 06:03:12.787.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:20.2083720Z Test Case '-[BearLockPurchaseTests.WakePurchaseTests testApprovedAskToBuyCanBecomeCredit]' passed (7.276 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:26.6114630Z Test Case '-[BearLockPurchaseTests.WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent]' passed (6.537 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2417330Z Test Case '-[BearLockPurchaseTests.WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish]' passed (6.598 seconds).
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2500520Z Test Suite 'WakePurchaseTests' passed at 2026-09-20 06:03:33.201.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2510380Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 20.411 (20.414) seconds
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2511480Z Test Suite 'BearLockPurchaseTests.xctest' failed at 2026-09-20 06:03:33.201.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2512160Z 	 Executed 10 tests, with 1 failure (0 unexpected) in 62.925 (62.931) seconds
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2514160Z Test Suite 'All tests' failed at 2026-09-20 06:03:33.201.
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:03:33.2515270Z 	 Executed 10 tests, with 1 failure (0 unexpected) in 62.925 (62.932) seconds
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:04:51.3695610Z Failing tests:
+storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T06:04:51.3697390Z ** TEST FAILED **
+storekit	Publish failure details	2026-09-20T06:04:57.5028700Z ^[[36;1m    selected = [line for line in lines if 'error:' in line] + lines[-15:]^[[0m
+storekit	Publish failure details	2026-09-20T06:04:57.5030080Z ^[[36;1m        print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))^[[0m
+storekit	Publish failure details	2026-09-20T06:04:57.9500810Z ##[error]/Users/runner/work/bearlock/bearlock/BearLockPurchaseTests/SupportPurchaseTests.swift:97: error: -[BearLockPurchaseTests.SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase] : XCTAssertTrue failed
+storekit	Publish failure details	2026-09-20T06:04:57.9537220Z ##[error]Failing tests:
+storekit	Publish failure details	2026-09-20T06:04:57.9543940Z ##[error]** TEST FAILED **
