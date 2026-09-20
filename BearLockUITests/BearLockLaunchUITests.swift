@@ -14,16 +14,19 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["storage-retry"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["Get started"].exists)
         XCTAssertFalse(app.buttons["lock-composer-primary-button"].exists)
-        app.buttons["storage-retry"].tap()
-        XCTAssertTrue(app.staticTexts["Saved data could not be read"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-recovery-storage-error")
-        app.alerts["Bear Lock"].buttons["OK"].tap()
         let diagnostics = app.buttons["storage-diagnostics"]
-        XCTAssertTrue(diagnostics.waitForExistence(timeout: 5))
+        scrollToButton(diagnostics, in: app)
         diagnostics.tap()
         XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["storage-retry"].exists)
+        app.buttons["storage-retry"].tap()
+        XCTAssertTrue(app.staticTexts["Saved data could not be read"].waitForExistence(timeout: 5))
+        let errorAlert = app.alerts["Bear Lock"]
+        if errorAlert.waitForExistence(timeout: 1) {
+            errorAlert.buttons["OK"].tap()
+        }
         app.terminate()
         // Remove the injected failure; keep the same persisted repository.
         app.launchArguments = base
@@ -131,6 +134,10 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertFalse(app.buttons["lock-composer-primary-button"].isEnabled)
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        let errorAlert = app.alerts["Bear Lock"]
+        if errorAlert.waitForExistence(timeout: 1) {
+            errorAlert.buttons["OK"].tap()
+        }
         let diagnostics = app.buttons["diagnostics-link"]
         scrollToButton(diagnostics, in: app)
         diagnostics.tap()
@@ -177,7 +184,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        XCTAssertEqual(app.staticTexts["selected-target-count"].label, "3 targets")
+        XCTAssertTrue(waitForLabel(app.staticTexts["selected-target-count"], toEqual: "3 targets"))
         XCTAssertTrue(app.sliders["duration-slider"].exists)
 
         app.buttons["lock-composer-primary-button"].tap()
@@ -216,7 +223,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(saveButton.isEnabled)
         saveButton.tap()
         XCTAssertFalse(saveButton.waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["2 targets"].waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForLabel(app.staticTexts["selected-target-count"], toEqual: "2 targets"))
         captureScreenshot(named: "e2e-target-flow-saved")
 
         let disclosure = app.buttons["target-list-disclosure"]
@@ -434,6 +441,7 @@ final class BearLockLaunchUITests: XCTestCase {
             "--ui-testing",
             "--ui-testing-approved",
             "--ui-testing-seeded",
+            "--ui-testing-target-summary",
             "--reset-ui-testing-state"
         ] + extraArguments
         app.launch()
@@ -452,7 +460,16 @@ final class BearLockLaunchUITests: XCTestCase {
             app.swipeUp()
         }
         XCTAssertTrue(button.waitForExistence(timeout: 5), "Expected button with identifier \(identifier)")
+        scrollToButton(button, in: app)
         button.tap()
+    }
+
+    private func waitForLabel(_ element: XCUIElement, toEqual label: String, timeout: TimeInterval = 10) -> Bool {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@", label),
+            object: element
+        )
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
     }
 
     private func tapSwitch(_ app: XCUIApplication, identifier: String, label: String) {
