@@ -17,7 +17,10 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["storage-retry"].tap()
         XCTAssertTrue(app.staticTexts["Saved data could not be read"].waitForExistence(timeout: 5))
         captureScreenshot(named: "e2e-recovery-storage-error")
-        app.buttons["storage-diagnostics"].tap()
+        app.alerts["Bear Lock"].buttons["OK"].tap()
+        let diagnostics = app.buttons["storage-diagnostics"]
+        XCTAssertTrue(diagnostics.waitForExistence(timeout: 5))
+        diagnostics.tap()
         XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["storage-retry"].exists)
@@ -128,8 +131,9 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertFalse(app.buttons["lock-composer-primary-button"].isEnabled)
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
-        scrollToStaticText("Diagnostics", in: app)
-        app.buttons["diagnostics-link"].tap()
+        let diagnostics = app.buttons["diagnostics-link"]
+        scrollToButton(diagnostics, in: app)
+        diagnostics.tap()
         XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
     }
 
@@ -173,7 +177,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["3 targets"].exists)
+        XCTAssertEqual(app.staticTexts["selected-target-count"].label, "3 targets")
         XCTAssertTrue(app.sliders["duration-slider"].exists)
 
         app.buttons["lock-composer-primary-button"].tap()
@@ -307,10 +311,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
 
         tapFirstButton(app, identifier: "scheduled-lock-delete-button")
-        XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 5))
-        app.buttons["Cancel"].tap()
-        XCTAssertTrue(app.staticTexts["Starts later"].exists)
-        tapFirstButton(app, identifier: "scheduled-lock-delete-button")
+        XCTAssertTrue(app.buttons["Delete"].waitForExistence(timeout: 5))
         app.buttons["Delete"].tap()
         XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-delayed-deleted")
