@@ -1,0 +1,102 @@
+lifecycle	Unit tests	2026-09-20T05:39:56.8280090Z /Users/runner/work/bearlock/bearlock/Tests/BearLockCoreTests/LockPlannerTests.swift:208:13: warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+lifecycle	Unit tests	2026-09-20T05:39:56.8288300Z     |             `- warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+lifecycle	Unit tests	2026-09-20T05:39:56.8292580Z /Users/runner/work/bearlock/bearlock/Tests/BearLockCoreTests/LockPlannerTests.swift:208:13: warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+lifecycle	Unit tests	2026-09-20T05:39:56.8294740Z     |             `- warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+lifecycle	Unit tests	2026-09-20T05:39:56.8297090Z /Users/runner/work/bearlock/bearlock/Tests/BearLockCoreTests/LockPlannerTests.swift:208:13: warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+lifecycle	Unit tests	2026-09-20T05:39:56.8299470Z     |             `- warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+lifecycle	Unit tests	2026-09-20T05:40:00.9913880Z Test Suite 'All tests' started at 2026-09-20 05:40:00.734.
+lifecycle	Unit tests	2026-09-20T05:40:00.9914780Z Test Suite 'BearLockPackageTests.xctest' started at 2026-09-20 05:40:00.735.
+lifecycle	Unit tests	2026-09-20T05:40:00.9915860Z Test Suite 'JSONFileLockRepositoryTests' started at 2026-09-20 05:40:00.735.
+lifecycle	Unit tests	2026-09-20T05:40:00.9917730Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testActorReloadsStateBeforeEachMutation]' passed (0.006 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9920240Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testCorruptedStateRemainsAnErrorOnRepeatedReads]' passed (0.002 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9930210Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testFractionalRuleDatesRoundTripWithoutPersistingExecutionState]' passed (0.002 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9932460Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testIOFailureDoesNotQuarantineOrReturnEmptyState]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9934600Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testMonitoringSynchronizationPublishesStateBeforeCallingOS]' passed (0.002 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9937020Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testPersistsAndReloadsLockState]' passed (0.003 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9939120Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testSaveTargetSelectionReplacesExistingSelectionWithSameID]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9941620Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testSingleWriterActorDoesNotLoseConcurrentUpdates]' passed (0.013 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9958230Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testStateSavedBeforeWakeFeatureLoadsWithEmptyWakeState]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9962940Z Test Suite 'JSONFileLockRepositoryTests' passed at 2026-09-20 05:40:00.767.
+lifecycle	Unit tests	2026-09-20T05:40:00.9964000Z 	 Executed 9 tests, with 0 failures (0 unexpected) in 0.031 (0.032) seconds
+lifecycle	Unit tests	2026-09-20T05:40:00.9970930Z Test Suite 'LockContractTests' started at 2026-09-20 05:40:00.767.
+lifecycle	Unit tests	2026-09-20T05:40:00.9977760Z Test Case '-[BearLockCoreTests.LockContractTests testSharedContract]' passed (0.012 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9978350Z Test Suite 'LockContractTests' passed at 2026-09-20 05:40:00.779.
+lifecycle	Unit tests	2026-09-20T05:40:00.9979320Z Test Suite 'LockLifecycleTests' started at 2026-09-20 05:40:00.779.
+lifecycle	Unit tests	2026-09-20T05:40:00.9981440Z Test Case '-[BearLockCoreTests.LockLifecycleTests testAdjacentRuleAppliesItsOwnTargetsAtBoundary]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9983380Z Test Case '-[BearLockCoreTests.LockLifecycleTests testCurrentTimeIsSampledAfterWaitingForRepository]' passed (0.180 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9985160Z Test Case '-[BearLockCoreTests.LockLifecycleTests testDeadlineAndHoursLateCallsClearEvenWithoutAnyPreviousCall]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9987040Z Test Case '-[BearLockCoreTests.LockLifecycleTests testDelayedOrReversedCallbackUsesCurrentStateForItsOwnSlot]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9991610Z Test Case '-[BearLockCoreTests.LockLifecycleTests testDisabledRuleAndEmptyStateClearResidualShield]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9995220Z Test Case '-[BearLockCoreTests.LockLifecycleTests testEarlyEndAndUnrelatedCallbackCannotClearCurrentRule]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9997290Z Test Case '-[BearLockCoreTests.LockLifecycleTests testFailedMutationCannotLeakIntoLaterSuccessfulSave]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:00.9999280Z Test Case '-[BearLockCoreTests.LockLifecycleTests testLateEndForOldRuleCannotClearNewRulesStore]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0001080Z Test Case '-[BearLockCoreTests.LockLifecycleTests testLateOrDuplicateCallsNeverMoveTheDeadline]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0003040Z Test Case '-[BearLockCoreTests.LockLifecycleTests testMissingActiveTargetIsAnErrorInsteadOfPartialApply]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0005090Z Test Case '-[BearLockCoreTests.LockLifecycleTests testNoStateWriteIsRequiredToApplyOrClearAndApplyFailureCanRetry]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0008020Z Test Case '-[BearLockCoreTests.LockLifecycleTests testOverlappingRecurringRulesUnionAndDeduplicateTargets]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0009980Z Test Case '-[BearLockCoreTests.LockLifecycleTests testReadFailureDoesNotChangeShieldAndNextReadCanRecover]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0011880Z Test Case '-[BearLockCoreTests.LockLifecycleTests testRecurringRuleUsesCurrentOccurrenceAfterMidnightAndNextWeek]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0013930Z Test Case '-[BearLockCoreTests.LockLifecycleTests testSecondPrecisionAndFractionalRoundingShareTheMonitoringDeadline]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0014810Z Test Suite 'LockLifecycleTests' passed at 2026-09-20 05:40:00.965.
+lifecycle	Unit tests	2026-09-20T05:40:01.0015330Z 	 Executed 15 tests, with 0 failures (0 unexpected) in 0.184 (0.186) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0015910Z Test Suite 'LockPlannerTests' started at 2026-09-20 05:40:00.965.
+lifecycle	Unit tests	2026-09-20T05:40:01.0017400Z Test Case '-[BearLockCoreTests.LockPlannerTests testDelayedLockComputesConcreteStartAndEnd]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0019170Z Test Case '-[BearLockCoreTests.LockPlannerTests testDisablingActiveRecurringRuleIsRejected]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0021190Z Test Case '-[BearLockCoreTests.LockPlannerTests testExpiredOneShotDoesNotConflictWithANewRecurringSchedule]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0022880Z Test Case '-[BearLockCoreTests.LockPlannerTests testFindsScheduledRuleContainingDate]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0024550Z Test Case '-[BearLockCoreTests.LockPlannerTests testFutureScheduledLockReplacementIsAllowed]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0026350Z Test Case '-[BearLockCoreTests.LockPlannerTests testImmediateLockOverlappingActiveLockIsRejected]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0027900Z Test Case '-[BearLockCoreTests.LockPlannerTests testImmediateLockUsesCurrentTime]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0029500Z Test Case '-[BearLockCoreTests.LockPlannerTests testNonPositiveImmediateDurationIsRejected]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0031770Z Test Case '-[BearLockCoreTests.LockPlannerTests testOneShotConflictUsesNextRecurringOccurrenceInsteadOfInitialRegistrationDate]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0036730Z Test Case '-[BearLockCoreTests.LockPlannerTests testOverlappingScheduledLocksAreRejected]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0038420Z Test Case '-[BearLockCoreTests.LockPlannerTests testOvernightRecurringRuleProducesNextMorningEnd]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0045220Z Test Case '-[BearLockCoreTests.LockPlannerTests testRecurringEditValidatesTheDraftEnabledState]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0047170Z Test Case '-[BearLockCoreTests.LockPlannerTests testRecurringReplacementRecomputesNextOccurrenceAndKeepsRuleID]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0049100Z Test Case '-[BearLockCoreTests.LockPlannerTests testRecurringReplacementWithNoWeekdaysIsRejected]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0051460Z Test Case '-[BearLockCoreTests.LockPlannerTests testReplacementOverlappingAnotherRuleIsRejected]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0053820Z Test Case '-[BearLockCoreTests.LockPlannerTests testStartedScheduledLockReplacementIsRejected]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0055110Z Test Suite 'LockPlannerTests' passed at 2026-09-20 05:40:00.975.
+lifecycle	Unit tests	2026-09-20T05:40:01.0055800Z 	 Executed 16 tests, with 0 failures (0 unexpected) in 0.008 (0.010) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0056340Z Test Suite 'LockStoreTests' started at 2026-09-20 05:40:00.975.
+lifecycle	Unit tests	2026-09-20T05:40:01.0057990Z Test Case '-[BearLockCoreTests.LockStoreTests testActiveRulesRejectEditsAndSingleLocksRejectDeletion]' passed (0.002 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0059830Z Test Case '-[BearLockCoreTests.LockStoreTests testCreateAndReplaceValidateConflictsAgainstSavedRules]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0061770Z Test Case '-[BearLockCoreTests.LockStoreTests testDeleteAllDayRecurringDuringLockPreservesOtherRuleThenReleases]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0063730Z Test Case '-[BearLockCoreTests.LockStoreTests testDeletingRecentTargetDoesNotDeleteSelectionOrRule]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0065560Z Test Case '-[BearLockCoreTests.LockStoreTests testDisabledRecurringRuleCanBeEditedDuringItsTimeWindow]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0067690Z Test Case '-[BearLockCoreTests.LockStoreTests testOnlyThreeTargetsCanBePinned]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0077800Z Test Case '-[BearLockCoreTests.LockStoreTests testPinnedTargetsDisplayBeforeRecentTargetsWithThreeItemLimit]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0079770Z Test Case '-[BearLockCoreTests.LockStoreTests testRecordingEquivalentTargetUpdatesExistingHistoryEntry]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0081470Z Test Case '-[BearLockCoreTests.LockStoreTests testRecordingRecentTargetAddsItToHistory]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0083100Z Test Case '-[BearLockCoreTests.LockStoreTests testStaleEditorCannotOverwriteDeletedRule]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0083810Z Test Suite 'LockStoreTests' passed at 2026-09-20 05:40:00.984.
+lifecycle	Unit tests	2026-09-20T05:40:01.0084370Z 	 Executed 10 tests, with 0 failures (0 unexpected) in 0.008 (0.010) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0084930Z Test Suite 'MonitoringScheduleTests' started at 2026-09-20 05:40:00.984.
+lifecycle	Unit tests	2026-09-20T05:40:01.0086630Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testCapacityLeavesTwoManagedSettingsStoresReserved]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0088660Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testChangedScheduleReplacesSameNameAndObsoleteOwnedMonitorsStop]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0091000Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testDisabledAndExpiredRulesHaveNoMonitorWhileFutureAndActiveOneShotsDo]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0093320Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testDSTKeepsTheConfiguredMorningEndInsteadOfAddingEightHours]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0095680Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testPartialFailureRetainsSuccessfulRegistrationsAndRetryOnlyStartsMissingOne]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0097900Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testRecurringRegistrationUsesWeekdayAndWallTimeWithoutAnExpiredDate]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0099810Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testStopFailureDoesNotSuppressIndependentStarts]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0100520Z Test Suite 'MonitoringScheduleTests' passed at 2026-09-20 05:40:00.987.
+lifecycle	Unit tests	2026-09-20T05:40:01.0101120Z 	 Executed 7 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0102010Z Test Suite 'SelectedTargetTests' started at 2026-09-20 05:40:00.987.
+lifecycle	Unit tests	2026-09-20T05:40:01.0104150Z Test Case '-[BearLockCoreTests.SelectedTargetTests testRecurringEncodingContainsNoSingleDatesAndDisplayUsesLatestEnd]' passed (0.002 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0106140Z Test Case '-[BearLockCoreTests.SelectedTargetTests testSelectionAndDataCommitTogetherAndFailureKeepsBoth]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0107900Z Test Case '-[BearLockCoreTests.SelectedTargetTests testSelectionCannotChangeDuringActivePeriod]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0549930Z Test Suite 'SelectedTargetTests' passed at 2026-09-20 05:40:00.991.
+lifecycle	Unit tests	2026-09-20T05:40:01.0553880Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0554670Z Test Suite 'WakePolicyTests' started at 2026-09-20 05:40:00.991.
+lifecycle	Unit tests	2026-09-20T05:40:01.0556530Z Test Case '-[BearLockCoreTests.WakePolicyTests testFreeWakeCanBeCancelledAndIsUnavailableInsideThirtyMinutes]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0558450Z Test Case '-[BearLockCoreTests.WakePolicyTests testFreeWakeKeepsLockUntilThirtyMinuteDeadline]' passed (0.001 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0560430Z Test Case '-[BearLockCoreTests.WakePolicyTests testLateApprovalBecomesCreditForNextActiveLock]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0565860Z Test Case '-[BearLockCoreTests.WakePolicyTests testVerifiedPurchaseUnlocksOnceAndDuplicateDeliveryIsIdempotent]' passed (0.000 seconds).
+lifecycle	Unit tests	2026-09-20T05:40:01.0566660Z Test Suite 'WakePolicyTests' passed at 2026-09-20 05:40:00.994.
+lifecycle	Unit tests	2026-09-20T05:40:01.0567820Z 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0568850Z Test Suite 'BearLockPackageTests.xctest' passed at 2026-09-20 05:40:00.994.
+lifecycle	Unit tests	2026-09-20T05:40:01.0569400Z 	 Executed 65 tests, with 0 failures (0 unexpected) in 0.251 (0.259) seconds
+lifecycle	Unit tests	2026-09-20T05:40:01.0569990Z Test Suite 'All tests' passed at 2026-09-20 05:40:00.994.
+lifecycle	Unit tests	2026-09-20T05:40:01.0570800Z 	 Executed 65 tests, with 0 failures (0 unexpected) in 0.251 (0.260) seconds
+lifecycle	Cross-process repository transactions	2026-09-20T05:40:14.0641100Z PASS: one writer published 200 atomic snapshots to four lock-free readers
+lifecycle	App save and retry integration tests	2026-09-20T05:41:35.6035010Z xcodebuild: error: Unable to find a device matching the provided destination specifier:
