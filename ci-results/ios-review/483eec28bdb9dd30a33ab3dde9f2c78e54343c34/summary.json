@@ -1,20 +1,20 @@
 {
   "sourceCommit": "483eec28bdb9dd30a33ab3dde9f2c78e54343c34",
-  "collectedAt": "2026-09-20T16:35:40Z",
+  "collectedAt": "2026-09-20T16:42:15Z",
   "runs": [
     {
       "id": 35522100062,
       "name": "iOS CI",
       "head_sha": "483eec28bdb9dd30a33ab3dde9f2c78e54343c34",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35522100062",
       "run_attempt": 1,
       "jobs": [
         {
           "name": "Build, Test, Screenshot",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35522100062/job/106107831796",
           "steps": [
             {
@@ -123,47 +123,58 @@
             },
             {
               "name": "Capture launched app screenshot",
-              "status": "in_progress",
-              "conclusion": null,
+              "status": "completed",
+              "conclusion": "success",
               "number": 14,
               "started_at": "2026-09-20T16:31:58Z",
-              "completed_at": null
+              "completed_at": "2026-09-20T16:41:05Z"
             },
             {
               "name": "Assert mock UI e2e passed",
-              "status": "pending",
-              "conclusion": null,
+              "status": "completed",
+              "conclusion": "success",
               "number": 15,
-              "started_at": null,
-              "completed_at": null
+              "started_at": "2026-09-20T16:41:05Z",
+              "completed_at": "2026-09-20T16:41:08Z"
             },
             {
               "name": "Commit latest App Store screenshots",
-              "status": "pending",
-              "conclusion": null,
+              "status": "completed",
+              "conclusion": "success",
               "number": 16,
-              "started_at": null,
-              "completed_at": null
+              "started_at": "2026-09-20T16:41:08Z",
+              "completed_at": "2026-09-20T16:41:15Z"
             },
             {
               "name": "Upload artifacts",
-              "status": "pending",
-              "conclusion": null,
+              "status": "completed",
+              "conclusion": "success",
               "number": 17,
-              "started_at": null,
-              "completed_at": null
+              "started_at": "2026-09-20T16:41:16Z",
+              "completed_at": "2026-09-20T16:41:24Z"
             },
             {
               "name": "Post Checkout",
-              "status": "pending",
-              "conclusion": null,
+              "status": "completed",
+              "conclusion": "success",
               "number": 34,
-              "started_at": null,
-              "completed_at": null
+              "started_at": "2026-09-20T16:41:24Z",
+              "completed_at": "2026-09-20T16:41:25Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35,
+              "started_at": "2026-09-20T16:41:25Z",
+              "completed_at": "2026-09-20T16:41:57Z"
             }
           ]
         }
-      ]
+      ],
+      "logReadExitCode": 0,
+      "matchingLogLines": 137,
+      "artifactReadExitCode": 0
     },
     {
       "id": 35522099969,
