@@ -93,8 +93,7 @@ final class SupportPurchaseTests: XCTestCase {
         // No service exists when the transaction is created; the next instance must recover it.
         store = nil
         let transaction = try await session.buyProduct(identifier: SupportProduct.lunch.productID, options: [])
-        let before = await unfinishedIDs()
-        XCTAssertTrue(before.contains(transaction.id))
+        try await eventually { await self.unfinishedIDs().contains(transaction.id) }
         store = SupportStore()
         try await eventually { self.store.message == self.thanks }
         try await eventually { await self.unfinishedIDs().isEmpty }
