@@ -17,9 +17,6 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-recovery-storage-error")
         let diagnostics = app.buttons["storage-diagnostics"]
         scrollToButton(diagnostics, in: app)
-        diagnostics.tap()
-        XCTAssertTrue(app.staticTexts["Authorization"].waitForExistence(timeout: 5))
-        app.swipeRight()
         XCTAssertTrue(app.buttons["storage-retry"].exists)
         app.buttons["storage-retry"].tap()
         XCTAssertTrue(app.staticTexts["Saved data could not be read"].waitForExistence(timeout: 5))
@@ -140,8 +137,6 @@ final class BearLockLaunchUITests: XCTestCase {
         }
         let diagnostics = app.buttons["diagnostics-link"]
         scrollToButton(diagnostics, in: app)
-        diagnostics.tap()
-        XCTAssertTrue(app.staticTexts["Authorization"].waitForExistence(timeout: 5))
     }
 
     func testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint() throws {

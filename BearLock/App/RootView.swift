@@ -20,7 +20,7 @@ struct RootView: View {
                             Button("Retry") { Task { await model.refresh() } }
                                 .disabled(model.isRefreshing)
                                 .accessibilityIdentifier("storage-retry")
-                            NavigationLink("Diagnostics", value: AppRoute.diagnostics)
+                            NavigationLink("Diagnostics") { DebugDiagnosticsView() }
                                 .accessibilityIdentifier("storage-diagnostics")
                         }
                         .padding(20)
@@ -45,12 +45,6 @@ struct RootView: View {
                 }
             } message: {
                 Text(model.lastErrorMessage ?? "")
-            }
-            .navigationDestination(for: AppRoute.self) { route in
-                switch route {
-                case .diagnostics:
-                    DebugDiagnosticsView()
-                }
             }
         }
         .task {
@@ -98,10 +92,6 @@ struct RootView: View {
             wakeSheet = .options
         }
     }
-}
-
-enum AppRoute: Hashable {
-    case diagnostics
 }
 
 private enum WakeSheet: String, Identifiable {
