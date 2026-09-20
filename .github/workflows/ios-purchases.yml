@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   storekit:
-    runs-on: macos-26
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           mkdir -p artifacts
           set -o pipefail
           xcodebuild -project BearLock.xcodeproj -scheme BearLockPurchases \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest' -parallel-testing-enabled NO \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -parallel-testing-enabled NO \
             -resultBundlePath artifacts/purchases.xcresult \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/purchases.log
       - name: Publish failure details
