@@ -42,9 +42,7 @@ struct SettingsView: View {
             }
 
             Section("Diagnostics") {
-                NavigationLink {
-                    DebugDiagnosticsView()
-                } label: {
+                NavigationLink(value: AppRoute.diagnostics) {
                     Label("Diagnostics", systemImage: "stethoscope")
                 }
                 .accessibilityIdentifier("diagnostics-link")

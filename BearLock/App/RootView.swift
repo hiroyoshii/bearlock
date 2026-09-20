@@ -5,11 +5,11 @@ struct RootView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @EnvironmentObject private var wakePurchaseStore: WakePurchaseStore
     @Environment(\.scenePhase) private var scenePhase
-    @State private var navigationID = UUID()
+    @State private var navigationPath = NavigationPath()
     @State private var wakeSheet: WakeSheet?
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             Group {
                 if model.readStatus == .failed {
                     ScrollView {
@@ -20,7 +20,7 @@ struct RootView: View {
                             Button("Retry") { Task { await model.refresh() } }
                                 .disabled(model.isRefreshing)
                                 .accessibilityIdentifier("storage-retry")
-                            NavigationLink("Diagnostics") { DebugDiagnosticsView() }
+                            NavigationLink("Diagnostics", value: AppRoute.diagnostics)
                                 .accessibilityIdentifier("storage-diagnostics")
                         }
                         .padding(20)
@@ -46,8 +46,13 @@ struct RootView: View {
             } message: {
                 Text(model.lastErrorMessage ?? "")
             }
+            .navigationDestination(for: AppRoute.self) { route in
+                switch route {
+                case .diagnostics:
+                    DebugDiagnosticsView()
+                }
+            }
         }
-        .id(navigationID)
         .task {
             await activate()
         }
@@ -82,7 +87,7 @@ struct RootView: View {
     @MainActor
     private func activate() async {
         let opensWakeOptions = WakeLaunchRequest.consume()
-        if opensWakeOptions { navigationID = UUID() }
+        if opensWakeOptions { navigationPath = NavigationPath() }
         await model.refresh()
         if opensWakeOptions {
             for _ in 0..<40 where model.isRefreshing {
@@ -93,6 +98,10 @@ struct RootView: View {
             wakeSheet = .options
         }
     }
+}
+
+enum AppRoute: Hashable {
+    case diagnostics
 }
 
 private enum WakeSheet: String, Identifiable {
