@@ -46,7 +46,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project BearLock.xcodeproj -scheme BearLockLogic \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest' \
             -resultBundlePath artifacts/logic-tests.xcresult \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/logic-tests.log
       - name: Build app and all Screen Time extensions
@@ -72,7 +72,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project BearLock.xcodeproj -scheme BearLock \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest' \
             -resultBundlePath artifacts/lock-ui-tests.xcresult \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds \

@@ -39,7 +39,7 @@ jobs:
       RUN_MOCK_E2E: "true"
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
       SCREENSHOT_DIR: artifacts/screenshots
-      DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
+      DESTINATION: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest
 
     steps:
       - name: Checkout
