@@ -1,0 +1,585 @@
+{
+  "sourceCommit": "42f8ff31cc5ebf7a44d521f3010a247afa97e15e",
+  "collectedAt": "2026-09-20T05:35:02Z",
+  "runs": [
+    {
+      "id": 35492019772,
+      "name": "iOS CI",
+      "head_sha": "42f8ff31cc5ebf7a44d521f3010a247afa97e15e",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019772",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "Build, Test, Screenshot",
+          "status": "in_progress",
+          "conclusion": null,
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019772/job/106028477723",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-20T05:34:32Z",
+              "completed_at": "2026-09-20T05:34:33Z"
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-20T05:34:33Z",
+              "completed_at": "2026-09-20T05:34:40Z"
+            },
+            {
+              "name": "Show tool versions",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 3,
+              "started_at": "2026-09-20T05:34:40Z",
+              "completed_at": null
+            },
+            {
+              "name": "Install XcodeGen",
+              "status": "pending",
+              "conclusion": null,
+              "number": 4,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Validate project metadata",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Generate Xcode project",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Run core Swift package tests",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Build app and extensions for simulator",
+              "status": "pending",
+              "conclusion": null,
+              "number": 8,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Compile UI test bundle",
+              "status": "pending",
+              "conclusion": null,
+              "number": 9,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Prepare mock UI e2e artifacts",
+              "status": "pending",
+              "conclusion": null,
+              "number": 10,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Run mock UI e2e",
+              "status": "pending",
+              "conclusion": null,
+              "number": 11,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Collect mock UI e2e screenshots",
+              "status": "pending",
+              "conclusion": null,
+              "number": 12,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Build screenshot app for simulator",
+              "status": "pending",
+              "conclusion": null,
+              "number": 13,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Capture launched app screenshot",
+              "status": "pending",
+              "conclusion": null,
+              "number": 14,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Assert mock UI e2e passed",
+              "status": "pending",
+              "conclusion": null,
+              "number": 15,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Commit latest App Store screenshots",
+              "status": "pending",
+              "conclusion": null,
+              "number": 16,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Upload artifacts",
+              "status": "pending",
+              "conclusion": null,
+              "number": 17,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Post Checkout",
+              "status": "pending",
+              "conclusion": null,
+              "number": 34,
+              "started_at": null,
+              "completed_at": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 35492019773,
+      "name": "iOS Purchases",
+      "head_sha": "42f8ff31cc5ebf7a44d521f3010a247afa97e15e",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019773",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "storekit",
+          "status": "in_progress",
+          "conclusion": null,
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019773/job/106028477819",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-20T05:34:34Z",
+              "completed_at": "2026-09-20T05:34:34Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-20T05:34:34Z",
+              "completed_at": "2026-09-20T05:34:41Z"
+            },
+            {
+              "name": "Generate test project",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-09-20T05:34:41Z",
+              "completed_at": "2026-09-20T05:34:44Z"
+            },
+            {
+              "name": "Exercise production purchase service with StoreKit Testing",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 4,
+              "started_at": "2026-09-20T05:34:44Z",
+              "completed_at": null
+            },
+            {
+              "name": "Publish failure details",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 12,
+              "started_at": null,
+              "completed_at": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 35492019775,
+      "name": "iOS Lock Lifecycle",
+      "head_sha": "42f8ff31cc5ebf7a44d521f3010a247afa97e15e",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019775",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "lifecycle",
+          "status": "in_progress",
+          "conclusion": null,
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019775/job/106028477694",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-20T05:34:33Z",
+              "completed_at": "2026-09-20T05:34:34Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-20T05:34:34Z",
+              "completed_at": "2026-09-20T05:34:40Z"
+            },
+            {
+              "name": "Unit tests",
+              "status": "in_progress",
+              "conclusion": null,
+              "number": 3,
+              "started_at": "2026-09-20T05:34:40Z",
+              "completed_at": null
+            },
+            {
+              "name": "Cross-process repository transactions",
+              "status": "pending",
+              "conclusion": null,
+              "number": 4,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Generate Xcode project",
+              "status": "pending",
+              "conclusion": null,
+              "number": 5,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "App save and retry integration tests",
+              "status": "pending",
+              "conclusion": null,
+              "number": 6,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Build app and all Screen Time extensions",
+              "status": "pending",
+              "conclusion": null,
+              "number": 7,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Build release app with diagnostics",
+              "status": "pending",
+              "conclusion": null,
+              "number": 8,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Build screenshot app",
+              "status": "pending",
+              "conclusion": null,
+              "number": 9,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Mock UI regression tests",
+              "status": "pending",
+              "conclusion": null,
+              "number": 10,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 11,
+              "started_at": null,
+              "completed_at": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null,
+              "number": 22,
+              "started_at": null,
+              "completed_at": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 35492019784,
+      "name": "Android 14 Acceptance",
+      "head_sha": "42f8ff31cc5ebf7a44d521f3010a247afa97e15e",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019784",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "acceptance",
+          "status": "completed",
+          "conclusion": "failure",
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019784/job/106028477846",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-20T05:34:30Z",
+              "completed_at": "2026-09-20T05:34:32Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-20T05:34:32Z",
+              "completed_at": "2026-09-20T05:34:37Z"
+            },
+            {
+              "name": "Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-09-20T05:34:37Z",
+              "completed_at": "2026-09-20T05:34:37Z"
+            },
+            {
+              "name": "Run android-actions/setup-android@v3",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 4,
+              "started_at": "2026-09-20T05:34:37Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Run gradle/actions/setup-gradle@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Build and unit test",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Enable KVM",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Verify real behavior on Android 14",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Save evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Post Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:47Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20,
+              "started_at": "2026-09-20T05:34:47Z",
+              "completed_at": "2026-09-20T05:34:48Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21,
+              "started_at": "2026-09-20T05:34:48Z",
+              "completed_at": "2026-09-20T05:34:48Z"
+            }
+          ]
+        }
+      ],
+      "logReadExitCode": 0,
+      "matchingLogLines": 2
+    },
+    {
+      "id": 35492019776,
+      "name": "Android CI",
+      "head_sha": "42f8ff31cc5ebf7a44d521f3010a247afa97e15e",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019776",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "product",
+          "status": "completed",
+          "conclusion": "failure",
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35492019776/job/106028477649",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-20T05:34:28Z",
+              "completed_at": "2026-09-20T05:34:31Z"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-20T05:34:31Z",
+              "completed_at": "2026-09-20T05:34:37Z"
+            },
+            {
+              "name": "Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-09-20T05:34:37Z",
+              "completed_at": "2026-09-20T05:34:38Z"
+            },
+            {
+              "name": "Run android-actions/setup-android@v3",
+              "status": "completed",
+              "conclusion": "failure",
+              "number": 4,
+              "started_at": "2026-09-20T05:34:38Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            },
+            {
+              "name": "Run sdkmanager 'platforms;android-36' 'build-tools;35.0.0'",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5,
+              "started_at": "2026-09-20T05:34:50Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            },
+            {
+              "name": "Build and check",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6,
+              "started_at": "2026-09-20T05:34:50Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-09-20T05:34:50Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            },
+            {
+              "name": "Post Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13,
+              "started_at": "2026-09-20T05:34:50Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14,
+              "started_at": "2026-09-20T05:34:50Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15,
+              "started_at": "2026-09-20T05:34:50Z",
+              "completed_at": "2026-09-20T05:34:50Z"
+            }
+          ]
+        }
+      ],
+      "logReadExitCode": 0,
+      "matchingLogLines": 2
+    }
+  ]
+}
