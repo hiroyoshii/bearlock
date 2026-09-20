@@ -26,6 +26,9 @@ schemes:
       targets:
         BearLockPurchaseTestHost: all
         BearLockPurchaseTests: all
+    run:
+      config: Debug
+      storeKitConfiguration: BearLockPurchaseTests/SupportProducts.storekit
     test:
       targets:
         - BearLockPurchaseTests
