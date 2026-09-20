@@ -5,11 +5,11 @@ struct RootView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @EnvironmentObject private var wakePurchaseStore: WakePurchaseStore
     @Environment(\.scenePhase) private var scenePhase
-    @State private var navigationPath = NavigationPath()
+    @State private var navigationID = UUID()
     @State private var wakeSheet: WakeSheet?
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
+        NavigationStack {
             Group {
                 if model.readStatus == .failed {
                     ScrollView {
@@ -47,6 +47,7 @@ struct RootView: View {
                 Text(model.lastErrorMessage ?? "")
             }
         }
+        .id(navigationID)
         .task {
             await activate()
         }
@@ -81,7 +82,7 @@ struct RootView: View {
     @MainActor
     private func activate() async {
         let opensWakeOptions = WakeLaunchRequest.consume()
-        if opensWakeOptions { navigationPath = NavigationPath() }
+        if opensWakeOptions { navigationID = UUID() }
         await model.refresh()
         if opensWakeOptions {
             for _ in 0..<40 where model.isRefreshing {

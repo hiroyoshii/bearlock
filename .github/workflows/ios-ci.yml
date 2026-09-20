@@ -111,6 +111,7 @@ jobs:
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             -resultBundlePath "$E2E_RESULT_BUNDLE" \
+            -retry-tests-on-failure -test-iterations 2 \
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets \

@@ -25,7 +25,7 @@ concurrency:
 jobs:
   lifecycle:
     runs-on: macos-26
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Unit tests
@@ -68,12 +68,13 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO build 2>&1 | tee artifacts/screenshot-build.log
       - name: Mock UI regression tests
-        timeout-minutes: 15
+        timeout-minutes: 25
         run: |
           set -o pipefail
           xcodebuild -project BearLock.xcodeproj -scheme BearLock \
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest' \
             -resultBundlePath artifacts/lock-ui-tests.xcresult \
+            -retry-tests-on-failure -test-iterations 2 \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \

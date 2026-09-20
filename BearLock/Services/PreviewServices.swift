@@ -24,9 +24,13 @@ struct PreviewTargetSelectionCodec: TargetSelectionCoding {
         case "13131313-1313-1313-1313-131313131313":
             result.previewApplicationNames = ["Books", "Music"]
         default:
-            break
+            if let count = Int(reference?.displayName.split(separator: " ").first ?? "") {
+                result.applications = count
+            }
         }
-        result.applications = result.previewApplicationNames.count
+        if !result.previewApplicationNames.isEmpty {
+            result.applications = result.previewApplicationNames.count
+        }
         return result
     }
 
