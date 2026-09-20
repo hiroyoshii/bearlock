@@ -115,12 +115,21 @@ jobs:
             xcrun simctl install "$udid" "$APP_PATH"
 
             for screen in setup home confirmation activeLock wakeResult settings support diagnostics; do
-              xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
-              xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
-              sleep 3
-              xcrun simctl io "$udid" screenshot "$SCREENSHOT_DIR/$label/$screen.png"
-              test -s "$SCREENSHOT_DIR/$label/$screen.png"
-              file "$SCREENSHOT_DIR/$label/$screen.png"
+              local screenshot_path="$SCREENSHOT_DIR/$label/$screen.png"
+              local screenshot_size=0
+              for attempt in 1 2 3; do
+                xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
+                xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
+                sleep $((attempt + 2))
+                xcrun simctl io "$udid" screenshot "$screenshot_path"
+                screenshot_size="$(stat -f%z "$screenshot_path")"
+                if [ "$screenshot_size" -ge 100000 ]; then
+                  break
+                fi
+                echo "Screenshot appears blank; retrying $label/$screen (attempt $attempt, $screenshot_size bytes)."
+              done
+              test "$screenshot_size" -ge 100000
+              file "$screenshot_path"
             done
           }
 
