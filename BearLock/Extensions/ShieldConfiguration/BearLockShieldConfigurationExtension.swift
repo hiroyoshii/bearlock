@@ -60,12 +60,12 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     }
 
     private var primaryButtonKey: String {
-        if #available(iOS 26.0, *) { return "Wake the bear" }
+        if #available(iOS 26.5, *) { return "Wake the bear" }
         return "OK"
     }
 
     private var secondaryButtonLabel: ShieldConfiguration.Label? {
-        guard #available(iOS 26.0, *) else { return nil }
+        guard #available(iOS 26.5, *) else { return nil }
         return ShieldConfiguration.Label(
             text: localized("Keep sleeping"),
             color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 0.72)

@@ -31,7 +31,7 @@ final class BearLockShieldActionExtension: ShieldActionDelegate {
 
     private func response(for action: ShieldAction) -> ShieldActionResponse {
         guard action == .primaryButtonPressed else { return .close }
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.5, *) {
             WakeLaunchRequest.record()
             return .openParentalControlsApp
         }
@@ -46,7 +46,7 @@ private extension ShieldAction {
             return "primaryButtonPressed"
         case .secondaryButtonPressed:
             return "secondaryButtonPressed"
-        @unknown default:
+        default:
             return "unknown"
         }
     }
