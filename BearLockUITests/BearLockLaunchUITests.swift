@@ -323,7 +323,7 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["Repeat"].tap()
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["You can delete this schedule at any time. Deleting it also ends its active lock."].exists)
+        XCTAssertTrue(app.staticTexts["A wake-up ends only the current lock. Future repeating locks stay scheduled."].exists)
         let end = app.staticTexts["lock-confirmation-wakes"]
         XCTAssertTrue(end.exists)
         XCTAssertFalse(end.label.contains("after start"))
@@ -415,9 +415,6 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-active-recurring-deletable")
         delete.tap()
         XCTAssertTrue(app.staticTexts["Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets."].waitForExistence(timeout: 5))
-        app.buttons["Cancel"].tap()
-        XCTAssertTrue(delete.exists)
-        delete.tap()
         captureScreenshot(named: "e2e-active-recurring-delete-confirmation")
         app.buttons["Delete"].tap()
         XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 5))

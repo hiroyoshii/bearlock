@@ -11,6 +11,7 @@ on:
       - "todo.md"
       - "wrangler.toml"
       - ".github/workflows/cloudflare-workers.yml"
+      - ".github/workflows/ios-purchases.yml"
   workflow_dispatch:
 
 permissions:
@@ -126,6 +127,7 @@ jobs:
             -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
+            -only-testing:BearLockUITests/BearLockLaunchUITests/testFreeWakeCanBeScheduledAndCancelledWithMockServices \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringCanBeDeletedWithConfirmation \
             -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringDraftCancelsWithoutChangingSavedStatus \
             test-without-building | tee artifacts/xcodebuild-ui-e2e.log || touch artifacts/e2e-ui.failed
