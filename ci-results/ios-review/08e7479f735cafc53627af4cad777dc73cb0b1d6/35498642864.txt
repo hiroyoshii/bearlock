@@ -1,0 +1,142 @@
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:35.1790060Z /Users/runner/work/bearlock/bearlock/Tests/BearLockCoreTests/LockPlannerTests.swift:208:13: warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:35.1978850Z     |             `- warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:35.1985800Z /Users/runner/work/bearlock/bearlock/Tests/BearLockCoreTests/LockPlannerTests.swift:208:13: warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:35.1992080Z     |             `- warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:35.2002090Z /Users/runner/work/bearlock/bearlock/Tests/BearLockCoreTests/LockPlannerTests.swift:208:13: warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:35.2015350Z     |             `- warning: initialization of immutable value 'planner' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1013610Z Test Suite 'All tests' started at 2026-09-20 08:11:40.884.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1115690Z Test Suite 'BearLockPackageTests.xctest' started at 2026-09-20 08:11:40.884.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1217400Z Test Suite 'JSONFileLockRepositoryTests' started at 2026-09-20 08:11:40.884.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1254080Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testActorReloadsStateBeforeEachMutation]' passed (0.012 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1259070Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testCorruptedStateRemainsAnErrorOnRepeatedReads]' passed (0.005 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1264250Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testFractionalRuleDatesRoundTripWithoutPersistingExecutionState]' passed (0.005 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1269250Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testIOFailureDoesNotQuarantineOrReturnEmptyState]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1275380Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testMonitoringSynchronizationPublishesStateBeforeCallingOS]' passed (0.003 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1280040Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testPersistsAndReloadsLockState]' passed (0.004 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1285240Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testSaveTargetSelectionReplacesExistingSelectionWithSameID]' passed (0.002 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1291850Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testSingleWriterActorDoesNotLoseConcurrentUpdates]' passed (0.020 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1295010Z Test Case '-[BearLockCoreTests.JSONFileLockRepositoryTests testStateSavedBeforeWakeFeatureLoadsWithEmptyWakeState]' passed (0.002 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1295730Z Test Suite 'JSONFileLockRepositoryTests' passed at 2026-09-20 08:11:40.939.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1514000Z 	 Executed 9 tests, with 0 failures (0 unexpected) in 0.053 (0.055) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1514610Z Test Suite 'LockContractTests' started at 2026-09-20 08:11:40.939.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1515640Z Test Case '-[BearLockCoreTests.LockContractTests testSharedContract]' passed (0.011 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1516210Z Test Suite 'LockContractTests' passed at 2026-09-20 08:11:40.951.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1517000Z Test Suite 'LockLifecycleTests' started at 2026-09-20 08:11:40.951.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1518470Z Test Case '-[BearLockCoreTests.LockLifecycleTests testAdjacentRuleAppliesItsOwnTargetsAtBoundary]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1520030Z Test Case '-[BearLockCoreTests.LockLifecycleTests testCurrentTimeIsSampledAfterWaitingForRepository]' passed (0.085 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1522480Z Test Case '-[BearLockCoreTests.LockLifecycleTests testDeadlineAndHoursLateCallsClearEvenWithoutAnyPreviousCall]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1524280Z Test Case '-[BearLockCoreTests.LockLifecycleTests testDelayedOrReversedCallbackUsesCurrentStateForItsOwnSlot]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1525970Z Test Case '-[BearLockCoreTests.LockLifecycleTests testDisabledRuleAndEmptyStateClearResidualShield]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1527620Z Test Case '-[BearLockCoreTests.LockLifecycleTests testEarlyEndAndUnrelatedCallbackCannotClearCurrentRule]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1529150Z Test Case '-[BearLockCoreTests.LockLifecycleTests testFailedMutationCannotLeakIntoLaterSuccessfulSave]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1530640Z Test Case '-[BearLockCoreTests.LockLifecycleTests testLateEndForOldRuleCannotClearNewRulesStore]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1532310Z Test Case '-[BearLockCoreTests.LockLifecycleTests testLateOrDuplicateCallsNeverMoveTheDeadline]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1534320Z Test Case '-[BearLockCoreTests.LockLifecycleTests testMissingActiveTargetIsAnErrorInsteadOfPartialApply]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1536120Z Test Case '-[BearLockCoreTests.LockLifecycleTests testNoStateWriteIsRequiredToApplyOrClearAndApplyFailureCanRetry]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1537970Z Test Case '-[BearLockCoreTests.LockLifecycleTests testOverlappingRecurringRulesUnionAndDeduplicateTargets]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1539970Z Test Case '-[BearLockCoreTests.LockLifecycleTests testReadFailureDoesNotChangeShieldAndNextReadCanRecover]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1541880Z Test Case '-[BearLockCoreTests.LockLifecycleTests testRecurringRuleUsesCurrentOccurrenceAfterMidnightAndNextWeek]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1543780Z Test Case '-[BearLockCoreTests.LockLifecycleTests testSecondPrecisionAndFractionalRoundingShareTheMonitoringDeadline]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1544440Z Test Suite 'LockLifecycleTests' passed at 2026-09-20 08:11:41.044.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1545320Z 	 Executed 15 tests, with 0 failures (0 unexpected) in 0.091 (0.094) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1545840Z Test Suite 'LockPlannerTests' started at 2026-09-20 08:11:41.044.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1547180Z Test Case '-[BearLockCoreTests.LockPlannerTests testDelayedLockComputesConcreteStartAndEnd]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1548760Z Test Case '-[BearLockCoreTests.LockPlannerTests testDisablingActiveRecurringRuleIsRejected]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1550570Z Test Case '-[BearLockCoreTests.LockPlannerTests testExpiredOneShotDoesNotConflictWithANewRecurringSchedule]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1551950Z Test Case '-[BearLockCoreTests.LockPlannerTests testFindsScheduledRuleContainingDate]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1553220Z Test Case '-[BearLockCoreTests.LockPlannerTests testFutureScheduledLockReplacementIsAllowed]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1555080Z Test Case '-[BearLockCoreTests.LockPlannerTests testImmediateLockOverlappingActiveLockIsRejected]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1557830Z Test Case '-[BearLockCoreTests.LockPlannerTests testImmediateLockUsesCurrentTime]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1559570Z Test Case '-[BearLockCoreTests.LockPlannerTests testNonPositiveImmediateDurationIsRejected]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1561280Z Test Case '-[BearLockCoreTests.LockPlannerTests testOneShotConflictUsesNextRecurringOccurrenceInsteadOfInitialRegistrationDate]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1562930Z Test Case '-[BearLockCoreTests.LockPlannerTests testOverlappingScheduledLocksAreRejected]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1564440Z Test Case '-[BearLockCoreTests.LockPlannerTests testOvernightRecurringRuleProducesNextMorningEnd]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1565950Z Test Case '-[BearLockCoreTests.LockPlannerTests testRecurringEditValidatesTheDraftEnabledState]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1567630Z Test Case '-[BearLockCoreTests.LockPlannerTests testRecurringReplacementRecomputesNextOccurrenceAndKeepsRuleID]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1569590Z Test Case '-[BearLockCoreTests.LockPlannerTests testRecurringReplacementWithNoWeekdaysIsRejected]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1571210Z Test Case '-[BearLockCoreTests.LockPlannerTests testReplacementOverlappingAnotherRuleIsRejected]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1572700Z Test Case '-[BearLockCoreTests.LockPlannerTests testStartedScheduledLockReplacementIsRejected]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1573360Z Test Suite 'LockPlannerTests' passed at 2026-09-20 08:11:41.056.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1573790Z 	 Executed 16 tests, with 0 failures (0 unexpected) in 0.010 (0.012) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1574290Z Test Suite 'LockStoreTests' started at 2026-09-20 08:11:41.056.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1575730Z Test Case '-[BearLockCoreTests.LockStoreTests testActiveRulesRejectEditsAndSingleLocksRejectDeletion]' passed (0.006 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1577230Z Test Case '-[BearLockCoreTests.LockStoreTests testCreateAndReplaceValidateConflictsAgainstSavedRules]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1579030Z Test Case '-[BearLockCoreTests.LockStoreTests testDeleteAllDayRecurringDuringLockPreservesOtherRuleThenReleases]' passed (0.002 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1580600Z Test Case '-[BearLockCoreTests.LockStoreTests testDeletingRecentTargetDoesNotDeleteSelectionOrRule]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1582520Z Test Case '-[BearLockCoreTests.LockStoreTests testDisabledRecurringRuleCanBeEditedDuringItsTimeWindow]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1583910Z Test Case '-[BearLockCoreTests.LockStoreTests testOnlyThreeTargetsCanBePinned]' passed (0.003 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1585550Z Test Case '-[BearLockCoreTests.LockStoreTests testPinnedTargetsDisplayBeforeRecentTargetsWithThreeItemLimit]' passed (0.005 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1587210Z Test Case '-[BearLockCoreTests.LockStoreTests testRecordingEquivalentTargetUpdatesExistingHistoryEntry]' passed (0.002 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1588700Z Test Case '-[BearLockCoreTests.LockStoreTests testRecordingRecentTargetAddsItToHistory]' passed (0.002 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1590100Z Test Case '-[BearLockCoreTests.LockStoreTests testStaleEditorCannotOverwriteDeletedRule]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1590710Z Test Suite 'LockStoreTests' passed at 2026-09-20 08:11:41.085.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1591070Z 	 Executed 10 tests, with 0 failures (0 unexpected) in 0.025 (0.029) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1591780Z Test Suite 'MonitoringScheduleTests' started at 2026-09-20 08:11:41.085.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1593390Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testCapacityLeavesTwoManagedSettingsStoresReserved]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1595350Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testChangedScheduleReplacesSameNameAndObsoleteOwnedMonitorsStop]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1597540Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testDisabledAndExpiredRulesHaveNoMonitorWhileFutureAndActiveOneShotsDo]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1599460Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testDSTKeepsTheConfiguredMorningEndInsteadOfAddingEightHours]' passed (0.002 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1601520Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testPartialFailureRetainsSuccessfulRegistrationsAndRetryOnlyStartsMissingOne]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1603630Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testRecurringRegistrationUsesWeekdayAndWallTimeWithoutAnExpiredDate]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1605660Z Test Case '-[BearLockCoreTests.MonitoringScheduleTests testStopFailureDoesNotSuppressIndependentStarts]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1606310Z Test Suite 'MonitoringScheduleTests' passed at 2026-09-20 08:11:41.094.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1606830Z 	 Executed 7 tests, with 0 failures (0 unexpected) in 0.006 (0.008) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1607270Z Test Suite 'SelectedTargetTests' started at 2026-09-20 08:11:41.094.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1608690Z Test Case '-[BearLockCoreTests.SelectedTargetTests testRecurringEncodingContainsNoSingleDatesAndDisplayUsesLatestEnd]' passed (0.006 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1610440Z Test Case '-[BearLockCoreTests.SelectedTargetTests testSelectionAndDataCommitTogetherAndFailureKeepsBoth]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.1612080Z Test Case '-[BearLockCoreTests.SelectedTargetTests testSelectionCannotChangeDuringActivePeriod]' passed (0.000 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2002240Z Test Suite 'SelectedTargetTests' passed at 2026-09-20 08:11:41.101.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2007180Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.007 (0.007) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2008820Z Test Suite 'WakePolicyTests' started at 2026-09-20 08:11:41.101.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2014840Z Test Case '-[BearLockCoreTests.WakePolicyTests testFreeWakeCanBeCancelledAndIsUnavailableInsideThirtyMinutes]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2019460Z Test Case '-[BearLockCoreTests.WakePolicyTests testFreeWakeKeepsLockUntilThirtyMinuteDeadline]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2025150Z Test Case '-[BearLockCoreTests.WakePolicyTests testLateApprovalBecomesCreditForNextActiveLock]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2041330Z Test Case '-[BearLockCoreTests.WakePolicyTests testVerifiedPurchaseUnlocksOnceAndDuplicateDeliveryIsIdempotent]' passed (0.001 seconds).
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2044400Z Test Suite 'WakePolicyTests' passed at 2026-09-20 08:11:41.105.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2045570Z 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2047590Z Test Suite 'BearLockPackageTests.xctest' passed at 2026-09-20 08:11:41.105.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2048980Z 	 Executed 65 tests, with 0 failures (0 unexpected) in 0.206 (0.221) seconds
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2050000Z Test Suite 'All tests' passed at 2026-09-20 08:11:41.105.
+Build, Test, Screenshot	Run core Swift package tests	2026-09-20T08:11:41.2050960Z 	 Executed 65 tests, with 0 failures (0 unexpected) in 0.206 (0.221) seconds
+Build, Test, Screenshot	Build app and extensions for simulator	2026-09-20T08:12:29.4805040Z 2026-09-20 08:12:29.238 appintentsmetadataprocessor[5567:19018] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+Build, Test, Screenshot	Build app and extensions for simulator	2026-09-20T08:12:36.0612590Z 2026-09-20 08:12:29.454 appintentsmetadataprocessor[5575:19040] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+Build, Test, Screenshot	Build app and extensions for simulator	2026-09-20T08:12:36.0641020Z 2026-09-20 08:12:29.479 appintentsmetadataprocessor[5576:19042] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+Build, Test, Screenshot	Build app and extensions for simulator	2026-09-20T08:12:48.4670560Z 2026-09-20 08:12:48.392 appintentsmetadataprocessor[6101:20512] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+Build, Test, Screenshot	Build app and extensions for simulator	2026-09-20T08:12:50.2059590Z ** BUILD SUCCEEDED **
+Build, Test, Screenshot	Compile UI test bundle	2026-09-20T08:13:02.4110430Z 2026-09-20 08:13:02.408 appintentsmetadataprocessor[6391:21412] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+Build, Test, Screenshot	Compile UI test bundle	2026-09-20T08:13:02.6950460Z ** TEST BUILD SUCCEEDED **
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:16:14.1638110Z Test Suite 'Selected tests' started at 2026-09-20 08:16:14.116.
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:16:14.8116330Z Test Suite 'BearLockUITests.xctest' started at 2026-09-20 08:16:14.116.
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:16:14.8252630Z Test Suite 'BearLockLaunchUITests' started at 2026-09-20 08:16:14.117.
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:18:04.9424670Z Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveLockHidesMutableControlsWithMockServices]' passed (110.817 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:18:26.2239890Z Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveRecurringCanBeDeletedWithConfirmation]' passed (21.254 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:18:33.2005540Z Test Case '-[BearLockUITests.BearLockLaunchUITests testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint]' passed (6.983 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:19:13.8909820Z Test Case '-[BearLockUITests.BearLockLaunchUITests testCreateAndOpenRecurringEditorWithMockServices]' passed (40.670 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:19:31.4164630Z Test Case '-[BearLockUITests.BearLockLaunchUITests testCreateImmediateLockWithMockServices]' passed (17.570 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:19:41.7019770Z Test Case '-[BearLockUITests.BearLockLaunchUITests testDeclinedAccessKeepsHomeUsable]' passed (10.285 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:20:06.9774730Z Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringDraftCancelsWithoutChangingSavedStatus]' passed (25.199 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:20:22.0452520Z Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringSeedShowsOffStateWithMockServices]' passed (15.017 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:20:38.0361210Z Test Case '-[BearLockUITests.BearLockLaunchUITests testFreeWakeCanBeScheduledAndCancelledWithMockServices]' passed (16.110 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:21:08.7911780Z Test Case '-[BearLockUITests.BearLockLaunchUITests testIntroductionAndContextualAccessFlow]' passed (30.742 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:21:15.9149800Z Test Case '-[BearLockUITests.BearLockLaunchUITests testLaunchSetupScreenAndCaptureScreenshot]' passed (7.132 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:21:37.5213590Z Test Case '-[BearLockUITests.BearLockLaunchUITests testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds]' passed (21.603 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:21:55.5124370Z /Users/runner/work/bearlock/bearlock/BearLockUITests/BearLockLaunchUITests.swift:21: error: -[BearLockUITests.BearLockLaunchUITests testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets] : XCTAssertTrue failed
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:22:15.7262900Z Test Case '-[BearLockUITests.BearLockLaunchUITests testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets]' failed (38.151 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:22:48.8261560Z /Users/runner/work/bearlock/bearlock/BearLockUITests/BearLockLaunchUITests.swift:226: error: -[BearLockUITests.BearLockLaunchUITests testRecentTargetsSelectionFeedbackAndActions] : XCTAssertTrue failed
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:22:49.1630560Z Test Case '-[BearLockUITests.BearLockLaunchUITests testRecentTargetsSelectionFeedbackAndActions]' failed (33.499 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:23:17.2642770Z Test Case '-[BearLockUITests.BearLockLaunchUITests testReusingTargetRefreshesHomeCountsDetailsAndConfirmation]' passed (28.095 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:23:46.3233810Z Test Case '-[BearLockUITests.BearLockLaunchUITests testScheduleEditAndDeleteDelayedLockWithMockServices]' passed (29.062 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:03.4407840Z Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' passed (17.114 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:25.8943510Z /Users/runner/work/bearlock/bearlock/BearLockUITests/BearLockLaunchUITests.swift:144: error: -[BearLockUITests.BearLockLaunchUITests testUnavailableAccessKeepsRecoveryAndSettingsReachable] : XCTAssertTrue failed
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.6466850Z Test Case '-[BearLockUITests.BearLockLaunchUITests testUnavailableAccessKeepsRecoveryAndSettingsReachable]' failed (35.096 seconds).
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.8810120Z Test Suite 'BearLockLaunchUITests' failed at 2026-09-20 08:24:38.535.
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.9005000Z 	 Executed 18 tests, with 3 failures (0 unexpected) in 504.398 (504.419) seconds
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.9146100Z Test Suite 'BearLockUITests.xctest' failed at 2026-09-20 08:24:38.536.
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.9252980Z 	 Executed 18 tests, with 3 failures (0 unexpected) in 504.398 (504.420) seconds
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.9536210Z Test Suite 'Selected tests' failed at 2026-09-20 08:24:38.537.
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:24:38.9644410Z 	 Executed 18 tests, with 3 failures (0 unexpected) in 504.398 (504.421) seconds
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:25:21.2251980Z Failing tests:
+Build, Test, Screenshot	Run mock UI e2e	2026-09-20T08:25:21.2332190Z ** TEST EXECUTE FAILED **
+Build, Test, Screenshot	Build screenshot app for simulator	2026-09-20T08:26:02.1851650Z 2026-09-20 08:26:02.182 appintentsmetadataprocessor[31473:91764] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+Build, Test, Screenshot	Build screenshot app for simulator	2026-09-20T08:26:02.3281400Z ** BUILD SUCCEEDED **
+Build, Test, Screenshot	Assert mock UI e2e passed	2026-09-20T08:34:51.8486370Z error: failed to push some refs to 'https://github.com/hiroyoshii/bearlock'
