@@ -1,0 +1,180 @@
+{
+  "sourceCommit": "f9dc4a8ff32eca2231751de0f6bb4bb374cb6696",
+  "collectedAt": "2026-09-20T10:41:27Z",
+  "runs": [
+    {
+      "id": 35504912034,
+      "name": "iOS CI",
+      "head_sha": "f9dc4a8ff32eca2231751de0f6bb4bb374cb6696",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35504912034",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "Build, Test, Screenshot",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/hiroyoshii/bearlock/actions/runs/35504912034/job/106062971098",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-09-20T10:23:06Z",
+              "completed_at": "2026-09-20T10:23:07Z"
+            },
+            {
+              "name": "Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-09-20T10:23:07Z",
+              "completed_at": "2026-09-20T10:23:16Z"
+            },
+            {
+              "name": "Show tool versions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-09-20T10:23:16Z",
+              "completed_at": "2026-09-20T10:23:23Z"
+            },
+            {
+              "name": "Install XcodeGen",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4,
+              "started_at": "2026-09-20T10:23:23Z",
+              "completed_at": "2026-09-20T10:23:48Z"
+            },
+            {
+              "name": "Validate project metadata",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5,
+              "started_at": "2026-09-20T10:23:48Z",
+              "completed_at": "2026-09-20T10:23:49Z"
+            },
+            {
+              "name": "Generate Xcode project",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-09-20T10:23:49Z",
+              "completed_at": "2026-09-20T10:23:49Z"
+            },
+            {
+              "name": "Run core Swift package tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-09-20T10:23:49Z",
+              "completed_at": "2026-09-20T10:24:15Z"
+            },
+            {
+              "name": "Build app and extensions for simulator",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8,
+              "started_at": "2026-09-20T10:24:15Z",
+              "completed_at": "2026-09-20T10:24:53Z"
+            },
+            {
+              "name": "Compile UI test bundle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9,
+              "started_at": "2026-09-20T10:24:53Z",
+              "completed_at": "2026-09-20T10:25:00Z"
+            },
+            {
+              "name": "Prepare mock UI e2e artifacts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10,
+              "started_at": "2026-09-20T10:25:00Z",
+              "completed_at": "2026-09-20T10:25:00Z"
+            },
+            {
+              "name": "Run mock UI e2e",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11,
+              "started_at": "2026-09-20T10:25:00Z",
+              "completed_at": "2026-09-20T10:33:46Z"
+            },
+            {
+              "name": "Collect mock UI e2e screenshots",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12,
+              "started_at": "2026-09-20T10:33:46Z",
+              "completed_at": "2026-09-20T10:33:46Z"
+            },
+            {
+              "name": "Build screenshot app for simulator",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13,
+              "started_at": "2026-09-20T10:33:46Z",
+              "completed_at": "2026-09-20T10:34:07Z"
+            },
+            {
+              "name": "Capture launched app screenshot",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14,
+              "started_at": "2026-09-20T10:34:07Z",
+              "completed_at": "2026-09-20T10:40:05Z"
+            },
+            {
+              "name": "Assert mock UI e2e passed",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15,
+              "started_at": "2026-09-20T10:40:05Z",
+              "completed_at": "2026-09-20T10:40:07Z"
+            },
+            {
+              "name": "Commit latest App Store screenshots",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16,
+              "started_at": "2026-09-20T10:40:07Z",
+              "completed_at": "2026-09-20T10:40:12Z"
+            },
+            {
+              "name": "Upload artifacts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17,
+              "started_at": "2026-09-20T10:40:12Z",
+              "completed_at": "2026-09-20T10:40:17Z"
+            },
+            {
+              "name": "Post Checkout",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 34,
+              "started_at": "2026-09-20T10:40:17Z",
+              "completed_at": "2026-09-20T10:40:18Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35,
+              "started_at": "2026-09-20T10:40:18Z",
+              "completed_at": "2026-09-20T10:40:35Z"
+            }
+          ]
+        }
+      ],
+      "logReadExitCode": 0,
+      "matchingLogLines": 137,
+      "artifactReadExitCode": 0
+    }
+  ]
+}
