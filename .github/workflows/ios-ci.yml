@@ -24,7 +24,7 @@ concurrency:
 jobs:
   build-test-screenshot:
     name: Build, Test, Screenshot
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
 
     env:
