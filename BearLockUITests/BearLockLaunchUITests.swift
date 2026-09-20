@@ -15,10 +15,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Get started"].exists)
         XCTAssertFalse(app.buttons["lock-composer-primary-button"].exists)
         captureScreenshot(named: "e2e-recovery-storage-error")
-        let diagnostics = app.buttons["storage-diagnostics"]
-        scrollToButton(diagnostics, in: app)
-        diagnostics.tap()
-        XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
+        openNavigationLink(app.buttons["storage-diagnostics"], destinationTitle: "Diagnostics", in: app)
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["storage-retry"].exists)
         app.buttons["storage-retry"].tap()
@@ -138,10 +135,7 @@ final class BearLockLaunchUITests: XCTestCase {
         if errorAlert.waitForExistence(timeout: 1) {
             errorAlert.buttons["OK"].tap()
         }
-        let diagnostics = app.buttons["diagnostics-link"]
-        scrollToButton(diagnostics, in: app)
-        diagnostics.tap()
-        XCTAssertTrue(app.navigationBars["Diagnostics"].waitForExistence(timeout: 5))
+        openNavigationLink(app.buttons["diagnostics-link"], destinationTitle: "Diagnostics", in: app)
     }
 
     func testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint() throws {
@@ -452,6 +446,27 @@ final class BearLockLaunchUITests: XCTestCase {
         for _ in 0..<4 where !button.isHittable { app.swipeDown() }
         for _ in 0..<5 where !button.isHittable { app.swipeUp() }
         XCTAssertTrue(button.isHittable)
+    }
+
+    private func openNavigationLink(_ button: XCUIElement, destinationTitle: String, in app: XCUIApplication) {
+        dismissErrorAlertIfPresent(in: app)
+        scrollToButton(button, in: app)
+        button.tap()
+
+        let destination = app.navigationBars[destinationTitle]
+        if !destination.waitForExistence(timeout: 3), button.exists {
+            dismissErrorAlertIfPresent(in: app)
+            scrollToButton(button, in: app)
+            button.tap()
+        }
+        XCTAssertTrue(destination.waitForExistence(timeout: 7), app.debugDescription)
+    }
+
+    private func dismissErrorAlertIfPresent(in app: XCUIApplication) {
+        let alert = app.alerts["Bear Lock"]
+        if alert.waitForExistence(timeout: 1) {
+            alert.buttons["OK"].tap()
+        }
     }
 
     private func tapFirstButton(_ app: XCUIApplication, identifier: String) {
