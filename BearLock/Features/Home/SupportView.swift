@@ -3,7 +3,13 @@ import SwiftUI
 
 struct SupportView: View {
     @EnvironmentObject private var store: SupportStore
-    private let showsScreenshotPreview = ProcessInfo.processInfo.arguments.contains("--screenshot")
+    private var showsScreenshotPreview: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--screenshot")
+        #else
+        false
+        #endif
+    }
 
     var body: some View {
         List {
@@ -23,8 +29,7 @@ struct SupportView: View {
                     } label: {
                         SupportProductRow(
                             supportProduct: supportProduct,
-                            price: store.product(for: supportProduct)?.displayPrice
-                                ?? (showsScreenshotPreview ? supportProduct.fallbackPrice : "—"),
+                            price: price(for: supportProduct),
                             isPurchasing: store.purchasingProductID == supportProduct.productID
                         )
                     }
@@ -63,6 +68,14 @@ struct SupportView: View {
         .refreshable {
             await store.loadProducts()
         }
+    }
+
+    private func price(for product: SupportProduct) -> String {
+        if let displayPrice = store.product(for: product)?.displayPrice { return displayPrice }
+        #if DEBUG
+        if showsScreenshotPreview { return product.fallbackPrice }
+        #endif
+        return "—"
     }
 }
 

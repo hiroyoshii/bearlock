@@ -10,6 +10,6 @@ GitHub Actions の **Android Store Assets** を main で実行する。Android �
 
 撮影にはDebug限定のScreenshotActivityと本番UIコンポーネントを使用する。表示する予約・残り時間はサンプルデータ。実際のロックや決済は発生せず、Accessibility申告動画や機能の動作証明には使用しない。
 
-撮影結果は [ci-screenshots/android-store](../ci-screenshots/android-store/README.md) にもCIが保存する。`capture.json` に撮影元commit・Actions実行ID・画像SHA-256を記録する。画像保存commitは `[skip ci]` とし再実行ループを防ぐ。
+撮影結果はActionsの `bearlock-android-store-assets` artifact に保存する。`capture.json` に撮影元commit・Actions実行ID・画像SHA-256を記録する。CIからリポジトリへの自動コミットは行わない。既存の [ci-screenshots/android-store](../ci-screenshots/android-store/README.md) は過去の撮影結果。
 
 アプリアイコン（512×512）とフィーチャーグラフィック（1024×500）は別のアセット。このworkflowはスマートフォンのスクリーンショットを対象とする。

@@ -25,7 +25,7 @@
 
 2026-09-12の[CI実行](https://github.com/hiroyoshii/bearlock/actions/runs/34677036562)で7項目すべて成功。[結果JSON](../ci-results/android14/result.json)、[遮断中](../ci-results/android14/blocking/shield-active.png)、[自然解除後](../ci-results/android14/blocking/expired-probe.png)、[入力ログ](../ci-results/android14/blocking/result.json)。初回は試験スクリプトの画面指定が誤っており、設定画面から通常の導線を使うよう修正して再実行した。製品コードの変更は不要だった。
 
-結果はActions artifact `bearlock-android14-acceptance` と `ci-results/android14/result.json` に保存する。実行の成否はJSONの `passed` とActionsの結論を確認する。Debug限定の1分作成補助を使用するため、Playで配布する署名済みAAB・実決済・実機/OEM省電力・Web制限・全OSの保証には広げない。
+新しい実行結果はActions artifact `bearlock-android14-acceptance` に保存する。上記の `ci-results/android14/result.json` は2026-09-12の保存済み結果。実行の成否はJSONの `passed` とActionsの結論を確認する。Debug限定の1分作成補助を使用するため、Playで配布する署名済みAAB・実決済・実機/OEM省電力・Web制限・全OSの保証には広げない。
 
 公式資料:
 - [テストトラックの設定](https://support.google.com/googleplay/android-developer/answer/9845334?hl=ja)

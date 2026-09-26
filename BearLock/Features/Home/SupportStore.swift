@@ -31,6 +31,7 @@ enum SupportProduct: String, CaseIterable, Identifiable {
         }
     }
 
+    #if DEBUG
     var fallbackPrice: String {
         switch self {
         case .coffee:
@@ -41,6 +42,7 @@ enum SupportProduct: String, CaseIterable, Identifiable {
             return "¥2,000"
         }
     }
+    #endif
 }
 
 @MainActor
@@ -92,9 +94,11 @@ final class SupportStore: ObservableObject {
     func loadProducts() async {
         guard !isLoading, purchasingProductID == nil else { return }
         guard !usesStaticSupportProducts else {
+            #if DEBUG
             if !ProcessInfo.processInfo.arguments.contains("--screenshot") {
                 message = L10n.string("Support items are not available yet.")
             }
+            #endif
             return
         }
         message = nil
@@ -146,7 +150,11 @@ final class SupportStore: ObservableObject {
     }
 
     private var usesStaticSupportProducts: Bool {
+        #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--screenshot")
             || ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        #else
+        false
+        #endif
     }
 }

@@ -47,24 +47,24 @@ swift test
 Current WSL validation:
 
 - Swift 6.3.3 installed with Swiftly.
-- `swift test` passes for `BearLockCore` with 29 tests.
+- `swift test` passes for `BearLockCore` with 65 tests.
 
 Real Screen Time behavior must be verified on a physical iOS device. Simulator-only validation is not enough for this app.
 
 ## GitHub Actions iOS CI
 
-The workflow at `.github/workflows/ios-ci.yml` runs on `macos-15` and performs the highest-value automated validation available without a physical iPhone:
+The workflow at `.github/workflows/ios-ci.yml` performs automated validation without a physical iPhone:
 
 - Generate `BearLock.xcodeproj` with XcodeGen.
 - Validate plist, entitlement, and asset catalog metadata.
 - Run `swift test` for `BearLockCore`.
-- Build the iOS app and extensions for iOS Simulator with signing disabled.
-- Run mock-driven UI end-to-end tests against an iPhone simulator.
+- Run repository transaction and app-model integration tests.
+- Build the iOS app and extensions in Release and Debug for iOS Simulator with signing disabled.
+- Run the complete mock-driven UI test suite against an iPhone simulator.
+- Run StoreKit purchase tests in a separate macOS 15 job.
 - Export e2e screenshots and English/Japanese static screen snapshots as workflow artifacts.
 
-The artifact is named `bearlock-ios-ci-artifacts`.
-
-The visual snapshot workflow at `.github/workflows/ios-visual-snapshot.yml` builds the screenshot app and exports static screenshots as `bearlock-ios-visual-snapshots`.
+The artifacts are named `bearlock-ios-ci-artifacts` and `storekit-purchase-results`. CI does not commit test results or screenshots to `main`.
 
 The mock e2e tests currently cover setup launch, immediate lock creation, delayed lock creation, delayed lock edit/delete, recurring lock creation/disable, and active-lock immutability controls. This CI can catch Swift/package regressions, Xcode project generation failures, iOS compile errors, extension compile errors, and the main mock UI workflows. It cannot prove real Screen Time enforcement, Shield display over third-party apps, Family Controls authorization behavior, or DeviceActivity background callback behavior. Those still require a signed build on a physical iOS device with the Family Controls entitlement.
 

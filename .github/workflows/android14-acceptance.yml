@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths: ['android-lab/**', 'Tests/ContractFixtures/**', '.github/workflows/android14-acceptance.yml']
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: android14-acceptance
   cancel-in-progress: false
@@ -72,17 +72,3 @@ jobs:
           path: |
             artifacts/android14/
             android-lab/product/build/test-results/
-      - name: Save evidence
-        if: always() && github.ref == 'refs/heads/main'
-        run: |
-          test -f artifacts/android14/result.json || exit 0
-          git rm -r --ignore-unmatch ci-results/android14
-          mkdir -p ci-results/android14
-          rsync -a --exclude=logcat.txt artifacts/android14/ ci-results/android14/
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ci-results/android14
-          git diff --cached --quiet && exit 0
-          git commit -m 'Record Android 14 acceptance result [skip ci]'
-          git pull --rebase origin main
-          git push origin HEAD:main

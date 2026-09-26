@@ -19,7 +19,9 @@ final class WakePurchaseStore: ObservableObject {
     private var unfinishedTask: Task<Void, Never>?
 
     var displayPrice: String? {
+        #if DEBUG
         if usesStaticProduct { return "¥500" }
+        #endif
         return product?.displayPrice
     }
 
@@ -119,10 +121,18 @@ final class WakePurchaseStore: ObservableObject {
     }
 
     private var usesStaticProduct: Bool {
+        #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--screenshot")
+        #else
+        false
+        #endif
     }
 
     private var usesUITesting: Bool {
+        #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        #else
+        false
+        #endif
     }
 }

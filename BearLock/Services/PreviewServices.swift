@@ -1,3 +1,4 @@
+#if DEBUG
 import BearLockCore
 import FamilyControls
 import Foundation
@@ -75,3 +76,4 @@ struct UITestingLockRepository: LockRepository {
     }
     func save(_ state: LockState) throws { try base.save(state) }
 }
+#endif

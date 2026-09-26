@@ -10,26 +10,34 @@ struct BearLockApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
+                #if DEBUG
                 if let screenshotScreen = ScreenshotScreen.current() {
                     ScreenshotHostView(screen: screenshotScreen)
                 } else {
-                    RootView()
-                        .environmentObject(model)
-                        .task {
-                            wakePurchaseStore.start(
-                                deliver: { transactionID in
-                                    await model.deliverWakePurchase(transactionID: transactionID)
-                                },
-                                abandon: {
-                                    await model.abandonWakePurchase()
-                                }
-                            )
-                            await wakePurchaseStore.loadProduct()
-                        }
+                    rootContent
                 }
+                #else
+                rootContent
+                #endif
             }
             .environmentObject(supportStore)
             .environmentObject(wakePurchaseStore)
         }
+    }
+
+    private var rootContent: some View {
+        RootView()
+            .environmentObject(model)
+            .task {
+                wakePurchaseStore.start(
+                    deliver: { transactionID in
+                        await model.deliverWakePurchase(transactionID: transactionID)
+                    },
+                    abandon: {
+                        await model.abandonWakePurchase()
+                    }
+                )
+                await wakePurchaseStore.loadProduct()
+            }
     }
 }

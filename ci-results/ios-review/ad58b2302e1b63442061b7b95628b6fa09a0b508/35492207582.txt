@@ -1,4 +1,0 @@
-storekit	Exercise production purchase service with StoreKit Testing	2026-09-20T05:40:23.7993230Z xcodebuild: error: Unable to find a device matching the provided destination specifier:
-storekit	Publish failure details	2026-09-20T05:40:23.8346220Z ^[[36;1m    selected = [line for line in lines if 'error:' in line] + lines[-15:]^[[0m
-storekit	Publish failure details	2026-09-20T05:40:23.8347050Z ^[[36;1m        print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))^[[0m
-storekit	Publish failure details	2026-09-20T05:40:23.9997420Z ##[error]xcodebuild: error: Unable to find a device matching the provided destination specifier:

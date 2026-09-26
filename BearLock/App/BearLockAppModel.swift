@@ -44,6 +44,7 @@ final class BearLockAppModel: ObservableObject {
     }
 
     static func live() -> BearLockAppModel {
+        #if DEBUG
         let repository: JSONFileLockRepository
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
             repository = JSONFileLockRepository(fileURL: uiTestingRepositoryURL)
@@ -51,9 +52,6 @@ final class BearLockAppModel: ObservableObject {
         } else {
             repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
         }
-
-        let lockStore = LockStore(repository: repository)
-
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
             let selectionStore = PreviewTargetSelectionCodec(usesSummaryFixtures: ProcessInfo.processInfo.arguments.contains("--ui-testing-target-summary"))
             return BearLockAppModel(
@@ -64,16 +62,20 @@ final class BearLockAppModel: ObservableObject {
                 lockStore: LockStore(repository: UITestingLockRepository(base: repository))
             )
         }
+        #else
+        let repository = JSONFileLockRepository(fileURL: AppGroup.lockStateURL)
+        #endif
 
         return BearLockAppModel(
             authorizationService: FamilyControlsAuthorizationService(),
             targetSelectionCodec: FamilyActivityTargetSelectionCodec(),
             shieldController: ManagedSettingsShieldController(),
             scheduleController: DeviceActivityScheduleController(),
-            lockStore: lockStore
+            lockStore: LockStore(repository: repository)
         )
     }
 
+    #if DEBUG
     private static var uiTestingRepositoryURL: URL {
         FileManager.default.temporaryDirectory.appending(path: "bearlock-ui-test-state.json")
     }
@@ -186,6 +188,7 @@ final class BearLockAppModel: ObservableObject {
             try? repository.save(state)
         }
     }
+    #endif
 
     func refresh() async {
         guard !isRefreshing, !isCreatingLock, !isUpdatingLock, !isHandlingWake else { return }
@@ -261,6 +264,7 @@ final class BearLockAppModel: ObservableObject {
         try targetSelectionCodec.selection(from: lockState.selectedTarget)
     }
 
+    #if DEBUG
     func saveUITestingSelection(count: Int) async {
         guard ProcessInfo.processInfo.arguments.contains("--ui-testing-target-picker"), count > 0 else {
             return
@@ -276,6 +280,7 @@ final class BearLockAppModel: ObservableObject {
         }
         refreshDiagnostics()
     }
+    #endif
 
     @discardableResult
     func createLock(_ request: LockCreationRequest) async -> Bool {

@@ -11,22 +11,28 @@ on:
       - "todo.md"
       - "wrangler.toml"
       - ".github/workflows/cloudflare-workers.yml"
-      - ".github/workflows/ios-purchases.yml"
+  pull_request:
+    paths-ignore:
+      - "ci-screenshots/**"
+      - "docs/**"
+      - "site/**"
+      - "todo.md"
+      - "wrangler.toml"
+      - ".github/workflows/cloudflare-workers.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: read
+  contents: read
 
 concurrency:
-  group: ios-ci-v2-${{ github.ref }}
+  group: ios-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-test-screenshot:
     name: Build, Test, Screenshot
     runs-on: macos-26
-    timeout-minutes: 45
+    timeout-minutes: 90
 
     env:
       PROJECT: BearLock.xcodeproj
@@ -34,10 +40,8 @@ jobs:
       SCREENSHOT_SCHEME: BearLockScreenshot
       SCREENSHOT_BUNDLE_ID: com.hiyozoo.bearlock.screenshot
       DERIVED_DATA: DerivedData
-      RESULT_BUNDLE: artifacts/BearLockUITests.xcresult
       E2E_RESULT_BUNDLE: artifacts/BearLockE2ETests.xcresult
       E2E_SCREENSHOT_DIR: artifacts/e2e-screenshots
-      RUN_MOCK_E2E: "true"
       SCREENSHOT_PATH: artifacts/bearlock-simulator.png
       SCREENSHOT_DIR: artifacts/screenshots
       DESTINATION: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest
@@ -68,6 +72,34 @@ jobs:
       - name: Run core Swift package tests
         run: swift test
 
+      - name: Cross-process repository transactions
+        run: python3 Scripts/test-lock-repository-processes.py
+
+      - name: App model integration tests
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme BearLockLogic \
+            -destination "$DESTINATION" \
+            -resultBundlePath artifacts/logic-tests.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            test | tee artifacts/xcodebuild-logic-tests.log
+
+      - name: Build Release app and extensions for simulator
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee artifacts/xcodebuild-release-build.log
+
       - name: Build app and extensions for simulator
         run: |
           set -o pipefail
@@ -89,20 +121,16 @@ jobs:
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
-            -resultBundlePath "$RESULT_BUNDLE" \
             CODE_SIGNING_ALLOWED=NO \
             build-for-testing | tee artifacts/xcodebuild-ui-test-build.log
 
       - name: Prepare mock UI e2e artifacts
-        if: env.RUN_MOCK_E2E == 'true'
         run: |
           mkdir -p artifacts "$E2E_SCREENSHOT_DIR"
           rm -rf /tmp/bearlock-e2e-screenshots
 
       - name: Run mock UI e2e
-        if: env.RUN_MOCK_E2E == 'true'
         timeout-minutes: 25
-        continue-on-error: true
         run: |
           set -o pipefail
           xcodebuild \
@@ -113,55 +141,14 @@ jobs:
             -resultBundlePath "$E2E_RESULT_BUNDLE" \
             -retry-tests-on-failure -test-iterations 2 \
             CODE_SIGNING_ALLOWED=NO \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testLaunchSetupScreenAndCaptureScreenshot \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testSettingsShowsOptionalSupportScreen \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testUnavailableAccessKeepsRecoveryAndSettingsReachable \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testIntroductionAndContextualAccessFlow \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testDeclinedAccessKeepsHomeUsable \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateImmediateLockWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testReusingTargetRefreshesHomeCountsDetailsAndConfirmation \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testRecentTargetsSelectionFeedbackAndActions \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testScheduleEditAndDeleteDelayedLockWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testCreateAndOpenRecurringEditorWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringSeedShowsOffStateWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveLockHidesMutableControlsWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testFreeWakeCanBeScheduledAndCancelledWithMockServices \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testActiveRecurringCanBeDeletedWithConfirmation \
-            -only-testing:BearLockUITests/BearLockLaunchUITests/testDisabledRecurringDraftCancelsWithoutChangingSavedStatus \
-            test-without-building | tee artifacts/xcodebuild-ui-e2e.log || touch artifacts/e2e-ui.failed
+            test-without-building | tee artifacts/xcodebuild-ui-e2e.log
 
       - name: Collect mock UI e2e screenshots
-        if: env.RUN_MOCK_E2E == 'true'
+        if: always()
         run: |
           if [ -d /tmp/bearlock-e2e-screenshots ]; then
             cp /tmp/bearlock-e2e-screenshots/*.png "$E2E_SCREENSHOT_DIR"/ || true
           fi
-          for screenshot in \
-            e2e-settings-support.png \
-            e2e-immediate-active-lock.png \
-            e2e-target-summary-before-reuse.png \
-            e2e-target-summary-after-reuse.png \
-            e2e-target-summary-confirmation.png \
-            e2e-target-flow-home.png \
-            e2e-target-picker-open.png \
-            e2e-target-picker-apps-selected.png \
-            e2e-target-flow-saved.png \
-            e2e-target-flow-details.png \
-            e2e-target-flow-recent-selected.png \
-            e2e-target-flow-recent-deleted.png \
-            e2e-delayed-deleted.png \
-            e2e-recurring-disabled-list.png \
-            e2e-active-lock-constraints.png \
-            e2e-active-recurring-deleted.png
-          do
-            if [ ! -s "$E2E_SCREENSHOT_DIR/$screenshot" ]; then
-              echo "Missing e2e screenshot: $screenshot"
-              touch "artifacts/missing-$screenshot.failed"
-            fi
-          done
 
       - name: Build screenshot app for simulator
         run: |
@@ -289,59 +276,39 @@ jobs:
           file "$SCREENSHOT_PATH"
           shasum -a 256 "$SCREENSHOT_PATH"
 
-      - name: Assert mock UI e2e passed
-        if: env.RUN_MOCK_E2E == 'true'
-        run: |
-          if compgen -G "artifacts/e2e-*.failed" > /dev/null || compgen -G "artifacts/missing-*.failed" > /dev/null; then
-            echo "Mock UI e2e failures:"
-            ls -1 artifacts/*.failed
-            mkdir -p ci-screenshots
-            {
-              echo "Mock UI e2e failures:"
-              ls -1 artifacts/*.failed
-              echo
-              for log in artifacts/xcodebuild-ui-e2e*.log; do
-                echo "===== $log ====="
-                tail -n 160 "$log"
-                echo
-              done
-            } > ci-screenshots/latest-e2e-failure.log
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add ci-screenshots/latest-e2e-failure.log
-            git commit -m "Update latest e2e failure log [skip ci]" || true
-            git push || true
-            exit 1
-          fi
-
-      - name: Commit latest App Store screenshots
-        run: |
-          set -euo pipefail
-          mkdir -p ci-screenshots
-          rm -rf ci-screenshots/app-store-ja ci-screenshots/app-store-en
-          mkdir -p ci-screenshots/app-store-ja ci-screenshots/app-store-en
-          for screen in setup home confirmation activeLock wakeResult composeRepeat; do
-            cp "$SCREENSHOT_DIR/iphone-app-store-ja/$screen.png" "ci-screenshots/app-store-ja/$screen.png"
-            cp "$SCREENSHOT_DIR/iphone-app-store-en/$screen.png" "ci-screenshots/app-store-en/$screen.png"
-          done
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ci-screenshots/app-store-ja ci-screenshots/app-store-en
-          if ! git diff --cached --quiet; then
-            git commit -m "Update App Store screenshots [skip ci]"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bearlock-ios-ci-artifacts
           path: |
-            artifacts/*.failed
+            artifacts/*.xcresult
             artifacts/*.log
             artifacts/*.png
             artifacts/e2e-screenshots/*.png
             artifacts/screenshots/**/*.png
           if-no-files-found: warn
+
+  storekit:
+    name: StoreKit purchase tests
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Run StoreKit tests
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild -project BearLock.xcodeproj -scheme BearLockPurchases \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -parallel-testing-enabled NO \
+            -resultBundlePath artifacts/purchases.xcresult \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/purchases.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storekit-purchase-results
+          path: artifacts/

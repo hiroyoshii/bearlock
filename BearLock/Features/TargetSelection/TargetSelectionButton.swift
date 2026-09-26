@@ -9,7 +9,9 @@ struct TargetSelectionButton: View {
     @State private var isRequestingAccess = false
     @State private var isSaving = false
     @State private var saveError: String?
+    #if DEBUG
     @State private var uiTestingSelectionCount: Int?
+    #endif
 
     let prominent: Bool
 
@@ -30,47 +32,62 @@ struct TargetSelectionButton: View {
                 Text("Screen Time access is used to select and lock apps on this device.")
             }
             .sheet(isPresented: $isPickerPresented, onDismiss: {
+                #if DEBUG
                 if let uiTestingSelectionCount {
                     Task {
                         await model.saveUITestingSelection(count: uiTestingSelectionCount)
                     }
                     self.uiTestingSelectionCount = nil
                 }
+                #endif
             }) {
-                if usesUITestingPicker {
-                    UITestingTargetSelectionPickerSheet(
-                        onCancel: {
-                            uiTestingSelectionCount = nil
-                            isPickerPresented = false
-                        },
-                        onSave: { count in
-                            uiTestingSelectionCount = count
-                            isPickerPresented = false
-                        }
-                    )
-                } else {
-                    TargetSelectionPickerSheet(
-                        selection: $selection,
-                        isSaving: isSaving,
-                        saveError: saveError,
-                        onCancel: {
-                            isPickerPresented = false
-                        },
-                        onSave: {
-                            isSaving = true
-                            Task {
-                                let saved = await model.saveSelection(selection)
-                                isSaving = false
-                                if saved { isPickerPresented = false }
-                                else {
-                                    saveError = model.lastErrorMessage
-                                    model.lastErrorMessage = nil
-                                }
-                            }
-                        }
-                    )
+                pickerContent
+            }
+    }
+
+    @ViewBuilder
+    private var pickerContent: some View {
+        #if DEBUG
+        if usesUITestingPicker {
+            UITestingTargetSelectionPickerSheet(
+                onCancel: {
+                    uiTestingSelectionCount = nil
+                    isPickerPresented = false
+                },
+                onSave: { count in
+                    uiTestingSelectionCount = count
+                    isPickerPresented = false
+                }
+            )
+        } else {
+            productionPicker
+        }
+        #else
+        productionPicker
+        #endif
+    }
+
+    private var productionPicker: some View {
+        TargetSelectionPickerSheet(
+            selection: $selection,
+            isSaving: isSaving,
+            saveError: saveError,
+            onCancel: {
+                isPickerPresented = false
+            },
+            onSave: {
+                isSaving = true
+                Task {
+                    let saved = await model.saveSelection(selection)
+                    isSaving = false
+                    if saved { isPickerPresented = false }
+                    else {
+                        saveError = model.lastErrorMessage
+                        model.lastErrorMessage = nil
+                    }
                 }
             }
+        )
     }
 
     @ViewBuilder
@@ -108,11 +125,14 @@ struct TargetSelectionButton: View {
         model.activeLock?.isActive(at: Date()) == true
     }
 
+    #if DEBUG
     private var usesUITestingPicker: Bool {
         ProcessInfo.processInfo.arguments.contains("--ui-testing-target-picker")
     }
+    #endif
 }
 
+#if DEBUG
 private struct UITestingTargetSelectionPickerSheet: View {
     @State private var selectedAppIDs: Set<String> = []
 
@@ -196,6 +216,7 @@ private struct UITestingTargetSelectionPickerSheet: View {
             : L10n.format("%d targets", selectedAppIDs.count)
     }
 }
+#endif
 
 private struct TargetSelectionPickerSheet: View {
     @Binding var selection: FamilyActivitySelection

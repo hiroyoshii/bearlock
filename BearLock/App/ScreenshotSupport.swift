@@ -1,3 +1,4 @@
+#if DEBUG
 import BearLockCore
 import Foundation
 import SwiftUI
@@ -313,3 +314,4 @@ private extension BearLockAppModel {
         )
     }
 }
+#endif
