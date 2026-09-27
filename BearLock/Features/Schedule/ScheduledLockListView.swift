@@ -101,7 +101,7 @@ struct ScheduledLockListView: View {
     }
 
     private func canEdit(_ rule: LockRule) -> Bool {
-        (try? rule.validateEditable(at: Date())) != nil &&
+        (try? model.lockState.validateEditable(rule, at: Date())) != nil &&
             (rule.kind == .recurring || rule.single!.startsAt > Date())
     }
 }

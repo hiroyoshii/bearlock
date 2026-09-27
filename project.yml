@@ -168,6 +168,7 @@ targets:
       - BearLockPurchaseTests
       - BearLock/Features/Home/SupportStore.swift
       - BearLock/Features/Home/WakePurchaseStore.swift
+      - BearLock/Services/DiagnosticsLogger.swift
       - BearLock/Services/Localization.swift
     dependencies:
       - target: BearLockPurchaseTestHost

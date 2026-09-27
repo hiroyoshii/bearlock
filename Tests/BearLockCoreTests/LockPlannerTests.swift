@@ -8,13 +8,13 @@ final class LockPlannerTests: XCTestCase {
         let planner = LockPlanner()
         let now = date("2026-08-27T05:00:00Z")
         let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 6, minute: 0), endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
-        let original = try planner.makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID), now: now, existingRules: [])
-        let conflict = try planner.makeRule(from: .fixed(startsAt: date("2026-08-27T06:15:00Z"), duration: 900, targetSelectionID: targetID), now: now, existingRules: [])
-        let disabled = try planner.validateRecurringReplacement(original, replacing: original, now: now, existingRules: [original, conflict], enabled: false)
+        let original = try planner.makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID), now: now, existingState: LockState())
+        let conflict = try planner.makeRule(from: .fixed(startsAt: date("2026-08-27T06:15:00Z"), duration: 900, targetSelectionID: targetID), now: now, existingState: LockState())
+        let disabled = try planner.validateRecurringReplacement(original, replacing: original, now: now, existingState: LockState(rules: [original, conflict]), enabled: false)
         XCTAssertEqual(disabled.status, .disabled)
         XCTAssertEqual(original.status, .scheduled)
-        XCTAssertThrowsError(try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled, conflict], enabled: true))
-        let enabled = try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingRules: [disabled], enabled: true)
+        XCTAssertThrowsError(try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingState: LockState(rules: [disabled, conflict]), enabled: true))
+        let enabled = try planner.validateRecurringReplacement(disabled, replacing: disabled, now: now, existingState: LockState(rules: [disabled]), enabled: true)
         XCTAssertEqual(enabled.status, .scheduled)
         XCTAssertEqual(enabled.id, original.id)
     }
@@ -26,7 +26,7 @@ final class LockPlannerTests: XCTestCase {
         let rule = try planner.makeRule(
             from: .now(duration: 2 * 60 * 60, targetSelectionID: targetID),
             now: now,
-            existingRules: []
+            existingState: LockState()
         )
         let active = rule.occurrence(containing: now)!
 
@@ -44,7 +44,7 @@ final class LockPlannerTests: XCTestCase {
             try planner.makeRule(
                 from: .now(duration: 0, targetSelectionID: targetID),
                 now: date("2026-08-27T05:00:00Z"),
-                existingRules: []
+                existingState: LockState()
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .nonPositiveDuration)
@@ -65,7 +65,7 @@ final class LockPlannerTests: XCTestCase {
             try planner.makeRule(
                 from: .now(duration: 60 * 60, targetSelectionID: targetID),
                 now: now,
-                existingRules: [active]
+                existingState: LockState(rules: [active])
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .overlappingLock)
@@ -79,7 +79,7 @@ final class LockPlannerTests: XCTestCase {
         let rule = try planner.makeRule(
             from: .delayed(delay: 30 * 60, duration: 2 * 60 * 60, targetSelectionID: targetID),
             now: now,
-            existingRules: []
+            existingState: LockState()
         )
 
         XCTAssertEqual(rule.kind, .delayed)
@@ -116,7 +116,7 @@ final class LockPlannerTests: XCTestCase {
             try planner.makeRule(
                 from: .fixed(startsAt: date("2026-08-27T06:30:00Z"), duration: 60 * 60, targetSelectionID: targetID),
                 now: now,
-                existingRules: [existing]
+                existingState: LockState(rules: [existing])
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .overlappingLock)
@@ -142,7 +142,7 @@ final class LockPlannerTests: XCTestCase {
             replacement,
             replacing: original,
             now: now,
-            existingRules: [original]
+            existingState: LockState(rules: [original])
         )
 
         XCTAssertEqual(validated.id, original.id)
@@ -165,7 +165,7 @@ final class LockPlannerTests: XCTestCase {
                 original,
                 replacing: original,
                 now: date("2026-08-27T06:00:00Z"),
-                existingRules: [original]
+                existingState: LockState(rules: [original])
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .ruleAlreadyStarted)
@@ -197,7 +197,7 @@ final class LockPlannerTests: XCTestCase {
                 replacement,
                 replacing: original,
                 now: now,
-                existingRules: [original, other]
+                existingState: LockState(rules: [original, other])
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .overlappingLock)
@@ -205,7 +205,6 @@ final class LockPlannerTests: XCTestCase {
     }
 
     func testFindsScheduledRuleContainingDate() {
-        let planner = LockPlanner()
         let rule = LockRule(
             kind: .delayed,
             startsAt: date("2026-08-27T06:00:00Z"),
@@ -243,7 +242,7 @@ final class LockPlannerTests: XCTestCase {
             replacement,
             replacing: original,
             now: date("2026-08-27T12:00:00Z"),
-            existingRules: [original]
+            existingState: LockState(rules: [original])
         )
 
         XCTAssertEqual(validated.id, ruleID)
@@ -277,7 +276,7 @@ final class LockPlannerTests: XCTestCase {
                 replacement,
                 replacing: original,
                 now: date("2026-08-27T12:00:00Z"),
-                existingRules: [original]
+                existingState: LockState(rules: [original])
             )
         ) { error in
             XCTAssertEqual(error as? LockValidationError, .emptyWeekdays)
@@ -298,7 +297,7 @@ final class LockPlannerTests: XCTestCase {
             targetSelectionID: targetID
         )
         XCTAssertThrowsError(try planner.validateRecurringReplacement(rule, replacing: rule,
-            now: date("2026-08-27T23:30:00Z"), existingRules: [rule], enabled: false)) {
+            now: date("2026-08-27T23:30:00Z"), existingState: LockState(rules: [rule]), enabled: false)) {
             XCTAssertEqual($0 as? LockValidationError, .activeLockIsImmutable)
         }
     }
@@ -309,7 +308,7 @@ final class LockPlannerTests: XCTestCase {
         let recurrence = RecurrenceRule(weekdays: [.thursday], startsAt: TimeOfDay(hour: 23, minute: 0),
             endsAt: TimeOfDay(hour: 7, minute: 0), timeZoneIdentifier: "UTC")
         XCTAssertNoThrow(try LockPlanner().makeRule(from: .recurring(recurrence: recurrence, targetSelectionID: targetID),
-            now: date("2026-09-10T12:00:00Z"), existingRules: [old]))
+            now: date("2026-09-10T12:00:00Z"), existingState: LockState(rules: [old])))
     }
 
     func testOneShotConflictUsesNextRecurringOccurrenceInsteadOfInitialRegistrationDate() {
@@ -319,11 +318,11 @@ final class LockPlannerTests: XCTestCase {
         let recurring = LockRule(
             recurrence: recurrence, targetSelectionID: targetID)
         XCTAssertThrowsError(try LockPlanner().makeRule(from: .fixed(startsAt: date("2026-09-11T03:00:00Z"),
-            duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingRules: [recurring])) {
+            duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingState: LockState(rules: [recurring]))) {
             XCTAssertEqual($0 as? LockValidationError, .overlappingLock)
         }
         XCTAssertNoThrow(try LockPlanner().makeRule(from: .fixed(startsAt: date("2026-09-11T07:00:00Z"),
-            duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingRules: [recurring]))
+            duration: 3600, targetSelectionID: targetID), now: date("2026-09-10T12:00:00Z"), existingState: LockState(rules: [recurring])))
     }
 
     private func date(_ string: String) -> Date {

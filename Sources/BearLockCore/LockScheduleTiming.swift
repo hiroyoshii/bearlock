@@ -12,15 +12,17 @@ public extension LockRule {
         return rule
     }
 
-    func validateEditable(at date: Date) throws {
-        if status == .scheduled && occurrence(containing: date) != nil {
-            throw LockValidationError.activeLockIsImmutable
-        }
-    }
-
     func occurrence(containing date: Date) -> ActiveLock? {
         guard let interval = nextInterval(after: date), interval.start <= date, date < interval.end else { return nil }
         return ActiveLock(id: id, startedAt: interval.start, endsAt: interval.end, targetSelectionID: targetSelectionID)
+    }
+}
+
+public extension LockState {
+    func validateEditable(_ rule: LockRule, at date: Date) throws {
+        if rule.status == .scheduled && activeLocks(at: date).contains(where: { $0.id == rule.id }) {
+            throw LockValidationError.activeLockIsImmutable
+        }
     }
 }
 

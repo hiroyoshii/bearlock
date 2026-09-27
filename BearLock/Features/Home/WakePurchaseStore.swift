@@ -13,6 +13,7 @@ final class WakePurchaseStore: ObservableObject {
     @Published private(set) var message: String?
     @Published private(set) var lastDelivery: WakePurchaseDelivery?
 
+    private let diagnostics = DiagnosticsLogger.shared
     private var deliver: (@MainActor @Sendable (UInt64) async -> WakePurchaseDelivery?)?
     private var abandon: (@MainActor @Sendable () async -> Void)?
     private var updatesTask: Task<Void, Never>?
@@ -61,14 +62,29 @@ final class WakePurchaseStore: ObservableObject {
         defer { isLoading = false }
         do {
             product = try await Product.products(for: [Self.productID]).first { $0.type == .consumable }
-            if product == nil { message = L10n.string("Immediate wake-up is not available yet.") }
+            if product == nil {
+                diagnostics.record(
+                    "Purchase.wake.product.unavailable",
+                    level: .warning,
+                    detail: "product=\(Self.productID)"
+                )
+                message = L10n.string("Immediate wake-up is not available yet.")
+            } else {
+                diagnostics.record("Purchase.wake.product.loaded", detail: "product=\(Self.productID)")
+            }
         } catch {
+            diagnostics.recordError(
+                "Purchase.wake.product.failed",
+                error: error,
+                detail: "product=\(Self.productID)"
+            )
             message = L10n.string("Immediate wake-up could not be loaded.")
         }
     }
 
     func purchase() async {
         guard !usesStaticProduct, !usesUITesting, !isPurchasing, let product else { return }
+        diagnostics.record("Purchase.wake.started", detail: "product=\(product.id)")
         message = nil
         lastDelivery = nil
         isPurchasing = true
@@ -78,14 +94,27 @@ final class WakePurchaseStore: ObservableObject {
             case let .success(verification):
                 await complete(verification)
             case .userCancelled:
+                diagnostics.record("Purchase.wake.cancelled", detail: "product=\(product.id)")
                 await abandon?()
+                message = L10n.string("The purchase was cancelled.")
             case .pending:
+                diagnostics.record("Purchase.wake.pending", detail: "product=\(product.id)")
                 message = L10n.string("The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket.")
             @unknown default:
+                diagnostics.record(
+                    "Purchase.wake.unknownResult",
+                    level: .warning,
+                    detail: "product=\(product.id)"
+                )
                 await abandon?()
                 message = L10n.string("Immediate wake-up could not be purchased.")
             }
         } catch {
+            diagnostics.recordError(
+                "Purchase.wake.failed",
+                error: error,
+                detail: "product=\(product.id)"
+            )
             await abandon?()
             message = L10n.string("Immediate wake-up could not be purchased.")
         }
@@ -100,11 +129,24 @@ final class WakePurchaseStore: ObservableObject {
         switch result {
         case let .verified(transaction):
             guard transaction.productID == Self.productID, transaction.productType == .consumable else { return }
+            diagnostics.record(
+                "Purchase.wake.verified",
+                detail: "product=\(transaction.productID) transaction=\(transaction.id) revoked=\(transaction.revocationDate != nil)"
+            )
             guard transaction.revocationDate == nil, let delivery = await deliver?(transaction.id) else {
+                diagnostics.record(
+                    "Purchase.wake.delivery.failed",
+                    level: .error,
+                    detail: "product=\(transaction.productID) transaction=\(transaction.id)"
+                )
                 message = L10n.string("The purchase could not be verified.")
                 return
             }
             await transaction.finish()
+            diagnostics.record(
+                "Purchase.wake.finished",
+                detail: "product=\(transaction.productID) transaction=\(transaction.id) delivery=\(delivery)"
+            )
             lastDelivery = delivery
             switch delivery {
             case .unlocked, .alreadyHandled:
@@ -112,7 +154,12 @@ final class WakePurchaseStore: ObservableObject {
             case .credited:
                 message = L10n.string("This lock already ended. Your wake-up ticket is saved for next time.")
             }
-        case let .unverified(transaction, _):
+        case let .unverified(transaction, error):
+            diagnostics.recordError(
+                "Purchase.wake.unverified",
+                error: error,
+                detail: "product=\(transaction.productID) transaction=\(transaction.id)"
+            )
             if transaction.productID == Self.productID {
                 await abandon?()
             }

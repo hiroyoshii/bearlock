@@ -6,7 +6,7 @@ public struct LockPlanner: Sendable {
     public func makeRule(
         from request: LockCreationRequest,
         now: Date,
-        existingRules: [LockRule]
+        existingState: LockState
     ) throws -> LockRule {
         var rule: LockRule
 
@@ -51,7 +51,7 @@ public struct LockPlanner: Sendable {
 
         rule = rule.normalizedForMonitoring()
 
-        if overlaps(rule: rule, existingRules: existingRules, now: now) {
+        if overlaps(rule: rule, existingState: existingState, now: now) {
             throw LockValidationError.overlappingLock
         }
 
@@ -62,7 +62,7 @@ public struct LockPlanner: Sendable {
         _ replacement: LockRule,
         replacing original: LockRule,
         now: Date,
-        existingRules: [LockRule]
+        existingState: LockState
     ) throws -> LockRule {
         guard let originalSingle = original.single, originalSingle.startsAt > now else {
             throw LockValidationError.ruleAlreadyStarted
@@ -78,7 +78,7 @@ public struct LockPlanner: Sendable {
 
         normalized = normalized.normalizedForMonitoring()
 
-        if overlaps(rule: normalized, existingRules: existingRules, now: now) {
+        if overlaps(rule: normalized, existingState: existingState, now: now) {
             throw LockValidationError.overlappingLock
         }
 
@@ -89,10 +89,10 @@ public struct LockPlanner: Sendable {
         _ replacement: LockRule,
         replacing original: LockRule,
         now: Date,
-        existingRules: [LockRule],
+        existingState: LockState,
         enabled: Bool? = nil
     ) throws -> LockRule {
-        try original.validateEditable(at: now)
+        try existingState.validateEditable(original, at: now)
         guard original.kind == .recurring,
               let recurrence = replacement.recurrence
         else {
@@ -107,7 +107,7 @@ public struct LockPlanner: Sendable {
 
         normalized = normalized.normalizedForMonitoring()
 
-        if normalized.status == .scheduled && overlaps(rule: normalized, existingRules: existingRules, now: now) {
+        if normalized.status == .scheduled && overlaps(rule: normalized, existingState: existingState, now: now) {
             throw LockValidationError.overlappingLock
         }
 
@@ -120,17 +120,32 @@ public struct LockPlanner: Sendable {
 
     private func overlaps(
         rule: LockRule,
-        existingRules: [LockRule],
+        existingState: LockState,
         now: Date
     ) -> Bool {
-        existingRules.filter { $0.id != rule.id && $0.status == .scheduled && ($0.single == nil || $0.single!.endsAt > now) }.contains { other in
+        existingState.rules.filter {
+            $0.id != rule.id && $0.status == .scheduled && ($0.single == nil || $0.single!.endsAt > now)
+        }.contains { other in
             // Preserve the existing policy allowing multiple repeating rules.
             // Enforcement takes the union of all currently active target sets.
             if !rule.isOneShot && !other.isOneShot { return false }
-            let fixed = (rule.single ?? other.single)!
-            let candidate = rule.isOneShot ? other : rule
-            guard let interval = candidate.nextInterval(after: fixed.startsAt) else { return false }
-            return fixed.startsAt < interval.end && interval.start < fixed.endsAt
+
+            if let proposed = rule.single {
+                guard let interval = other.nextInterval(after: proposed.startsAt) else { return false }
+                let occurrence = ActiveLock(id: other.id, startedAt: interval.start, endsAt: interval.end,
+                    targetSelectionID: other.targetSelectionID)
+                let occupiedEnd = existingState.wakeState.effectiveEnd(of: occurrence)
+                return proposed.startsAt < occupiedEnd && interval.start < proposed.endsAt
+            }
+
+            guard let existing = other.single else { return false }
+            let occurrence = ActiveLock(id: other.id, startedAt: existing.startsAt, endsAt: existing.endsAt,
+                targetSelectionID: other.targetSelectionID)
+            let occupiedEnd = existingState.wakeState.effectiveEnd(of: occurrence)
+            guard existing.startsAt < occupiedEnd,
+                  let interval = rule.nextInterval(after: existing.startsAt)
+            else { return false }
+            return existing.startsAt < interval.end && interval.start < occupiedEnd
         }
     }
 }

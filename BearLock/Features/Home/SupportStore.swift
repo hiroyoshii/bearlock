@@ -51,6 +51,7 @@ final class SupportStore: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var purchasingProductID: String?
     @Published private(set) var message: String?
+    private let diagnostics = DiagnosticsLogger.shared
     private var updatesTask: Task<Void, Never>?
     private var unfinishedTask: Task<Void, Never>?
 
@@ -81,12 +82,25 @@ final class SupportStore: ObservableObject {
         case let .verified(transaction):
             guard SupportProduct.allCases.contains(where: { $0.productID == transaction.productID }),
                   transaction.productType == .consumable else { return }
+            diagnostics.record(
+                "Purchase.support.verified",
+                detail: "product=\(transaction.productID) transaction=\(transaction.id) revoked=\(transaction.revocationDate != nil)"
+            )
             // Support purchases grant no entitlement or lock-related privileges.
             await transaction.finish()
+            diagnostics.record(
+                "Purchase.support.finished",
+                detail: "product=\(transaction.productID) transaction=\(transaction.id)"
+            )
             if transaction.revocationDate == nil {
                 message = L10n.string("Thank you. This helps Bear Lock keep growing quietly.")
             }
-        case .unverified:
+        case let .unverified(transaction, error):
+            diagnostics.recordError(
+                "Purchase.support.unverified",
+                error: error,
+                detail: "product=\(transaction.productID) transaction=\(transaction.id)"
+            )
             message = L10n.string("The purchase could not be verified.")
         }
     }
@@ -108,10 +122,15 @@ final class SupportStore: ObservableObject {
         do {
             let loadedProducts = try await Product.products(for: SupportProduct.allCases.map(\.productID))
             products = Dictionary(uniqueKeysWithValues: loadedProducts.filter { $0.type == .consumable }.map { ($0.id, $0) })
+            diagnostics.record(
+                "Purchase.support.products.loaded",
+                detail: "requested=\(SupportProduct.allCases.count) loaded=\(products.count)"
+            )
             if products.count < SupportProduct.allCases.count {
                 message = L10n.string("Support items are not available yet.")
             }
         } catch {
+            diagnostics.recordError("Purchase.support.products.failed", error: error)
             message = L10n.string("Support items could not be loaded.")
         }
     }
@@ -123,10 +142,16 @@ final class SupportStore: ObservableObject {
     func purchase(_ supportProduct: SupportProduct) async {
         guard purchasingProductID == nil, !isLoading else { return }
         guard let product = product(for: supportProduct) else {
+            diagnostics.record(
+                "Purchase.support.unavailable",
+                level: .warning,
+                detail: "product=\(supportProduct.productID)"
+            )
             message = L10n.string("Support items are not available yet.")
             return
         }
 
+        diagnostics.record("Purchase.support.started", detail: "product=\(product.id)")
         message = nil
         purchasingProductID = supportProduct.productID
         defer { purchasingProductID = nil }
@@ -138,13 +163,25 @@ final class SupportStore: ObservableObject {
             case let .success(verification):
                 await complete(verification)
             case .userCancelled:
-                message = nil
+                diagnostics.record("Purchase.support.cancelled", detail: "product=\(product.id)")
+                message = L10n.string("The purchase was cancelled.")
             case .pending:
+                diagnostics.record("Purchase.support.pending", detail: "product=\(product.id)")
                 message = L10n.string("The purchase is pending.")
             @unknown default:
+                diagnostics.record(
+                    "Purchase.support.unknownResult",
+                    level: .warning,
+                    detail: "product=\(product.id)"
+                )
                 message = L10n.string("The purchase could not be completed.")
             }
         } catch {
+            diagnostics.recordError(
+                "Purchase.support.failed",
+                error: error,
+                detail: "product=\(product.id)"
+            )
             message = L10n.string("The purchase could not be completed.")
         }
     }

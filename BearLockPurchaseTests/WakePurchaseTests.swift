@@ -16,6 +16,7 @@ final class WakePurchaseTests: XCTestCase {
         session.resetToDefaultState()
         session.clearTransactions()
         session.disableDialogs = true
+        DiagnosticsLogger.shared.clear()
         store = WakePurchaseStore()
         store.start(deliver: { [weak self] transactionID in
             self?.deliveredTransactions.append(transactionID)
@@ -56,6 +57,11 @@ final class WakePurchaseTests: XCTestCase {
         XCTAssertEqual(abandonCount, 1)
         XCTAssertTrue(deliveredTransactions.isEmpty)
         XCTAssertNil(store.lastDelivery)
+        XCTAssertEqual(store.message, L10n.string("The purchase was cancelled."))
+        XCTAssertEqual(
+            DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.wake.cancelled" }?.detail,
+            "product=\(WakePurchaseStore.productID)"
+        )
     }
 
     func testApprovedAskToBuyCanBecomeCredit() async throws {

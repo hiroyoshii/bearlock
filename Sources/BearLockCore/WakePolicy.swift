@@ -73,8 +73,12 @@ public struct WakeState: Codable, Equatable, Sendable {
         requests.last { $0.matches(lock) }
     }
 
-    public func isAwake(_ lock: ActiveLock, at date: Date) -> Bool {
-        requests.contains { $0.matches(lock) && $0.wakesAt <= date }
+    public func effectiveEnd(of lock: ActiveLock) -> Date {
+        requests
+            .filter { $0.matches(lock) }
+            .map(\.wakesAt)
+            .filter { lock.startedAt <= $0 && $0 < lock.endsAt }
+            .min() ?? lock.endsAt
     }
 
     public func hasHandled(transactionID: UInt64) -> Bool {

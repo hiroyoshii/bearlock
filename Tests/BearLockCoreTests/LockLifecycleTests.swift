@@ -157,7 +157,7 @@ final class LockLifecycleTests: XCTestCase {
 
     func testSecondPrecisionAndFractionalRoundingShareTheMonitoringDeadline() throws {
         let rule = try LockPlanner().makeRule(from: .now(duration: 901.125, targetSelectionID: target.id),
-            now: start.addingTimeInterval(0.75), existingRules: [])
+            now: start.addingTimeInterval(0.75), existingState: LockState())
         let components = rule.single!.monitoringComponents()
         XCTAssertEqual(Calendar.current.date(from: components.end), rule.single!.endsAt)
         XCTAssertEqual(rule.single!.startsAt, start)

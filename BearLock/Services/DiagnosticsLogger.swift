@@ -93,6 +93,12 @@ final class DiagnosticsLogger: @unchecked Sendable {
         }
     }
 
+    func recordError(_ name: String, error: Error, detail: String? = nil) {
+        let nsError = error as NSError
+        let errorDetail = "domain=\(nsError.domain) code=\(nsError.code)"
+        record(name, level: .error, detail: [detail, errorDetail].compactMap { $0 }.joined(separator: " "))
+    }
+
     func snapshot() -> DiagnosticsSnapshot {
         queue.sync { DiagnosticsSnapshot(events: events) }
     }

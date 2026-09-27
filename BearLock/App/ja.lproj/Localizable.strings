@@ -212,6 +212,7 @@
 "Support items could not be loaded." = "支援項目を読み込めませんでした。";
 "Thank you. This helps Bear Lock keep growing quietly." = "Bear Lockへのご支援ありがとうございます。";
 "The purchase could not be verified." = "購入を確認できませんでした。";
+"The purchase was cancelled." = "購入をキャンセルしました。";
 "The purchase is pending." = "購入は保留中です。";
 "The purchase could not be completed." = "購入を完了できませんでした。";
 "Reload support items" = "応援アイテムを再読み込み";

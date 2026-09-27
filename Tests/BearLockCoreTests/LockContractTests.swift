@@ -31,7 +31,7 @@ final class LockContractTests: XCTestCase {
             let locks = state.activeLocks(at: now)
             for (index, c) in group.enumerated() {
                 let active = locks.first { $0.id == rules[index].id }
-                XCTAssertEqual((try? rules[index].validateEditable(at: now)) != nil, c[10] == "-", name)
+                XCTAssertEqual((try? state.validateEditable(rules[index], at: now)) != nil, c[10] == "-", name)
                 XCTAssertEqual(active?.startedAt, c[10] == "-" ? nil : time(c[10]), name)
                 XCTAssertEqual(active?.endsAt, c[11] == "-" ? nil : time(c[11]), name)
             }

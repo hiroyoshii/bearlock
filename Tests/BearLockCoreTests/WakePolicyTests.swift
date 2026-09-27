@@ -41,6 +41,40 @@ final class WakePolicyTests: XCTestCase {
         }
     }
 
+    func testFreeWakeAllowsRelockingAfterWakeWithoutRemovingRecurringRule() async throws {
+        let now = date("2026-09-20T01:00:00Z")
+        let recurrence = RecurrenceRule(
+            weekdays: Set(Weekday.allCases),
+            startsAt: TimeOfDay(hour: 1, minute: 0),
+            endsAt: TimeOfDay(hour: 3, minute: 0),
+            timeZoneIdentifier: "UTC"
+        )
+        let recurring = LockRule(recurrence: recurrence, targetSelectionID: UUID())
+        let repository = WakeMemoryRepository(state: LockState(rules: [recurring]))
+        let store = LockStore(repository: repository)
+        let active = try XCTUnwrap(repository.state.activeLockForDisplay(at: now))
+
+        let wake = try await store.scheduleFreeWake(for: active, at: now)
+        do {
+            _ = try await store.createRule(
+                .now(duration: 10 * 60, targetSelectionID: UUID()),
+                now: wake.wakesAt.addingTimeInterval(-1)
+            )
+            XCTFail("Relock must remain unavailable before the wake deadline")
+        } catch {
+            XCTAssertEqual(error as? LockValidationError, .overlappingLock)
+        }
+        let relock = try await store.createRule(
+            .now(duration: 10 * 60, targetSelectionID: UUID()),
+            now: wake.wakesAt
+        )
+
+        XCTAssertNoThrow(try repository.state.validateEditable(recurring, at: wake.wakesAt))
+        XCTAssertEqual(repository.state.rules.first, recurring)
+        XCTAssertEqual(repository.state.activeLockForDisplay(at: wake.wakesAt)?.id, relock.id)
+        XCTAssertEqual(repository.state.activeLockForDisplay(at: now.addingTimeInterval(24 * 60 * 60))?.id, recurring.id)
+    }
+
     func testVerifiedPurchaseUnlocksOnceAndDuplicateDeliveryIsIdempotent() async throws {
         let now = date("2026-09-20T01:00:00Z")
         let rule = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-60), duration: 7200,
@@ -56,6 +90,25 @@ final class WakePolicyTests: XCTestCase {
         let duplicateDelivery = try await store.deliverWakePurchase(transactionID: 42, at: now)
         XCTAssertEqual(duplicateDelivery, .alreadyHandled)
         XCTAssertEqual(repository.state.wakeState.requests.count, 1)
+    }
+
+    func testPurchasedWakeAllowsImmediateRelocking() async throws {
+        let now = date("2026-09-20T01:00:00Z")
+        let original = LockRule(
+            kind: .immediate,
+            startsAt: now.addingTimeInterval(-60),
+            duration: 7200,
+            targetSelectionID: UUID()
+        )
+        let repository = WakeMemoryRepository(state: LockState(rules: [original]))
+        let store = LockStore(repository: repository)
+        let active = try XCTUnwrap(repository.state.activeLockForDisplay(at: now))
+        try await store.beginWakePurchase(for: active, at: now)
+        _ = try await store.deliverWakePurchase(transactionID: 42, at: now)
+
+        let relock = try await store.createRule(.now(duration: 10 * 60, targetSelectionID: UUID()), now: now)
+
+        XCTAssertEqual(repository.state.activeLockForDisplay(at: now)?.id, relock.id)
     }
 
     func testLateApprovalBecomesCreditForNextActiveLock() async throws {

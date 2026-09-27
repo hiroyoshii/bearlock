@@ -45,7 +45,7 @@ public struct LockState: Codable, Equatable, Sendable {
     public func activeLocks(at date: Date) -> [ActiveLock] {
         rules.filter { $0.status == .scheduled }
             .compactMap { $0.occurrence(containing: date) }
-            .filter { !wakeState.isAwake($0, at: date) }
+            .filter { date < wakeState.effectiveEnd(of: $0) }
             .sorted { $0.startedAt < $1.startedAt }
     }
 
@@ -190,7 +190,7 @@ public actor LockStore {
     public func createRule(_ request: LockCreationRequest, now: Date? = nil) throws -> LockRule {
         try update { state in
             let now = now ?? Date()
-            let rule = try LockPlanner().makeRule(from: request, now: now, existingRules: state.rules)
+            let rule = try LockPlanner().makeRule(from: request, now: now, existingState: state)
             state.rules.append(rule)
             try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
             return rule
@@ -204,13 +204,13 @@ public actor LockStore {
             }
             let original = state.rules[index]
             let now = now ?? Date()
-            try original.validateEditable(at: now)
+            try state.validateEditable(original, at: now)
             let planner = LockPlanner()
             state.rules[index] = try original.kind == .recurring
                 ? planner.validateRecurringReplacement(replacement, replacing: original, now: now,
-                    existingRules: state.rules, enabled: replacement.status == .scheduled)
+                    existingState: state, enabled: replacement.status == .scheduled)
                 : planner.validateScheduledReplacement(replacement, replacing: original, now: now,
-                    existingRules: state.rules)
+                    existingState: state)
             try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
         }
     }
@@ -218,7 +218,7 @@ public actor LockStore {
     public func deleteRule(id: UUID, now: Date? = nil) throws {
         try update { state in
             guard let rule = state.rules.first(where: { $0.id == id }) else { return }
-            if rule.isOneShot { try rule.validateEditable(at: now ?? Date()) }
+            if rule.isOneShot { try state.validateEditable(rule, at: now ?? Date()) }
             state.rules.removeAll { $0.id == id }
             state.wakeState.requests.removeAll { $0.ruleID == id }
             if state.wakeState.pendingPurchase?.ruleID == id {
@@ -284,7 +284,7 @@ public actor LockStore {
                   let rule = state.rules.first(where: { $0.id == intent.ruleID }),
                   let active = rule.occurrence(containing: now),
                   active.startedAt == intent.occurrenceStartedAt,
-                  !state.wakeState.isAwake(active, at: now)
+                  now < state.wakeState.effectiveEnd(of: active)
             else {
                 state.wakeState.pendingPurchase = nil
                 state.wakeState.creditTransactionIDs.append(transactionID)
@@ -327,7 +327,7 @@ public actor LockStore {
         guard let rule = state.rules.first(where: { $0.id == lock.id }),
               let active = rule.occurrence(containing: now),
               active.startedAt == lock.startedAt,
-              !state.wakeState.isAwake(active, at: now)
+              now < state.wakeState.effectiveEnd(of: active)
         else { throw WakeError.activeLockNotFound }
         return active
     }

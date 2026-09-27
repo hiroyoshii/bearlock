@@ -14,6 +14,7 @@ final class SupportPurchaseTests: XCTestCase {
         session.resetToDefaultState()
         session.clearTransactions()
         session.disableDialogs = true
+        DiagnosticsLogger.shared.clear()
         store = SupportStore()
     }
 
@@ -69,7 +70,11 @@ final class SupportPurchaseTests: XCTestCase {
         await store.loadProducts()
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
         await store.purchase(.coffee)
-        XCTAssertNil(store.message)
+        XCTAssertEqual(store.message, L10n.string("The purchase was cancelled."))
+        XCTAssertEqual(
+            DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.support.cancelled" }?.detail,
+            "product=\(SupportProduct.coffee.productID)"
+        )
         XCTAssertNil(store.purchasingProductID)
         // StoreKit Testing records cancelled attempts too; they must not be successful payments.
         XCTAssertFalse(session.allTransactions().contains { $0.state == .purchased })

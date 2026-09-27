@@ -31,7 +31,7 @@ public extension LockState {
         try rules.compactMap { rule in
             guard rule.status == .scheduled,
                   let occurrence = rule.occurrence(containing: date),
-                  !wakeState.isAwake(occurrence, at: date)
+                  date < wakeState.effectiveEnd(of: occurrence)
             else { return nil }
             guard let selection = targetSelections.last(where: { $0.id == rule.targetSelectionID }) else {
                 throw LockEvaluationError.missingSelection(rule.targetSelectionID)
