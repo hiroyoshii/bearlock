@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ActiveLockView: View {
     let activeLock: ActiveLock
+    var onWake: (() -> Void)? = nil
     @State private var now = Date()
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -26,6 +27,13 @@ struct ActiveLockView: View {
             Text(L10n.format("Wakes at %@", activeLock.endsAt.formatted(date: .omitted, time: .shortened)))
                 .font(.subheadline)
                 .foregroundStyle(AppTheme.navy.opacity(0.72))
+
+            if let onWake {
+                Button("Wake the bear", action: onWake)
+                    .buttonStyle(.bordered)
+                    .tint(AppTheme.navy)
+                    .accessibilityIdentifier("open-wake-options")
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(28)

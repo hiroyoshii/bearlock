@@ -40,7 +40,7 @@ final class WakePurchaseTests: XCTestCase {
         XCTAssertEqual(store.product?.id, WakePurchaseStore.productID)
         XCTAssertEqual(store.product?.type, .consumable)
 
-        await store.purchase()
+        await store.purchase(using: performPurchase)
 
         XCTAssertEqual(deliveredTransactions.count, 1)
         XCTAssertEqual(store.lastDelivery, .unlocked)
@@ -52,7 +52,7 @@ final class WakePurchaseTests: XCTestCase {
         await store.loadProduct()
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
 
-        await store.purchase()
+        await store.purchase(using: performPurchase)
 
         XCTAssertEqual(abandonCount, 1)
         XCTAssertTrue(deliveredTransactions.isEmpty)
@@ -70,7 +70,7 @@ final class WakePurchaseTests: XCTestCase {
         await store.loadProduct()
         session.askToBuyEnabled = true
 
-        await store.purchase()
+        await store.purchase(using: performPurchase)
         let transaction = try XCTUnwrap(session.allTransactions().first)
         try session.approveAskToBuyTransaction(identifier: transaction.identifier)
 
@@ -85,6 +85,10 @@ final class WakePurchaseTests: XCTestCase {
             if case let .verified(transaction) = verification { result.insert(transaction.id) }
         }
         return result
+    }
+
+    private func performPurchase(_ product: Product) async throws -> Product.PurchaseResult {
+        try await product.purchase()
     }
 
     private func eventually(_ condition: () async -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {

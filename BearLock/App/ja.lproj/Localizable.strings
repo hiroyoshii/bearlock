@@ -119,20 +119,12 @@
 "Remove" = "削除";
 "This saved target is no longer available." = "この保存済み対象は利用できません。";
 "Unavailable" = "利用不可";
-"Do you really need to wake the bear?" = "本当に熊を起こしますか？";
-"Wake the bear in 30 minutes?" = "30分かけて熊を起こしますか？";
-"Start 30-minute wake-up" = "30分の起床を始める";
-"The lock stays active for another 30 minutes. You can cancel the request before then." = "あと30分はロックが続きます。それまでは起床を取り消せます。";
-"Wake the bear now?" = "今すぐ熊を起こしますか？";
-"This purchase ends only the current lock. Future repeating locks stay scheduled." = "今回のロックだけを終了します。今後の繰り返し予定は残ります。";
-"Waking the bear" = "熊を起こしています";
 "Cancel wake-up" = "起床を取り消す";
 "Use wake-up ticket" = "起床券を使う";
 "Purchase approval is pending" = "購入の承認待ちです";
 "Wake now" = "今すぐ起こす";
 "Wake now for %@" = "%@ですぐ起こす";
 "Wake in 30 minutes for free" = "無料で30分後に起こす";
-"Less than 30 minutes remain. The bear will wake at the scheduled time." = "残り30分未満です。予定時刻までそのまま眠ります。";
 "Woken up with honey…" = "はちみつで起こされました…";
 "The current lock has ended." = "今回のロックを終了しました。";
 "Get up" = "しかたなく起きる";
@@ -150,7 +142,6 @@
 "No wake-up ticket is available." = "利用できる起床券がありません。";
 "The selected apps are available again." = "選択したアプリを利用できます。";
 "Wake the bear" = "熊を起こす";
-"Close" = "閉じる";
 "You can pin up to three targets." = "固定できる対象は3件までです。";
 "Target list" = "対象一覧";
 "Show target list" = "対象一覧を表示";
@@ -215,6 +206,7 @@
 "The purchase was cancelled." = "購入をキャンセルしました。";
 "The purchase is pending." = "購入は保留中です。";
 "The purchase could not be completed." = "購入を完了できませんでした。";
+"Purchases are not allowed on this device." = "このデバイスでは購入が許可されていません。";
 "Reload support items" = "応援アイテムを再読み込み";
 
 "Delete this schedule?" = "この予約を削除しますか？";

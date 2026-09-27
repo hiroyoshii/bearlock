@@ -82,15 +82,27 @@ final class WakePurchaseStore: ObservableObject {
         }
     }
 
-    func purchase() async {
+    func purchase(
+        using purchase: @MainActor (Product) async throws -> Product.PurchaseResult
+    ) async {
         guard !usesStaticProduct, !usesUITesting, !isPurchasing, let product else { return }
+        guard AppStore.canMakePayments else {
+            diagnostics.record(
+                "Purchase.wake.notAllowed",
+                level: .warning,
+                detail: "product=\(product.id)"
+            )
+            await abandon?()
+            message = L10n.string("Purchases are not allowed on this device.")
+            return
+        }
         diagnostics.record("Purchase.wake.started", detail: "product=\(product.id)")
         message = nil
         lastDelivery = nil
         isPurchasing = true
         defer { isPurchasing = false }
         do {
-            switch try await product.purchase() {
+            switch try await purchase(product) {
             case let .success(verification):
                 await complete(verification)
             case .userCancelled:

@@ -13,6 +13,7 @@ enum ScreenshotScreen: String, CaseIterable {
     case confirmation
     case scheduledList
     case activeLock
+    case wakeOptions
     case wakeResult
     case scheduledEditor
     case recurringEditor
@@ -59,7 +60,7 @@ struct ScreenshotHostView: View {
         case .setup:
             SetupView()
         case .home:
-            HomeView()
+            HomeView(onWake: {})
         case .composeNow:
             ScrollView {
                 screenshotStack(title: "Start now") {
@@ -104,14 +105,9 @@ struct ScreenshotHostView: View {
             }
             .navigationTitle("Schedules")
         case .activeLock:
-            ScrollView {
-                VStack(spacing: 20) {
-                    ActiveLockView(activeLock: ScreenshotFixtures.activeLock)
-                    WakeOptionsView(activeLock: ScreenshotFixtures.activeLock)
-                }
-                .padding(20)
-            }
-            .navigationTitle("Bear is sleeping")
+            HomeView(onWake: {})
+        case .wakeOptions:
+            WakeOptionsDialogPreview()
         case .wakeResult:
             WakeResultView()
         case .scheduledEditor:
@@ -154,6 +150,16 @@ struct ScreenshotHostView: View {
             content()
         }
         .padding(20)
+    }
+}
+
+private struct WakeOptionsDialogPreview: View {
+    @State private var isPresented = false
+
+    var body: some View {
+        Color.clear
+            .wakeOptionsDialog(isPresented: $isPresented)
+            .task { isPresented = true }
     }
 }
 
@@ -295,7 +301,7 @@ private extension BearLockAppModel {
         case .setup:
             state = LockState()
             status = .unknown
-        case .activeLock:
+        case .activeLock, .wakeOptions:
             state = ScreenshotFixtures.activeState
             status = .approved
         default:

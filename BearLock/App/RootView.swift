@@ -6,7 +6,8 @@ struct RootView: View {
     @EnvironmentObject private var wakePurchaseStore: WakePurchaseStore
     @Environment(\.scenePhase) private var scenePhase
     @State private var navigationPath = NavigationPath()
-    @State private var wakeSheet: WakeSheet?
+    @State private var showsWakeOptions = false
+    @State private var showsWakeResult = false
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -31,7 +32,7 @@ struct RootView: View {
                     if !hasSeenIntroduction && model.authorizationStatus == .unknown && model.lockState.targetSelections.isEmpty && model.lockState.rules.isEmpty {
                         SetupView()
                     } else {
-                        HomeView()
+                        HomeView { showsWakeOptions = true }
                     }
                 } else {
                     ProgressView()
@@ -57,17 +58,20 @@ struct RootView: View {
             }
         }
         .onChange(of: model.wakeCompletionID) { _, completionID in
-            if completionID != nil { wakeSheet = .result }
+            if completionID != nil { showsWakeResult = true }
         }
-        .sheet(item: $wakeSheet, onDismiss: wakePurchaseStore.clearResult) { sheet in
-            switch sheet {
-            case .options:
-                WakeOptionsSheet()
-            case .result:
-                WakeResultView()
-                    .presentationDetents([.large])
-                    .interactiveDismissDisabled()
+        .wakeOptionsDialog(isPresented: $showsWakeOptions)
+        .alert("Bear Lock", isPresented: wakePurchaseMessageBinding) {
+            Button("OK", role: .cancel) {
+                wakePurchaseStore.clearResult()
             }
+        } message: {
+            Text(wakePurchaseStore.message ?? "")
+        }
+        .sheet(isPresented: $showsWakeResult, onDismiss: wakePurchaseStore.clearResult) {
+            WakeResultView()
+                .presentationDetents([.large])
+                .interactiveDismissDisabled()
         }
     }
 
@@ -75,6 +79,13 @@ struct RootView: View {
         Binding(
             get: { model.lastErrorMessage != nil },
             set: { if !$0 { model.lastErrorMessage = nil } }
+        )
+    }
+
+    private var wakePurchaseMessageBinding: Binding<Bool> {
+        Binding(
+            get: { wakePurchaseStore.message != nil },
+            set: { if !$0 { wakePurchaseStore.clearResult() } }
         )
     }
 
@@ -89,12 +100,7 @@ struct RootView: View {
             }
         }
         if opensWakeOptions, model.activeLock != nil {
-            wakeSheet = .options
+            showsWakeOptions = true
         }
     }
-}
-
-private enum WakeSheet: String, Identifiable {
-    case options, result
-    var id: String { rawValue }
 }

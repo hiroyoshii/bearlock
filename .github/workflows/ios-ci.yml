@@ -216,7 +216,7 @@ jobs:
             xcrun simctl bootstatus "$udid" -b
             xcrun simctl install "$udid" "$APP_PATH"
 
-            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock wakeResult scheduledEditor recurringEditor settings support diagnostics; do
+            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock wakeOptions wakeResult scheduledEditor recurringEditor settings support diagnostics; do
               local screenshot_path="$SCREENSHOT_DIR/$label/$screen.png"
               local screenshot_size=0
               for attempt in 1 2 3; do

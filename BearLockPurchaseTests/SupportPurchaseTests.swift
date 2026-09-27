@@ -34,7 +34,7 @@ final class SupportPurchaseTests: XCTestCase {
             XCTAssertEqual(product.type, .consumable)
             XCTAssertFalse(product.displayPrice.isEmpty)
             for _ in 0..<2 {
-                await store.purchase(item)
+                await store.purchase(item, using: performPurchase)
                 XCTAssertEqual(store.message, thanks)
                 XCTAssertNil(store.purchasingProductID)
             }
@@ -44,7 +44,7 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testPurchaseWithoutLoadedProductDoesNotCreateTransaction() async {
-        await store.purchase(.coffee)
+        await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, L10n.string("Support items are not available yet."))
         XCTAssertTrue(session.allTransactions().isEmpty)
         XCTAssertNil(store.purchasingProductID)
@@ -53,7 +53,7 @@ final class SupportPurchaseTests: XCTestCase {
     func testPurchaseFailureCanBeRetried() async throws {
         await store.loadProducts()
         try await session.setSimulatedError(.generic(.networkError(URLError(.notConnectedToInternet))), forAPI: .purchase)
-        await store.purchase(.coffee)
+        await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, L10n.string("The purchase could not be completed."))
         XCTAssertNil(store.purchasingProductID)
         // Reset the test server's forced-failure state, retaining the same app service.
@@ -61,7 +61,7 @@ final class SupportPurchaseTests: XCTestCase {
         session.disableDialogs = true
         let remainingError = await session.simulatedError(forAPI: .purchase)
         XCTAssertNil(remainingError)
-        await store.purchase(.coffee)
+        await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, thanks)
         try await eventually { await self.unfinishedIDs().isEmpty }
     }
@@ -69,7 +69,7 @@ final class SupportPurchaseTests: XCTestCase {
     func testCancelledPurchaseDoesNotShowSuccess() async throws {
         await store.loadProducts()
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
-        await store.purchase(.coffee)
+        await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, L10n.string("The purchase was cancelled."))
         XCTAssertEqual(
             DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.support.cancelled" }?.detail,
@@ -85,7 +85,7 @@ final class SupportPurchaseTests: XCTestCase {
     func testPendingPurchaseFinishesWhenApproved() async throws {
         await store.loadProducts()
         session.askToBuyEnabled = true
-        await store.purchase(.coffee)
+        await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, L10n.string("The purchase is pending."))
         XCTAssertNil(store.purchasingProductID)
         let transaction = try XCTUnwrap(session.allTransactions().first)
@@ -110,7 +110,7 @@ final class SupportPurchaseTests: XCTestCase {
         store = SupportStore()
         await store.loadProducts()
         // A support purchase confirms that the service has processed StoreKit work.
-        await store.purchase(.coffee)
+        await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, thanks)
         let remaining = await unfinishedIDs()
         XCTAssertTrue(remaining.contains(transaction.id))
@@ -123,6 +123,10 @@ final class SupportPurchaseTests: XCTestCase {
             if case let .verified(transaction) = verification { result.insert(transaction.id) }
         }
         return result
+    }
+
+    private func performPurchase(_ product: Product) async throws -> Product.PurchaseResult {
+        try await product.purchase()
     }
 
     private func eventually(_ condition: () async -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {

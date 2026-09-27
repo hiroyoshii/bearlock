@@ -119,20 +119,12 @@
 "Remove" = "Remove";
 "This saved target is no longer available." = "This saved target is no longer available.";
 "Unavailable" = "Unavailable";
-"Do you really need to wake the bear?" = "Do you really need to wake the bear?";
-"Wake the bear in 30 minutes?" = "Wake the bear in 30 minutes?";
-"Start 30-minute wake-up" = "Start 30-minute wake-up";
-"The lock stays active for another 30 minutes. You can cancel the request before then." = "The lock stays active for another 30 minutes. You can cancel the request before then.";
-"Wake the bear now?" = "Wake the bear now?";
-"This purchase ends only the current lock. Future repeating locks stay scheduled." = "This purchase ends only the current lock. Future repeating locks stay scheduled.";
-"Waking the bear" = "Waking the bear";
 "Cancel wake-up" = "Cancel wake-up";
 "Use wake-up ticket" = "Use wake-up ticket";
 "Purchase approval is pending" = "Purchase approval is pending";
 "Wake now" = "Wake now";
 "Wake now for %@" = "Wake now for %@";
 "Wake in 30 minutes for free" = "Wake in 30 minutes for free";
-"Less than 30 minutes remain. The bear will wake at the scheduled time." = "Less than 30 minutes remain. The bear will wake at the scheduled time.";
 "Woken up with honey…" = "Woken up with honey…";
 "The current lock has ended." = "The current lock has ended.";
 "Get up" = "Get up";
@@ -150,7 +142,6 @@
 "No wake-up ticket is available." = "No wake-up ticket is available.";
 "The selected apps are available again." = "The selected apps are available again.";
 "Wake the bear" = "Wake the bear";
-"Close" = "Close";
 "You can pin up to three targets." = "You can pin up to three targets.";
 "Target list" = "Target list";
 "Show target list" = "Show target list";
@@ -215,6 +206,7 @@
 "The purchase was cancelled." = "The purchase was cancelled.";
 "The purchase is pending." = "The purchase is pending.";
 "The purchase could not be completed." = "The purchase could not be completed.";
+"Purchases are not allowed on this device." = "Purchases are not allowed on this device.";
 "Reload support items" = "Reload support items";
 
 "Delete this schedule?" = "Delete this schedule?";

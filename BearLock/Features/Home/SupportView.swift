@@ -2,6 +2,7 @@ import StoreKit
 import SwiftUI
 
 struct SupportView: View {
+    @Environment(\.purchase) private var purchase
     @EnvironmentObject private var store: SupportStore
     private var showsScreenshotPreview: Bool {
         #if DEBUG
@@ -24,7 +25,9 @@ struct SupportView: View {
                 ForEach(SupportProduct.allCases) { supportProduct in
                     Button {
                         Task {
-                            await store.purchase(supportProduct)
+                            await store.purchase(supportProduct) { product in
+                                try await purchase(product)
+                            }
                         }
                     } label: {
                         SupportProductRow(

@@ -139,8 +139,20 @@ final class SupportStore: ObservableObject {
         products[supportProduct.productID]
     }
 
-    func purchase(_ supportProduct: SupportProduct) async {
+    func purchase(
+        _ supportProduct: SupportProduct,
+        using purchase: @MainActor (Product) async throws -> Product.PurchaseResult
+    ) async {
         guard purchasingProductID == nil, !isLoading else { return }
+        guard AppStore.canMakePayments else {
+            diagnostics.record(
+                "Purchase.support.notAllowed",
+                level: .warning,
+                detail: "product=\(supportProduct.productID)"
+            )
+            message = L10n.string("Purchases are not allowed on this device.")
+            return
+        }
         guard let product = product(for: supportProduct) else {
             diagnostics.record(
                 "Purchase.support.unavailable",
@@ -157,7 +169,7 @@ final class SupportStore: ObservableObject {
         defer { purchasingProductID = nil }
 
         do {
-            let result = try await product.purchase()
+            let result = try await purchase(product)
 
             switch result {
             case let .success(verification):
