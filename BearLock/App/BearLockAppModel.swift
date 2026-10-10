@@ -318,6 +318,18 @@ final class BearLockAppModel: ObservableObject {
         }
     }
 
+    func cancelScheduledDeletion(_ rule: LockRule) async {
+        guard !isCreatingLock, !isUpdatingLock else { return }
+        isUpdatingLock = true
+        defer { isUpdatingLock = false; refreshDiagnostics() }
+        do {
+            try await lockStore.cancelScheduledDeletion(id: rule.id)
+            await synchronizeAndReconcile()
+        } catch {
+            recordError("Schedule.delete.cancel.failed", error)
+        }
+    }
+
     func freeWakeRequest(for lock: ActiveLock) -> WakeRequest? {
         lockState.wakeState.request(for: lock).flatMap { request in
             request.source == .delayed && request.wakesAt > Date() ? request : nil
@@ -499,11 +511,12 @@ final class BearLockAppModel: ObservableObject {
     }
 
     var diagnosticsSummary: DiagnosticsSummary {
-        DiagnosticsSummary(
+        let now = Date()
+        return DiagnosticsSummary(
             authorizationStatus: authorizationStatus.diagnosticsText,
             targetSelectionCount: latestTargetSelectionCount,
-            scheduledRuleCount: lockState.rules.filter { $0.status == .scheduled }.count,
-            recurringRuleCount: lockState.rules.filter { $0.kind == .recurring }.count,
+            scheduledRuleCount: lockState.rules.filter { $0.isScheduled(at: now) }.count,
+            recurringRuleCount: lockState.rules.filter { !$0.isDeleted(at: now) && $0.kind == .recurring }.count,
             activeLockStatus: activeLock.map { L10n.format("Active until %@", $0.endsAt.formatted(date: .omitted, time: .shortened)) } ?? L10n.string("None"),
             lastError: lastErrorMessage ?? L10n.string("None"),
             lastWarning: diagnosticsSnapshot.lastEvent(level: .warning)?.summary ?? L10n.string("None"),

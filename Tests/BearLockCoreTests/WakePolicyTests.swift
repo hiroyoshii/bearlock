@@ -75,6 +75,27 @@ final class WakePolicyTests: XCTestCase {
         XCTAssertEqual(repository.state.activeLockForDisplay(at: now.addingTimeInterval(24 * 60 * 60))?.id, recurring.id)
     }
 
+    func testWakeDoesNotCancelScheduledRecurringDeletion() async throws {
+        let now = date("2026-09-20T01:00:00Z")
+        let recurrence = RecurrenceRule(
+            weekdays: Set(Weekday.allCases),
+            startsAt: TimeOfDay(hour: 1, minute: 0),
+            endsAt: TimeOfDay(hour: 3, minute: 0),
+            timeZoneIdentifier: "UTC"
+        )
+        let recurring = LockRule(recurrence: recurrence, targetSelectionID: UUID())
+        let repository = WakeMemoryRepository(state: LockState(rules: [recurring]))
+        let store = LockStore(repository: repository)
+        let active = try XCTUnwrap(repository.state.activeLockForDisplay(at: now))
+
+        try await store.deleteRule(id: recurring.id, now: now)
+        let wake = try await store.scheduleFreeWake(for: active, at: now)
+
+        XCTAssertEqual(repository.state.rules.first?.scheduledDeletionAt, active.endsAt)
+        XCTAssertNil(repository.state.activeLockForDisplay(at: wake.wakesAt))
+        XCTAssertNil(repository.state.activeLockForDisplay(at: now.addingTimeInterval(24 * 60 * 60)))
+    }
+
     func testVerifiedPurchaseUnlocksOnceAndDuplicateDeliveryIsIdempotent() async throws {
         let now = date("2026-09-20T01:00:00Z")
         let rule = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-60), duration: 7200,

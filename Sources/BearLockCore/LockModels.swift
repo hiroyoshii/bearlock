@@ -57,21 +57,26 @@ public struct LockRule: Codable, Equatable, Identifiable, Sendable {
     public var schedule: LockSchedule
     public var targetSelectionID: UUID
     public var status: LockRuleStatus
+    /// The current recurring occurrence remains effective before this boundary; later ones do not.
+    public var scheduledDeletionAt: Date?
 
     public init(id: UUID = UUID(), kind: SingleLockKind, startsAt: Date, duration: TimeInterval,
-                targetSelectionID: UUID, status: LockRuleStatus = .scheduled) {
+                targetSelectionID: UUID, status: LockRuleStatus = .scheduled,
+                scheduledDeletionAt: Date? = nil) {
         self.id = id
         self.schedule = .single(SingleLockSchedule(kind: kind, startsAt: startsAt, duration: duration))
         self.targetSelectionID = targetSelectionID
         self.status = status
+        self.scheduledDeletionAt = scheduledDeletionAt
     }
 
     public init(id: UUID = UUID(), recurrence: RecurrenceRule, targetSelectionID: UUID,
-                status: LockRuleStatus = .scheduled) {
+                status: LockRuleStatus = .scheduled, scheduledDeletionAt: Date? = nil) {
         self.id = id
         self.schedule = .recurring(recurrence)
         self.targetSelectionID = targetSelectionID
         self.status = status
+        self.scheduledDeletionAt = scheduledDeletionAt
     }
 
     public var single: SingleLockSchedule? {
@@ -95,12 +100,25 @@ public struct LockRule: Codable, Equatable, Identifiable, Sendable {
     }
     public var isOneShot: Bool { single != nil }
 
+    public func isDeleted(at date: Date) -> Bool {
+        scheduledDeletionAt.map { $0 <= date } ?? false
+    }
+
+    public func isScheduled(at date: Date) -> Bool {
+        status == .scheduled && !isDeleted(at: date)
+    }
+
     /// The interval to display/register; disabled schedules can still be previewed.
     public func nextInterval(after date: Date) -> DateInterval? {
+        let interval: DateInterval?
         switch schedule {
-        case let .single(value): return value.endsAt > date ? value.interval : nil
-        case let .recurring(value): return value.nextInterval(after: date)
+        case let .single(value): interval = value.endsAt > date ? value.interval : nil
+        case let .recurring(value): interval = value.nextInterval(after: date)
         }
+        guard let interval,
+              scheduledDeletionAt.map({ interval.start < $0 }) ?? true
+        else { return nil }
+        return interval
     }
 }
 

@@ -75,6 +75,7 @@ public struct LockPlanner: Sendable {
         var normalized = replacement
         normalized.id = original.id
         normalized.status = .scheduled
+        normalized.scheduledDeletionAt = nil
 
         normalized = normalized.normalizedForMonitoring()
 
@@ -104,6 +105,7 @@ public struct LockPlanner: Sendable {
         var normalized = replacement
         normalized.id = original.id
         normalized.status = (enabled ?? (original.status != .disabled)) ? .scheduled : .disabled
+        normalized.scheduledDeletionAt = nil
 
         normalized = normalized.normalizedForMonitoring()
 
@@ -124,7 +126,7 @@ public struct LockPlanner: Sendable {
         now: Date
     ) -> Bool {
         existingState.rules.filter {
-            $0.id != rule.id && $0.status == .scheduled && ($0.single == nil || $0.single!.endsAt > now)
+            $0.id != rule.id && $0.isScheduled(at: now) && ($0.single == nil || $0.single!.endsAt > now)
         }.contains { other in
             // Preserve the existing policy allowing multiple repeating rules.
             // Enforcement takes the union of all currently active target sets.

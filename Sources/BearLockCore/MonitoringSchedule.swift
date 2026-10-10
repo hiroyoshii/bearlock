@@ -12,7 +12,7 @@ public struct MonitoringSchedule: Equatable, Sendable {
     }
 
     public static func desired(for rules: [LockRule], at now: Date) -> [Self] {
-        rules.filter { $0.status == .scheduled }.flatMap { rule -> [Self] in
+        rules.filter { $0.isScheduled(at: now) }.flatMap { rule -> [Self] in
             let name = "bearlock.\(rule.id.uuidString)"
             if let recurrence = rule.recurrence {
                 var calendar = Calendar(identifier: recurrence.calendarIdentifier)

@@ -43,7 +43,7 @@ public struct LockState: Codable, Equatable, Sendable {
     }
 
     public func activeLocks(at date: Date) -> [ActiveLock] {
-        rules.filter { $0.status == .scheduled }
+        rules.filter { $0.isScheduled(at: date) }
             .compactMap { $0.occurrence(containing: date) }
             .filter { date < wakeState.effectiveEnd(of: $0) }
             .sorted { $0.startedAt < $1.startedAt }
@@ -81,8 +81,11 @@ public actor LockStore {
         self.repository = repository
     }
 
-    public func snapshot() throws -> LockState {
-        try repository.load()
+    public func snapshot(at now: Date = Date()) throws -> LockState {
+        try update { state in
+            state.removeRulesDeleted(at: now)
+            return state
+        }
     }
 
     /// Serialize the fresh read and OS registration with app mutations.
@@ -217,13 +220,41 @@ public actor LockStore {
 
     public func deleteRule(id: UUID, now: Date? = nil) throws {
         try update { state in
-            guard let rule = state.rules.first(where: { $0.id == id }) else { return }
-            if rule.isOneShot { try state.validateEditable(rule, at: now ?? Date()) }
+            guard let index = state.rules.firstIndex(where: { $0.id == id }) else { return }
+            let rule = state.rules[index]
+            let now = now ?? Date()
+            if rule.isOneShot {
+                try state.validateEditable(rule, at: now)
+            } else if let active = state.activeLocks(at: now).first(where: { $0.id == id }) {
+                state.rules[index].scheduledDeletionAt = active.endsAt
+                return
+            }
             state.rules.removeAll { $0.id == id }
             state.wakeState.requests.removeAll { $0.ruleID == id }
             if state.wakeState.pendingPurchase?.ruleID == id {
                 state.wakeState.pendingPurchase = nil
             }
+        }
+    }
+
+    public func cancelScheduledDeletion(id: UUID, now: Date? = nil) throws {
+        try update { state in
+            guard let index = state.rules.firstIndex(where: { $0.id == id }),
+                  let recurrence = state.rules[index].recurrence,
+                  let deletion = state.rules[index].scheduledDeletionAt
+            else { throw LockValidationError.ruleNotFound }
+            let now = now ?? Date()
+            guard now < deletion else { throw LockValidationError.ruleNotFound }
+
+            var stateWithoutRule = state
+            stateWithoutRule.rules.remove(at: index)
+            _ = try LockPlanner().makeRule(
+                from: .recurring(recurrence: recurrence, targetSelectionID: state.rules[index].targetSelectionID),
+                now: now,
+                existingState: stateWithoutRule
+            )
+            state.rules[index].scheduledDeletionAt = nil
+            try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
         }
     }
 
@@ -338,5 +369,17 @@ public actor LockStore {
         let result = try body(&state)
         if state != original { try repository.save(state) }
         return result
+    }
+}
+
+private extension LockState {
+    mutating func removeRulesDeleted(at date: Date) {
+        let deletedIDs = Set(rules.filter { $0.isDeleted(at: date) }.map(\.id))
+        guard !deletedIDs.isEmpty else { return }
+        rules.removeAll { deletedIDs.contains($0.id) }
+        wakeState.requests.removeAll { deletedIDs.contains($0.ruleID) }
+        if let ruleID = wakeState.pendingPurchase?.ruleID, deletedIDs.contains(ruleID) {
+            wakeState.pendingPurchase = nil
+        }
     }
 }

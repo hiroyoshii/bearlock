@@ -45,7 +45,7 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 - [x] Delayed lockの終了時刻後、対象アプリが開ける。
 - [x] 今日の曜日で数分後開始のRecurring ruleを作る。
 - [x] Recurring lockの開始時刻に対象アプリへShieldが出る。
-- [x] active中に親recurringを編集または削除しても、現在のlockが解除されない。
+- [x] active中の親recurring削除は現在回の終了時に予約され、現在のlockが途中解除されない。
 - [x] Recurring lockの終了時刻後、Shieldが解除される。
 - [x] scheduled中にアプリを再起動して、予定が復元される。
 - [x] active中にアプリを再起動して、Active画面が復元される。

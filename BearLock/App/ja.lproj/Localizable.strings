@@ -244,9 +244,12 @@
 "This lock is active. Changes are available after it ends." = "実行中です。終了後に変更できます。";
 "Repeating schedules cannot be changed while they are active." = "繰り返し予定は、実行中には変更できません。";
 
-"Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets." = "この予定による実行中のロックも終了します。他の予定によるロックは続きます。";
-"Active. You can delete this schedule to end its lock." = "実行中です。予定を削除すると、このロックも終了します。";
-"Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "実行中は時刻・曜日を変更できません。予定はいつでも削除できます。";
+"Delete After This Lock" = "このロックの終了時に削除";
+"This lock will continue until %@. The schedule and future repeating locks will then be deleted." = "このロックは%@まで継続します。その後、予定と今後の繰り返しを削除します。";
+"Deletion scheduled for %@. This lock will continue until then." = "%@に削除予定です。それまではロックが継続します。";
+"Cancel scheduled deletion" = "削除予約を取り消す";
+"Active. Deleting this schedule takes effect when this lock ends." = "実行中です。削除はこのロックの終了時に反映されます。";
+"Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends." = "実行中は時刻・曜日を変更できません。削除は現在のロックの終了時に反映されます。";
 
 "Saved data could not be read" = "保存データを読み込めません";
 

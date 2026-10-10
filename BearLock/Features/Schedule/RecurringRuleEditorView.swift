@@ -66,7 +66,7 @@ struct RecurringRuleEditorView: View {
                     }
 
                     Section {
-                        Text("Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.")
+                        Text("Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends.")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }

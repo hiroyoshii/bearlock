@@ -244,9 +244,12 @@
 "This lock is active. Changes are available after it ends." = "This lock is active. Changes are available after it ends.";
 "Repeating schedules cannot be changed while they are active." = "Repeating schedules cannot be changed while they are active.";
 
-"Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets." = "Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.";
-"Active. You can delete this schedule to end its lock." = "Active. You can delete this schedule to end its lock.";
-"Times and weekdays cannot be changed during a lock. You can delete the schedule at any time." = "Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.";
+"Delete After This Lock" = "Delete After This Lock";
+"This lock will continue until %@. The schedule and future repeating locks will then be deleted." = "This lock will continue until %@. The schedule and future repeating locks will then be deleted.";
+"Deletion scheduled for %@. This lock will continue until then." = "Deletion scheduled for %@. This lock will continue until then.";
+"Cancel scheduled deletion" = "Cancel scheduled deletion";
+"Active. Deleting this schedule takes effect when this lock ends." = "Active. Deleting this schedule takes effect when this lock ends.";
+"Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends." = "Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends.";
 
 "Saved data could not be read" = "Saved data could not be read";
 

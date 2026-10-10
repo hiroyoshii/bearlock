@@ -414,7 +414,7 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["Cancel"].tap()
     }
 
-    func testActiveRecurringCanBeDeletedWithConfirmation() throws {
+    func testActiveRecurringDeletionIsScheduledForCurrentEnd() throws {
         let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-recurring", "--ui-testing-all-day-recurring"])
         XCTAssertTrue(app.staticTexts["Bear is sleeping."].waitForExistence(timeout: 10))
         scrollToStaticText("Repeats", in: app)
@@ -424,20 +424,29 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(delete.exists)
         XCTAssertFalse(edit.isEnabled)
         XCTAssertTrue(delete.isEnabled)
-        XCTAssertTrue(app.staticTexts["Active. You can delete this schedule to end its lock."].exists)
-        captureScreenshot(named: "e2e-active-recurring-deletable")
+        XCTAssertTrue(app.staticTexts["Active. Deleting this schedule takes effect when this lock ends."].exists)
+        captureScreenshot(named: "e2e-active-recurring-deletion-available")
         delete.tap()
-        XCTAssertTrue(app.staticTexts["Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets."].waitForExistence(timeout: 5))
-        captureScreenshot(named: "e2e-active-recurring-delete-confirmation")
-        app.buttons["Delete"].tap()
-        XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.staticTexts["Bear is sleeping."].exists)
-        captureScreenshot(named: "e2e-active-recurring-deleted")
+        XCTAssertTrue(app.buttons["Delete After This Lock"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-active-recurring-deletion-confirmation")
+        app.buttons["Delete After This Lock"].tap()
+        let cancelDeletion = app.buttons["scheduled-lock-deletion-cancel-button"]
+        XCTAssertTrue(cancelDeletion.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["scheduled-lock-deletion-summary"].exists)
+        XCTAssertTrue(app.staticTexts["Bear is sleeping."].exists)
+        XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
+        captureScreenshot(named: "e2e-active-recurring-deletion-scheduled")
+        cancelDeletion.tap()
+        XCTAssertTrue(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["scheduled-lock-deletion-summary"].exists)
+        delete.tap()
+        app.buttons["Delete After This Lock"].tap()
+        XCTAssertTrue(app.buttons["scheduled-lock-deletion-cancel-button"].waitForExistence(timeout: 5))
         app.terminate()
         app.launchArguments = ["--ui-testing", "--ui-testing-approved"]
         app.launch()
-        XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 10))
-        XCTAssertFalse(app.staticTexts["Bear is sleeping."].exists)
+        XCTAssertTrue(app.buttons["scheduled-lock-deletion-cancel-button"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Bear is sleeping."].exists)
     }
 
     private func launchApprovedSeededApp(extraArguments: [String] = []) -> XCUIApplication {

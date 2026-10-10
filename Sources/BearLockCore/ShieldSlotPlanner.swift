@@ -20,7 +20,7 @@ public extension LockState {
     /// orphans and are cleared during the next reconciliation.
     func shieldStoreNames(at date: Date) -> Set<String> {
         Set(rules.filter { rule in
-            guard rule.status == .scheduled else { return false }
+            guard rule.isScheduled(at: date) else { return false }
             return rule.recurrence != nil || (rule.single?.endsAt ?? .distantPast) > date
         }.flatMap(\.shieldStoreNames))
     }
@@ -29,7 +29,7 @@ public extension LockState {
     /// type is deliberately absent, making duplicate, delayed, and reversed callbacks idempotent.
     func shieldSlotDecisions(at date: Date) throws -> [ShieldSlotDecision] {
         try rules.compactMap { rule in
-            guard rule.status == .scheduled,
+            guard rule.isScheduled(at: date),
                   let occurrence = rule.occurrence(containing: date),
                   date < wakeState.effectiveEnd(of: occurrence)
             else { return nil }

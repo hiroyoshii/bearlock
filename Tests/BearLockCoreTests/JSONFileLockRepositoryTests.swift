@@ -115,6 +115,28 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         XCTAssertEqual(try repository.load().wakeState, WakeState())
     }
 
+    func testScheduledDeletionPersistsUntilItsDeadlineThenIsRemoved() async throws {
+        let directory = uniqueTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let repository = JSONFileLockRepository(fileURL: directory.appending(path: "state.json"))
+        let store = LockStore(repository: repository)
+        let now = date("2026-09-13T09:00:00Z")
+        let end = date("2026-09-14T09:00:00Z")
+        let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases),
+            startsAt: TimeOfDay(hour: 9, minute: 0), endsAt: TimeOfDay(hour: 9, minute: 0),
+            timeZoneIdentifier: "UTC")
+        let rule = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: UUID()), now: now)
+
+        try await store.deleteRule(id: rule.id, now: now)
+
+        XCTAssertEqual(try repository.load().rules.first?.scheduledDeletionAt, end)
+        let beforeEnd = try await store.snapshot(at: end.addingTimeInterval(-1))
+        XCTAssertEqual(beforeEnd.rules.count, 1)
+        let atEnd = try await store.snapshot(at: end)
+        XCTAssertTrue(atEnd.rules.isEmpty)
+        XCTAssertTrue(try repository.load().rules.isEmpty)
+    }
+
     func testActorReloadsStateBeforeEachMutation() async throws {
         let directory = uniqueTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
