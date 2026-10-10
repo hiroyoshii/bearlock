@@ -8,7 +8,7 @@ struct ScheduledLockListView: View {
     @State private var editingSheet: ScheduledLockEditSheet?
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { _ in
+        TimelineView(.periodic(from: .now, by: 1)) { context in
             VStack(alignment: .leading, spacing: 12) {
                 Text("Scheduled Locks")
                     .font(.headline)
