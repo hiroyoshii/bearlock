@@ -324,6 +324,13 @@ final class BearLockLaunchUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
         app.buttons["Repeat"].tap()
+        let sunday = app.buttons["weekday-1"]
+        XCTAssertTrue(sunday.waitForExistence(timeout: 5))
+        XCTAssertFalse(sunday.isSelected)
+        XCTAssertTrue(app.buttons["weekday-2"].isSelected)
+        XCTAssertTrue(app.buttons["weekday-6"].isSelected)
+        XCTAssertFalse(app.buttons["weekday-7"].isSelected)
+        captureScreenshot(named: "e2e-recurring-weekday-selection")
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["A wake-up ends only the current lock. Future repeating locks stay scheduled."].exists)

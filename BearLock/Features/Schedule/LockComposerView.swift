@@ -196,19 +196,7 @@ struct LockComposerView: View {
             Text("Weekdays")
                 .font(.headline)
 
-            HStack {
-                ForEach(Weekday.allCases, id: \.self) { weekday in
-                    Button(weekday.shortName()) {
-                        if selectedWeekdays.contains(weekday) {
-                            selectedWeekdays.remove(weekday)
-                        } else {
-                            selectedWeekdays.insert(weekday)
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .tint(selectedWeekdays.contains(weekday) ? AppTheme.navy : AppTheme.steel)
-                }
-            }
+            WeekdayPicker(selection: $selectedWeekdays)
         }
     }
 

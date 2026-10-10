@@ -46,7 +46,7 @@ struct RecurringRuleEditorView: View {
                     }
 
                     Section("Weekdays") {
-                        weekdayGrid
+                        WeekdayPicker(selection: $selectedWeekdays)
                             .disabled(isSaving || isActive)
                     }
 
@@ -84,22 +84,6 @@ struct RecurringRuleEditorView: View {
                         .disabled(isActive || isSaving || selectedWeekdays.isEmpty || isOverSafetyLimit)
                     }
                 }
-            }
-        }
-    }
-
-    private var weekdayGrid: some View {
-        HStack {
-            ForEach(Weekday.allCases, id: \.self) { weekday in
-                Button(weekday.shortName()) {
-                    if selectedWeekdays.contains(weekday) {
-                        selectedWeekdays.remove(weekday)
-                    } else {
-                        selectedWeekdays.insert(weekday)
-                    }
-                }
-                .buttonStyle(.bordered)
-                .tint(selectedWeekdays.contains(weekday) ? AppTheme.navy : AppTheme.steel)
             }
         }
     }
