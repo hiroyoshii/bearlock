@@ -140,7 +140,7 @@ jobs:
             -destination "$DESTINATION" \
             -derivedDataPath "$DERIVED_DATA" \
             -resultBundlePath "$E2E_RESULT_BUNDLE" \
-            -retry-tests-on-failure -test-iterations 2 \
+            -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
             test-without-building | tee artifacts/xcodebuild-ui-e2e.log
 
@@ -151,6 +151,9 @@ jobs:
           set -euo pipefail
           runtime_id="$(xcrun simctl list runtimes -j | python3 -c 'import json, sys; ios=[r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("platform") == "iOS"]; print(sorted(ios, key=lambda r: [int(n) for n in r["version"].split(".")])[-1]["identifier"])')"
           small_udid="$(xcrun simctl create 'BearLock Small iPhone' com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation "$runtime_id")"
+          xcrun simctl shutdown all
+          xcrun simctl boot "$small_udid"
+          xcrun simctl bootstatus "$small_udid" -b
           xcodebuild \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
@@ -158,6 +161,7 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             -resultBundlePath artifacts/selection-small-iphone.xcresult \
             -only-testing:BearLockUITests/SelectionControlsUITests \
+            -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
             test-without-building | tee artifacts/xcodebuild-selection-small-iphone.log
 

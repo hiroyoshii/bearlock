@@ -13,6 +13,7 @@ enum LockComposerMode: String, CaseIterable, Identifiable {
 struct LockComposerView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .caption) private var fullModeSegmentWidth: CGFloat = 85
     @Binding var mode: LockComposerMode
     var allowsImmediateLock = true
 
@@ -152,20 +153,24 @@ struct LockComposerView: View {
     @ViewBuilder
     private var modePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
-            startModePicker
+            startModePicker()
                 .pickerStyle(.menu)
                 .frame(minHeight: 44)
         } else {
-            startModePicker
-                .pickerStyle(.segmented)
-                .frame(minHeight: 44)
+            GeometryReader { geometry in
+                startModePicker(abbreviatesDate: geometry.size.width < fullModeSegmentWidth * CGFloat(availableModes.count))
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .frame(height: 44)
         }
     }
 
-    private var startModePicker: some View {
+    private func startModePicker(abbreviatesDate: Bool = false) -> some View {
         Picker("Start", selection: $mode) {
             ForEach(availableModes) { tabMode in
-                Text(LocalizedStringKey(tabMode.rawValue)).tag(tabMode)
+                Text(LocalizedStringKey(abbreviatesDate && tabMode == .fixedDateTime ? "Date" : tabMode.rawValue))
+                    .tag(tabMode)
             }
         }
         .tint(AppTheme.navy)

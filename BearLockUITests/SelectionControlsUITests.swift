@@ -11,12 +11,14 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertTrue(picker.waitForExistence(timeout: 10))
         XCTAssertTrue(picker.buttons["Now"].isSelected)
         XCTAssertFalse(picker.buttons["In"].isSelected)
+        XCTAssertTrue(picker.buttons[app.frame.width <= 375 ? "Date" : "Date & Time"].exists)
         XCTAssertTrue(app.buttons["duration-preset-120"].isSelected)
         XCTAssertFalse(app.buttons["duration-preset-30"].isSelected)
         selectionScreenshot(app, "duration-initial")
 
         let thirty = app.buttons["duration-preset-30"]
         assertUsable(thirty, in: app)
+        XCTAssertLessThanOrEqual(thirty.frame.height, 56, "Normal-size presets should remain compact native buttons")
         thirty.tap()
         XCTAssertTrue(thirty.isSelected)
         XCTAssertFalse(app.buttons["duration-preset-120"].isSelected)
@@ -96,11 +98,13 @@ final class SelectionControlsUITests: XCTestCase {
             XCTAssertTrue(thirty.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-duration")
             selectMode(dateTitle, in: app)
+            XCTAssertTrue(app.staticTexts["schedule-date-label-Starts"].waitForExistence(timeout: 5))
             assertDateLabelsAreReadable(in: app, titles: ["Starts"])
             selectionScreenshot(app, "accessibility-\(locale)-date")
             selectMode(repeatTitle, in: app)
             selectionScreenshot(app, "accessibility-\(locale)-repeat-mode")
             let sunday = app.buttons["weekday-1"]
+            XCTAssertTrue(sunday.waitForExistence(timeout: 5))
             assertUsable(sunday, in: app)
             XCTAssertEqual(sunday.label, sundayName)
             sunday.tap()
@@ -203,6 +207,11 @@ final class SelectionControlsUITests: XCTestCase {
             menu.tap()
             let choice = app.buttons[title]
             XCTAssertTrue(choice.waitForExistence(timeout: 5))
+            let hittable = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in choice.exists && choice.isHittable },
+                object: choice
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [hittable], timeout: 5), .completed)
             choice.tap()
         }
     }

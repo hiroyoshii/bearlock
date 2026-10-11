@@ -57,9 +57,10 @@ struct DurationPickerControl: View {
             } label: {
                 Text(L10n.format("%d min", preset))
                     .font(.caption.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 28)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .frame(maxWidth: .infinity, minHeight: 32)
             }
-            .controlSize(.large)
+            .controlSize(.regular)
             .accessibilityLabel(Text(L10n.format("%d min", preset)))
             .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("duration-preset-\(preset)")
