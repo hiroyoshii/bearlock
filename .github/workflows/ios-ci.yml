@@ -244,9 +244,9 @@ jobs:
             for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock wakeOptions wakeResult scheduledEditor recurringEditor settings support diagnostics; do
               local screenshot_path="$SCREENSHOT_DIR/$label/$screen.png"
               local screenshot_size=0
+              xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
+              xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
               for attempt in 1 2 3; do
-                xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
-                xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
                 sleep $((attempt + 2))
                 xcrun simctl io "$udid" screenshot "$screenshot_path"
                 screenshot_size="$(stat -f%z "$screenshot_path")"
