@@ -4,7 +4,7 @@ import SwiftUI
 enum LockComposerMode: String, CaseIterable, Identifiable {
     case now = "Now"
     case delayed = "In"
-    case fixedDateTime = "Date"
+    case fixedDateTime = "Date & Time"
     case recurring = "Repeat"
 
     var id: String { rawValue }
@@ -120,7 +120,7 @@ struct LockComposerView: View {
                         .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.bordered)
-                .tint(AppTheme.navy)
+                .tint(AppTheme.steel)
                 .disabled(delayMinutes <= 5)
                 .accessibilityLabel("Decrease start delay")
 
@@ -142,7 +142,7 @@ struct LockComposerView: View {
                         .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.bordered)
-                .tint(AppTheme.navy)
+                .tint(AppTheme.steel)
                 .disabled(delayMinutes >= 240)
                 .accessibilityLabel("Increase start delay")
             }

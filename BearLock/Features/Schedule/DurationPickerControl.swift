@@ -37,12 +37,7 @@ struct DurationPickerControl: View {
                 if dynamicTypeSize.isAccessibilitySize {
                     VStack(spacing: 8) { presetButtons }
                 } else {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 8) { presetButtons }
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                            presetButtons
-                        }
-                    }
+                    HStack(spacing: 8) { presetButtons }
                 }
             }
 
@@ -57,18 +52,29 @@ struct DurationPickerControl: View {
     private var presetButtons: some View {
         ForEach(presetMinutes, id: \.self) { preset in
             let isSelected = minutes == Double(preset)
-            Button {
+            let button = Button {
                 minutes = Double(preset)
             } label: {
-                Label(L10n.format("%d min", preset), systemImage: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.subheadline.weight(.semibold))
-                    .fixedSize(horizontal: true, vertical: false)
-                    .padding(.horizontal, 8)
+                Text(L10n.format("%d min", preset))
+                    .font(.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 28)
             }
-            .buttonStyle(SelectionButtonStyle(isSelected: isSelected))
+            .controlSize(.large)
             .accessibilityLabel(Text(L10n.format("%d min", preset)))
             .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("duration-preset-\(preset)")
+
+            if isSelected {
+                button
+                    .buttonStyle(.borderedProminent)
+                    .tint(AppTheme.navy)
+                    .foregroundStyle(AppTheme.snow)
+            } else {
+                button
+                    .buttonStyle(.bordered)
+                    .tint(AppTheme.steel)
+                    .foregroundStyle(AppTheme.navy)
+            }
         }
     }
 }

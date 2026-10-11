@@ -5,6 +5,7 @@ struct WeekdayPicker: View {
     @Binding var selection: Set<Weekday>
     @Environment(\.locale) private var locale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .subheadline) private var diameter: CGFloat = 44
 
     var body: some View {
         if dynamicTypeSize.isAccessibilitySize {
@@ -12,7 +13,7 @@ struct WeekdayPicker: View {
         } else {
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 8) { weekdayButtons }
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: 44), spacing: 8), count: 4), spacing: 8) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: diameter), spacing: 8), count: 4), spacing: 8) {
                     weekdayButtons
                 }
             }
@@ -29,22 +30,27 @@ struct WeekdayPicker: View {
                     selection.insert(weekday)
                 }
             } label: {
-                if dynamicTypeSize.isAccessibilitySize {
-                    Label(accessibilityName(for: weekday), systemImage: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.body)
-                        .padding(.horizontal, 8)
-                } else {
-                    VStack(spacing: 4) {
-                        Text(weekday.shortName(locale: locale))
-                            .font(.subheadline.weight(.semibold))
-                            .fixedSize()
-                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                            .font(.caption)
-                            .accessibilityHidden(true)
+                HStack(spacing: 8) {
+                    Text(weekday.shortName(locale: locale))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(isSelected ? AppTheme.snow : AppTheme.navy)
+                        .frame(width: diameter, height: diameter)
+                        .background(isSelected ? AppTheme.navy : AppTheme.snow, in: Circle())
+                        .overlay {
+                            Circle()
+                                .stroke(isSelected ? AppTheme.navy : AppTheme.navy.opacity(0.24), lineWidth: isSelected ? 2 : 1)
+                        }
+                    if dynamicTypeSize.isAccessibilitySize {
+                        Text(accessibilityName(for: weekday))
+                            .font(.body)
+                            .foregroundStyle(AppTheme.navy)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .contentShape(Rectangle())
             }
-            .buttonStyle(SelectionButtonStyle(isSelected: isSelected))
+            .buttonStyle(.plain)
             .accessibilityLabel(Text(accessibilityName(for: weekday)))
             .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityIdentifier("weekday-\(weekday.rawValue)")

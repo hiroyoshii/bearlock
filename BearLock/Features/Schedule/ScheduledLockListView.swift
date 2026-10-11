@@ -207,7 +207,6 @@ private struct ScheduledLockRow: View {
                     .accessibilityIdentifier("scheduled-lock-deletion-cancel-button")
                 }
             }
-            .tint(AppTheme.navy)
         }
         .padding(14)
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))

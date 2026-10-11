@@ -83,7 +83,7 @@ final class SelectionControlsUITests: XCTestCase {
     }
 
     func testSelectionAtAccessibilityTextSizeInEnglishAndJapanese() throws {
-        for (locale, repeatTitle, dateTitle, sundayName, cancelTitle, saveTitle) in [("en", "Repeat", "Date", "Sunday", "Cancel", "Save"), ("ja", "繰り返し", "日時", "日曜日", "キャンセル", "保存")] {
+        for (locale, repeatTitle, dateTitle, sundayName, cancelTitle, saveTitle) in [("en", "Repeat", "Date & Time", "Sunday", "Cancel", "Save"), ("ja", "繰り返し", "日時指定", "日曜日", "キャンセル", "保存")] {
             let accessibilityArguments = [
                 "-AppleLanguages", "(\(locale))", "-AppleLocale", locale == "ja" ? "ja_JP" : "en_US",
                 "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
@@ -99,6 +99,7 @@ final class SelectionControlsUITests: XCTestCase {
             assertDateLabelsAreReadable(in: app, titles: ["Starts"])
             selectionScreenshot(app, "accessibility-\(locale)-date")
             selectMode(repeatTitle, in: app)
+            selectionScreenshot(app, "accessibility-\(locale)-repeat-mode")
             let sunday = app.buttons["weekday-1"]
             assertUsable(sunday, in: app)
             XCTAssertEqual(sunday.label, sundayName)
@@ -138,12 +139,15 @@ final class SelectionControlsUITests: XCTestCase {
             assertDateLabelsAreReadable(in: editorApp, titles: ["Starts", "Ends"])
             selectionScreenshot(editorApp, "accessibility-\(locale)-editor-times")
             let save = editorApp.buttons[saveTitle]
-            assertUsable(save, in: editorApp)
+            // A system toolbar item's AX frame is not its full touch region.
+            // Verify the native action by saving and reading the persisted value.
+            scrollToButton(save, in: editorApp)
+            XCTAssertTrue(save.isEnabled)
             save.tap()
             XCTAssertTrue(edit.waitForExistence(timeout: 5))
             scrollToButton(edit, in: editorApp)
             edit.tap()
-            XCTAssertTrue(editorSunday.waitForExistence(timeout: 5))
+            assertUsable(editorSunday, in: editorApp)
             XCTAssertTrue(editorSunday.isSelected)
             selectionScreenshot(editorApp, "accessibility-\(locale)-editor-saved")
             editorApp.terminate()
