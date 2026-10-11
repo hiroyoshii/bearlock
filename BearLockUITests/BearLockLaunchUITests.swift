@@ -82,7 +82,7 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["Get started"].tap()
         XCTAssertTrue(app.buttons["Select targets"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.alerts["Screen Time access"].exists)
-        app.buttons["In"].tap()
+        selectComposerMode("In", in: app)
         app.buttons["Select targets"].tap()
         XCTAssertTrue(app.alerts["Screen Time access"].waitForExistence(timeout: 5))
         captureScreenshot(named: "onboarding-access-explanation-en")
@@ -300,7 +300,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        app.buttons["In"].tap()
+        selectComposerMode("In", in: app)
         XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
         app.buttons["lock-composer-primary-button"].tap()
         XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
@@ -327,7 +327,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let app = launchApprovedSeededApp()
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        app.buttons["Repeat"].tap()
+        selectComposerMode("Repeat", in: app)
         let sunday = app.buttons["weekday-1"]
         XCTAssertTrue(sunday.waitForExistence(timeout: 5))
         XCTAssertFalse(sunday.isSelected)
@@ -520,6 +520,49 @@ extension XCTestCase {
         ] + extraArguments
         app.launch()
         return app
+    }
+
+    func selectComposerMode(_ title: String, in app: XCUIApplication) {
+        // Use one 200ms press and wait for the selection to change.
+        // Do not retry a missed touch or change the product's controls.
+        let pressDuration: TimeInterval = 0.2
+        let segmented = app.segmentedControls["lock-composer-mode-picker"]
+        if segmented.exists {
+            let button = segmented.buttons[title]
+            scrollToButton(button, in: app)
+            button.press(forDuration: pressDuration)
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in button.isSelected }, object: button
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        } else {
+            let menu = app.buttons["lock-composer-mode-picker"]
+            XCTAssertTrue(menu.waitForExistence(timeout: 5))
+            scrollToButton(menu, in: app)
+            menu.press(forDuration: pressDuration)
+            let choice = app.collectionViews.buttons[title]
+            XCTAssertTrue(choice.waitForExistence(timeout: 5))
+            let visibleFrame = choice.frame.intersection(app.frame)
+            XCTAssertFalse(visibleFrame.isEmpty)
+            XCTAssertTrue(visibleFrame.midX.isFinite && visibleFrame.midY.isFinite)
+            // Avoid the menu's zero-size AX window by using the main window.
+            guard let window = app.windows.allElementsBoundByIndex.first(where: {
+                let frame = $0.frame
+                return !frame.isEmpty && frame.minX.isFinite && frame.minY.isFinite
+                    && frame.contains(CGPoint(x: visibleFrame.midX, y: visibleFrame.midY))
+            }) else {
+                XCTFail("A finite main window must contain the visible menu item")
+                return
+            }
+            window.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: visibleFrame.midX - window.frame.minX, dy: visibleFrame.midY - window.frame.minY))
+                .press(forDuration: pressDuration)
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in menu.exists && menu.label.hasSuffix(title) },
+                object: menu
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        }
     }
 
     func scrollToButton(_ button: XCUIElement, in app: XCUIApplication) {

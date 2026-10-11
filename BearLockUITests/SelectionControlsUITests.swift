@@ -31,7 +31,7 @@ final class SelectionControlsUITests: XCTestCase {
             XCTAssertFalse(app.buttons["duration-preset-\(preset)"].isSelected)
         }
         selectionScreenshot(app, "duration-custom")
-        selectMode("In", in: app)
+        selectComposerMode("In", in: app)
         XCTAssertTrue(picker.buttons["In"].isSelected)
         XCTAssertFalse(picker.buttons["Now"].isSelected)
         selectionScreenshot(app, "mode-delayed")
@@ -39,7 +39,7 @@ final class SelectionControlsUITests: XCTestCase {
 
     func testWeekdaySelectionAndEditorSaveAgree() throws {
         let app = launchApprovedSeededApp()
-        selectMode("Repeat", in: app)
+        selectComposerMode("Repeat", in: app)
         let sunday = app.buttons["weekday-1"]
         let monday = app.buttons["weekday-2"]
         XCTAssertFalse(sunday.isSelected)
@@ -97,10 +97,10 @@ final class SelectionControlsUITests: XCTestCase {
             thirty.tap()
             XCTAssertTrue(thirty.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-duration")
-            selectMode(dateTitle, in: app)
+            selectComposerMode(dateTitle, in: app)
             assertDateLabelsAreReadable(in: app, titles: ["Starts"])
             selectionScreenshot(app, "accessibility-\(locale)-date")
-            selectMode(repeatTitle, in: app)
+            selectComposerMode(repeatTitle, in: app)
             selectionScreenshot(app, "accessibility-\(locale)-repeat-mode")
             let sunday = app.buttons["weekday-1"]
             assertUsable(sunday, in: app)
@@ -158,7 +158,7 @@ final class SelectionControlsUITests: XCTestCase {
 
     func testDisabledControlsRemainUnderstandable() throws {
         let app = launchApprovedSeededApp()
-        selectMode("In", in: app)
+        selectComposerMode("In", in: app)
         let decrease = app.buttons["Decrease start delay"]
         for _ in 0..<5 { decrease.tap() }
         XCTAssertFalse(decrease.isEnabled)
@@ -189,43 +189,6 @@ final class SelectionControlsUITests: XCTestCase {
             XCTAssertLessThanOrEqual(label.frame.height, 100, "Date label must not break into multiple short fragments")
             XCTAssertGreaterThanOrEqual(label.frame.minX, app.frame.minX)
             XCTAssertLessThanOrEqual(label.frame.maxX, app.frame.maxX)
-        }
-    }
-
-    private func selectMode(_ title: String, in app: XCUIApplication) {
-        let segmented = app.segmentedControls["lock-composer-mode-picker"]
-        if segmented.exists {
-            let button = segmented.buttons[title]
-            scrollToButton(button, in: app)
-            button.tap()
-        } else {
-            let menu = app.buttons["lock-composer-mode-picker"]
-            XCTAssertTrue(menu.waitForExistence(timeout: 5))
-            scrollToButton(menu, in: app)
-            menu.tap()
-            let choice = app.collectionViews.buttons[title]
-            XCTAssertTrue(choice.waitForExistence(timeout: 5))
-            let visibleFrame = choice.frame.intersection(app.frame)
-            XCTAssertFalse(visibleFrame.isEmpty)
-            XCTAssertTrue(visibleFrame.midX.isFinite && visibleFrame.midY.isFinite)
-            // The menu's AX window and the application's implicit parent window
-            // can both be zero-size. Anchor the gesture to the actual main window.
-            guard let window = app.windows.allElementsBoundByIndex.first(where: {
-                let frame = $0.frame
-                return !frame.isEmpty && frame.minX.isFinite && frame.minY.isFinite
-                    && frame.contains(CGPoint(x: visibleFrame.midX, y: visibleFrame.midY))
-            }) else {
-                XCTFail("A finite main window must contain the visible menu item")
-                return
-            }
-            window.coordinate(withNormalizedOffset: .zero)
-                .withOffset(CGVector(dx: visibleFrame.midX - window.frame.minX, dy: visibleFrame.midY - window.frame.minY))
-                .tap()
-            let selected = XCTNSPredicateExpectation(
-                predicate: NSPredicate { _, _ in menu.exists && menu.label.hasSuffix(title) },
-                object: menu
-            )
-            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
         }
     }
 
