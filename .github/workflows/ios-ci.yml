@@ -291,6 +291,7 @@ jobs:
           }
 
           APP_STORE_DEVICE_NAME="$(choose_app_store_device)"
+          xcrun simctl shutdown all
           echo "Capturing App Store screenshots on $APP_STORE_DEVICE_NAME"
           capture_device "$APP_STORE_DEVICE_NAME" "iphone-app-store"
           validate_app_store_screenshot_sizes
