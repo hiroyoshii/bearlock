@@ -526,7 +526,9 @@ final class BearLockAppModel: ObservableObject {
             lastShieldEvent: diagnosticsSnapshot.lastEvent(named: "Shield.")?.summary ?? L10n.string("None"),
             lastShieldConfigurationEvent: diagnosticsSnapshot.lastEvent(named: "ShieldConfiguration.")?.summary ?? L10n.string("None"),
             safetyPolicy: BearLockSafetyPolicy.diagnosticsText,
-            appGroupPath: AppGroup.containerURL.path,
+            appGroupPath: FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: AppGroup.identifier
+            )?.path ?? L10n.string("Unavailable"),
             diagnosticsWritable: diagnosticsWritable,
             bundleIdentifier: Bundle.main.bundleIdentifier ?? "Unknown",
             appVersion: Self.appVersion

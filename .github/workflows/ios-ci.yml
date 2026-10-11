@@ -245,9 +245,14 @@ jobs:
               local screenshot_path="$SCREENSHOT_DIR/$label/$screen.png"
               local screenshot_size=0
               xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
-              xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@"
+              local launch_output
+              launch_output="$(xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@")"
+              echo "$launch_output"
+              local launched_app_pid="${launch_output##*: }"
+              [[ "$launched_app_pid" =~ ^[0-9]+$ ]]
               for attempt in 1 2 3; do
                 sleep $((attempt + 2))
+                kill -0 "$launched_app_pid"
                 xcrun simctl io "$udid" screenshot "$screenshot_path"
                 screenshot_size="$(stat -f%z "$screenshot_path")"
                 if [ "$screenshot_size" -ge 100000 ]; then

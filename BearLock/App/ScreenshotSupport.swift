@@ -37,6 +37,7 @@ enum ScreenshotScreen: String, CaseIterable {
 struct ScreenshotHostView: View {
     let screen: ScreenshotScreen
     @StateObject private var model: BearLockAppModel
+    @State private var isWakeOptionsPresented = false
 
     init(screen: ScreenshotScreen) {
         self.screen = screen
@@ -51,6 +52,9 @@ struct ScreenshotHostView: View {
         .environmentObject(model)
         .task {
             await model.refresh()
+            if screen == .wakeOptions {
+                isWakeOptionsPresented = true
+            }
         }
     }
 
@@ -107,7 +111,8 @@ struct ScreenshotHostView: View {
         case .activeLock:
             HomeView(onWake: {})
         case .wakeOptions:
-            WakeOptionsDialogPreview()
+            Color.clear
+                .wakeOptionsDialog(isPresented: $isWakeOptionsPresented)
         case .wakeResult:
             WakeResultView()
         case .scheduledEditor:
@@ -150,16 +155,6 @@ struct ScreenshotHostView: View {
             content()
         }
         .padding(20)
-    }
-}
-
-private struct WakeOptionsDialogPreview: View {
-    @State private var isPresented = false
-
-    var body: some View {
-        Color.clear
-            .wakeOptionsDialog(isPresented: $isPresented)
-            .task { isPresented = true }
     }
 }
 

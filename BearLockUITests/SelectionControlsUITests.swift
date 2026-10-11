@@ -208,10 +208,18 @@ final class SelectionControlsUITests: XCTestCase {
             let visibleFrame = choice.frame.intersection(app.frame)
             XCTAssertFalse(visibleFrame.isEmpty)
             XCTAssertTrue(visibleFrame.midX.isFinite && visibleFrame.midY.isFinite)
-            // The system menu can expose a zero-size AX window even while its
-            // rows are visible. Send the gesture from the app's screen coordinates.
-            app.coordinate(withNormalizedOffset: .zero)
-                .withOffset(CGVector(dx: visibleFrame.midX - app.frame.minX, dy: visibleFrame.midY - app.frame.minY))
+            // The menu's AX window and the application's implicit parent window
+            // can both be zero-size. Anchor the gesture to the actual main window.
+            guard let window = app.windows.allElementsBoundByIndex.first(where: {
+                let frame = $0.frame
+                return !frame.isEmpty && frame.minX.isFinite && frame.minY.isFinite
+                    && frame.contains(CGPoint(x: visibleFrame.midX, y: visibleFrame.midY))
+            }) else {
+                XCTFail("A finite main window must contain the visible menu item")
+                return
+            }
+            window.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: visibleFrame.midX - window.frame.minX, dy: visibleFrame.midY - window.frame.minY))
                 .tap()
             let selected = XCTNSPredicateExpectation(
                 predicate: NSPredicate { _, _ in menu.exists && menu.label.hasSuffix(title) },
