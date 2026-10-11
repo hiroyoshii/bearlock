@@ -164,7 +164,7 @@ private struct ScheduledLockRow: View {
                 } else if !canEdit {
                     Text(LocalizedStringKey(rule.kind == .recurring ? "Active. Deleting this schedule takes effect when this lock ends." : "This lock is active. Changes are available after it ends."))
                         .font(.caption)
-                        .foregroundStyle(AppTheme.steel)
+                        .foregroundStyle(.secondary)
                 }
                 if rule.status == .disabled {
                     Text("Off")
@@ -180,6 +180,7 @@ private struct ScheduledLockRow: View {
                     onEdit()
                 } label: {
                     Image(systemName: "pencil")
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .disabled(!canEdit)
                 .accessibilityLabel("Edit scheduled lock")
@@ -190,6 +191,7 @@ private struct ScheduledLockRow: View {
                         onDelete()
                     } label: {
                         Image(systemName: "trash")
+                            .frame(minWidth: 44, minHeight: 44)
                     }
                     .disabled(rule.kind != .recurring && !canEdit)
                     .accessibilityLabel("Delete scheduled lock")
@@ -199,11 +201,13 @@ private struct ScheduledLockRow: View {
                         onCancelDeletion()
                     } label: {
                         Image(systemName: "arrow.uturn.backward")
+                            .frame(minWidth: 44, minHeight: 44)
                     }
                     .accessibilityLabel("Cancel scheduled deletion")
                     .accessibilityIdentifier("scheduled-lock-deletion-cancel-button")
                 }
             }
+            .tint(AppTheme.navy)
         }
         .padding(14)
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))

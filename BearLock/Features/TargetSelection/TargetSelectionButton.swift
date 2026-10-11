@@ -16,8 +16,18 @@ struct TargetSelectionButton: View {
     let prominent: Bool
 
     var body: some View {
-        baseButton
-            .disabled(isLocked || isRequestingAccess)
+        Group {
+            if isLocked {
+                Label("Cannot change during lock", systemImage: "lock.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                    .accessibilityIdentifier("locked-target-explanation")
+            } else {
+                baseButton
+                    .disabled(isRequestingAccess)
+            }
+        }
             .alert("Screen Time access", isPresented: $showsAccessExplanation) {
                 Button("Not now", role: .cancel) {}
                 Button("Continue") {
@@ -99,7 +109,7 @@ struct TargetSelectionButton: View {
             }
             openPicker()
         } label: {
-            Label(isLocked ? "Cannot change during lock" : "Select targets", systemImage: "app.badge")
+            Label("Select targets", systemImage: "app.badge")
                 .frame(maxWidth: .infinity)
         }
 

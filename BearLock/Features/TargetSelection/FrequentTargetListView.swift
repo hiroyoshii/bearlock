@@ -101,6 +101,7 @@ private struct FrequentTargetRow: View {
             }
             .buttonStyle(RecentTargetSelectionButtonStyle())
             .accessibilityValue(isSelected ? Text("Selected") : Text("Not selected"))
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
             .accessibilityHint("Use this saved target")
             .accessibilityIdentifier("frequent-target-select-\(recentTarget.id.uuidString)")
 
@@ -119,7 +120,7 @@ private struct FrequentTargetRow: View {
                 }
             } label: {
                 Image(systemName: "ellipsis")
-                    .frame(width: 36, height: 44)
+                    .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
             .foregroundStyle(AppTheme.navy.opacity(0.68))

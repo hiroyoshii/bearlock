@@ -257,9 +257,12 @@ final class BearLockLaunchUITests: XCTestCase {
         app.buttons["target-list-disclosure"].tap()
         XCTAssertTrue(app.staticTexts["selected-target-detail-Messages"].exists)
         XCTAssertFalse(app.staticTexts["selected-target-detail-Books"].exists)
+        let initialTarget = app.buttons["frequent-target-select-15151515-1515-1515-1515-151515151515"]
+        XCTAssertTrue(initialTarget.isSelected)
         captureScreenshot(named: "e2e-target-summary-before-reuse")
 
         let sleepTarget = app.buttons["frequent-target-select-16161616-1616-1616-1616-161616161616"]
+        XCTAssertFalse(sleepTarget.isSelected)
         scrollToButton(sleepTarget, in: app)
         sleepTarget.tap()
         expectation(for: NSPredicate(format: "label == %@", "2 targets"), evaluatedWith: count)
@@ -267,10 +270,11 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["selected-target-detail-Books"].exists)
         XCTAssertTrue(app.staticTexts["selected-target-detail-Music"].exists)
         XCTAssertFalse(app.staticTexts["selected-target-detail-Messages"].exists)
+        XCTAssertTrue(sleepTarget.isSelected)
+        XCTAssertFalse(initialTarget.isSelected)
         captureScreenshot(named: "e2e-target-summary-after-reuse")
 
         // Switch back without navigating away: the summary must refresh both ways.
-        let initialTarget = app.buttons["frequent-target-select-15151515-1515-1515-1515-151515151515"]
         scrollToButton(initialTarget, in: app)
         initialTarget.tap()
         expectation(for: NSPredicate(format: "label == %@", "3 targets"), evaluatedWith: count)
@@ -456,25 +460,6 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Bear is sleeping."].exists)
     }
 
-    private func launchApprovedSeededApp(extraArguments: [String] = []) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = [
-            "--ui-testing",
-            "--ui-testing-approved",
-            "--ui-testing-seeded",
-            "--ui-testing-target-summary",
-            "--reset-ui-testing-state"
-        ] + extraArguments
-        app.launch()
-        return app
-    }
-
-    private func scrollToButton(_ button: XCUIElement, in app: XCUIApplication) {
-        for _ in 0..<4 where !button.isHittable { app.swipeDown() }
-        for _ in 0..<5 where !button.isHittable { app.swipeUp() }
-        XCTAssertTrue(button.isHittable)
-    }
-
     private func tapFirstButton(_ app: XCUIApplication, identifier: String) {
         let button = app.buttons.matching(identifier: identifier).firstMatch
         if !button.waitForExistence(timeout: 3) {
@@ -516,8 +501,29 @@ final class BearLockLaunchUITests: XCTestCase {
         }
         XCTAssertTrue(element.waitForExistence(timeout: 5), "Expected static text \(text)")
     }
+}
 
-    private func captureScreenshot(named name: String) {
+extension XCTestCase {
+    func launchApprovedSeededApp(extraArguments: [String] = []) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--ui-testing",
+            "--ui-testing-approved",
+            "--ui-testing-seeded",
+            "--ui-testing-target-summary",
+            "--reset-ui-testing-state"
+        ] + extraArguments
+        app.launch()
+        return app
+    }
+
+    func scrollToButton(_ button: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<4 where !button.isHittable { app.swipeDown() }
+        for _ in 0..<5 where !button.isHittable { app.swipeUp() }
+        XCTAssertTrue(button.isHittable)
+    }
+
+    func captureScreenshot(named name: String) {
         let screenshot = XCUIScreen.main.screenshot()
         writeScreenshotIfRequested(screenshot, named: name)
 

@@ -8,28 +8,11 @@ enum LockComposerMode: String, CaseIterable, Identifiable {
     case recurring = "Repeat"
 
     var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .now: return "Now"
-        case .delayed: return "In"
-        case .fixedDateTime: return "Date & Time"
-        case .recurring: return "Repeat"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-        case .now: return "bolt.fill"
-        case .delayed: return "timer"
-        case .fixedDateTime: return "calendar"
-        case .recurring: return "repeat"
-        }
-    }
 }
 
 struct LockComposerView: View {
     @EnvironmentObject private var model: BearLockAppModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var mode: LockComposerMode
     var allowsImmediateLock = true
 
@@ -52,7 +35,7 @@ struct LockComposerView: View {
                     .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
             }
 
-            modeTabs
+            modePicker
 
             Group {
                 switch mode {
@@ -134,10 +117,10 @@ struct LockComposerView: View {
                     delayMinutes = max(5, delayMinutes - 5)
                 } label: {
                     Image(systemName: "minus")
-                        .frame(width: 42, height: 42)
+                        .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.bordered)
-                .tint(AppTheme.steel)
+                .tint(AppTheme.navy)
                 .disabled(delayMinutes <= 5)
                 .accessibilityLabel("Decrease start delay")
 
@@ -156,38 +139,36 @@ struct LockComposerView: View {
                     delayMinutes = min(240, delayMinutes + 5)
                 } label: {
                     Image(systemName: "plus")
-                        .frame(width: 42, height: 42)
+                        .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.bordered)
-                .tint(AppTheme.steel)
+                .tint(AppTheme.navy)
                 .disabled(delayMinutes >= 240)
                 .accessibilityLabel("Increase start delay")
             }
         }
     }
 
-    private var modeTabs: some View {
-        HStack(spacing: 8) {
+    @ViewBuilder
+    private var modePicker: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            startModePicker
+                .pickerStyle(.menu)
+                .frame(minHeight: 44)
+        } else {
+            startModePicker
+                .pickerStyle(.segmented)
+                .frame(minHeight: 44)
+        }
+    }
+
+    private var startModePicker: some View {
+        Picker("Start", selection: $mode) {
             ForEach(availableModes) { tabMode in
-                Button {
-                    mode = tabMode
-                } label: {
-                    Label(LocalizedStringKey(tabMode.title), systemImage: tabMode.iconName)
-                        .font(.caption.weight(.bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.82)
-                        .frame(maxWidth: .infinity, minHeight: 38)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(mode == tabMode ? AppTheme.snow : AppTheme.navy)
-                .background(mode == tabMode ? AppTheme.navy : AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(mode == tabMode ? AppTheme.navy : AppTheme.steel.opacity(0.35), lineWidth: 1)
-                )
-                .accessibilityIdentifier("lock-composer-mode-\(tabMode.id)")
+                Text(LocalizedStringKey(tabMode.rawValue)).tag(tabMode)
             }
         }
+        .tint(AppTheme.navy)
         .accessibilityIdentifier("lock-composer-mode-picker")
     }
 

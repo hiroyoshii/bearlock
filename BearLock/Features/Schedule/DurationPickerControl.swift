@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DurationPickerControl: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var minutes: Double
     let minimumMinutes: Double
     let maximumMinutes: Double
@@ -23,20 +24,19 @@ struct DurationPickerControl: View {
 
             Slider(value: $minutes, in: minimumMinutes...maximumMinutes, step: 5)
                 .tint(AppTheme.navy)
+                .accessibilityLabel("Duration")
+                .accessibilityValue(Text(L10n.format("%d min", Int(minutes))))
                 .accessibilityIdentifier("duration-slider")
 
             if !presetMinutes.isEmpty {
-                HStack(spacing: 8) {
-                    ForEach(presetMinutes, id: \.self) { preset in
-                        Button {
-                            minutes = Double(preset)
-                        } label: {
-                            Text(L10n.format("%d min", preset))
-                                .font(.caption.weight(.semibold))
-                                .frame(maxWidth: .infinity)
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: 8) { presetButtons }
+                } else {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 8) { presetButtons }
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                            presetButtons
                         }
-                        .buttonStyle(.bordered)
-                        .tint(Int(minutes) == preset ? AppTheme.navy : AppTheme.steel)
                     }
                 }
             }
@@ -46,6 +46,24 @@ struct DurationPickerControl: View {
                     .font(.caption)
                     .foregroundStyle(AppTheme.navy.opacity(0.62))
             }
+        }
+    }
+
+    private var presetButtons: some View {
+        ForEach(presetMinutes, id: \.self) { preset in
+            let isSelected = minutes == Double(preset)
+            Button {
+                minutes = Double(preset)
+            } label: {
+                Label(L10n.format("%d min", preset), systemImage: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.subheadline.weight(.semibold))
+                    .fixedSize(horizontal: true, vertical: false)
+                    .padding(.horizontal, 8)
+            }
+            .buttonStyle(SelectionButtonStyle(isSelected: isSelected))
+            .accessibilityLabel(Text(L10n.format("%d min", preset)))
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+            .accessibilityIdentifier("duration-preset-\(preset)")
         }
     }
 }

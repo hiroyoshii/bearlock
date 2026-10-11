@@ -113,6 +113,7 @@ jobs:
             build | tee artifacts/xcodebuild-build.log
 
       - name: Compile UI test bundle
+        id: ui-test-build
         run: |
           set -o pipefail
           mkdir -p artifacts
@@ -143,6 +144,23 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             test-without-building | tee artifacts/xcodebuild-ui-e2e.log
 
+      - name: Run selection UI e2e on small iPhone
+        if: ${{ !cancelled() && steps.ui-test-build.outcome == 'success' }}
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          runtime_id="$(xcrun simctl list runtimes -j | python3 -c 'import json, sys; ios=[r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("platform") == "iOS"]; print(sorted(ios, key=lambda r: [int(n) for n in r["version"].split(".")])[-1]["identifier"])')"
+          small_udid="$(xcrun simctl create 'BearLock Small iPhone' com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation "$runtime_id")"
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -destination "platform=iOS Simulator,id=$small_udid" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -resultBundlePath artifacts/selection-small-iphone.xcresult \
+            -only-testing:BearLockUITests/SelectionControlsUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            test-without-building | tee artifacts/xcodebuild-selection-small-iphone.log
+
       - name: Collect mock UI e2e screenshots
         if: always()
         run: |
@@ -151,6 +169,8 @@ jobs:
           fi
 
       - name: Build screenshot app for simulator
+        if: ${{ !cancelled() && steps.ui-test-build.outcome == 'success' }}
+        id: screenshot-build
         run: |
           set -o pipefail
           mkdir -p artifacts
@@ -163,6 +183,7 @@ jobs:
             build | tee artifacts/xcodebuild-screenshot-build.log
 
       - name: Capture launched app screenshot
+        if: ${{ !cancelled() && steps.screenshot-build.outcome == 'success' }}
         run: |
           set -euo pipefail
           mkdir -p artifacts "$SCREENSHOT_DIR"
