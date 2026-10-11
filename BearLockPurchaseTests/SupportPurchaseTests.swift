@@ -100,7 +100,9 @@ final class SupportPurchaseTests: XCTestCase {
         let transaction = try await session.buyProduct(identifier: SupportProduct.lunch.productID, options: [])
         try await eventually { await self.unfinishedIDs().contains(transaction.id) }
         store = SupportStore()
-        try await eventually { self.store.message == self.thanks }
+        // StoreKit's test server can take longer than 10 seconds to finish
+        // recovered transactions on CI; this is not a product latency assertion.
+        try await eventually(timeout: 30) { self.store.message == self.thanks }
         try await eventually { await self.unfinishedIDs().isEmpty }
     }
 
@@ -129,12 +131,12 @@ final class SupportPurchaseTests: XCTestCase {
         try await product.purchase()
     }
 
-    private func eventually(_ condition: () async -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {
-        let deadline = Date().addingTimeInterval(10)
+    private func eventually(timeout: TimeInterval = 10, _ condition: () async -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if await condition() { return }
             try await Task.sleep(for: .milliseconds(100))
         }
-        XCTFail("StoreKit did not reach the expected state within 10 seconds", file: file, line: line)
+        XCTFail("StoreKit did not reach the expected state within \(timeout) seconds", file: file, line: line)
     }
 }
