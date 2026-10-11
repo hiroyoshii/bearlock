@@ -1,0 +1,2119 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project BearLock.xcodeproj -scheme BearLock -destination "platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest" -derivedDataPath DerivedData -resultBundlePath artifacts/BearLockE2ETests.xcresult -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO test-without-building
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  BearLock: /Users/runner/work/bearlock/bearlock
+
+Writing result bundle at path:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2ETests.xcresult
+
+Resolve Package Graph
+
+2026-10-11 11:46:30.185033+0000 BearLockUITests-Runner[46773:121791] [Default] Running tests...
+2026-10-11 11:46:30.333639+0000 BearLockUITests-Runner[46773:122688] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-10-11 11:46:30.374850+0000 BearLockUITests-Runner[46773:122688] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+objc[46773]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x10b07c310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x10afe0398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'All tests' started at 2026-10-11 11:46:55.850.
+Test Suite 'BearLockUITests.xctest' started at 2026-10-11 11:46:55.850.
+Test Suite 'BearLockLaunchUITests' started at 2026-10-11 11:46:55.851.
+Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveLockHidesMutableControlsWithMockServices]' started.
+    t =     0.00s Start Test at 2026-10-11 11:46:55.851
+    t =     2.11s Set Up
+    t =     2.12s Open com.hiyozoo.bearlock
+    t =     2.12s     Launch com.hiyozoo.bearlock
+Resolve Package Graph
+
+    t =    44.30s         Setting up automation session
+    t =    45.23s         Wait for com.hiyozoo.bearlock to idle
+    t =    47.62s Waiting 10.0s for "Bear is sleeping." StaticText to exist
+    t =    48.70s     Checking `Expect predicate `existsNoRetry == 1` for object "Bear is sleeping." StaticText`
+    t =    48.70s         Checking existence of `"Bear is sleeping." StaticText`
+    t =    48.84s Checking existence of `"Do not wake the bear." StaticText`
+    t =    48.96s Checking existence of `"Now" StaticText`
+    t =    49.00s Checking existence of `"lock-composer-primary-button" Button`
+    t =    49.04s Checking existence of `"In" Button`
+    t =    49.08s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    49.17s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    49.60s Checking existence of `"open-wake-options" Button`
+    t =    49.66s Checking existence of `"Wake in 30 minutes for free" Button`
+    t =    49.77s Checking existence of `"open-wake-options" Button`
+    t =    49.82s Find the "open-wake-options" Button
+    t =    49.93s Find the "open-wake-options" Button
+    t =    49.99s Tap "open-wake-options" Button
+    t =    49.99s     Wait for com.hiyozoo.bearlock to idle
+    t =    50.00s     Find the "open-wake-options" Button
+    t =    50.04s     Check for interrupting elements affecting "open-wake-options" Button
+    t =    50.13s     Synthesize event
+    t =    50.58s     Wait for com.hiyozoo.bearlock to idle
+    t =    50.96s Waiting 5.0s for "schedule-free-wake" Button to exist
+    t =    52.00s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-free-wake" Button`
+    t =    52.00s         Checking existence of `"schedule-free-wake" Button`
+    t =    52.18s Get number of matches for: Elements matching predicate 'label == "Wake now" AND enabled == 1'
+    t =    52.51s Added attachment named 'e2e-active-lock-constraints'
+    t =    52.51s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveLockHidesMutableControlsWithMockServices]' passed (55.543 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveRecurringDeletionIsScheduledForCurrentEnd]' started.
+    t =     0.00s Start Test at 2026-10-11 11:47:51.396
+    t =     0.10s Set Up
+    t =     0.10s Open com.hiyozoo.bearlock
+    t =     0.10s     Launch com.hiyozoo.bearlock
+    t =     0.10s         Terminate com.hiyozoo.bearlock:47723
+Resolve Package Graph
+
+    t =     2.65s         Setting up automation session
+    t =     4.26s         Wait for com.hiyozoo.bearlock to idle
+    t =     6.95s Waiting 10.0s for "Bear is sleeping." StaticText to exist
+    t =     7.98s     Checking `Expect predicate `existsNoRetry == 1` for object "Bear is sleeping." StaticText`
+    t =     7.98s         Checking existence of `"Bear is sleeping." StaticText`
+    t =     8.16s Checking existence of `"Repeats" StaticText`
+    t =     8.28s Checking existence of `"Repeats" StaticText`
+    t =     8.36s Checking existence of `"Repeats" StaticText`
+    t =     8.45s Checking existence of `"Repeats" StaticText`
+    t =     8.52s Waiting 5.0s for "Repeats" StaticText to exist
+    t =     9.57s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeats" StaticText`
+    t =     9.57s         Checking existence of `"Repeats" StaticText`
+    t =     9.74s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    10.04s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    10.25s Find the "scheduled-lock-edit-button" Button
+    t =    10.47s Find the "scheduled-lock-delete-button" Button
+    t =    10.62s Checking existence of `"Active. Deleting this schedule takes effect when this lock ends." StaticText`
+    t =    10.98s Added attachment named 'e2e-active-recurring-deletion-available'
+    t =    10.98s Tap "scheduled-lock-delete-button" Button
+    t =    10.98s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.99s     Find the "scheduled-lock-delete-button" Button
+    t =    11.21s     Check for interrupting elements affecting "scheduled-lock-delete-button" Button
+    t =    11.31s     Synthesize event
+    t =    11.34s         Scroll element to visible
+    t =    11.35s         Find the "scheduled-lock-delete-button" Button
+    t =    11.61s         Computed hit point {384, 844.66666666666663} after scrolling to visible
+    t =    11.91s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.29s Waiting 5.0s for "Delete After This Lock" Button to exist
+    t =    14.35s     Checking `Expect predicate `existsNoRetry == 1` for object "Delete After This Lock" Button`
+    t =    14.36s         Checking existence of `"Delete After This Lock" Button`
+    t =    14.72s Added attachment named 'e2e-active-recurring-deletion-confirmation'
+    t =    14.72s Tap "Delete After This Lock" Button
+    t =    14.72s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.73s     Find the "Delete After This Lock" Button
+    t =    14.86s     Check for interrupting elements affecting "Delete After This Lock" Button
+    t =    14.99s     Synthesize event
+    t =    15.32s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.70s Waiting 5.0s for "scheduled-lock-deletion-cancel-button" Button to exist
+    t =    16.74s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-deletion-cancel-button" Button`
+    t =    16.74s         Checking existence of `"scheduled-lock-deletion-cancel-button" Button`
+    t =    16.81s Checking existence of `"scheduled-lock-deletion-summary" StaticText`
+    t =    16.86s Checking existence of `"Bear is sleeping." StaticText`
+    t =    16.91s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    17.20s Added attachment named 'e2e-active-recurring-deletion-scheduled'
+    t =    17.20s Tap "scheduled-lock-deletion-cancel-button" Button
+    t =    17.20s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.21s     Find the "scheduled-lock-deletion-cancel-button" Button
+    t =    17.25s     Check for interrupting elements affecting "scheduled-lock-deletion-cancel-button" Button
+    t =    17.30s     Synthesize event
+    t =    17.60s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.61s Waiting 5.0s for "scheduled-lock-delete-button" Button to exist
+    t =    18.63s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-delete-button" Button`
+    t =    18.63s         Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    18.74s Checking existence of `"scheduled-lock-deletion-summary" StaticText`
+    t =    18.80s Tap "scheduled-lock-delete-button" Button
+    t =    18.80s     Wait for com.hiyozoo.bearlock to idle
+    t =    18.80s     Find the "scheduled-lock-delete-button" Button
+    t =    18.87s     Check for interrupting elements affecting "scheduled-lock-delete-button" Button
+    t =    18.92s     Synthesize event
+    t =    19.24s     Wait for com.hiyozoo.bearlock to idle
+    t =    19.66s Tap "Delete After This Lock" Button
+    t =    19.66s     Wait for com.hiyozoo.bearlock to idle
+    t =    19.67s     Find the "Delete After This Lock" Button
+    t =    19.80s     Check for interrupting elements affecting "Delete After This Lock" Button
+    t =    19.93s     Synthesize event
+    t =    20.23s     Wait for com.hiyozoo.bearlock to idle
+    t =    20.60s Waiting 5.0s for "scheduled-lock-deletion-cancel-button" Button to exist
+    t =    21.63s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-deletion-cancel-button" Button`
+    t =    21.64s         Checking existence of `"scheduled-lock-deletion-cancel-button" Button`
+    t =    21.68s Terminate com.hiyozoo.bearlock:47996
+    t =    22.76s Open com.hiyozoo.bearlock
+    t =    22.76s     Launch com.hiyozoo.bearlock
+    t =    23.57s         Setting up automation session
+    t =    24.73s         Wait for com.hiyozoo.bearlock to idle
+    t =    26.59s Waiting 10.0s for "scheduled-lock-deletion-cancel-button" Button to exist
+    t =    27.60s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-deletion-cancel-button" Button`
+    t =    27.60s         Checking existence of `"scheduled-lock-deletion-cancel-button" Button`
+    t =    27.70s Checking existence of `"Bear is sleeping." StaticText`
+    t =    27.77s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testActiveRecurringDeletionIsScheduledForCurrentEnd]' passed (28.086 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint]' started.
+    t =     0.00s Start Test at 2026-10-11 11:48:19.482
+    t =     0.03s Set Up
+    t =     0.03s Open com.hiyozoo.bearlock
+    t =     0.03s     Launch com.hiyozoo.bearlock
+    t =     0.03s         Terminate com.hiyozoo.bearlock:48064
+Resolve Package Graph
+
+    t =     1.98s         Setting up automation session
+    t =     2.98s         Wait for com.hiyozoo.bearlock to idle
+    t =     4.81s Waiting 10.0s for "Select targets" Button to exist
+    t =     5.87s     Checking `Expect predicate `existsNoRetry == 1` for object "Select targets" Button`
+    t =     5.87s         Checking existence of `"Select targets" Button`
+    t =     5.96s Checking existence of `"Select blocked apps first." StaticText`
+    t =     5.99s Checking existence of `"Select targets" Button`
+    t =     6.02s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint]' passed (6.378 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testCreateAndOpenRecurringEditorWithMockServices]' started.
+    t =     0.00s Start Test at 2026-10-11 11:48:25.860
+    t =     0.03s Set Up
+    t =     0.03s Open com.hiyozoo.bearlock
+    t =     0.03s     Launch com.hiyozoo.bearlock
+    t =     0.03s         Terminate com.hiyozoo.bearlock:48085
+Resolve Package Graph
+
+    t =     1.82s         Setting up automation session
+    t =     3.27s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.07s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =     6.14s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =     6.14s         Checking existence of `"lock-composer-primary-button" Button`
+    t =     6.27s Tap "Repeat" Button
+    t =     6.27s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.27s     Find the "Repeat" Button
+    t =     6.31s     Check for interrupting elements affecting "Repeat" Button
+    t =     6.36s     Synthesize event
+    t =     6.66s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.66s Waiting 5.0s for "weekday-1" Button to exist
+    t =     8.70s     Checking `Expect predicate `existsNoRetry == 1` for object "weekday-1" Button`
+    t =     8.70s         Checking existence of `"weekday-1" Button`
+    t =     8.75s Find the "weekday-1" Button
+    t =     8.78s Find the "weekday-2" Button
+    t =     8.85s Find the "weekday-6" Button
+    t =     8.88s Find the "weekday-7" Button
+    t =     9.06s Added attachment named 'e2e-recurring-weekday-selection'
+    t =     9.06s Tap "lock-composer-primary-button" Button
+    t =     9.06s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.07s     Find the "lock-composer-primary-button" Button
+    t =     9.11s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =     9.18s     Synthesize event
+    t =     9.49s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.91s Waiting 5.0s for "Schedule this lock?" StaticText to exist
+    t =    10.94s     Checking `Expect predicate `existsNoRetry == 1` for object "Schedule this lock?" StaticText`
+    t =    10.94s         Checking existence of `"Schedule this lock?" StaticText`
+    t =    11.03s Checking existence of `"A wake-up ends only the current lock. Future repeating locks stay scheduled." StaticText`
+    t =    11.11s Checking existence of `"lock-confirmation-wakes" StaticText`
+    t =    11.21s Find the "lock-confirmation-wakes" StaticText
+    t =    11.27s Find the "lock-confirmation-wakes" StaticText
+    t =    11.54s Added attachment named 'e2e-recurring-confirmation'
+    t =    11.54s Tap "lock-confirmation-confirm-button" Button
+    t =    11.54s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.54s     Find the "lock-confirmation-confirm-button" Button
+    t =    11.60s     Check for interrupting elements affecting "lock-confirmation-confirm-button" Button
+    t =    11.64s     Synthesize event
+    t =    11.95s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.56s Waiting 10.0s for "Repeats" StaticText to exist
+    t =    13.57s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeats" StaticText`
+    t =    13.57s         Checking existence of `"Repeats" StaticText`
+    t =    13.75s Added attachment named 'e2e-recurring-scheduled'
+    t =    13.75s Find the "scheduled-lock-edit-button" Button
+    t =    13.84s Waiting 3.0s for "scheduled-lock-edit-button" Button to exist
+    t =    14.87s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    14.87s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    14.94s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    15.99s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    15.99s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    16.05s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    16.10s Find the "scheduled-lock-edit-button" Button
+    t =    16.18s Find the "scheduled-lock-edit-button" Button
+    t =    16.25s Tap "scheduled-lock-edit-button" Button
+    t =    16.25s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.25s     Find the "scheduled-lock-edit-button" Button
+    t =    16.32s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    16.55s     Synthesize event
+    t =    16.84s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.43s Waiting 5.0s for "Repeat" NavigationBar to exist
+    t =    18.49s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeat" NavigationBar`
+    t =    18.49s         Checking existence of `"Repeat" NavigationBar`
+    t =    18.65s Waiting 3.0s for "recurring-rule-enabled-toggle" Switch to exist
+    t =    19.71s     Checking `Expect predicate `existsNoRetry == 1` for object "recurring-rule-enabled-toggle" Switch`
+    t =    19.71s         Checking existence of `"recurring-rule-enabled-toggle" Switch`
+    t =    20.80s Find the "recurring-rule-enabled-toggle" Switch
+    t =    20.98s Tap "recurring-rule-enabled-toggle" Switch[0.93, 0.50]
+    t =    20.98s     Wait for com.hiyozoo.bearlock to idle
+    t =    21.01s     Find the "recurring-rule-enabled-toggle" Switch
+    t =    21.16s     Check for interrupting elements affecting "recurring-rule-enabled-toggle" Switch
+    t =    21.24s     Synthesize event
+    t =    21.24s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    21.39s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    21.52s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    21.96s     Wait for com.hiyozoo.bearlock to idle
+    t =    24.35s Checking `Expect predicate `value != "1"` for object "recurring-rule-enabled-toggle" Switch`
+    t =    24.36s     Find the "recurring-rule-enabled-toggle" Switch
+    t =    24.83s Added attachment named 'e2e-recurring-disabled-editor'
+    t =    24.83s Tap "Cancel" Button
+    t =    24.83s     Wait for com.hiyozoo.bearlock to idle
+    t =    24.84s     Find the "Cancel" Button
+    t =    24.95s     Check for interrupting elements affecting "Cancel" Button
+    t =    25.07s     Synthesize event
+    t =    25.40s     Wait for com.hiyozoo.bearlock to idle
+    t =    26.08s Waiting 3.0s for "scheduled-lock-edit-button" Button to exist
+    t =    27.11s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    27.11s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    27.24s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    28.27s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    28.27s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    28.55s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    28.72s Find the "scheduled-lock-edit-button" Button
+    t =    28.89s Find the "scheduled-lock-edit-button" Button
+    t =    29.03s Tap "scheduled-lock-edit-button" Button
+    t =    29.03s     Wait for com.hiyozoo.bearlock to idle
+    t =    29.04s     Find the "scheduled-lock-edit-button" Button
+    t =    29.15s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    29.19s     Synthesize event
+    t =    29.51s     Wait for com.hiyozoo.bearlock to idle
+    t =    29.67s Find the "recurring-rule-enabled-toggle" Switch
+    t =    30.49s Waiting 3.0s for "recurring-rule-enabled-toggle" Switch to exist
+    t =    31.55s     Checking `Expect predicate `existsNoRetry == 1` for object "recurring-rule-enabled-toggle" Switch`
+    t =    31.55s         Checking existence of `"recurring-rule-enabled-toggle" Switch`
+    t =    31.82s Find the "recurring-rule-enabled-toggle" Switch
+    t =    32.03s Tap "recurring-rule-enabled-toggle" Switch[0.93, 0.50]
+    t =    32.03s     Wait for com.hiyozoo.bearlock to idle
+    t =    32.04s     Find the "recurring-rule-enabled-toggle" Switch
+    t =    32.25s     Check for interrupting elements affecting "recurring-rule-enabled-toggle" Switch
+    t =    32.32s     Synthesize event
+    t =    32.32s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    32.59s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    32.93s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    33.69s     Wait for com.hiyozoo.bearlock to idle
+    t =    36.09s Checking `Expect predicate `value != "1"` for object "recurring-rule-enabled-toggle" Switch`
+    t =    36.09s     Find the "recurring-rule-enabled-toggle" Switch
+    t =    36.27s Tap "Save" Button
+    t =    36.27s     Wait for com.hiyozoo.bearlock to idle
+    t =    36.27s     Find the "Save" Button
+    t =    36.37s     Check for interrupting elements affecting "Save" Button
+    t =    36.47s     Synthesize event
+    t =    36.81s     Wait for com.hiyozoo.bearlock to idle
+    t =    37.57s Checking existence of `"Off" StaticText`
+    t =    37.69s Checking existence of `"Off" StaticText`
+    t =    37.74s Checking existence of `"Off" StaticText`
+    t =    37.83s Checking existence of `"Off" StaticText`
+    t =    37.87s Waiting 5.0s for "Off" StaticText to exist
+    t =    38.94s     Checking `Expect predicate `existsNoRetry == 1` for object "Off" StaticText`
+    t =    38.94s         Checking existence of `"Off" StaticText`
+    t =    38.97s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testCreateAndOpenRecurringEditorWithMockServices]' passed (39.269 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testCreateImmediateLockWithMockServices]' started.
+    t =     0.00s Start Test at 2026-10-11 11:49:05.130
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:48111
+Resolve Package Graph
+
+    t =     2.72s         Setting up automation session
+    t =     3.69s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.59s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =     6.60s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =     6.60s         Checking existence of `"lock-composer-primary-button" Button`
+    t =     7.76s Checking `Expect predicate `label == "3 targets"` for object "selected-target-count" StaticText`
+    t =     7.77s     Find the "selected-target-count" StaticText
+    t =     7.81s Checking existence of `"duration-slider" Slider`
+    t =     7.84s Tap "lock-composer-primary-button" Button
+    t =     7.84s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.85s     Find the "lock-composer-primary-button" Button
+    t =     7.88s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =     7.93s     Synthesize event
+    t =     8.23s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.64s Waiting 5.0s for "Start this lock?" StaticText to exist
+    t =     9.67s     Checking `Expect predicate `existsNoRetry == 1` for object "Start this lock?" StaticText`
+    t =     9.67s         Checking existence of `"Start this lock?" StaticText`
+    t =     9.72s Checking existence of `"After confirmation" StaticText`
+    t =     9.91s Added attachment named 'e2e-immediate-confirmation'
+    t =     9.91s Tap "lock-confirmation-confirm-button" Button
+    t =     9.91s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.91s     Find the "lock-confirmation-confirm-button" Button
+    t =     9.96s     Check for interrupting elements affecting "lock-confirmation-confirm-button" Button
+    t =    10.00s     Synthesize event
+    t =    10.30s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.93s Waiting 10.0s for "Bear is sleeping." StaticText to exist
+    t =    11.96s     Checking `Expect predicate `existsNoRetry == 1` for object "Bear is sleeping." StaticText`
+    t =    11.96s         Checking existence of `"Bear is sleeping." StaticText`
+    t =    12.01s Checking existence of `"Do not wake the bear." StaticText`
+    t =    12.20s Added attachment named 'e2e-immediate-active-lock'
+    t =    12.20s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testCreateImmediateLockWithMockServices]' passed (12.449 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDeclinedAccessKeepsHomeUsable]' started.
+    t =     0.00s Start Test at 2026-10-11 11:49:17.579
+    t =     0.02s Set Up
+    t =     0.03s Open com.hiyozoo.bearlock
+    t =     0.03s     Launch com.hiyozoo.bearlock
+    t =     0.03s         Terminate com.hiyozoo.bearlock:50010
+Resolve Package Graph
+
+    t =     1.56s         Setting up automation session
+    t =     2.88s         Wait for com.hiyozoo.bearlock to idle
+    t =     4.43s Tap "Get started" Button
+    t =     4.43s     Wait for com.hiyozoo.bearlock to idle
+    t =     4.43s     Find the "Get started" Button
+    t =     4.50s     Check for interrupting elements affecting "Get started" Button
+    t =     4.52s     Synthesize event
+    t =     4.81s     Wait for com.hiyozoo.bearlock to idle
+    t =     4.88s Tap "Select targets" Button
+    t =     4.88s     Wait for com.hiyozoo.bearlock to idle
+    t =     4.89s     Find the "Select targets" Button
+    t =     4.94s     Check for interrupting elements affecting "Select targets" Button
+    t =     4.97s     Synthesize event
+    t =     5.27s     Wait for com.hiyozoo.bearlock to idle
+    t =     5.64s Tap "Continue" Button
+    t =     5.64s     Wait for com.hiyozoo.bearlock to idle
+    t =     5.64s     Find the "Continue" Button
+    t =     5.71s     Check for interrupting elements affecting "Continue" Button
+    t =     5.77s     Synthesize event
+    t =     6.07s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.32s Waiting 5.0s for "Screen Time access is unavailable. Blocking may not be active." StaticText to exist
+    t =     7.38s     Checking `Expect predicate `existsNoRetry == 1` for object "Screen Time access is unavailable. Blocking may not be active." StaticText`
+    t =     7.38s         Checking existence of `"Screen Time access is unavailable. Blocking may not be active." StaticText`
+    t =     7.41s Checking existence of `"Get started" Button`
+    t =     7.44s Checking existence of `"Settings" Button`
+    t =     7.47s Tap "Select targets" Button
+    t =     7.47s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.47s     Find the "Select targets" Button
+    t =     7.51s     Check for interrupting elements affecting "Select targets" Button
+    t =     7.54s     Synthesize event
+    t =     7.84s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.14s Waiting 5.0s for "Screen Time access" Alert to exist
+    t =     9.18s     Checking `Expect predicate `existsNoRetry == 1` for object "Screen Time access" Alert`
+    t =     9.18s         Checking existence of `"Screen Time access" Alert`
+    t =     9.24s Tap "Not now" Button
+    t =     9.24s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.24s     Find the "Not now" Button
+    t =     9.31s     Check for interrupting elements affecting "Not now" Button
+    t =     9.40s     Synthesize event
+    t =     9.69s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.09s Added attachment named 'onboarding-access-declined-en'
+    t =    10.09s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDeclinedAccessKeepsHomeUsable]' passed (10.317 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringDraftCancelsWithoutChangingSavedStatus]' started.
+    t =     0.00s Start Test at 2026-10-11 11:49:27.897
+    t =     0.02s Set Up
+    t =     0.02s Open com.hiyozoo.bearlock
+    t =     0.02s     Launch com.hiyozoo.bearlock
+    t =     0.02s         Terminate com.hiyozoo.bearlock:50759
+Resolve Package Graph
+
+    t =     1.27s         Setting up automation session
+    t =     3.07s         Wait for com.hiyozoo.bearlock to idle
+    t =     4.98s Checking existence of `"Repeats" StaticText`
+    t =     5.12s Checking existence of `"Repeats" StaticText`
+    t =     5.17s Checking existence of `"Repeats" StaticText`
+    t =     5.20s Checking existence of `"Repeats" StaticText`
+    t =     5.23s Waiting 5.0s for "Repeats" StaticText to exist
+    t =     6.30s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeats" StaticText`
+    t =     6.30s         Checking existence of `"Repeats" StaticText`
+    t =     6.35s Waiting 3.0s for "scheduled-lock-edit-button" Button to exist
+    t =     7.37s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =     7.37s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =     7.42s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =     8.47s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =     8.47s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =     8.52s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =     8.58s Find the "scheduled-lock-edit-button" Button
+    t =     8.65s Find the "scheduled-lock-edit-button" Button
+    t =     8.70s Tap "scheduled-lock-edit-button" Button
+    t =     8.70s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.71s     Find the "scheduled-lock-edit-button" Button
+    t =     8.76s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =     8.80s     Synthesize event
+    t =     9.10s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.27s Waiting 5.0s for "Repeat" NavigationBar to exist
+    t =    10.30s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeat" NavigationBar`
+    t =    10.30s         Checking existence of `"Repeat" NavigationBar`
+    t =    10.40s Waiting 3.0s for "recurring-rule-enabled-toggle" Switch to exist
+    t =    11.45s     Checking `Expect predicate `existsNoRetry == 1` for object "recurring-rule-enabled-toggle" Switch`
+    t =    11.45s         Checking existence of `"recurring-rule-enabled-toggle" Switch`
+    t =    11.59s Find the "recurring-rule-enabled-toggle" Switch
+    t =    11.78s Tap "recurring-rule-enabled-toggle" Switch[0.93, 0.50]
+    t =    11.78s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.78s     Find the "recurring-rule-enabled-toggle" Switch
+    t =    11.96s     Check for interrupting elements affecting "recurring-rule-enabled-toggle" Switch
+    t =    12.07s     Synthesize event
+    t =    12.07s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    12.23s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    12.39s         Find the "recurring-rule-enabled-toggle" Switch
+    t =    12.84s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.19s Checking `Expect predicate `value != "0"` for object "recurring-rule-enabled-toggle" Switch`
+    t =    15.19s     Find the "recurring-rule-enabled-toggle" Switch
+    t =    15.33s Tap "Cancel" Button
+    t =    15.33s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.33s     Find the "Cancel" Button
+    t =    15.40s     Check for interrupting elements affecting "Cancel" Button
+    t =    15.46s     Synthesize event
+    t =    15.76s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.51s Waiting 3.0s for "scheduled-lock-edit-button" Button to exist
+    t =    17.55s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    17.55s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    17.60s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    18.65s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    18.65s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    18.73s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    18.78s Find the "scheduled-lock-edit-button" Button
+    t =    18.88s Find the "scheduled-lock-edit-button" Button
+    t =    19.03s Tap "scheduled-lock-edit-button" Button
+    t =    19.03s     Wait for com.hiyozoo.bearlock to idle
+    t =    19.03s     Find the "scheduled-lock-edit-button" Button
+    t =    19.09s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    19.14s     Synthesize event
+    t =    19.54s     Wait for com.hiyozoo.bearlock to idle
+    t =    20.31s Find the "recurring-rule-enabled-toggle" Switch
+    t =    20.45s Tap "Cancel" Button
+    t =    20.45s     Wait for com.hiyozoo.bearlock to idle
+    t =    20.46s     Find the "Cancel" Button
+    t =    20.56s     Check for interrupting elements affecting "Cancel" Button
+    t =    20.74s     Synthesize event
+    t =    21.05s     Wait for com.hiyozoo.bearlock to idle
+    t =    21.79s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringDraftCancelsWithoutChangingSavedStatus]' passed (22.052 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringSeedShowsOffStateWithMockServices]' started.
+    t =     0.00s Start Test at 2026-10-11 11:49:49.950
+    t =     0.03s Set Up
+    t =     0.03s Open com.hiyozoo.bearlock
+    t =     0.03s     Launch com.hiyozoo.bearlock
+    t =     0.03s         Terminate com.hiyozoo.bearlock:51479
+    t =     1.73s         Setting up automation session
+Resolve Package Graph
+
+    t =     2.86s         Wait for com.hiyozoo.bearlock to idle
+    t =     4.75s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =     5.78s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =     5.78s         Checking existence of `"lock-composer-primary-button" Button`
+    t =     5.92s Checking existence of `"Repeats" StaticText`
+    t =     5.96s Checking existence of `"Repeats" StaticText`
+    t =     5.99s Checking existence of `"Repeats" StaticText`
+    t =     6.03s Checking existence of `"Repeats" StaticText`
+    t =     6.06s Waiting 5.0s for "Repeats" StaticText to exist
+    t =     7.07s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeats" StaticText`
+    t =     7.07s         Checking existence of `"Repeats" StaticText`
+    t =     7.11s Checking existence of `"Off" StaticText`
+    t =     7.15s Checking existence of `"Off" StaticText`
+    t =     7.18s Checking existence of `"Off" StaticText`
+    t =     7.23s Checking existence of `"Off" StaticText`
+    t =     7.27s Waiting 5.0s for "Off" StaticText to exist
+    t =     8.28s     Checking `Expect predicate `existsNoRetry == 1` for object "Off" StaticText`
+    t =     8.28s         Checking existence of `"Off" StaticText`
+    t =     8.75s Added attachment named 'e2e-recurring-disabled-list'
+    t =     8.75s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testDisabledRecurringSeedShowsOffStateWithMockServices]' passed (9.076 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testFreeWakeCanBeScheduledAndCancelledWithMockServices]' started.
+    t =     0.00s Start Test at 2026-10-11 11:49:59.026
+    t =     0.06s Set Up
+    t =     0.07s Open com.hiyozoo.bearlock
+    t =     0.07s     Launch com.hiyozoo.bearlock
+    t =     0.07s         Terminate com.hiyozoo.bearlock:52253
+Resolve Package Graph
+
+    t =     2.13s         Setting up automation session
+    t =     4.34s         Wait for com.hiyozoo.bearlock to idle
+    t =     6.67s Waiting 10.0s for "open-wake-options" Button to exist
+    t =     7.69s     Checking `Expect predicate `existsNoRetry == 1` for object "open-wake-options" Button`
+    t =     7.70s         Checking existence of `"open-wake-options" Button`
+    t =     7.88s Checking existence of `"open-wake-options" Button`
+    t =     7.94s Find the "open-wake-options" Button
+    t =     8.03s Find the "open-wake-options" Button
+    t =     8.12s Tap "open-wake-options" Button
+    t =     8.12s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.13s     Find the "open-wake-options" Button
+    t =     8.21s     Check for interrupting elements affecting "open-wake-options" Button
+    t =     8.27s     Synthesize event
+    t =     8.58s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.82s Waiting 10.0s for "schedule-free-wake" Button to exist
+    t =     9.86s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-free-wake" Button`
+    t =     9.86s         Checking existence of `"schedule-free-wake" Button`
+    t =    10.47s Added attachment named 'e2e-free-wake-available'
+    t =    10.47s Tap "schedule-free-wake" Button
+    t =    10.47s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.47s     Find the "schedule-free-wake" Button
+    t =    10.69s     Check for interrupting elements affecting "schedule-free-wake" Button
+    t =    10.84s     Synthesize event
+    t =    11.16s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.36s Checking existence of `"open-wake-options" Button`
+    t =    11.53s Find the "open-wake-options" Button
+    t =    11.62s Find the "open-wake-options" Button
+    t =    11.69s Tap "open-wake-options" Button
+    t =    11.69s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.70s     Find the "open-wake-options" Button
+    t =    11.76s     Check for interrupting elements affecting "open-wake-options" Button
+    t =    11.81s     Synthesize event
+    t =    12.15s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.26s Waiting 10.0s for "cancel-free-wake" Button to exist
+    t =    13.31s     Checking `Expect predicate `existsNoRetry == 1` for object "cancel-free-wake" Button`
+    t =    13.31s         Checking existence of `"cancel-free-wake" Button`
+    t =    13.73s Added attachment named 'e2e-free-wake-pending'
+    t =    13.73s Tap "cancel-free-wake" Button
+    t =    13.73s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.73s     Find the "cancel-free-wake" Button
+    t =    13.86s     Check for interrupting elements affecting "cancel-free-wake" Button
+    t =    13.92s     Synthesize event
+    t =    14.24s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.42s Checking existence of `"open-wake-options" Button`
+    t =    14.54s Find the "open-wake-options" Button
+    t =    14.66s Find the "open-wake-options" Button
+    t =    14.75s Tap "open-wake-options" Button
+    t =    14.75s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.76s     Find the "open-wake-options" Button
+    t =    14.83s     Check for interrupting elements affecting "open-wake-options" Button
+    t =    14.88s     Synthesize event
+    t =    15.20s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.31s Waiting 10.0s for "schedule-free-wake" Button to exist
+    t =    16.35s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-free-wake" Button`
+    t =    16.35s         Checking existence of `"schedule-free-wake" Button`
+    t =    16.84s Added attachment named 'e2e-free-wake-cancelled'
+    t =    16.84s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testFreeWakeCanBeScheduledAndCancelledWithMockServices]' passed (17.105 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testIntroductionAndContextualAccessFlow]' started.
+    t =     0.00s Start Test at 2026-10-11 11:50:16.133
+    t =     0.05s Set Up
+    t =     0.05s Open com.hiyozoo.bearlock
+    t =     0.05s     Launch com.hiyozoo.bearlock
+    t =     0.05s         Terminate com.hiyozoo.bearlock:52990
+Resolve Package Graph
+
+    t =     1.97s         Setting up automation session
+    t =     3.91s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.77s Waiting 10.0s for "Get started" Button to exist
+    t =     6.81s     Checking `Expect predicate `existsNoRetry == 1` for object "Get started" Button`
+    t =     6.81s         Checking existence of `"Get started" Button`
+    t =     7.08s Added attachment named 'onboarding-introduction-en'
+    t =     7.09s Tap "Get started" Button
+    t =     7.09s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.09s     Find the "Get started" Button
+    t =     7.13s     Check for interrupting elements affecting "Get started" Button
+    t =     7.16s     Synthesize event
+    t =     7.46s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.58s Waiting 5.0s for "Select targets" Button to exist
+    t =     8.63s     Checking `Expect predicate `existsNoRetry == 1` for object "Select targets" Button`
+    t =     8.63s         Checking existence of `"Select targets" Button`
+    t =     8.68s Checking existence of `"Screen Time access" Alert`
+    t =     8.74s Tap "In" Button
+    t =     8.74s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.74s     Find the "In" Button
+    t =     8.79s     Check for interrupting elements affecting "In" Button
+    t =     8.84s     Synthesize event
+    t =     9.14s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.14s Tap "Select targets" Button
+    t =    10.14s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.15s     Find the "Select targets" Button
+    t =    10.26s     Check for interrupting elements affecting "Select targets" Button
+    t =    10.32s     Synthesize event
+    t =    10.63s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.77s Waiting 5.0s for "Screen Time access" Alert to exist
+    t =    11.80s     Checking `Expect predicate `existsNoRetry == 1` for object "Screen Time access" Alert`
+    t =    11.80s         Checking existence of `"Screen Time access" Alert`
+    t =    12.05s Added attachment named 'onboarding-access-explanation-en'
+    t =    12.05s Tap "Not now" Button
+    t =    12.05s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.06s     Find the "Not now" Button
+    t =    12.18s     Check for interrupting elements affecting "Not now" Button
+    t =    12.28s     Synthesize event
+    t =    12.59s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.89s Checking existence of `"Start delay" StaticText`
+    t =    12.96s Tap "Select targets" Button
+    t =    12.96s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.96s     Find the "Select targets" Button
+    t =    13.04s     Check for interrupting elements affecting "Select targets" Button
+    t =    13.08s     Synthesize event
+    t =    13.40s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.74s Tap "Continue" Button
+    t =    13.74s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.74s     Find the "Continue" Button
+    t =    13.89s     Check for interrupting elements affecting "Continue" Button
+    t =    14.01s     Synthesize event
+    t =    14.34s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.65s Waiting 5.0s for "ui-testing-target-app-messages" Button to exist
+    t =    15.72s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-app-messages" Button`
+    t =    15.72s         Checking existence of `"ui-testing-target-app-messages" Button`
+    t =    15.86s Tap "ui-testing-target-app-messages" Button
+    t =    15.86s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.86s     Find the "ui-testing-target-app-messages" Button
+    t =    15.96s     Check for interrupting elements affecting "ui-testing-target-app-messages" Button
+    t =    16.08s     Synthesize event
+    t =    16.40s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.40s Tap "ui-testing-target-save" Button
+    t =    16.40s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.41s     Find the "ui-testing-target-save" Button
+    t =    16.57s     Check for interrupting elements affecting "ui-testing-target-save" Button
+    t =    16.67s     Synthesize event
+    t =    16.99s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.43s Waiting 5.0s for "Start delay" StaticText to exist
+    t =    18.46s     Checking `Expect predicate `existsNoRetry == 1` for object "Start delay" StaticText`
+    t =    18.46s         Checking existence of `"Start delay" StaticText`
+    t =    18.57s Find the "lock-composer-primary-button" Button
+    t =    18.89s Added attachment named 'onboarding-home-ready-en'
+    t =    18.89s Tap "lock-composer-primary-button" Button
+    t =    18.89s     Wait for com.hiyozoo.bearlock to idle
+    t =    18.89s     Find the "lock-composer-primary-button" Button
+    t =    18.98s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =    19.07s     Synthesize event
+    t =    19.38s     Wait for com.hiyozoo.bearlock to idle
+    t =    19.86s Waiting 5.0s for "lock-confirmation-confirm-button" Button to exist
+    t =    20.88s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-confirmation-confirm-button" Button`
+    t =    20.88s         Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    21.29s Added attachment named 'onboarding-confirmation-en'
+    t =    21.30s Tap "Cancel" Button
+    t =    21.30s     Wait for com.hiyozoo.bearlock to idle
+    t =    21.30s     Find the "Cancel" Button
+    t =    21.51s     Check for interrupting elements affecting "Cancel" Button
+    t =    21.66s     Synthesize event
+    t =    22.02s     Wait for com.hiyozoo.bearlock to idle
+    t =    22.57s Terminate com.hiyozoo.bearlock:53985
+    t =    23.58s Open com.hiyozoo.bearlock
+    t =    23.58s     Launch com.hiyozoo.bearlock
+    t =    24.93s         Setting up automation session
+    t =    26.56s         Wait for com.hiyozoo.bearlock to idle
+    t =    28.69s Waiting 5.0s for "Select targets" Button to exist
+    t =    29.71s     Checking `Expect predicate `existsNoRetry == 1` for object "Select targets" Button`
+    t =    29.71s         Checking existence of `"Select targets" Button`
+    t =    29.84s Checking existence of `"Get started" Button`
+    t =    29.90s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testIntroductionAndContextualAccessFlow]' passed (30.215 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testLaunchSetupScreenAndCaptureScreenshot]' started.
+    t =     0.00s Start Test at 2026-10-11 11:50:46.348
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:54944
+    t =     1.85s         Setting up automation session
+Resolve Package Graph
+
+    t =     3.79s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.83s Waiting 10.0s for "Get started" Button to exist
+    t =     6.86s     Checking `Expect predicate `existsNoRetry == 1` for object "Get started" Button`
+    t =     6.86s         Checking existence of `"Get started" Button`
+    t =     6.94s Checking existence of `"Select targets" Button`
+    t =     7.18s Added attachment named 'bearlock-setup-screen'
+    t =     7.18s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testLaunchSetupScreenAndCaptureScreenshot]' passed (7.404 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds]' started.
+    t =     0.00s Start Test at 2026-10-11 11:50:53.754
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:55201
+Resolve Package Graph
+
+    t =     1.65s         Setting up automation session
+    t =     3.38s         Wait for com.hiyozoo.bearlock to idle
+    t =     6.01s Waiting 10.0s for "monitoring-retry" Button to exist
+    t =     7.02s     Checking `Expect predicate `existsNoRetry == 1` for object "monitoring-retry" Button`
+    t =     7.02s         Checking existence of `"monitoring-retry" Button`
+    t =     7.42s Added attachment named 'e2e-recovery-monitoring-initial'
+    t =     7.42s Tap "monitoring-retry" Button
+    t =     7.42s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.42s     Find the "monitoring-retry" Button
+    t =     7.49s     Check for interrupting elements affecting "monitoring-retry" Button
+    t =     7.54s     Synthesize event
+    t =     7.85s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.86s Checking existence of `"Monitoring could not be updated" StaticText`
+    t =     7.94s Tap "Settings" Button
+    t =     7.94s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.95s     Find the "Settings" Button
+    t =     8.04s     Check for interrupting elements affecting "gearshape" Button
+    t =     8.12s     Synthesize event
+    t =     8.48s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.81s Waiting 5.0s for "Settings" NavigationBar to exist
+    t =    10.86s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" NavigationBar`
+    t =    10.86s         Checking existence of `"Settings" NavigationBar`
+    t =    11.26s Tap Button (Element at index 0)
+    t =    11.26s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.27s     Find the Button (Element at index 0)
+    t =    11.37s     Check for interrupting elements affecting "BackButton" Button
+    t =    11.49s     Synthesize event
+    t =    11.96s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.84s Waiting 5.0s for "monitoring-retry" Button to exist
+    t =    13.88s     Checking `Expect predicate `existsNoRetry == 1` for object "monitoring-retry" Button`
+    t =    13.88s         Checking existence of `"monitoring-retry" Button`
+    t =    14.26s Added attachment named 'e2e-recovery-monitoring-error'
+    t =    14.26s Terminate com.hiyozoo.bearlock:55703
+    t =    15.32s Open com.hiyozoo.bearlock
+    t =    15.32s     Launch com.hiyozoo.bearlock
+    t =    16.10s         Setting up automation session
+    t =    17.66s         Wait for com.hiyozoo.bearlock to idle
+    t =    20.13s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =    21.20s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =    21.20s         Checking existence of `"lock-composer-primary-button" Button`
+    t =    21.66s Checking existence of `"monitoring-retry" Button`
+    t =    21.91s Added attachment named 'e2e-recovery-monitoring-restored'
+    t =    21.91s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds]' passed (22.302 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets]' started.
+    t =     0.00s Start Test at 2026-10-11 11:51:16.056
+    t =     0.03s Set Up
+    t =     0.03s Open com.hiyozoo.bearlock
+    t =     0.03s     Launch com.hiyozoo.bearlock
+    t =     0.03s         Terminate com.hiyozoo.bearlock:55902
+Resolve Package Graph
+
+    t =     4.09s         Setting up automation session
+    t =     5.66s         Wait for com.hiyozoo.bearlock to idle
+    t =     7.53s Waiting 10.0s for "storage-retry" Button to exist
+    t =     8.57s     Checking `Expect predicate `existsNoRetry == 1` for object "storage-retry" Button`
+    t =     8.57s         Checking existence of `"storage-retry" Button`
+    t =     9.44s Checking existence of `"Get started" Button`
+    t =     9.73s Checking existence of `"lock-composer-primary-button" Button`
+    t =     9.98s Added attachment named 'e2e-recovery-storage-error'
+    t =     9.99s Checking existence of `"storage-diagnostics" Button`
+    t =    10.66s Find the "storage-diagnostics" Button
+    t =    11.79s Find the "storage-diagnostics" Button
+    t =    11.83s Checking existence of `"storage-retry" Button`
+    t =    11.84s Tap "storage-retry" Button
+    t =    11.84s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.85s     Find the "storage-retry" Button
+    t =    12.82s     Check for interrupting elements affecting "storage-retry" Button
+    t =    12.85s     Synthesize event
+    t =    13.17s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.18s Waiting 5.0s for "Saved data could not be read" StaticText to exist
+    t =    14.21s     Checking `Expect predicate `existsNoRetry == 1` for object "Saved data could not be read" StaticText`
+    t =    14.21s         Checking existence of `"Saved data could not be read" StaticText`
+    t =    14.33s Waiting 1.0s for "Bear Lock" Alert to exist
+    t =    15.34s     Checking `Expect predicate `existsNoRetry == 1` for object "Bear Lock" Alert`
+    t =    15.34s         Checking existence of `"Bear Lock" Alert`
+    t =    15.61s         Capturing element debug description
+    t =    15.62s     Checking existence of `"Bear Lock" Alert`
+    t =    15.72s Collecting debug information to assist test failure triage
+    t =    15.72s     Requesting snapshot of accessibility hierarchy for app with pid 56091
+    t =    15.75s Terminate com.hiyozoo.bearlock:56091
+    t =    16.81s Open com.hiyozoo.bearlock
+    t =    16.81s     Launch com.hiyozoo.bearlock
+    t =    19.72s         Setting up automation session
+    t =    20.04s         Wait for com.hiyozoo.bearlock to idle
+    t =    21.62s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =    22.67s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =    22.67s         Checking existence of `"lock-composer-primary-button" Button`
+    t =    23.03s Checking existence of `"storage-retry" Button`
+    t =    23.66s Find the "selected-target-count" StaticText
+    t =    24.95s Added attachment named 'e2e-recovery-storage-restored'
+    t =    24.95s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets]' passed (25.846 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testRecentTargetsSelectionFeedbackAndActions]' started.
+    t =     0.00s Start Test at 2026-10-11 11:51:41.903
+    t =     0.05s Set Up
+    t =     0.06s Open com.hiyozoo.bearlock
+    t =     0.06s     Launch com.hiyozoo.bearlock
+    t =     0.06s         Terminate com.hiyozoo.bearlock:56353
+Resolve Package Graph
+
+    t =    11.48s         Setting up automation session
+    t =    11.54s         Wait for com.hiyozoo.bearlock to idle
+    t =    13.90s Added attachment named 'e2e-target-flow-home'
+    t =    13.90s Tap "Select targets" Button
+    t =    13.90s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.91s     Find the "Select targets" Button
+    t =    17.19s     Check for interrupting elements affecting "Select targets" Button
+    t =    18.70s     Synthesize event
+    t =    20.10s     Wait for com.hiyozoo.bearlock to idle
+    t =    20.34s Waiting 5.0s for "Select targets" NavigationBar to exist
+    t =    21.39s     Checking `Expect predicate `existsNoRetry == 1` for object "Select targets" NavigationBar`
+    t =    21.39s         Checking existence of `"Select targets" NavigationBar`
+    t =    24.27s Added attachment named 'e2e-target-picker-open'
+    t =    24.27s Waiting 5.0s for "ui-testing-target-app-messages" Button to exist
+    t =    25.33s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-app-messages" Button`
+    t =    25.33s         Checking existence of `"ui-testing-target-app-messages" Button`
+    t =    25.59s Tap "ui-testing-target-app-messages" Button
+    t =    25.59s     Wait for com.hiyozoo.bearlock to idle
+    t =    25.61s     Find the "ui-testing-target-app-messages" Button
+    t =    25.99s     Check for interrupting elements affecting "ui-testing-target-app-messages" Button
+    t =    26.34s     Synthesize event
+    t =    26.67s     Wait for com.hiyozoo.bearlock to idle
+    t =    26.70s Tap "ui-testing-target-app-video" Button
+    t =    26.70s     Wait for com.hiyozoo.bearlock to idle
+    t =    26.70s     Find the "ui-testing-target-app-video" Button
+    t =    26.87s     Check for interrupting elements affecting "ui-testing-target-app-video" Button
+    t =    27.02s     Synthesize event
+    t =    27.37s     Wait for com.hiyozoo.bearlock to idle
+    t =    27.37s Find the "ui-testing-target-app-messages" Button
+    t =    27.65s Find the "ui-testing-target-app-video" Button
+    t =    28.65s Added attachment named 'e2e-target-picker-apps-selected'
+    t =    28.65s Find the "ui-testing-target-save" Button
+    t =    29.19s Tap "ui-testing-target-save" Button
+    t =    29.19s     Wait for com.hiyozoo.bearlock to idle
+    t =    29.20s     Find the "ui-testing-target-save" Button
+    t =    29.64s     Check for interrupting elements affecting "ui-testing-target-save" Button
+    t =    30.23s     Synthesize event
+    t =    30.63s     Wait for com.hiyozoo.bearlock to idle
+    t =    31.10s Waiting 5.0s for "ui-testing-target-save" Button to exist
+    t =    32.16s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-save" Button`
+    t =    32.16s         Checking existence of `"ui-testing-target-save" Button`
+    t =    32.27s         Capturing element debug description
+    t =    32.27s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    32.37s             Find: Descendants matching type Button
+    t =    32.38s             Find: Elements matching predicate '"ui-testing-target-save" IN identifiers'
+    t =    32.38s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    32.50s             Find: Descendants matching type Button
+    t =    32.50s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    33.11s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-save" Button`
+    t =    33.11s         Checking existence of `"ui-testing-target-save" Button`
+    t =    33.15s         Capturing element debug description
+    t =    33.15s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    33.22s             Find: Descendants matching type Button
+    t =    33.23s             Find: Elements matching predicate '"ui-testing-target-save" IN identifiers'
+    t =    33.23s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    33.30s             Find: Descendants matching type Button
+    t =    33.30s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    34.10s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-save" Button`
+    t =    34.10s         Checking existence of `"ui-testing-target-save" Button`
+    t =    34.20s         Capturing element debug description
+    t =    34.20s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    34.28s             Find: Descendants matching type Button
+    t =    34.29s             Find: Elements matching predicate '"ui-testing-target-save" IN identifiers'
+    t =    34.29s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    34.38s             Find: Descendants matching type Button
+    t =    34.39s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    35.12s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-save" Button`
+    t =    35.12s         Checking existence of `"ui-testing-target-save" Button`
+    t =    35.16s         Capturing element debug description
+    t =    35.16s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    35.24s             Find: Descendants matching type Button
+    t =    35.24s             Find: Elements matching predicate '"ui-testing-target-save" IN identifiers'
+    t =    35.24s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    35.31s             Find: Descendants matching type Button
+    t =    35.32s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    36.11s     Checking `Expect predicate `existsNoRetry == 1` for object "ui-testing-target-save" Button`
+    t =    36.11s         Checking existence of `"ui-testing-target-save" Button`
+    t =    36.17s         Capturing element debug description
+    t =    36.17s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    36.24s             Find: Descendants matching type Button
+    t =    36.24s             Find: Elements matching predicate '"ui-testing-target-save" IN identifiers'
+    t =    36.24s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    36.31s             Find: Descendants matching type Button
+    t =    36.31s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    36.43s     Checking existence of `"ui-testing-target-save" Button`
+    t =    36.51s Collecting debug information to assist test failure triage
+    t =    36.51s     Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    37.67s Checking `Expect predicate `label == "2 targets"` for object "selected-target-count" StaticText`
+    t =    37.67s     Find the "selected-target-count" StaticText
+    t =    37.99s Added attachment named 'e2e-target-flow-saved'
+    t =    37.99s Waiting 10.0s for "target-list-disclosure" Button to exist
+    t =    38.99s     Checking `Expect predicate `existsNoRetry == 1` for object "target-list-disclosure" Button`
+    t =    38.99s         Checking existence of `"target-list-disclosure" Button`
+    t =    39.14s Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    39.26s Tap "target-list-disclosure" Button
+    t =    39.26s     Wait for com.hiyozoo.bearlock to idle
+    t =    39.29s     Find the "target-list-disclosure" Button
+    t =    39.52s     Check for interrupting elements affecting "target-list-disclosure" Button
+    t =    39.69s     Synthesize event
+    t =    40.18s     Wait for com.hiyozoo.bearlock to idle
+    t =    40.19s Waiting 5.0s for "frequent-target-select-16161616-1616-1616-1616-161616161616" Button to exist
+    t =    41.26s     Checking `Expect predicate `existsNoRetry == 1` for object "frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    41.26s         Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    41.79s Added attachment named 'e2e-target-flow-details'
+    t =    41.79s Tap "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    41.79s     Wait for com.hiyozoo.bearlock to idle
+    t =    41.80s     Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    42.06s     Check for interrupting elements affecting "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    42.39s     Synthesize event
+    t =    42.92s     Wait for com.hiyozoo.bearlock to idle
+    t =    43.98s Checking `Expect predicate `value == "Selected"` for object "frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    43.99s     Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    44.32s Checking existence of `"Selected" StaticText`
+    t =    44.73s Added attachment named 'e2e-target-flow-recent-selected'
+    t =    44.73s Tap "frequent-target-actions-16161616-1616-1616-1616-161616161616" Button
+    t =    44.73s     Wait for com.hiyozoo.bearlock to idle
+    t =    44.74s     Find the "frequent-target-actions-16161616-1616-1616-1616-161616161616" Button
+    t =    45.42s     Check for interrupting elements affecting "frequent-target-actions-16161616-1616-1616-1616-161616161616" Button
+    t =    45.79s     Synthesize event
+    t =    46.21s     Wait for com.hiyozoo.bearlock to idle
+    t =    46.71s Waiting 5.0s for "Pin target" Button to exist
+    t =    47.76s     Checking `Expect predicate `existsNoRetry == 1` for object "Pin target" Button`
+    t =    47.76s         Checking existence of `"Pin target" Button`
+    t =    48.20s Tap "Pin target" Button
+    t =    48.20s     Wait for com.hiyozoo.bearlock to idle
+    t =    48.21s     Find the "Pin target" Button
+    t =    48.72s     Check for interrupting elements affecting "pin" Button
+    t =    49.35s     Synthesize event
+    t =    49.86s     Wait for com.hiyozoo.bearlock to idle
+    t =    51.31s Tap "frequent-target-actions-16161616-1616-1616-1616-161616161616" Button
+    t =    51.31s     Wait for com.hiyozoo.bearlock to idle
+    t =    51.34s     Find the "frequent-target-actions-16161616-1616-1616-1616-161616161616" Button
+    t =    52.04s     Check for interrupting elements affecting "frequent-target-actions-16161616-1616-1616-1616-161616161616" Button
+    t =    52.43s     Synthesize event
+    t =    52.79s     Wait for com.hiyozoo.bearlock to idle
+    t =    54.02s Waiting 5.0s for "Unpin target" Button to exist
+    t =    55.08s     Checking `Expect predicate `existsNoRetry == 1` for object "Unpin target" Button`
+    t =    55.08s         Checking existence of `"Unpin target" Button`
+    t =    55.51s Checking existence of `"Remove target" Button`
+    t =    55.95s Tap "Remove target" Button
+    t =    55.95s     Wait for com.hiyozoo.bearlock to idle
+    t =    55.99s     Find the "Remove target" Button
+    t =    56.38s     Check for interrupting elements affecting "trash" Button
+    t =    56.60s     Synthesize event
+    t =    57.04s     Wait for com.hiyozoo.bearlock to idle
+    t =    58.89s Waiting 5.0s for "Remove" Button to exist
+    t =    59.89s     Checking `Expect predicate `existsNoRetry == 1` for object "Remove" Button`
+    t =    59.89s         Checking existence of `"Remove" Button`
+    t =    60.13s Tap "Remove" Button
+    t =    60.13s     Wait for com.hiyozoo.bearlock to idle
+    t =    60.18s     Find the "Remove" Button
+    t =    60.43s     Check for interrupting elements affecting "Remove" Button
+    t =    60.57s     Synthesize event
+    t =    60.95s     Wait for com.hiyozoo.bearlock to idle
+    t =    61.36s Waiting 2.0s for "frequent-target-select-16161616-1616-1616-1616-161616161616" Button to exist
+    t =    62.39s     Checking `Expect predicate `existsNoRetry == 1` for object "frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    62.39s         Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    62.46s         Capturing element debug description
+    t =    62.46s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    62.53s             Find: Descendants matching type Button
+    t =    62.53s             Find: Elements matching predicate '"frequent-target-select-16161616-1616-1616-1616-161616161616" IN identifiers'
+    t =    62.54s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    62.60s             Find: Descendants matching type Button
+    t =    62.60s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    63.37s     Checking `Expect predicate `existsNoRetry == 1` for object "frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    63.37s         Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    63.64s         Capturing element debug description
+    t =    63.64s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    63.64s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    63.64s             Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    63.64s     Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    64.13s Collecting debug information to assist test failure triage
+    t =    64.13s     Requesting snapshot of accessibility hierarchy for app with pid 56566
+    t =    64.35s Added attachment named 'e2e-target-flow-recent-deleted'
+    t =    64.35s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testRecentTargetsSelectionFeedbackAndActions]' passed (64.657 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testReusingTargetRefreshesHomeCountsDetailsAndConfirmation]' started.
+    t =     0.00s Start Test at 2026-10-11 11:52:46.561
+    t =     0.04s Set Up
+    t =     0.05s Open com.hiyozoo.bearlock
+    t =     0.05s     Launch com.hiyozoo.bearlock
+    t =     0.05s         Terminate com.hiyozoo.bearlock:56566
+Resolve Package Graph
+    t =     2.89s         Setting up automation session
+
+    t =     4.66s         Wait for com.hiyozoo.bearlock to idle
+    t =     6.99s Waiting 10.0s for "selected-target-count" StaticText to exist
+    t =     8.01s     Checking `Expect predicate `existsNoRetry == 1` for object "selected-target-count" StaticText`
+    t =     8.01s         Checking existence of `"selected-target-count" StaticText`
+    t =     8.94s Find the "selected-target-count" StaticText
+    t =     8.98s Tap "target-list-disclosure" Button
+    t =     8.98s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.99s     Find the "target-list-disclosure" Button
+    t =     9.07s     Check for interrupting elements affecting "target-list-disclosure" Button
+    t =     9.11s     Synthesize event
+    t =     9.42s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.43s Checking existence of `"selected-target-detail-Messages" StaticText`
+    t =     9.60s Checking existence of `"selected-target-detail-Books" StaticText`
+    t =     9.67s Find the "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =     9.92s Added attachment named 'e2e-target-summary-before-reuse'
+    t =     9.92s Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =     9.99s Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    10.06s Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    10.16s Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    10.34s Tap "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    10.34s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.35s     Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    10.41s     Check for interrupting elements affecting "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    10.47s     Synthesize event
+    t =    10.76s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.84s Checking `Expect predicate `label == "2 targets"` for object "selected-target-count" StaticText`
+    t =    11.84s     Find the "selected-target-count" StaticText
+    t =    11.92s Checking existence of `"selected-target-detail-Books" StaticText`
+    t =    12.00s Checking existence of `"selected-target-detail-Music" StaticText`
+    t =    12.05s Checking existence of `"selected-target-detail-Messages" StaticText`
+    t =    12.11s Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    12.16s Find the "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =    12.41s Added attachment named 'e2e-target-summary-after-reuse'
+    t =    12.41s Checking existence of `"frequent-target-select-15151515-1515-1515-1515-151515151515" Button`
+    t =    12.46s Find the "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =    12.54s Find the "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =    12.60s Tap "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =    12.60s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.60s     Find the "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =    12.65s     Check for interrupting elements affecting "frequent-target-select-15151515-1515-1515-1515-151515151515" Button
+    t =    12.69s     Synthesize event
+    t =    13.00s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.07s Checking `Expect predicate `label == "3 targets"` for object "selected-target-count" StaticText`
+    t =    14.07s     Find the "selected-target-count" StaticText
+    t =    14.17s Checking existence of `"selected-target-detail-Messages" StaticText`
+    t =    14.26s Checking existence of `"selected-target-detail-Books" StaticText`
+    t =    14.35s Checking existence of `"frequent-target-select-16161616-1616-1616-1616-161616161616" Button`
+    t =    14.47s Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    14.59s Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    14.68s Tap "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    14.68s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.68s     Find the "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    14.76s     Check for interrupting elements affecting "frequent-target-select-16161616-1616-1616-1616-161616161616" Button
+    t =    14.83s     Synthesize event
+    t =    15.14s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.19s Checking `Expect predicate `label == "2 targets"` for object "selected-target-count" StaticText`
+    t =    16.19s     Find the "selected-target-count" StaticText
+    t =    16.26s Checking existence of `"target-list-disclosure" Button`
+    t =    16.30s Find the "target-list-disclosure" Button
+    t =    16.38s Find the "target-list-disclosure" Button
+    t =    16.46s Tap "target-list-disclosure" Button
+    t =    16.46s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.47s     Find the "target-list-disclosure" Button
+    t =    16.54s     Check for interrupting elements affecting "target-list-disclosure" Button
+    t =    16.60s     Synthesize event
+    t =    16.90s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.91s Checking existence of `"lock-composer-primary-button" Button`
+    t =    16.96s Find the "lock-composer-primary-button" Button
+    t =    17.03s Find the "lock-composer-primary-button" Button
+    t =    17.09s Tap "lock-composer-primary-button" Button
+    t =    17.09s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.10s     Find the "lock-composer-primary-button" Button
+    t =    17.14s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =    17.18s     Synthesize event
+    t =    17.48s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.96s Waiting 5.0s for "lock-confirmation-apps" StaticText to exist
+    t =    18.97s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-confirmation-apps" StaticText`
+    t =    18.97s         Checking existence of `"lock-confirmation-apps" StaticText`
+    t =    19.03s Find the "lock-confirmation-apps" StaticText
+    t =    19.28s Added attachment named 'e2e-target-summary-confirmation'
+    t =    19.29s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testReusingTargetRefreshesHomeCountsDetailsAndConfirmation]' passed (19.599 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testScheduleEditAndDeleteDelayedLockWithMockServices]' started.
+    t =     0.00s Start Test at 2026-10-11 11:53:06.160
+    t =     0.04s Set Up
+    t =     0.05s Open com.hiyozoo.bearlock
+    t =     0.05s     Launch com.hiyozoo.bearlock
+    t =     0.05s         Terminate com.hiyozoo.bearlock:57397
+Resolve Package Graph
+
+    t =     2.37s         Setting up automation session
+    t =     3.63s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.57s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =     6.59s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =     6.59s         Checking existence of `"lock-composer-primary-button" Button`
+    t =     6.77s Tap "In" Button
+    t =     6.77s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.77s     Find the "In" Button
+    t =     6.82s     Check for interrupting elements affecting "In" Button
+    t =     6.86s     Synthesize event
+    t =     7.16s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.31s Waiting 5.0s for "Start delay" StaticText to exist
+    t =     9.37s     Checking `Expect predicate `existsNoRetry == 1` for object "Start delay" StaticText`
+    t =     9.37s         Checking existence of `"Start delay" StaticText`
+    t =     9.88s Tap "lock-composer-primary-button" Button
+    t =     9.88s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.88s     Find the "lock-composer-primary-button" Button
+    t =    10.81s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =    11.39s     Synthesize event
+    t =    11.71s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.16s Waiting 5.0s for "Schedule this lock?" StaticText to exist
+    t =    13.24s     Checking `Expect predicate `existsNoRetry == 1` for object "Schedule this lock?" StaticText`
+    t =    13.24s         Checking existence of `"Schedule this lock?" StaticText`
+    t =    13.90s Added attachment named 'e2e-delayed-confirmation'
+    t =    13.90s Tap "lock-confirmation-confirm-button" Button
+    t =    13.90s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.91s     Find the "lock-confirmation-confirm-button" Button
+    t =    14.82s     Check for interrupting elements affecting "lock-confirmation-confirm-button" Button
+    t =    15.07s     Synthesize event
+    t =    15.41s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.07s Waiting 10.0s for "Starts later" StaticText to exist
+    t =    17.12s     Checking `Expect predicate `existsNoRetry == 1` for object "Starts later" StaticText`
+    t =    17.12s         Checking existence of `"Starts later" StaticText`
+    t =    18.71s Added attachment named 'e2e-delayed-scheduled'
+    t =    18.71s Waiting 3.0s for "scheduled-lock-edit-button" Button to exist
+    t =    19.72s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    19.72s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    20.02s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    21.04s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    21.04s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    21.31s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    22.74s Find the "scheduled-lock-edit-button" Button
+    t =    23.62s Find the "scheduled-lock-edit-button" Button
+    t =    24.13s Tap "scheduled-lock-edit-button" Button
+    t =    24.13s     Wait for com.hiyozoo.bearlock to idle
+    t =    24.13s     Find the "scheduled-lock-edit-button" Button
+    t =    24.70s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    24.87s     Synthesize event
+    t =    25.21s     Wait for com.hiyozoo.bearlock to idle
+    t =    25.49s Waiting 5.0s for "Edit Lock" NavigationBar to exist
+    t =    26.52s     Checking `Expect predicate `existsNoRetry == 1` for object "Edit Lock" NavigationBar`
+    t =    26.53s         Checking existence of `"Edit Lock" NavigationBar`
+    t =    27.06s Added attachment named 'e2e-delayed-editor'
+    t =    27.06s Tap "Save" Button
+    t =    27.06s     Wait for com.hiyozoo.bearlock to idle
+    t =    27.06s     Find the "Save" Button
+    t =    27.27s     Check for interrupting elements affecting "Save" Button
+    t =    27.41s     Synthesize event
+    t =    27.75s     Wait for com.hiyozoo.bearlock to idle
+    t =    28.55s Waiting 10.0s for "Starts later" StaticText to exist
+    t =    29.57s     Checking `Expect predicate `existsNoRetry == 1` for object "Starts later" StaticText`
+    t =    29.57s         Checking existence of `"Starts later" StaticText`
+    t =    29.62s Waiting 3.0s for "scheduled-lock-delete-button" Button to exist
+    t =    30.64s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-delete-button" Button`
+    t =    30.64s         Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    30.77s Waiting 5.0s for "scheduled-lock-delete-button" Button to exist
+    t =    31.82s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-delete-button" Button`
+    t =    31.82s         Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    31.92s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    32.06s Find the "scheduled-lock-delete-button" Button
+    t =    32.22s Find the "scheduled-lock-delete-button" Button
+    t =    32.37s Tap "scheduled-lock-delete-button" Button
+    t =    32.37s     Wait for com.hiyozoo.bearlock to idle
+    t =    32.38s     Find the "scheduled-lock-delete-button" Button
+    t =    32.65s     Check for interrupting elements affecting "scheduled-lock-delete-button" Button
+    t =    32.75s     Synthesize event
+    t =    33.09s     Wait for com.hiyozoo.bearlock to idle
+    t =    33.52s Waiting 5.0s for "Delete" Button to exist
+    t =    34.57s     Checking `Expect predicate `existsNoRetry == 1` for object "Delete" Button`
+    t =    34.58s         Checking existence of `"Delete" Button`
+    t =    34.68s Tap "Delete" Button
+    t =    34.68s     Wait for com.hiyozoo.bearlock to idle
+    t =    34.68s     Find the "Delete" Button
+    t =    34.77s     Check for interrupting elements affecting "Delete" Button
+    t =    34.85s     Synthesize event
+    t =    35.16s     Wait for com.hiyozoo.bearlock to idle
+    t =    35.54s Waiting 10.0s for "No scheduled locks." StaticText to exist
+    t =    36.59s     Checking `Expect predicate `existsNoRetry == 1` for object "No scheduled locks." StaticText`
+    t =    36.59s         Checking existence of `"No scheduled locks." StaticText`
+    t =    36.90s Added attachment named 'e2e-delayed-deleted'
+    t =    36.90s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testScheduleEditAndDeleteDelayedLockWithMockServices]' passed (37.177 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' started.
+    t =     0.00s Start Test at 2026-10-11 11:53:43.338
+    t =     0.05s Set Up
+    t =     0.05s Open com.hiyozoo.bearlock
+    t =     0.05s     Launch com.hiyozoo.bearlock
+    t =     0.05s         Terminate com.hiyozoo.bearlock:57824
+Resolve Package Graph
+    t =     2.01s         Setting up automation session
+
+    t =     3.77s         Wait for com.hiyozoo.bearlock to idle
+    t =     6.24s Waiting 10.0s for "Settings" Button to exist
+    t =     7.26s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" Button`
+    t =     7.26s         Checking existence of `"Settings" Button`
+    t =     7.43s Tap "Settings" Button
+    t =     7.43s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.44s     Find the "Settings" Button
+    t =     7.50s     Check for interrupting elements affecting "gearshape" Button
+    t =     7.55s     Synthesize event
+    t =     7.86s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.04s Waiting 5.0s for "Settings" NavigationBar to exist
+    t =    10.11s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" NavigationBar`
+    t =    10.11s         Checking existence of `"Settings" NavigationBar`
+    t =    10.24s Checking existence of `"Support" StaticText`
+    t =    10.30s Checking existence of `"Support" StaticText`
+    t =    10.36s Checking existence of `"Support" StaticText`
+    t =    10.44s Checking existence of `"Support" StaticText`
+    t =    10.50s Waiting 5.0s for "Support" StaticText to exist
+    t =    11.53s     Checking `Expect predicate `existsNoRetry == 1` for object "Support" StaticText`
+    t =    11.53s         Checking existence of `"Support" StaticText`
+    t =    11.59s Tap "settings-support-link" Button
+    t =    11.59s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.59s     Find the "settings-support-link" Button
+    t =    11.67s     Check for interrupting elements affecting "settings-support-link" Button
+    t =    11.73s     Synthesize event
+    t =    12.05s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.49s Waiting 5.0s for "Support" NavigationBar to exist
+    t =    13.53s     Checking `Expect predicate `existsNoRetry == 1` for object "Support" NavigationBar`
+    t =    13.53s         Checking existence of `"Support" NavigationBar`
+    t =    13.60s Checking existence of `"Bear Lock is free to use. Please consider supporting its development." StaticText`
+    t =    13.63s Checking existence of `"Coffee" StaticText`
+    t =    13.67s Checking existence of `"Lunch" StaticText`
+    t =    13.71s Checking existence of `"Dinner" StaticText`
+    t =    13.74s Find the "support-purchase-coffee" Button
+    t =    13.82s Checking existence of `"support-reload" Button`
+    t =    13.87s Tap "support-reload" Button
+    t =    13.87s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.88s     Find the "support-reload" Button
+    t =    13.96s     Check for interrupting elements affecting "support-reload" Button
+    t =    14.04s     Synthesize event
+    t =    14.36s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.60s Checking existence of `"Support items are not available yet." StaticText`
+    t =    14.85s Added attachment named 'e2e-settings-support'
+    t =    14.85s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testSettingsShowsOptionalSupportScreen]' passed (15.102 seconds).
+Test Case '-[BearLockUITests.BearLockLaunchUITests testUnavailableAccessKeepsRecoveryAndSettingsReachable]' started.
+    t =     0.00s Start Test at 2026-10-11 11:53:58.442
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:59043
+Resolve Package Graph
+
+    t =     1.97s         Setting up automation session
+    t =     3.82s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.74s Waiting 10.0s for "Screen Time access is unavailable. Blocking may not be active." StaticText to exist
+    t =     6.78s     Checking `Expect predicate `existsNoRetry == 1` for object "Screen Time access is unavailable. Blocking may not be active." StaticText`
+    t =     6.78s         Checking existence of `"Screen Time access is unavailable. Blocking may not be active." StaticText`
+    t =     6.90s Find the "lock-composer-primary-button" Button
+    t =     6.97s Tap "Settings" Button
+    t =     6.97s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.97s     Find the "Settings" Button
+    t =     7.01s     Check for interrupting elements affecting "gearshape" Button
+    t =     7.07s     Synthesize event
+    t =     7.39s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.59s Waiting 5.0s for "Settings" NavigationBar to exist
+    t =     9.65s     Checking `Expect predicate `existsNoRetry == 1` for object "Settings" NavigationBar`
+    t =     9.65s         Checking existence of `"Settings" NavigationBar`
+    t =     9.76s Waiting 1.0s for "Bear Lock" Alert to exist
+    t =    10.76s     Checking `Expect predicate `existsNoRetry == 1` for object "Bear Lock" Alert`
+    t =    10.76s         Checking existence of `"Bear Lock" Alert`
+    t =    10.80s         Capturing element debug description
+    t =    10.81s     Checking existence of `"Bear Lock" Alert`
+    t =    10.85s Collecting debug information to assist test failure triage
+    t =    10.85s     Requesting snapshot of accessibility hierarchy for app with pid 59814
+    t =    10.92s Checking existence of `"diagnostics-link" Button`
+    t =    10.96s Find the "diagnostics-link" Button
+    t =    11.02s Find the "diagnostics-link" Button
+    t =    11.09s Tear Down
+Test Case '-[BearLockUITests.BearLockLaunchUITests testUnavailableAccessKeepsRecoveryAndSettingsReachable]' passed (11.309 seconds).
+Test Suite 'BearLockLaunchUITests' passed at 2026-10-11 11:54:09.749.
+	 Executed 18 tests, with 0 failures (0 unexpected) in 433.885 (433.899) seconds
+Test Suite 'SelectionControlsUITests' started at 2026-10-11 11:54:09.750.
+Test Case '-[BearLockUITests.SelectionControlsUITests testDisabledControlsRemainUnderstandable]' started.
+    t =     0.00s Start Test at 2026-10-11 11:54:09.750
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:59814
+Resolve Package Graph
+
+    t =     1.73s         Setting up automation session
+    t =     3.59s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.72s Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =     5.87s Checking existence of `"In" Button`
+    t =     5.92s Find the "In" Button
+    t =     5.99s Find the "In" Button
+    t =     6.06s Tap "In" Button
+    t =     6.06s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.06s     Find the "In" Button
+    t =     6.10s     Check for interrupting elements affecting "In" Button
+    t =     6.16s     Synthesize event
+    t =     6.47s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.51s Tap "Decrease start delay" Button
+    t =     7.51s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.51s     Find the "Decrease start delay" Button
+    t =     7.58s     Check for interrupting elements affecting "minus" Button
+    t =     7.66s     Synthesize event
+    t =     7.98s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.98s Tap "minus" Button
+    t =     7.98s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.99s     Find the "minus" Button
+    t =     8.04s     Check for interrupting elements affecting "minus" Button
+    t =     8.09s     Synthesize event
+    t =     8.40s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.41s Tap "minus" Button
+    t =     8.41s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.41s     Find the "minus" Button
+    t =     8.47s     Check for interrupting elements affecting "minus" Button
+    t =     8.51s     Synthesize event
+    t =     8.81s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.82s Tap "minus" Button
+    t =     8.82s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.82s     Find the "minus" Button
+    t =     8.88s     Check for interrupting elements affecting "minus" Button
+    t =     8.92s     Synthesize event
+    t =     9.22s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.23s Tap "minus" Button
+    t =     9.23s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.23s     Find the "minus" Button
+    t =     9.32s     Check for interrupting elements affecting "minus" Button
+    t =     9.39s     Synthesize event
+    t =     9.72s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.73s Find the "minus" Button
+    t =     9.81s Find the "Increase start delay" Button
+    t =     9.93s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    10.16s Added attachment named 'selection-440-delay-minimum'
+    t =    10.16s Terminate com.hiyozoo.bearlock:60423
+    t =    11.20s Open com.hiyozoo.bearlock
+    t =    11.20s     Launch com.hiyozoo.bearlock
+    t =    11.82s         Setting up automation session
+    t =    13.49s         Wait for com.hiyozoo.bearlock to idle
+    t =    15.81s Waiting 10.0s for "locked-target-explanation" StaticText to exist
+    t =    16.84s     Checking `Expect predicate `existsNoRetry == 1` for object "locked-target-explanation" StaticText`
+    t =    16.84s         Checking existence of `"locked-target-explanation" StaticText`
+    t =    16.95s Checking existence of `"Select targets" Button`
+    t =    17.01s Checking existence of `"Now" Button`
+    t =    17.05s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    17.30s Added attachment named 'selection-440-locked-target-explanation'
+    t =    17.30s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    17.43s Find the "scheduled-lock-delete-button" Button
+    t =    17.57s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    17.66s Find the "scheduled-lock-delete-button" Button
+    t =    17.75s Find the "scheduled-lock-delete-button" Button
+    t =    17.86s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    17.90s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    17.90s     Wait for com.hiyozoo.bearlock to idle
+    t =    17.91s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    17.95s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    17.99s     Synthesize event
+    t =    18.42s     Wait for com.hiyozoo.bearlock to idle
+    t =    20.41s Checking existence of `"scheduled-lock-delete-button" Button`
+    t =    20.50s Find the "scheduled-lock-delete-button" Button
+    t =    20.65s Find the "scheduled-lock-delete-button" Button
+    t =    20.85s Find the "scheduled-lock-edit-button" Button
+    t =    21.09s Find the "scheduled-lock-delete-button" Button
+    t =    21.21s Find the "scheduled-lock-edit-button" Button
+    t =    21.29s Find the "scheduled-lock-delete-button" Button
+    t =    21.41s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    21.60s Added attachment named 'selection-440-locked-schedule-actions'
+    t =    21.61s Tear Down
+Test Case '-[BearLockUITests.SelectionControlsUITests testDisabledControlsRemainUnderstandable]' passed (21.898 seconds).
+Test Case '-[BearLockUITests.SelectionControlsUITests testDurationPresetsAndModeReflectCurrentValue]' started.
+    t =     0.00s Start Test at 2026-10-11 11:54:31.648
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:60604
+Resolve Package Graph
+
+    t =     1.84s         Setting up automation session
+    t =     3.04s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.01s Waiting 10.0s for "lock-composer-mode-picker" SegmentedControl to exist
+    t =     6.04s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-mode-picker" SegmentedControl`
+    t =     6.04s         Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =     6.15s Find the "Now" Button
+    t =     6.20s Find the "In" Button
+    t =     6.24s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     6.27s Checking existence of `"Date & Time" Button`
+    t =     6.33s Find the "duration-preset-120" Button
+    t =     6.38s Find the "duration-preset-30" Button
+    t =     6.42s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     6.58s Added attachment named 'selection-440-duration-initial'
+    t =     6.58s Checking existence of `"duration-preset-30" Button`
+    t =     6.61s Find the "duration-preset-30" Button
+    t =     6.66s Find the "duration-preset-30" Button
+    t =     6.70s Find the "duration-preset-30" Button
+    t =     6.73s Find the "duration-preset-30" Button
+    t =     6.78s Find the "duration-preset-30" Button
+    t =     6.81s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     6.84s Find the "duration-preset-30" Button
+    t =     6.87s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     6.91s Find the "duration-preset-30" Button
+    t =     6.94s Tap "duration-preset-30" Button
+    t =     6.94s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.95s     Find the "duration-preset-30" Button
+    t =     6.99s     Check for interrupting elements affecting "duration-preset-30" Button
+    t =     7.03s     Synthesize event
+    t =     7.34s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.35s Find the "duration-preset-30" Button
+    t =     7.42s Find the "duration-preset-120" Button
+    t =     7.45s Find the "duration-slider" Slider
+    t =     7.49s Find the "duration-slider" Slider
+    t =     7.53s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     7.72s Added attachment named 'selection-440-duration-selected'
+    t =     7.72s Set normalized position of "duration-slider" Slider to 0.40
+    t =     7.72s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.72s     Find the "duration-slider" Slider
+    t =     7.76s     Check for interrupting elements affecting "duration-slider" Slider
+    t =     7.81s     Synthesize event
+    t =     8.58s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.59s Find the "duration-preset-15" Button
+    t =     9.66s Find the "duration-preset-30" Button
+    t =     9.71s Find the "duration-preset-60" Button
+    t =     9.79s Find the "duration-preset-120" Button
+    t =     9.84s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    10.04s Added attachment named 'selection-440-duration-custom'
+    t =    10.04s Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =    10.10s Checking existence of `"In" Button`
+    t =    10.13s Find the "In" Button
+    t =    10.21s Find the "In" Button
+    t =    10.28s Tap "In" Button
+    t =    10.28s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.28s     Find the "In" Button
+    t =    10.32s     Check for interrupting elements affecting "In" Button
+    t =    10.36s     Synthesize event
+    t =    10.67s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.69s Find the "In" Button
+    t =    11.78s Find the "Now" Button
+    t =    11.85s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    12.09s Added attachment named 'selection-440-mode-delayed'
+    t =    12.09s Tear Down
+Test Case '-[BearLockUITests.SelectionControlsUITests testDurationPresetsAndModeReflectCurrentValue]' passed (12.335 seconds).
+Test Case '-[BearLockUITests.SelectionControlsUITests testSelectionAtAccessibilityTextSizeInEnglishAndJapanese]' started.
+    t =     0.00s Start Test at 2026-10-11 11:54:43.985
+Resolve Package Graph
+    t =     0.04s Set Up
+    t =     0.04s Open com.hiyozoo.bearlock
+    t =     0.04s     Launch com.hiyozoo.bearlock
+    t =     0.04s         Terminate com.hiyozoo.bearlock:61361
+
+    t =     1.89s         Setting up automation session
+    t =     3.40s         Wait for com.hiyozoo.bearlock to idle
+    t =     5.37s Waiting 10.0s for "duration-preset-120" Button to exist
+    t =     6.39s     Checking `Expect predicate `existsNoRetry == 1` for object "duration-preset-120" Button`
+    t =     6.39s         Checking existence of `"duration-preset-120" Button`
+    t =     6.53s Checking existence of `"duration-preset-30" Button`
+    t =     6.58s Find the "duration-preset-30" Button
+    t =     6.80s Checking existence of `"duration-preset-30" Button`
+    t =     6.84s Find the "duration-preset-30" Button
+    t =     6.89s Find the "duration-preset-30" Button
+    t =     6.95s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     6.98s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =     6.98s     Wait for com.hiyozoo.bearlock to idle
+    t =     6.99s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =     7.02s     Check for interrupting elements affecting "Bear Lock" Application
+    t =     7.07s     Synthesize event
+    t =     7.51s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.66s Checking existence of `"duration-preset-30" Button`
+    t =     9.74s Find the "duration-preset-30" Button
+    t =     9.80s Find the "duration-preset-30" Button
+    t =     9.88s Find the "duration-preset-30" Button
+    t =     9.95s Find the "duration-preset-30" Button
+    t =     9.99s Find the "duration-preset-30" Button
+    t =    10.05s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    10.08s Find the "duration-preset-30" Button
+    t =    10.12s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    10.16s Tap "duration-preset-30" Button
+    t =    10.16s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.17s     Find the "duration-preset-30" Button
+    t =    10.21s     Check for interrupting elements affecting "duration-preset-30" Button
+    t =    10.26s     Synthesize event
+    t =    10.57s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.57s Find the "duration-preset-30" Button
+    t =    10.61s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    10.84s Added attachment named 'selection-440-accessibility-en-duration'
+    t =    10.84s Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =    10.92s Waiting 5.0s for "lock-composer-mode-picker" Button to exist
+    t =    11.95s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-mode-picker" Button`
+    t =    11.95s         Checking existence of `"lock-composer-mode-picker" Button`
+    t =    11.99s Checking existence of `"lock-composer-mode-picker" Button`
+    t =    12.02s Find the "lock-composer-mode-picker" Button
+    t =    12.07s Find the "lock-composer-mode-picker" Button
+    t =    12.18s Tap "lock-composer-mode-picker" Button
+    t =    12.18s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.18s     Find the "lock-composer-mode-picker" Button
+    t =    12.25s     Check for interrupting elements affecting "lock-composer-mode-picker" Button
+    t =    12.29s     Synthesize event
+    t =    12.61s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.45s Waiting 5.0s for "Date & Time" Button to exist
+    t =    14.48s     Checking `Expect predicate `existsNoRetry == 1` for object "Date & Time" Button`
+    t =    14.48s         Checking existence of `"Date & Time" Button`
+    t =    15.73s Checking `Expect predicate `BLOCKPREDICATE(0x10a1d7c90)` for object "Date & Time" Button`
+    t =    15.73s     Checking existence of `"Date & Time" Button`
+    t =    15.80s     Find the "Date & Time" Button
+    t =    15.97s Tap "Date & Time" Button[0.50, 0.40]
+    t =    15.97s     Wait for com.hiyozoo.bearlock to idle
+    t =    16.10s     Find the "Date & Time" Button
+    t =    16.17s     Check for interrupting elements affecting "Date & Time" Button
+    t =    16.23s     Synthesize event
+    t =    16.24s         Find the "Date & Time" Button
+    t =    16.30s         Find the "Date & Time" Button
+    t =    16.35s         Find the "Date & Time" Button
+    t =    16.70s     Wait for com.hiyozoo.bearlock to idle
+    t =    19.39s Checking `Expect predicate `BLOCKPREDICATE(0x10a1d7ea0)` for object "Date & Time" Button`
+    t =    19.39s     Checking existence of `"Date & Time" Button`
+    t =    19.44s Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    19.49s Find the "schedule-date-label-Starts" StaticText
+    t =    19.55s Find the "schedule-date-label-Starts" StaticText
+    t =    19.63s Waiting 5.0s for "schedule-date-label-Starts" StaticText to exist
+    t =    20.65s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-date-label-Starts" StaticText`
+    t =    20.65s         Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    20.72s Find the "schedule-date-label-Starts" StaticText
+    t =    20.77s Find the "schedule-date-label-Starts" StaticText
+    t =    20.83s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    20.87s Find the "schedule-date-label-Starts" StaticText
+    t =    20.94s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    20.98s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    21.18s Added attachment named 'selection-440-accessibility-en-date'
+    t =    21.18s Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =    21.22s Waiting 5.0s for "lock-composer-mode-picker" Button to exist
+    t =    22.23s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-mode-picker" Button`
+    t =    22.24s         Checking existence of `"lock-composer-mode-picker" Button`
+    t =    22.29s Checking existence of `"lock-composer-mode-picker" Button`
+    t =    22.33s Find the "lock-composer-mode-picker" Button
+    t =    22.40s Find the "lock-composer-mode-picker" Button
+    t =    22.45s Tap "lock-composer-mode-picker" Button
+    t =    22.45s     Wait for com.hiyozoo.bearlock to idle
+    t =    22.46s     Find the "lock-composer-mode-picker" Button
+    t =    22.50s     Check for interrupting elements affecting "lock-composer-mode-picker" Button
+    t =    22.54s     Synthesize event
+    t =    22.84s     Wait for com.hiyozoo.bearlock to idle
+    t =    24.15s Waiting 5.0s for "Repeat" Button to exist
+    t =    25.16s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeat" Button`
+    t =    25.16s         Checking existence of `"Repeat" Button`
+    t =    26.23s Checking `Expect predicate `BLOCKPREDICATE(0x10a1ba3a0)` for object "Repeat" Button`
+    t =    26.23s     Checking existence of `"Repeat" Button`
+    t =    26.29s     Find the "Repeat" Button
+    t =    26.37s Tap "Repeat" Button[0.50, 0.40]
+    t =    26.37s     Wait for com.hiyozoo.bearlock to idle
+    t =    26.37s     Find the "Repeat" Button
+    t =    26.47s     Check for interrupting elements affecting "Repeat" Button
+    t =    26.57s     Synthesize event
+    t =    26.58s         Find the "Repeat" Button
+    t =    26.71s         Find the "Repeat" Button
+    t =    26.80s         Find the "Repeat" Button
+    t =    27.18s     Wait for com.hiyozoo.bearlock to idle
+    t =    29.88s Checking `Expect predicate `BLOCKPREDICATE(0x10a1b8ff0)` for object "Repeat" Button`
+    t =    29.88s     Checking existence of `"Repeat" Button`
+    t =    29.93s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    30.11s Added attachment named 'selection-440-accessibility-en-repeat-mode'
+    t =    30.12s Checking existence of `"weekday-1" Button`
+    t =    30.17s Find the "weekday-1" Button
+    t =    30.26s Find the "weekday-1" Button
+    t =    30.33s Find the "weekday-1" Button
+    t =    30.43s Find the "weekday-1" Button
+    t =    30.50s Find the "weekday-1" Button
+    t =    30.55s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    30.59s Find the "weekday-1" Button
+    t =    30.63s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    30.67s Find the "weekday-1" Button
+    t =    30.71s Tap "weekday-1" Button
+    t =    30.71s     Wait for com.hiyozoo.bearlock to idle
+    t =    30.71s     Find the "weekday-1" Button
+    t =    30.76s     Check for interrupting elements affecting "weekday-1" Button
+    t =    30.81s     Synthesize event
+    t =    31.10s     Wait for com.hiyozoo.bearlock to idle
+    t =    31.11s Find the "weekday-1" Button
+    t =    31.16s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    31.33s Added attachment named 'selection-440-accessibility-en-weekdays-top'
+    t =    31.34s Checking existence of `"weekday-7" Button`
+    t =    31.38s Find the "weekday-7" Button
+    t =    31.46s Checking existence of `"weekday-7" Button`
+    t =    31.50s Find the "weekday-7" Button
+    t =    31.57s Find the "weekday-7" Button
+    t =    31.62s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    31.66s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    31.66s     Wait for com.hiyozoo.bearlock to idle
+    t =    31.66s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    31.73s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    31.77s     Synthesize event
+    t =    32.22s     Wait for com.hiyozoo.bearlock to idle
+    t =    34.32s Checking existence of `"weekday-7" Button`
+    t =    34.37s Find the "weekday-7" Button
+    t =    34.44s Find the "weekday-7" Button
+    t =    34.53s Find the "weekday-7" Button
+    t =    34.59s Find the "weekday-7" Button
+    t =    34.66s Find the "weekday-7" Button
+    t =    34.72s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    34.76s Find the "weekday-7" Button
+    t =    34.82s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    34.87s Tap "weekday-7" Button
+    t =    34.87s     Wait for com.hiyozoo.bearlock to idle
+    t =    34.88s     Find the "weekday-7" Button
+    t =    34.93s     Check for interrupting elements affecting "weekday-7" Button
+    t =    35.00s     Synthesize event
+    t =    35.30s     Wait for com.hiyozoo.bearlock to idle
+    t =    35.31s Find the "weekday-7" Button
+    t =    35.38s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    35.60s Added attachment named 'selection-440-accessibility-en-weekdays-bottom'
+    t =    35.60s Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    35.66s Find the "schedule-date-label-Starts" StaticText
+    t =    35.75s Find the "schedule-date-label-Starts" StaticText
+    t =    35.85s Waiting 5.0s for "schedule-date-label-Starts" StaticText to exist
+    t =    36.88s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-date-label-Starts" StaticText`
+    t =    36.88s         Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    36.97s Find the "schedule-date-label-Starts" StaticText
+    t =    37.04s Find the "schedule-date-label-Starts" StaticText
+    t =    37.11s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    37.18s Find the "schedule-date-label-Starts" StaticText
+    t =    37.26s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    37.31s Checking existence of `"schedule-date-label-Ends" StaticText`
+    t =    37.40s Find the "schedule-date-label-Ends" StaticText
+    t =    37.52s Find the "schedule-date-label-Ends" StaticText
+    t =    37.63s Waiting 5.0s for "schedule-date-label-Ends" StaticText to exist
+    t =    38.70s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-date-label-Ends" StaticText`
+    t =    38.70s         Checking existence of `"schedule-date-label-Ends" StaticText`
+    t =    38.77s Find the "schedule-date-label-Ends" StaticText
+    t =    38.84s Find the "schedule-date-label-Ends" StaticText
+    t =    38.93s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    38.97s Find the "schedule-date-label-Ends" StaticText
+    t =    39.05s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    39.09s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    39.40s Added attachment named 'selection-440-accessibility-en-times'
+    t =    39.41s Checking existence of `"lock-composer-primary-button" Button`
+    t =    39.50s Find the "lock-composer-primary-button" Button
+    t =    39.63s Find the "lock-composer-primary-button" Button
+    t =    39.73s Find the "lock-composer-primary-button" Button
+    t =    39.79s Find the "lock-composer-primary-button" Button
+    t =    39.88s Find the "lock-composer-primary-button" Button
+    t =    39.94s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    39.97s Find the "lock-composer-primary-button" Button
+    t =    40.03s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    40.07s Find the "lock-composer-primary-button" Button
+    t =    40.13s Tap "lock-composer-primary-button" Button
+    t =    40.13s     Wait for com.hiyozoo.bearlock to idle
+    t =    40.14s     Find the "lock-composer-primary-button" Button
+    t =    40.19s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =    40.27s     Synthesize event
+    t =    40.59s     Wait for com.hiyozoo.bearlock to idle
+    t =    40.68s Waiting 5.0s for "lock-confirmation-confirm-button" Button to exist
+    t =    41.74s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-confirmation-confirm-button" Button`
+    t =    41.74s         Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    41.82s Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    41.89s Find the "lock-confirmation-confirm-button" Button
+    t =    42.00s Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    42.12s Find the "lock-confirmation-confirm-button" Button
+    t =    42.23s Find the "lock-confirmation-confirm-button" Button
+    t =    42.32s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    42.36s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    42.36s     Wait for com.hiyozoo.bearlock to idle
+    t =    42.37s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    42.42s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    42.48s     Synthesize event
+    t =    42.92s     Wait for com.hiyozoo.bearlock to idle
+    t =    43.60s Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    43.67s Find the "lock-confirmation-confirm-button" Button
+    t =    43.79s Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    43.87s Find the "lock-confirmation-confirm-button" Button
+    t =    43.95s Find the "lock-confirmation-confirm-button" Button
+    t =    44.02s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    44.07s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    44.07s     Wait for com.hiyozoo.bearlock to idle
+    t =    44.08s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    44.15s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    44.24s     Synthesize event
+    t =    44.68s     Wait for com.hiyozoo.bearlock to idle
+    t =    45.84s Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    45.92s Find the "lock-confirmation-confirm-button" Button
+    t =    46.03s Find the "lock-confirmation-confirm-button" Button
+    t =    46.13s Find the "lock-confirmation-confirm-button" Button
+    t =    46.22s Find the "lock-confirmation-confirm-button" Button
+    t =    46.29s Find the "lock-confirmation-confirm-button" Button
+    t =    46.36s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    46.43s Find the "lock-confirmation-confirm-button" Button
+    t =    46.50s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    46.56s Checking existence of `"Cancel" Button`
+    t =    46.63s Find the "Cancel" Button
+    t =    46.72s Find the "Cancel" Button
+    t =    46.81s Find the "Cancel" Button
+    t =    46.88s Find the "Cancel" Button
+    t =    46.97s Find the "Cancel" Button
+    t =    47.04s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    47.12s Find the "Cancel" Button
+    t =    47.20s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    47.24s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    47.47s Added attachment named 'selection-440-accessibility-en-confirmation'
+    t =    47.48s Tap "Cancel" Button
+    t =    47.48s     Wait for com.hiyozoo.bearlock to idle
+    t =    47.49s     Find the "Cancel" Button
+    t =    47.55s     Check for interrupting elements affecting "Cancel" Button
+    t =    47.60s     Synthesize event
+    t =    47.92s     Wait for com.hiyozoo.bearlock to idle
+    t =    48.32s Checking existence of `"lock-confirmation-confirm-button" Button`
+    t =    48.44s Terminate com.hiyozoo.bearlock:62004
+    t =    49.50s Open com.hiyozoo.bearlock
+    t =    49.50s     Launch com.hiyozoo.bearlock
+    t =    50.31s         Setting up automation session
+    t =    52.17s         Wait for com.hiyozoo.bearlock to idle
+    t =    54.70s Waiting 10.0s for "scheduled-lock-edit-button" Button to exist
+    t =    55.75s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    55.75s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    56.12s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    56.30s Find the "scheduled-lock-edit-button" Button
+    t =    56.49s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    56.61s Find the "scheduled-lock-edit-button" Button
+    t =    56.76s Find the "scheduled-lock-edit-button" Button
+    t =    56.88s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    56.92s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    56.92s     Wait for com.hiyozoo.bearlock to idle
+    t =    56.93s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    56.98s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    57.02s     Synthesize event
+    t =    57.45s     Wait for com.hiyozoo.bearlock to idle
+    t =    59.72s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    59.82s Find the "scheduled-lock-edit-button" Button
+    t =    59.92s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    60.00s Find the "scheduled-lock-edit-button" Button
+    t =    60.09s Find the "scheduled-lock-edit-button" Button
+    t =    60.22s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    60.26s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    60.26s     Wait for com.hiyozoo.bearlock to idle
+    t =    60.27s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    60.32s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    60.37s     Synthesize event
+    t =    60.81s     Wait for com.hiyozoo.bearlock to idle
+    t =    62.92s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    62.99s Find the "scheduled-lock-edit-button" Button
+    t =    63.11s Find the "scheduled-lock-edit-button" Button
+    t =    63.24s Tap "scheduled-lock-edit-button" Button
+    t =    63.24s     Wait for com.hiyozoo.bearlock to idle
+    t =    63.25s     Find the "scheduled-lock-edit-button" Button
+    t =    63.34s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    63.40s     Synthesize event
+    t =    63.70s     Wait for com.hiyozoo.bearlock to idle
+    t =    63.87s Checking existence of `"weekday-1" Button`
+    t =    64.24s Find the "weekday-1" Button
+    t =    64.48s Find the "weekday-1" Button
+    t =    64.67s Find the "weekday-1" Button
+    t =    64.82s Find the "weekday-1" Button
+    t =    64.98s Find the "weekday-1" Button
+    t =    65.11s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    65.19s Find the "weekday-1" Button
+    t =    65.30s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    65.40s Tap "weekday-1" Button
+    t =    65.40s     Wait for com.hiyozoo.bearlock to idle
+    t =    65.41s     Find the "weekday-1" Button
+    t =    65.50s     Check for interrupting elements affecting "weekday-1" Button
+    t =    65.60s     Synthesize event
+    t =    65.92s     Wait for com.hiyozoo.bearlock to idle
+    t =    65.93s Find the "weekday-1" Button
+    t =    66.03s Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    66.14s Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    66.24s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    66.24s     Wait for com.hiyozoo.bearlock to idle
+    t =    66.25s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    66.32s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    66.40s     Synthesize event
+    t =    66.83s     Wait for com.hiyozoo.bearlock to idle
+    t =    69.12s Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    69.26s Find the "schedule-date-label-Starts" StaticText
+    t =    69.42s Find the "schedule-date-label-Starts" StaticText
+    t =    69.55s Waiting 5.0s for "schedule-date-label-Starts" StaticText to exist
+    t =    70.56s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-date-label-Starts" StaticText`
+    t =    70.56s         Checking existence of `"schedule-date-label-Starts" StaticText`
+    t =    70.67s Find the "schedule-date-label-Starts" StaticText
+    t =    70.82s Find the "schedule-date-label-Starts" StaticText
+    t =    70.93s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    71.00s Find the "schedule-date-label-Starts" StaticText
+    t =    71.13s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    71.22s Checking existence of `"schedule-date-label-Ends" StaticText`
+    t =    71.39s Checking existence of `"schedule-date-label-Ends" StaticText`
+    t =    71.50s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    71.50s     Wait for com.hiyozoo.bearlock to idle
+    t =    71.50s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    71.58s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    71.69s     Synthesize event
+    t =    72.12s     Wait for com.hiyozoo.bearlock to idle
+    t =    74.25s Checking existence of `"schedule-date-label-Ends" StaticText`
+    t =    74.48s Find the "schedule-date-label-Ends" StaticText
+    t =    74.69s Find the "schedule-date-label-Ends" StaticText
+    t =    74.88s Waiting 5.0s for "schedule-date-label-Ends" StaticText to exist
+    t =    75.90s     Checking `Expect predicate `existsNoRetry == 1` for object "schedule-date-label-Ends" StaticText`
+    t =    75.90s         Checking existence of `"schedule-date-label-Ends" StaticText`
+    t =    76.09s Find the "schedule-date-label-Ends" StaticText
+    t =    76.24s Find the "schedule-date-label-Ends" StaticText
+    t =    76.34s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    76.43s Find the "schedule-date-label-Ends" StaticText
+    t =    76.55s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    76.64s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    76.99s Added attachment named 'selection-440-accessibility-en-editor-times'
+    t =    76.99s Checking existence of `"Save" Button`
+    t =    77.14s Find the "Save" Button
+    t =    77.29s Find the "Save" Button
+    t =    77.44s Find the "Save" Button
+    t =    77.58s Tap "Save" Button
+    t =    77.58s     Wait for com.hiyozoo.bearlock to idle
+    t =    77.59s     Find the "Save" Button
+    t =    77.71s     Check for interrupting elements affecting "Save" Button
+    t =    77.86s     Synthesize event
+    t =    78.19s     Wait for com.hiyozoo.bearlock to idle
+    t =    78.95s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    80.03s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    80.03s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    80.12s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    80.22s Find the "scheduled-lock-edit-button" Button
+    t =    80.33s Find the "scheduled-lock-edit-button" Button
+    t =    80.43s Tap "scheduled-lock-edit-button" Button
+    t =    80.43s     Wait for com.hiyozoo.bearlock to idle
+    t =    80.43s     Find the "scheduled-lock-edit-button" Button
+    t =    80.51s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    80.56s     Synthesize event
+    t =    80.87s     Wait for com.hiyozoo.bearlock to idle
+    t =    81.54s Checking existence of `"weekday-1" Button`
+    t =    81.66s Find the "weekday-1" Button
+    t =    81.79s Find the "weekday-1" Button
+    t =    81.90s Find the "weekday-1" Button
+    t =    82.00s Find the "weekday-1" Button
+    t =    82.10s Find the "weekday-1" Button
+    t =    82.18s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    82.28s Find the "weekday-1" Button
+    t =    82.37s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    82.43s Find the "weekday-1" Button
+    t =    82.51s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    82.73s Added attachment named 'selection-440-accessibility-en-editor-saved'
+    t =    82.73s Terminate com.hiyozoo.bearlock:64236
+    t =    83.74s Open com.hiyozoo.bearlock
+    t =    83.74s     Launch com.hiyozoo.bearlock
+    t =    84.58s         Setting up automation session
+    t =    85.85s         Wait for com.hiyozoo.bearlock to idle
+    t =    88.74s Waiting 10.0s for "duration-preset-120" Button to exist
+    t =    89.75s     Checking `Expect predicate `existsNoRetry == 1` for object "duration-preset-120" Button`
+    t =    89.75s         Checking existence of `"duration-preset-120" Button`
+    t =    90.05s Checking existence of `"duration-preset-30" Button`
+    t =    90.15s Find the "duration-preset-30" Button
+    t =    90.23s Checking existence of `"duration-preset-30" Button`
+    t =    90.38s Find the "duration-preset-30" Button
+    t =    90.51s Find the "duration-preset-30" Button
+    t =    90.61s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    90.73s Swipe up Target Application 'com.hiyozoo.bearlock'
+    t =    90.73s     Wait for com.hiyozoo.bearlock to idle
+    t =    90.73s     Find the Target Application 'com.hiyozoo.bearlock'
+    t =    90.86s     Check for interrupting elements affecting "Bear Lock" Application
+    t =    91.30s     Synthesize event
+    t =    92.07s     Wait for com.hiyozoo.bearlock to idle
+    t =    94.22s Checking existence of `"duration-preset-30" Button`
+    t =    94.35s Find the "duration-preset-30" Button
+    t =    94.52s Find the "duration-preset-30" Button
+    t =    94.62s Find the "duration-preset-30" Button
+    t =    94.69s Find the "duration-preset-30" Button
+    t =    94.80s Find the "duration-preset-30" Button
+    t =    94.87s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    94.93s Find the "duration-preset-30" Button
+    t =    95.02s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    95.06s Tap "duration-preset-30" Button
+    t =    95.06s     Wait for com.hiyozoo.bearlock to idle
+    t =    95.06s     Find the "duration-preset-30" Button
+    t =    95.13s     Check for interrupting elements affecting "duration-preset-30" Button
+    t =    95.19s     Synthesize event
+    t =    95.50s     Wait for com.hiyozoo.bearlock to idle
+    t =    95.50s Find the "duration-preset-30" Button
+    t =    95.55s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    95.78s Added attachment named 'selection-440-accessibility-ja-duration'
+    t =    95.78s Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =    95.84s Waiting 5.0s for "lock-composer-mode-picker" Button to exist
+    t =    96.85s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-mode-picker" Button`
+    t =    96.85s         Checking existence of `"lock-composer-mode-picker" Button`
+    t =    96.90s Checking existence of `"lock-composer-mode-picker" Button`
+    t =    96.94s Find the "lock-composer-mode-picker" Button
+    t =    97.05s Find the "lock-composer-mode-picker" Button
+    t =    97.15s Tap "lock-composer-mode-picker" Button
+    t =    97.15s     Wait for com.hiyozoo.bearlock to idle
+    t =    97.15s     Find the "lock-composer-mode-picker" Button
+    t =    97.20s     Check for interrupting elements affecting "lock-composer-mode-picker" Button
+    t =    97.25s     Synthesize event
+    t =    97.58s     Wait for com.hiyozoo.bearlock to idle
+    t =    99.54s Waiting 5.0s for "日時指定" Button to exist
+    t =   100.56s     Checking `Expect predicate `existsNoRetry == 1` for object "日時指定" Button`
+    t =   100.56s         Checking existence of `"日時指定" Button`
+    t =   101.64s Checking `Expect predicate `BLOCKPREDICATE(0x119d73480)` for object "日時指定" Button`
+    t =   101.64s     Checking existence of `"日時指定" Button`
+    t =   101.69s     Find the "日時指定" Button
+    t =   101.84s     Capturing element debug description
+    t =   102.08s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   102.30s         Find: Descendants matching type Button
+    t =   102.30s         Find: Elements matching predicate '"日時指定" IN identifiers'
+    t =   102.30s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   102.42s         Find: Descendants matching type Button
+    t =   102.43s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   103.70s Checking `Expect predicate `BLOCKPREDICATE(0x119d73480)` for object "日時指定" Button`
+    t =   103.70s     Checking existence of `"日時指定" Button`
+    t =   103.74s     Find the "日時指定" Button
+    t =   103.87s     Capturing element debug description
+    t =   104.08s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   104.17s         Find: Descendants matching type Button
+    t =   104.17s         Find: Elements matching predicate '"日時指定" IN identifiers'
+    t =   104.18s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   104.28s         Find: Descendants matching type Button
+    t =   104.29s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   104.64s Checking `Expect predicate `BLOCKPREDICATE(0x119d73480)` for object "日時指定" Button`
+    t =   104.64s     Checking existence of `"日時指定" Button`
+    t =   104.70s     Find the "日時指定" Button
+    t =   104.85s     Capturing element debug description
+    t =   105.05s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   105.15s         Find: Descendants matching type Button
+    t =   105.15s         Find: Elements matching predicate '"日時指定" IN identifiers'
+    t =   105.16s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   105.28s         Find: Descendants matching type Button
+    t =   105.29s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   105.65s Checking `Expect predicate `BLOCKPREDICATE(0x119d73480)` for object "日時指定" Button`
+    t =   105.65s     Checking existence of `"日時指定" Button`
+    t =   105.73s     Find the "日時指定" Button
+    t =   105.88s     Capturing element debug description
+    t =   105.93s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   105.94s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+    t =   105.94s         Requesting snapshot of accessibility hierarchy for app with pid 66107
+/Users/runner/work/bearlock/bearlock/BearLockUITests/SelectionControlsUITests.swift:212: error: -[BearLockUITests.SelectionControlsUITests testSelectionAtAccessibilityTextSizeInEnglishAndJapanese] : XCTAssertEqual failed: ("XCTWaiterResult(rawValue: 2)") is not equal to ("XCTWaiterResult(rawValue: 1)")
+    t =   106.72s Tear Down
+Test Case '-[BearLockUITests.SelectionControlsUITests testSelectionAtAccessibilityTextSizeInEnglishAndJapanese]' failed (107.281 seconds).
+Test Case '-[BearLockUITests.SelectionControlsUITests testWeekdaySelectionAndEditorSaveAgree]' started.
+    t =     0.00s Start Test at 2026-10-11 11:56:31.267
+    t =     0.05s Set Up
+    t =     0.05s Open com.hiyozoo.bearlock
+    t =     0.05s     Launch com.hiyozoo.bearlock
+    t =     0.05s         Terminate com.hiyozoo.bearlock:66107
+Resolve Package Graph
+
+    t =     2.66s         Setting up automation session
+    t =     4.29s         Wait for com.hiyozoo.bearlock to idle
+    t =     6.77s Checking existence of `"lock-composer-mode-picker" SegmentedControl`
+    t =     6.92s Checking existence of `"Repeat" Button`
+    t =     6.99s Find the "Repeat" Button
+    t =     7.13s Find the "Repeat" Button
+    t =     7.25s Tap "Repeat" Button
+    t =     7.25s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.26s     Find the "Repeat" Button
+    t =     7.33s     Check for interrupting elements affecting "Repeat" Button
+    t =     7.40s     Synthesize event
+    t =     7.75s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.94s Find the "weekday-1" Button
+    t =     9.02s Find the "weekday-2" Button
+    t =     9.09s Checking existence of `"weekday-1" Button`
+    t =     9.18s Find the "weekday-1" Button
+    t =     9.31s Find the "weekday-1" Button
+    t =     9.39s Find the "weekday-1" Button
+    t =     9.49s Find the "weekday-1" Button
+    t =     9.56s Find the "weekday-1" Button
+    t =     9.61s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     9.66s Find the "weekday-1" Button
+    t =     9.72s Find the Target Application 'com.hiyozoo.bearlock'
+    t =     9.78s Tap "weekday-1" Button
+    t =     9.78s     Wait for com.hiyozoo.bearlock to idle
+    t =     9.79s     Find the "weekday-1" Button
+    t =     9.84s     Check for interrupting elements affecting "weekday-1" Button
+    t =     9.91s     Synthesize event
+    t =    10.23s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.24s Tap "weekday-2" Button
+    t =    10.24s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.25s     Find the "weekday-2" Button
+    t =    10.37s     Check for interrupting elements affecting "weekday-2" Button
+    t =    10.47s     Synthesize event
+    t =    10.79s     Wait for com.hiyozoo.bearlock to idle
+    t =    10.79s Find the "weekday-1" Button
+    t =    10.85s Find the "weekday-2" Button
+    t =    10.94s Find the "weekday-1" Button
+    t =    11.01s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    11.24s Added attachment named 'selection-440-weekday-changed'
+    t =    11.24s Find the "weekday-1" Button
+    t =    11.30s Checking existence of `"weekday-1" Button`
+    t =    11.35s Find the "weekday-1" Button
+    t =    11.43s Find the "weekday-1" Button
+    t =    11.52s Tap "weekday-1" Button
+    t =    11.52s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.52s     Find the "weekday-1" Button
+    t =    11.59s     Check for interrupting elements affecting "weekday-1" Button
+    t =    11.65s     Synthesize event
+    t =    11.97s     Wait for com.hiyozoo.bearlock to idle
+    t =    11.97s Find the "weekday-2" Button
+    t =    12.03s Find the "weekday-3" Button
+    t =    12.11s Checking existence of `"weekday-3" Button`
+    t =    12.16s Find the "weekday-3" Button
+    t =    12.26s Find the "weekday-3" Button
+    t =    12.36s Tap "weekday-3" Button
+    t =    12.36s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.36s     Find the "weekday-3" Button
+    t =    12.40s     Check for interrupting elements affecting "weekday-3" Button
+    t =    12.46s     Synthesize event
+    t =    12.77s     Wait for com.hiyozoo.bearlock to idle
+    t =    12.78s Find the "weekday-4" Button
+    t =    12.85s Checking existence of `"weekday-4" Button`
+    t =    12.90s Find the "weekday-4" Button
+    t =    12.97s Find the "weekday-4" Button
+    t =    13.09s Tap "weekday-4" Button
+    t =    13.09s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.09s     Find the "weekday-4" Button
+    t =    13.14s     Check for interrupting elements affecting "weekday-4" Button
+    t =    13.19s     Synthesize event
+    t =    13.50s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.51s Find the "weekday-5" Button
+    t =    13.57s Checking existence of `"weekday-5" Button`
+    t =    13.61s Find the "weekday-5" Button
+    t =    13.71s Find the "weekday-5" Button
+    t =    13.78s Tap "weekday-5" Button
+    t =    13.78s     Wait for com.hiyozoo.bearlock to idle
+    t =    13.79s     Find the "weekday-5" Button
+    t =    13.84s     Check for interrupting elements affecting "weekday-5" Button
+    t =    13.89s     Synthesize event
+    t =    14.20s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.21s Find the "weekday-6" Button
+    t =    14.28s Checking existence of `"weekday-6" Button`
+    t =    14.32s Find the "weekday-6" Button
+    t =    14.42s Find the "weekday-6" Button
+    t =    14.51s Tap "weekday-6" Button
+    t =    14.51s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.51s     Find the "weekday-6" Button
+    t =    14.56s     Check for interrupting elements affecting "weekday-6" Button
+    t =    14.60s     Synthesize event
+    t =    14.91s     Wait for com.hiyozoo.bearlock to idle
+    t =    14.92s Find the "weekday-7" Button
+    t =    14.98s Find the "lock-composer-primary-button" Button
+    t =    15.02s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    15.25s Added attachment named 'selection-440-weekday-empty'
+    t =    15.25s Checking existence of `"weekday-1" Button`
+    t =    15.29s Find the "weekday-1" Button
+    t =    15.36s Find the "weekday-1" Button
+    t =    15.43s Tap "weekday-1" Button
+    t =    15.43s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.43s     Find the "weekday-1" Button
+    t =    15.48s     Check for interrupting elements affecting "weekday-1" Button
+    t =    15.52s     Synthesize event
+    t =    15.83s     Wait for com.hiyozoo.bearlock to idle
+    t =    15.84s Find the "lock-composer-primary-button" Button
+    t =    15.88s Terminate com.hiyozoo.bearlock:66905
+    t =    16.90s Open com.hiyozoo.bearlock
+    t =    16.90s     Launch com.hiyozoo.bearlock
+    t =    17.51s         Setting up automation session
+    t =    19.05s         Wait for com.hiyozoo.bearlock to idle
+    t =    21.33s Waiting 10.0s for "scheduled-lock-edit-button" Button to exist
+    t =    22.35s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    22.35s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    22.48s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    22.58s Find the "scheduled-lock-edit-button" Button
+    t =    22.68s Find the "scheduled-lock-edit-button" Button
+    t =    22.79s Tap "scheduled-lock-edit-button" Button
+    t =    22.79s     Wait for com.hiyozoo.bearlock to idle
+    t =    22.80s     Find the "scheduled-lock-edit-button" Button
+    t =    22.91s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    22.96s     Synthesize event
+    t =    23.27s     Wait for com.hiyozoo.bearlock to idle
+    t =    23.58s Waiting 5.0s for "Repeat" NavigationBar to exist
+    t =    24.61s     Checking `Expect predicate `existsNoRetry == 1` for object "Repeat" NavigationBar`
+    t =    24.62s         Checking existence of `"Repeat" NavigationBar`
+    t =    24.79s Tap "weekday-1" Button
+    t =    24.79s     Wait for com.hiyozoo.bearlock to idle
+    t =    24.80s     Find the "weekday-1" Button
+    t =    24.90s     Check for interrupting elements affecting "weekday-1" Button
+    t =    24.99s     Synthesize event
+    t =    25.30s     Wait for com.hiyozoo.bearlock to idle
+    t =    25.30s Tap "weekday-2" Button
+    t =    25.30s     Wait for com.hiyozoo.bearlock to idle
+    t =    25.31s     Find the "weekday-2" Button
+    t =    25.48s     Check for interrupting elements affecting "weekday-2" Button
+    t =    25.60s     Synthesize event
+    t =    25.91s     Wait for com.hiyozoo.bearlock to idle
+    t =    25.91s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    26.16s Added attachment named 'selection-440-weekday-editor-changed'
+    t =    26.16s Tap "Save" Button
+    t =    26.16s     Wait for com.hiyozoo.bearlock to idle
+    t =    26.16s     Find the "Save" Button
+    t =    26.28s     Check for interrupting elements affecting "Save" Button
+    t =    26.37s     Synthesize event
+    t =    26.68s     Wait for com.hiyozoo.bearlock to idle
+    t =    27.46s Waiting 5.0s for "scheduled-lock-edit-button" Button to exist
+    t =    28.48s     Checking `Expect predicate `existsNoRetry == 1` for object "scheduled-lock-edit-button" Button`
+    t =    28.48s         Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    28.63s Checking existence of `"scheduled-lock-edit-button" Button`
+    t =    28.81s Find the "scheduled-lock-edit-button" Button
+    t =    28.92s Find the "scheduled-lock-edit-button" Button
+    t =    29.07s Tap "scheduled-lock-edit-button" Button
+    t =    29.07s     Wait for com.hiyozoo.bearlock to idle
+    t =    29.07s     Find the "scheduled-lock-edit-button" Button
+    t =    29.17s     Check for interrupting elements affecting "scheduled-lock-edit-button" Button
+    t =    29.22s     Synthesize event
+    t =    29.55s     Wait for com.hiyozoo.bearlock to idle
+    t =    29.64s Waiting 5.0s for "weekday-1" Button to exist
+    t =    30.67s     Checking `Expect predicate `existsNoRetry == 1` for object "weekday-1" Button`
+    t =    30.67s         Checking existence of `"weekday-1" Button`
+    t =    30.83s Find the "weekday-1" Button
+    t =    30.94s Find the "weekday-2" Button
+    t =    31.03s Find the Target Application 'com.hiyozoo.bearlock'
+    t =    31.28s Added attachment named 'selection-440-weekday-editor-saved'
+    t =    31.29s Tear Down
+Test Case '-[BearLockUITests.SelectionControlsUITests testWeekdaySelectionAndEditorSaveAgree]' passed (31.532 seconds).
+Test Suite 'SelectionControlsUITests' failed at 2026-10-11 11:57:02.799.
+	 Executed 4 tests, with 1 failure (0 unexpected) in 173.046 (173.049) seconds
+Test Suite 'BearLockUITests.xctest' failed at 2026-10-11 11:57:02.800.
+	 Executed 22 tests, with 1 failure (0 unexpected) in 606.931 (606.950) seconds
+Test Suite 'All tests' failed at 2026-10-11 11:57:02.801.
+	 Executed 22 tests, with 1 failure (0 unexpected) in 606.931 (606.952) seconds
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+Resolve Package Graph
+
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/bearlock/bearlock/artifacts/BearLockE2ETests.xcresult
+
+Testing started
