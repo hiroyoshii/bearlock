@@ -178,8 +178,8 @@ final class SelectionControlsUITests: XCTestCase {
     private func assertDateLabelsAreReadable(in app: XCUIApplication, titles: [String]) {
         for title in titles {
             let label = app.staticTexts["schedule-date-label-\(title)"]
-            XCTAssertTrue(label.waitForExistence(timeout: 5))
             scrollToButton(label, in: app)
+            XCTAssertTrue(label.waitForExistence(timeout: 5))
             XCTAssertLessThanOrEqual(label.frame.height, 100, "Date label must not break into multiple short fragments")
             XCTAssertGreaterThanOrEqual(label.frame.minX, app.frame.minX)
             XCTAssertLessThanOrEqual(label.frame.maxX, app.frame.maxX)

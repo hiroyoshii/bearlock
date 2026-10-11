@@ -525,8 +525,7 @@ extension XCTestCase {
     func scrollToButton(_ button: XCUIElement, in app: XCUIApplication) {
         for _ in 0..<10 {
             if button.isHittable { break }
-            let frame = button.frame
-            if frame != .zero && frame.maxY < app.frame.midY {
+            if button.exists && button.frame != .zero && button.frame.maxY < app.frame.midY {
                 app.swipeDown()
             } else {
                 app.swipeUp()
