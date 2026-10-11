@@ -164,7 +164,7 @@ private struct ScheduledLockRow: View {
                 } else if !canEdit {
                     Text(LocalizedStringKey(rule.kind == .recurring ? "Active. Deleting this schedule takes effect when this lock ends." : "This lock is active. Changes are available after it ends."))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.navy.opacity(0.72))
                 }
                 if rule.status == .disabled {
                     Text("Off")

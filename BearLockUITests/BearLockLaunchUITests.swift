@@ -385,12 +385,12 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch.exists)
         let openWakeOptions = app.buttons["open-wake-options"]
         XCTAssertTrue(openWakeOptions.exists)
-        XCTAssertFalse(app.buttons["schedule-free-wake"].exists)
+        XCTAssertFalse(app.buttons["Wake in 30 minutes for free"].exists)
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
-        XCTAssertTrue(app.buttons["schedule-free-wake"].exists)
-        XCTAssertTrue(app.buttons["purchase-immediate-wake"].exists)
-        XCTAssertFalse(app.buttons["purchase-immediate-wake"].isEnabled)
+        XCTAssertTrue(app.buttons["Wake in 30 minutes for free"].waitForExistence(timeout: 5))
+        // Native confirmation dialogs may omit disabled actions altogether.
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@ AND enabled == true", "Wake now")).count, 0)
         captureScreenshot(named: "e2e-active-lock-constraints")
     }
 
@@ -400,17 +400,21 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(openWakeOptions.waitForExistence(timeout: 10))
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
-        let schedule = app.buttons["schedule-free-wake"]
+        let schedule = app.buttons["Wake in 30 minutes for free"]
         XCTAssertTrue(schedule.waitForExistence(timeout: 10))
-        scrollToButton(schedule, in: app)
+        captureScreenshot(named: "e2e-free-wake-available")
         schedule.tap()
 
+        scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
-        let cancel = app.buttons["cancel-free-wake"]
+        let cancel = app.buttons["Cancel wake-up"]
         XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+        captureScreenshot(named: "e2e-free-wake-pending")
         cancel.tap()
+        scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
         XCTAssertTrue(schedule.waitForExistence(timeout: 10))
+        captureScreenshot(named: "e2e-free-wake-cancelled")
     }
 
     func testDisabledRecurringDraftCancelsWithoutChangingSavedStatus() throws {
@@ -518,8 +522,15 @@ extension XCTestCase {
     }
 
     func scrollToButton(_ button: XCUIElement, in app: XCUIApplication) {
-        for _ in 0..<4 where !button.isHittable { app.swipeDown() }
-        for _ in 0..<5 where !button.isHittable { app.swipeUp() }
+        for _ in 0..<10 {
+            if button.isHittable { break }
+            let frame = button.frame
+            if frame != .zero && frame.maxY < app.frame.midY {
+                app.swipeDown()
+            } else {
+                app.swipeUp()
+            }
+        }
         XCTAssertTrue(button.isHittable)
     }
 

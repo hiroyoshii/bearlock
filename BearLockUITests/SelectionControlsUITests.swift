@@ -51,10 +51,14 @@ final class SelectionControlsUITests: XCTestCase {
         selectionScreenshot(app, "weekday-changed")
         for day in 1...7 {
             let button = app.buttons["weekday-\(day)"]
-            if button.isSelected { button.tap() }
+            if button.isSelected {
+                scrollToButton(button, in: app)
+                button.tap()
+            }
         }
         XCTAssertFalse(app.buttons["lock-composer-primary-button"].isEnabled)
         selectionScreenshot(app, "weekday-empty")
+        scrollToButton(sunday, in: app)
         sunday.tap()
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].isEnabled)
         app.terminate()
@@ -79,7 +83,7 @@ final class SelectionControlsUITests: XCTestCase {
     }
 
     func testSelectionAtAccessibilityTextSizeInEnglishAndJapanese() throws {
-        for (locale, repeatTitle, sundayName) in [("en", "Repeat", "Sunday"), ("ja", "繰り返し", "日曜日")] {
+        for (locale, repeatTitle, sundayName, cancelTitle) in [("en", "Repeat", "Sunday", "Cancel"), ("ja", "繰り返し", "日曜日", "キャンセル")] {
             let app = launchApprovedSeededApp(extraArguments: [
                 "-AppleLanguages", "(\(locale))", "-AppleLocale", locale == "ja" ? "ja_JP" : "en_US",
                 "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
@@ -105,6 +109,15 @@ final class SelectionControlsUITests: XCTestCase {
             let create = app.buttons["lock-composer-primary-button"]
             assertUsable(create, in: app)
             XCTAssertTrue(create.isEnabled)
+            create.tap()
+            let confirm = app.buttons["lock-confirmation-confirm-button"]
+            XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+            assertUsable(confirm, in: app)
+            let cancel = app.buttons[cancelTitle]
+            assertUsable(cancel, in: app)
+            selectionScreenshot(app, "accessibility-\(locale)-confirmation")
+            cancel.tap()
+            XCTAssertFalse(confirm.exists)
             app.terminate()
         }
     }

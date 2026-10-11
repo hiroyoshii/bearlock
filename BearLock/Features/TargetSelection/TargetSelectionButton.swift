@@ -20,7 +20,7 @@ struct TargetSelectionButton: View {
             if isLocked {
                 Label("Cannot change during lock", systemImage: "lock.fill")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.navy.opacity(0.72))
                     .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                     .accessibilityIdentifier("locked-target-explanation")
             } else {
