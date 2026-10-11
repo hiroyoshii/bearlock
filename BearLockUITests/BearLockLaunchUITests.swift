@@ -388,7 +388,7 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Wake in 30 minutes for free"].exists)
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
-        XCTAssertTrue(app.buttons["Wake in 30 minutes for free"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(identifier: "schedule-free-wake").firstMatch.waitForExistence(timeout: 5))
         // Native confirmation dialogs may omit disabled actions altogether.
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label == %@ AND enabled == true", "Wake now")).count, 0)
         captureScreenshot(named: "e2e-active-lock-constraints")
@@ -400,14 +400,15 @@ final class BearLockLaunchUITests: XCTestCase {
         XCTAssertTrue(openWakeOptions.waitForExistence(timeout: 10))
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
-        let schedule = app.buttons["Wake in 30 minutes for free"]
+        // Native dialogs expose the action as both a wrapper and a child Button.
+        let schedule = app.buttons.matching(identifier: "schedule-free-wake").firstMatch
         XCTAssertTrue(schedule.waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-free-wake-available")
         schedule.tap()
 
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
-        let cancel = app.buttons["Cancel wake-up"]
+        let cancel = app.buttons.matching(identifier: "cancel-free-wake").firstMatch
         XCTAssertTrue(cancel.waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-free-wake-pending")
         cancel.tap()

@@ -12,11 +12,16 @@ struct DurationPickerControl: View {
     }
 
     var body: some View {
+        let headingLayout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+            : AnyLayout(HStackLayout())
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
+            headingLayout {
                 Text("Duration")
                     .font(.headline)
-                Spacer()
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer()
+                }
                 Text(L10n.format("%d min", Int(minutes)))
                     .font(.headline.monospacedDigit())
                     .foregroundStyle(AppTheme.navy)
