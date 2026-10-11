@@ -83,17 +83,21 @@ final class SelectionControlsUITests: XCTestCase {
     }
 
     func testSelectionAtAccessibilityTextSizeInEnglishAndJapanese() throws {
-        for (locale, repeatTitle, sundayName, cancelTitle) in [("en", "Repeat", "Sunday", "Cancel"), ("ja", "繰り返し", "日曜日", "キャンセル")] {
-            let app = launchApprovedSeededApp(extraArguments: [
+        for (locale, repeatTitle, dateTitle, sundayName, cancelTitle, saveTitle) in [("en", "Repeat", "Date", "Sunday", "Cancel", "Save"), ("ja", "繰り返し", "日時", "日曜日", "キャンセル", "保存")] {
+            let accessibilityArguments = [
                 "-AppleLanguages", "(\(locale))", "-AppleLocale", locale == "ja" ? "ja_JP" : "en_US",
                 "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
-            ])
+            ]
+            let app = launchApprovedSeededApp(extraArguments: accessibilityArguments)
             XCTAssertTrue(app.buttons["duration-preset-120"].waitForExistence(timeout: 10))
             let thirty = app.buttons["duration-preset-30"]
             assertUsable(thirty, in: app)
             thirty.tap()
             XCTAssertTrue(thirty.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-duration")
+            selectMode(dateTitle, in: app)
+            assertDateLabelsAreReadable(in: app, titles: ["Starts"])
+            selectionScreenshot(app, "accessibility-\(locale)-date")
             selectMode(repeatTitle, in: app)
             let sunday = app.buttons["weekday-1"]
             assertUsable(sunday, in: app)
@@ -106,6 +110,8 @@ final class SelectionControlsUITests: XCTestCase {
             saturday.tap()
             XCTAssertTrue(saturday.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-weekdays-bottom")
+            assertDateLabelsAreReadable(in: app, titles: ["Starts", "Ends"])
+            selectionScreenshot(app, "accessibility-\(locale)-times")
             let create = app.buttons["lock-composer-primary-button"]
             assertUsable(create, in: app)
             XCTAssertTrue(create.isEnabled)
@@ -119,6 +125,28 @@ final class SelectionControlsUITests: XCTestCase {
             cancel.tap()
             XCTAssertFalse(confirm.exists)
             app.terminate()
+
+            let editorApp = launchApprovedSeededApp(extraArguments: accessibilityArguments + ["--ui-testing-disabled-recurring"])
+            let edit = editorApp.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch
+            XCTAssertTrue(edit.waitForExistence(timeout: 10))
+            scrollToButton(edit, in: editorApp)
+            edit.tap()
+            let editorSunday = editorApp.buttons["weekday-1"]
+            assertUsable(editorSunday, in: editorApp)
+            editorSunday.tap()
+            XCTAssertTrue(editorSunday.isSelected)
+            assertDateLabelsAreReadable(in: editorApp, titles: ["Starts", "Ends"])
+            selectionScreenshot(editorApp, "accessibility-\(locale)-editor-times")
+            let save = editorApp.buttons[saveTitle]
+            assertUsable(save, in: editorApp)
+            save.tap()
+            XCTAssertTrue(edit.waitForExistence(timeout: 5))
+            scrollToButton(edit, in: editorApp)
+            edit.tap()
+            XCTAssertTrue(editorSunday.waitForExistence(timeout: 5))
+            XCTAssertTrue(editorSunday.isSelected)
+            selectionScreenshot(editorApp, "accessibility-\(locale)-editor-saved")
+            editorApp.terminate()
         }
     }
 
@@ -145,6 +173,17 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(edit.frame.width, 44)
         XCTAssertGreaterThanOrEqual(delete.frame.height, 44)
         selectionScreenshot(locked, "locked-schedule-actions")
+    }
+
+    private func assertDateLabelsAreReadable(in app: XCUIApplication, titles: [String]) {
+        for title in titles {
+            let label = app.staticTexts["schedule-date-label-\(title)"]
+            XCTAssertTrue(label.waitForExistence(timeout: 5))
+            scrollToButton(label, in: app)
+            XCTAssertLessThanOrEqual(label.frame.height, 100, "Date label must not break into multiple short fragments")
+            XCTAssertGreaterThanOrEqual(label.frame.minX, app.frame.minX)
+            XCTAssertLessThanOrEqual(label.frame.maxX, app.frame.maxX)
+        }
     }
 
     private func selectMode(_ title: String, in app: XCUIApplication) {

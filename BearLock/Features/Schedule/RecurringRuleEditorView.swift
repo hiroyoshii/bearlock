@@ -120,8 +120,8 @@ struct RecurringRuleEditorView: View {
     }
 
     private func timePicker(title: String, components: Binding<DateComponents>) -> some View {
-        DatePicker(
-            LocalizedStringKey(title),
+        ScheduleDatePicker(
+            title: title,
             selection: Binding(
                 get: { date(from: components.wrappedValue) },
                 set: { components.wrappedValue = Calendar.current.dateComponents([.hour, .minute], from: $0) }

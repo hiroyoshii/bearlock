@@ -33,7 +33,7 @@ struct ScheduledLockEditorView: View {
             NavigationStack {
                 Form {
                     Section("Schedule") {
-                        DatePicker("Starts", selection: $startsAt, displayedComponents: [.date, .hourAndMinute])
+                        ScheduleDatePicker(title: "Starts", selection: $startsAt, displayedComponents: [.date, .hourAndMinute])
                         DurationPickerControl(
                             minutes: $durationMinutes,
                             minimumMinutes: minimumDurationMinutes,
