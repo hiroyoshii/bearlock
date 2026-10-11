@@ -203,21 +203,21 @@ final class SelectionControlsUITests: XCTestCase {
             XCTAssertTrue(menu.waitForExistence(timeout: 5))
             scrollToButton(menu, in: app)
             menu.tap()
-            let choice = app.buttons[title]
+            let choice = app.collectionViews.buttons[title]
             XCTAssertTrue(choice.waitForExistence(timeout: 5))
-            let hittable = XCTNSPredicateExpectation(
-                predicate: NSPredicate { _, _ in choice.exists && choice.isHittable },
-                object: choice
+            let visibleFrame = choice.frame.intersection(app.frame)
+            XCTAssertFalse(visibleFrame.isEmpty)
+            XCTAssertTrue(visibleFrame.midX.isFinite && visibleFrame.midY.isFinite)
+            // The system menu can expose a zero-size AX window even while its
+            // rows are visible. Send the gesture from the app's screen coordinates.
+            app.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: visibleFrame.midX - app.frame.minX, dy: visibleFrame.midY - app.frame.minY))
+                .tap()
+            let selected = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in menu.exists && menu.label.hasSuffix(title) },
+                object: menu
             )
-            XCTAssertEqual(XCTWaiter.wait(for: [hittable], timeout: 5), .completed)
-            // At maximum text size, the center of a multiline system menu
-            // item can fall between its lines. Tap its visible upper text area.
-            choice.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).tap()
-            let dismissed = XCTNSPredicateExpectation(
-                predicate: NSPredicate { _, _ in !choice.exists },
-                object: choice
-            )
-            XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed)
+            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
         }
     }
 
