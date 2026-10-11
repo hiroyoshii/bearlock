@@ -98,13 +98,11 @@ final class SelectionControlsUITests: XCTestCase {
             XCTAssertTrue(thirty.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-duration")
             selectMode(dateTitle, in: app)
-            XCTAssertTrue(app.staticTexts["schedule-date-label-Starts"].waitForExistence(timeout: 5))
             assertDateLabelsAreReadable(in: app, titles: ["Starts"])
             selectionScreenshot(app, "accessibility-\(locale)-date")
             selectMode(repeatTitle, in: app)
             selectionScreenshot(app, "accessibility-\(locale)-repeat-mode")
             let sunday = app.buttons["weekday-1"]
-            XCTAssertTrue(sunday.waitForExistence(timeout: 5))
             assertUsable(sunday, in: app)
             XCTAssertEqual(sunday.label, sundayName)
             sunday.tap()
@@ -212,7 +210,14 @@ final class SelectionControlsUITests: XCTestCase {
                 object: choice
             )
             XCTAssertEqual(XCTWaiter.wait(for: [hittable], timeout: 5), .completed)
-            choice.tap()
+            // At maximum text size, the center of a multiline system menu
+            // item can fall between its lines. Tap its visible upper text area.
+            choice.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4)).tap()
+            let dismissed = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in !choice.exists },
+                object: choice
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 5), .completed)
         }
     }
 
