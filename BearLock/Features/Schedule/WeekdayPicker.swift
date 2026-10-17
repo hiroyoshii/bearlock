@@ -11,12 +11,7 @@ struct WeekdayPicker: View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 8) { weekdayButtons }
         } else {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) { weekdayButtons }
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: diameter), spacing: 8), count: 4), spacing: 8) {
-                    weekdayButtons
-                }
-            }
+            HStack(spacing: 8) { weekdayButtons }
         }
     }
 
@@ -34,7 +29,8 @@ struct WeekdayPicker: View {
                     Text(weekday.shortName(locale: locale))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(isSelected ? AppTheme.snow : AppTheme.navy)
-                        .frame(width: diameter, height: diameter)
+                        .frame(width: dynamicTypeSize.isAccessibilitySize ? diameter : nil, height: diameter)
+                        .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? nil : .infinity)
                         .background(isSelected ? AppTheme.navy : AppTheme.snow, in: Circle())
                         .overlay {
                             Circle()

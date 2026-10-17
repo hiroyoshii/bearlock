@@ -44,7 +44,7 @@ final class SelectionControlsUITests: XCTestCase {
         let monday = app.buttons["weekday-2"]
         XCTAssertFalse(sunday.isSelected)
         XCTAssertTrue(monday.isSelected)
-        assertUsable(sunday, in: app)
+        assertWeekdaysShareOneRow(in: app)
         sunday.tap()
         monday.tap()
         XCTAssertTrue(sunday.isSelected)
@@ -71,6 +71,7 @@ final class SelectionControlsUITests: XCTestCase {
         scrollToButton(edit, in: editorApp)
         edit.tap()
         XCTAssertTrue(editorApp.navigationBars["Repeat"].waitForExistence(timeout: 5))
+        assertWeekdaysShareOneRow(in: editorApp)
         editorApp.buttons["weekday-1"].tap()
         editorApp.buttons["weekday-2"].tap()
         selectionScreenshot(editorApp, "weekday-editor-changed")
@@ -81,6 +82,7 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertTrue(editorApp.buttons["weekday-1"].waitForExistence(timeout: 5))
         XCTAssertTrue(editorApp.buttons["weekday-1"].isSelected)
         XCTAssertFalse(editorApp.buttons["weekday-2"].isSelected)
+        assertWeekdaysShareOneRow(in: editorApp)
         selectionScreenshot(editorApp, "weekday-editor-saved")
     }
 
@@ -192,9 +194,26 @@ final class SelectionControlsUITests: XCTestCase {
         }
     }
 
-    private func assertUsable(_ button: XCUIElement, in app: XCUIApplication) {
+    private func assertWeekdaysShareOneRow(in app: XCUIApplication) {
+        let first = app.buttons["weekday-1"]
+        scrollToButton(first, in: app)
+        let firstFrame = first.frame
+        var previousMaxX = app.frame.minX
+        for day in 1...7 {
+            let button = app.buttons["weekday-\(day)"]
+            // Narrow rows share the available width; keep 44pt height and
+            // check the 28pt minimum separately from the default 44pt target.
+            assertUsable(button, in: app, minimumWidth: 28)
+            XCTAssertEqual(button.frame.midY, firstFrame.midY, accuracy: 1, "All seven weekdays must stay on one row")
+            XCTAssertEqual(button.frame.width, firstFrame.width, accuracy: 1, "Weekdays must share the available width equally")
+            XCTAssertGreaterThanOrEqual(button.frame.minX, previousMaxX, "Weekday touch regions must not overlap")
+            previousMaxX = button.frame.maxX
+        }
+    }
+
+    private func assertUsable(_ button: XCUIElement, in app: XCUIApplication, minimumWidth: CGFloat = 44) {
         scrollToButton(button, in: app)
-        XCTAssertGreaterThanOrEqual(button.frame.width, 44)
+        XCTAssertGreaterThanOrEqual(button.frame.width, minimumWidth)
         XCTAssertGreaterThanOrEqual(button.frame.height, 44)
         XCTAssertGreaterThanOrEqual(button.frame.minX, app.frame.minX)
         XCTAssertLessThanOrEqual(button.frame.maxX, app.frame.maxX)
