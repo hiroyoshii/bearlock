@@ -349,7 +349,7 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-recurring-scheduled")
 
         if !app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.isEnabled {
-            XCTAssertTrue(app.staticTexts["This lock is active. Changes are available after it ends."].exists)
+            XCTAssertTrue(app.staticTexts["Active. Deleting this schedule takes effect when this lock ends."].exists)
             return
         }
         tapFirstButton(app, identifier: "scheduled-lock-edit-button")
@@ -526,9 +526,9 @@ extension XCTestCase {
         // Use one 200ms press and wait for the selection to change.
         // Do not retry a missed touch or change the product's controls.
         let pressDuration: TimeInterval = 0.2
-        let segmented = app.segmentedControls["lock-composer-mode-picker"]
-        if segmented.exists {
-            let button = segmented.buttons[title]
+        let buttons = app.otherElements["lock-composer-mode-picker"]
+        if buttons.exists {
+            let button = buttons.buttons[title]
             scrollToButton(button, in: app)
             button.press(forDuration: pressDuration)
             let selected = XCTNSPredicateExpectation(

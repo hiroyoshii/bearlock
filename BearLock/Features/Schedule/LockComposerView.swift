@@ -8,12 +8,20 @@ enum LockComposerMode: String, CaseIterable, Identifiable {
     case recurring = "Repeat"
 
     var id: String { rawValue }
+
+    var iconName: String {
+        switch self {
+        case .now: return "bolt.fill"
+        case .delayed: return "timer"
+        case .fixedDateTime: return "calendar"
+        case .recurring: return "repeat"
+        }
+    }
 }
 
 struct LockComposerView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @ScaledMetric(relativeTo: .caption) private var fullModeSegmentWidth: CGFloat = 85
     @Binding var mode: LockComposerMode
     var allowsImmediateLock = true
 
@@ -153,23 +161,49 @@ struct LockComposerView: View {
     @ViewBuilder
     private var modePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
-            startModePicker()
+            startModePicker
                 .pickerStyle(.menu)
                 .frame(minHeight: 44)
         } else {
-            GeometryReader { geometry in
-                startModePicker(abbreviatesDate: geometry.size.width < fullModeSegmentWidth * CGFloat(availableModes.count))
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            HStack(spacing: 8) {
+                ForEach(availableModes) { tabMode in
+                    Button {
+                        mode = tabMode
+                    } label: {
+                        ViewThatFits(in: .horizontal) {
+                            Label(LocalizedStringKey(tabMode.rawValue), systemImage: tabMode.iconName)
+                                .fixedSize(horizontal: true, vertical: false)
+                            if tabMode == .fixedDateTime {
+                                Label("Date", systemImage: tabMode.iconName)
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
+                        }
+                        .font(.caption.weight(.bold))
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .foregroundStyle(mode == tabMode ? AppTheme.snow : AppTheme.navy)
+                        .background(mode == tabMode ? AppTheme.navy : AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(mode == tabMode ? AppTheme.navy : AppTheme.steel.opacity(0.35), lineWidth: 1)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(LocalizedStringKey(tabMode.rawValue)))
+                    .accessibilityAddTraits(mode == tabMode ? .isSelected : [])
+                    .accessibilityIdentifier("lock-composer-mode-\(tabMode.id)")
+                }
             }
-            .frame(height: 44)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Start")
+            .accessibilityIdentifier("lock-composer-mode-picker")
         }
     }
 
-    private func startModePicker(abbreviatesDate: Bool = false) -> some View {
+    private var startModePicker: some View {
         Picker("Start", selection: $mode) {
             ForEach(availableModes) { tabMode in
-                Text(LocalizedStringKey(abbreviatesDate && tabMode == .fixedDateTime ? "Date" : tabMode.rawValue))
+                Text(LocalizedStringKey(tabMode.rawValue))
                     .tag(tabMode)
             }
         }

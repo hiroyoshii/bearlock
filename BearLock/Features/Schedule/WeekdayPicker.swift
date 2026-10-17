@@ -28,13 +28,13 @@ struct WeekdayPicker: View {
                 HStack(spacing: 8) {
                     Text(weekday.shortName(locale: locale))
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isSelected ? AppTheme.snow : AppTheme.navy)
+                        .foregroundStyle(isSelected ? AppTheme.snow : AppTheme.navy.opacity(0.72))
                         .frame(width: dynamicTypeSize.isAccessibilitySize ? diameter : nil, height: diameter)
                         .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? nil : .infinity)
-                        .background(isSelected ? AppTheme.navy : AppTheme.snow, in: Circle())
+                        .background(isSelected ? AppTheme.navy : Color.secondary.opacity(0.10), in: Circle())
                         .overlay {
                             Circle()
-                                .stroke(isSelected ? AppTheme.navy : AppTheme.navy.opacity(0.24), lineWidth: isSelected ? 2 : 1)
+                                .stroke(isSelected ? AppTheme.navy : Color.secondary.opacity(0.28), lineWidth: 1)
                         }
                     if dynamicTypeSize.isAccessibilitySize {
                         Text(accessibilityName(for: weekday))

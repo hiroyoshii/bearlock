@@ -7,11 +7,16 @@ final class SelectionControlsUITests: XCTestCase {
 
     func testDurationPresetsAndModeReflectCurrentValue() throws {
         let app = launchApprovedSeededApp()
-        let picker = app.segmentedControls["lock-composer-mode-picker"]
+        let picker = app.otherElements["lock-composer-mode-picker"]
         XCTAssertTrue(picker.waitForExistence(timeout: 10))
         XCTAssertTrue(picker.buttons["Now"].isSelected)
         XCTAssertFalse(picker.buttons["In"].isSelected)
-        XCTAssertTrue(picker.buttons[app.frame.width <= 375 ? "Date" : "Date & Time"].exists)
+        XCTAssertTrue(picker.buttons["Date & Time"].exists, "The accessible name stays complete even when the visible title is Date")
+        for title in ["Now", "In", "Date & Time", "Repeat"] {
+            let button = picker.buttons[title]
+            assertUsable(button, in: app)
+            XCTAssertEqual(button.frame.midY, picker.buttons["Now"].frame.midY, accuracy: 1)
+        }
         XCTAssertTrue(app.buttons["duration-preset-120"].isSelected)
         XCTAssertFalse(app.buttons["duration-preset-30"].isSelected)
         selectionScreenshot(app, "duration-initial")
@@ -171,7 +176,10 @@ final class SelectionControlsUITests: XCTestCase {
         let locked = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-recurring", "--ui-testing-all-day-recurring"])
         XCTAssertTrue(locked.staticTexts["locked-target-explanation"].waitForExistence(timeout: 10))
         XCTAssertFalse(locked.buttons["Select targets"].exists)
-        XCTAssertFalse(locked.segmentedControls["lock-composer-mode-picker"].buttons["Now"].exists)
+        let modes = locked.otherElements["lock-composer-mode-picker"]
+        XCTAssertTrue(modes.exists)
+        XCTAssertTrue(modes.buttons["In"].exists)
+        XCTAssertFalse(modes.buttons["Now"].exists)
         selectionScreenshot(locked, "locked-target-explanation")
         let delete = locked.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch
         scrollToButton(delete, in: locked)
