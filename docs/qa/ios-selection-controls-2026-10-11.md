@@ -1,5 +1,31 @@
 # iOS 選択状態UIの修正と評価
 
+## 2026年10月17日 曜日の横1列を復元
+
+前回は小型画面や編集Formの2列表示を許容して「復元範囲は合格」としたが、元の7曜日横1列を戻せていなかった。この点の合格判断を訂正する。直径の固定と4列グリッドへの折り返しは今回の修正で持ち込んだ変更であり、元のレイアウトを維持する条件が検証から抜けていた。
+
+通常文字では固定幅と折り返しを撤去し、利用可能な幅を7等分するHStackへ戻す。標準文字サイズでの高さ44ptと従来の文字サイズに連動した拡縮、間隔8pt、丸・チェックなし・選択traitを保持し、アクセシビリティ文字サイズの縦配置と拡大した丸・正式名称は変えない。狭い画面の通常行だけは幅が44ptを下回るため、標準文字サイズの全曜日について幅28pt以上・高さ44pt以上・画面内・等幅・同じ中心Y・AX frameの非重複を検証する。28ptは[Apple Accessibilityのcontrol-size表](https://developer.apple.com/design/human-interface-guidelines/accessibility)のminimumであり、44ptのdefaultと混同しない。他の操作や大きい文字の44pt検証は維持する。
+
+修正ソースは `dd83005acfbce2f52058710eba15eaabe036695a`。[検証run](https://github.com/hiroyoshii/bearlock/actions/runs/39010305244)で、既存の通常端末・SEのテスト経路に作成・編集・保存後の1列判定を追加した。曜日のケースは両端末で成功（通常70.165秒、SE72.377秒）。375pt・440ptの作成／保存後の編集の実画像でも、7曜日が横1列、丸・チェックなし、同じ保存値であることを確認した。最大文字サイズは引き続き縦配置とし、SEの英語・日本語の編集保存画像を確認した。今回のコード変更はWeekdayPickerと既存の曜日テストのみで、別のUI変更や再試行・スキップは追加していない。
+
+評価: **曜日の1列復元は合格。ただし全体E2Eは未合格。** SEは4件すべて成功。通常端末は22件中2件失敗した。
+
+- `testCreateAndOpenRecurringEditorWithMockServices`: 実行中の繰り返し予定で編集不可の分岐に入り、単発予定用の古い説明文を期待するassertionが失敗した（BearLockLaunchUITests.swift:352）。実装の現在の説明文は「削除は今回のロック終了時に反映」であり、期待文言と一致しない。このテストは今回変更していない。
+- `testSelectionAtAccessibilityTextSizeInEnglishAndJapanese`: 英語の一連の操作後、日本語の最大文字サイズで「日時指定」へ切り替えた値の待機がタイムアウトした（共通helperのBearLockLaunchUITests.swift:564）。原因は未特定で、曜日の行配置の不具合とは断定しない。SEの同じテストは成功している。
+
+Core、cross-process検証、AppModel 9件、StoreKit 10件、Release／Debugビルド、日英32枚のスクショ取得は成功。スクショ取得成功を全体E2Eの合格へ読み替えない。[通常端末の生ログ](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/xcodebuild-ui-e2e.log)と[SEの生ログ](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/xcodebuild-selection-small-iphone.log)を保存した。成果物IDは通常 `12093497281`、StoreKit `12093085952`。
+
+今回のbeforeは前回「復元済み」とした2列の実画像、afterは今回runの実画像。過去の記録は書き換えず、repoの最新ギャラリーだけを今回の日英32枚へ置き換えた。以下の2026年10月12日の合格・最終runの記載は当時の記録であり、今回の全体合格を示さない。
+
+| 対象（SE・375pt） | Before：前回残した2列 | After：7曜日横1列 |
+|---|---|---|
+| 作成 | ![作成・修正前](ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) | ![作成・修正後](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-changed.png) |
+| 保存後の編集 | ![編集・修正前](ios-selection-controls-2026-10-11/after/selection-375-weekday-editor-saved.png) | ![編集・修正後](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-editor-saved.png) |
+
+通常幅の[作成](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-440-weekday-changed.png)・[編集](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-440-weekday-editor-saved.png)、最大文字サイズの編集保存後の[英語](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-accessibility-en-editor-saved.png)・[日本語](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-accessibility-ja-editor-saved.png)も同runから保存した。
+
+## 2026年10月12日時点の記録
+
 対象: 曜日、時間プリセット、開始モード、保存済み対象、ロック中の無効状態。
 復元・検証ソース: `d068fe47a1bf31af11f0bcfb9470bba729e64e97`。[最終検証run](https://github.com/hiroyoshii/bearlock/actions/runs/38145820236)は全ジョブ成功。通常E2E 22件、SE E2E 4件、AppModel 9件、StoreKit 10件がすべて失敗0。以下の過去runの合格は復元後の合格に流用していない。
 
