@@ -4,7 +4,7 @@ The current English and Japanese simulator captures are in `app-store-en` and `a
 
 These use the screenshot app's fixtures. They show the current UI, not evidence of actual Screen Time blocking. Interactive E2E evidence and the before/after review are recorded in [the selection-controls review](../docs/qa/ios-selection-controls-2026-10-11.md). Dated QA and Android comparison images elsewhere remain historical records.
 
-The 2026-10-17 captures include the restored single-row weekdays. Screenshot capture and the weekday E2E passed on both tested devices, but [this run](https://github.com/hiroyoshii/bearlock/actions/runs/39010305244) is not fully green: two other assertions/flows failed on the normal-size device. See the review for the exact results.
+The 2026-10-18 captures restore the icon mode buttons and the weekdays' light-gray fill and 1pt outline. [This run](https://github.com/hiroyoshii/bearlock/actions/runs/39049336403) passed all 22 normal-device E2E tests and screenshot capture, but failed two of four SE tests: preset selection after a tap and accessibility-size native menu switching. Weekday save/reopen passed on both devices. See the review for the exact results; the full E2E suite is not green.
 
 | Screen | Japanese | English |
 |---|---|---|

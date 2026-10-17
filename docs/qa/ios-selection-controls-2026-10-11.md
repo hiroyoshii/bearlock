@@ -1,5 +1,39 @@
 # iOS 選択状態UIの修正と評価
 
+## 2026年10月18日 開始モードと曜日の外観を復元
+
+チェック追加直前の `3cde327` を基準に、通常文字の開始モードを元のアイコン・配色・並びのボタンへ戻した。選択値は元のBindingのままで、選択traitと正式名称の読み上げ情報を追加した。通常セグメントと85ptの幅判定を撤去し、全文が実際に収まらない場合だけDateへ短縮する。今回の375pt・440pt・App Store用428ptの英語4択はDate、3択ではDate & Timeを確認した。詳細見出しと読み上げ名は全文のまま。大きい文字の標準メニューは変更していない。
+
+曜日は同基準の非選択の薄灰背景・文字色・1pt枠へ戻し、選択中の2pt枠を撤去した。丸・チェックなし・7曜日横1列、矩形のタップ判定、文字拡大時の縦配置・正式名称は維持した。時間プリセット、ロック中の説明、確認シート、ロック・削除仕様は今回変更していない。
+
+検証ソースは `4e9e3774c03d9259c3dc3bc71901cde20cb596f2`。[検証run](https://github.com/hiroyoshii/bearlock/actions/runs/39049336403)の結果は以下のとおり。成果物IDは通常 `12107788736`、StoreKit `12106918460`。
+
+| 検証 | 結果 |
+|---|---|
+| 通常端末のE2E | 22件、失敗0。開始モード、プリセット、曜日編集、英語・日本語の最大文字サイズの一連の操作が成功。[生ログ](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/xcodebuild-ui-e2e.log) |
+| SEのE2E | 4件中2件失敗。曜日の作成・編集・保存後の横1列判定と保存値、および操作不可状態のケースは成功。[生ログ](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/xcodebuild-selection-small-iphone.log) |
+| AppModel・StoreKit | 9件・10件がそれぞれ失敗0 |
+| Core・cross-process・ビルド | いずれも成功。Release・Debug・UIテスト・撮影アプリのビルドを含む |
+| 最新ギャラリー | 日英各16枚、計32枚、1284×2778。全画像を目視し、同runの未加工PNGへ置換 |
+
+**評価は、対象の通常時の外観復元を確認済み、全体E2Eは不合格。** SEの失敗は次の2件で、原因は未特定。これらの製品コントロール自体は今回変更していないが、今回の復元との因果も断定しない。再試行・スキップや追加のUI変更で成功扱いにはしていない。
+
+- `testDurationPresetsAndModeReflectCurrentValue` の28行: 開始モード4択の存在・選択情報・操作領域・同一行の判定は成功した後、30分プリセットの1回のtap直後にselected traitがfalseだった。録画の[最終保持フレーム](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/se-duration-final.png)も120分表示のまま。単なるassertionの読み取り遅れとは断定しない。
+- `testSelectionAtAccessibilityTextSizeInEnglishAndJapanese` の共通helper 564行: SE・英語・最大文字サイズでDate & TimeからRepeatへの切替がタイムアウトした。1回の200ms press後の[録画43秒のフレーム](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/se-menu-after-press.png)では、Date & Timeが選択されたメニューが開いたまま。SEの日本語の後半には到達していない。
+
+前回の通常端末で失敗した実行中の説明文の期待値は、現在の繰り返し予定の文言へ修正した。最大文字サイズのネイティブメニューの操作方法は変えていない。CIのアクセシビリティ情報の確認と実機VoiceOverの音声操作は区別し、実機確認済みとはしない。
+
+ライトモードの英語composeRepeat画像で、非選択の文字内部RGB `(82,101,125)` と背景 `(243,243,244)` のコントラストは約5.39:1、選択中の白と濃紺は約13.69:1。文字のアンチエイリアス端や押下中、OS設定全体の適合を示す値ではない。
+
+今回直前のセグメント・白い非選択曜日からの比較（同じ375pt・同じ選択値）:
+
+| 対象 | 今回直前 | 修正後 |
+|---|---|---|
+| 作成 | [セグメントと白い曜日](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-changed.png) | [アイコン付きボタンと薄灰の曜日](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-weekday-changed.png) |
+| 保存後の編集 | [白い曜日](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-editor-saved.png) | [薄灰の曜日](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-weekday-editor-saved.png) |
+
+通常幅の[作成](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-weekday-changed.png)・[編集](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-weekday-editor-saved.png)、SEの[開始モード4択](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-duration-initial.png)、通常端末の最大文字サイズで保存後の[英語](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-accessibility-en-editor-saved.png)・[日本語](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-accessibility-ja-editor-saved.png)も保存した。以下は過去時点の記録であり、今回の全体E2Eの合格へ流用しない。
+
 ## 2026年10月17日 曜日の横1列を復元
 
 前回は小型画面や編集Formの2列表示を許容して「復元範囲は合格」としたが、元の7曜日横1列を戻せていなかった。この点の合格判断を訂正する。直径の固定と4列グリッドへの折り返しは今回の修正で持ち込んだ変更であり、元のレイアウトを維持する条件が検証から抜けていた。
