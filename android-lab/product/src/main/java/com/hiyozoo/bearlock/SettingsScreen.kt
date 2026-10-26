@@ -33,8 +33,10 @@ class SettingsScreen(private val a: MainActivity) {
         row(info,t("サポートとよくある質問","Support and FAQ")) { link("support") }
         u.divider(info); u.pair(info,t("バージョン","Version"),BuildConfig.VERSION_NAME,12)
         row(info,t("Bear Lockを応援","Support Bear Lock"),"heart",true) { a.navigate("support") }
-        val diagnostics=u.section(parent,t("診断","Diagnostics"))
-        row(diagnostics,t("端末内の診断","On-device diagnostics"),navigation=true) { a.navigate("diagnostics") }
+        if(BuildConfig.DEBUG) {
+            val diagnostics=u.section(parent,t("診断","Diagnostics"))
+            row(diagnostics,t("端末内の診断","On-device diagnostics"),navigation=true) { a.navigate("diagnostics") }
+        }
         val platform=u.section(parent,t("Androidの設定","Android settings"))
         row(platform,t("権限・動作状態を確認","Permissions and status")) { a.requestPermissions() }
         row(platform,t("対応する制限","Supported blocking")) {
@@ -42,6 +44,7 @@ class SettingsScreen(private val a: MainActivity) {
         }
     }
     fun diagnostics(parent: LinearLayout) {
+        if(!BuildConfig.DEBUG) return
         val now=System.currentTimeMillis()
         val connected=if(GuardService.instance!=null) t("接続済み","Connected") else t("未接続","Not connected")
         val alarm=if(Scheduling.permitted(a)) t("許可済み","Allowed") else t("未許可","Not allowed")

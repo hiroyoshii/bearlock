@@ -22,8 +22,10 @@ struct RootView: View {
                             Button("Retry") { Task { await model.refresh() } }
                                 .disabled(model.isRefreshing)
                                 .accessibilityIdentifier("storage-retry")
+                            #if DEBUG
                             NavigationLink("Diagnostics") { DebugDiagnosticsView() }
                                 .accessibilityIdentifier("storage-diagnostics")
+                            #endif
                         }
                         .padding(20)
                         .frame(maxWidth: .infinity, alignment: .leading)

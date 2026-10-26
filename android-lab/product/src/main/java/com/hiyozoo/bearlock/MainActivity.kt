@@ -196,6 +196,7 @@ open class MainActivity : Activity() {
         navigate(Route.Editor)
     }
     open fun render() {
+        if(!BuildConfig.DEBUG && route==Route.Diagnostics) route=Route.Settings
         val previousY=if(renderedPage==page) contentScroll?.scrollY ?: 0 else 0
         renderedPage=page
         countdown=null; pickerCount=null; pickerSave=null; load(); lastStatus=statusKey()
@@ -316,7 +317,7 @@ open class MainActivity : Activity() {
             "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps another lock. Choose a different time.")
             "rule_not_found" -> t("この予定は削除されています。", "This schedule is no longer available.")
             "active_immutable" -> t("開始したロックは変更・削除できません。","An active lock cannot be changed or deleted.")
-            "storage_error" -> t("保存データを読み込めません。上書きせず保持しています。設定の診断をご確認ください。","Saved data cannot be read. It has been preserved. Check diagnostics in Settings.")
+            "storage_error" -> t("保存データを読み込めません。上書きせず保持しています。ホーム画面から再読み込みしてください。","Saved data cannot be read. It has been preserved. Retry from the home screen.")
             "invalid_domain" -> t("有効なドメインを入力してください。","Enter a valid domain.")
             "wake_ended" -> t("このロックはすでに終了しています。","This lock has already ended.")
             "wake_missing" -> t("起床予約はすでに取り消されています。","The wake-up request is no longer active.")
@@ -346,7 +347,7 @@ open class MainActivity : Activity() {
         if(readFailed) {
             ui.add(warning,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
             ui.add(warning,ui.button(t("再読み込み","Reload saved data")) { restoreSelection(); load(); syncSchedules() }.apply { tag="storage-retry" },12)
-            ui.add(warning,ui.textButton(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },12)
+            ui.add(warning,ui.textButton(t("設定を開く","Open settings")) { navigate("settings") },12)
         }
         if(Scheduling.updateFailed) {
             ui.add(warning,ui.label(t("ロックの監視を更新できません", "Monitoring could not be updated"),17f,true).apply {

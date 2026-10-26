@@ -41,6 +41,7 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings-support-link")
             }
 
+            #if DEBUG
             Section("Diagnostics") {
                 NavigationLink {
                     DebugDiagnosticsView()
@@ -49,6 +50,7 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("diagnostics-link")
             }
+            #endif
         }
         .navigationTitle("Settings")
     }
@@ -58,6 +60,7 @@ struct SettingsView: View {
     }
 }
 
+#if DEBUG
 struct DebugDiagnosticsView: View {
     @EnvironmentObject private var model: BearLockAppModel
 
@@ -181,3 +184,4 @@ struct DebugDiagnosticsView: View {
         }
     }
 }
+#endif
