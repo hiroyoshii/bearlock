@@ -16,6 +16,8 @@ final class WakePurchaseTests: XCTestCase {
         session.resetToDefaultState()
         session.clearTransactions()
         session.disableDialogs = true
+        let unfinished = try await synchronizedUnfinishedTransactionIDs()
+        XCTAssertTrue(unfinished.isEmpty)
         DiagnosticsLogger.shared.clear()
         store = WakePurchaseStore()
         store.start(deliver: { [weak self] transactionID in
@@ -45,7 +47,7 @@ final class WakePurchaseTests: XCTestCase {
         XCTAssertEqual(deliveredTransactions.count, 1)
         XCTAssertEqual(store.lastDelivery, .unlocked)
         XCTAssertFalse(store.isPurchasing)
-        try await eventually { await self.unfinishedIDs().isEmpty }
+        try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
     }
 
     func testCancelledPurchaseAbandonsPendingIntent() async throws {
@@ -76,25 +78,17 @@ final class WakePurchaseTests: XCTestCase {
 
         try await eventually { self.store.lastDelivery == .credited }
         XCTAssertEqual(store.message, L10n.string("This lock already ended. Your wake-up ticket is saved for next time."))
-        try await eventually { await self.unfinishedIDs().isEmpty }
-    }
-
-    private func unfinishedIDs() async -> Set<UInt64> {
-        var result = Set<UInt64>()
-        for await verification in Transaction.unfinished {
-            if case let .verified(transaction) = verification { result.insert(transaction.id) }
-        }
-        return result
+        try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
     }
 
     private func performPurchase(_ product: Product) async throws -> Product.PurchaseResult {
         try await product.purchase()
     }
 
-    private func eventually(_ condition: () async -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {
+    private func eventually(_ condition: () async throws -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {
         let deadline = Date().addingTimeInterval(10)
         while Date() < deadline {
-            if await condition() { return }
+            if try await condition() { return }
             try await Task.sleep(for: .milliseconds(100))
         }
         XCTFail("StoreKit did not reach the expected state within 10 seconds", file: file, line: line)
