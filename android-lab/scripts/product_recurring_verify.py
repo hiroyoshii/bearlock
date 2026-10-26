@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Overlapping repeats: immutable editing, first deadline still blocked, final deadline releases.
+"""Legacy overlapping data: immutable editing, first deadline still blocked, final deadline releases.
+This writes an old saved-state fixture directly; normal creation must reject overlapping repeats.
 Only writes fixtures on an explicitly disposable emulator; never use on a personal device.
 """
 import json, os, re, subprocess, time

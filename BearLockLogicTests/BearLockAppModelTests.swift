@@ -333,6 +333,32 @@ final class BearLockAppModelTests: XCTestCase {
         XCTAssertEqual(h.repository.state.rules, original.rules)
     }
 
+    func testConflictingWakeCancellationKeepsBookingAndDoesNotReflect() async throws {
+        let h = try Harness()
+        let now = Date()
+        let first = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-60),
+            duration: 7200, targetSelectionID: h.target.id)
+        let wake = WakeRequest(ruleID: first.id, occurrenceStartedAt: first.single!.startsAt,
+            requestedAt: now, wakesAt: now.addingTimeInterval(1800), source: .delayed)
+        let next = LockRule(kind: .fixedDateTime, startsAt: wake.wakesAt, duration: 900,
+            targetSelectionID: h.target.id)
+        h.repository.state.rules = [first, next]
+        h.repository.state.wakeState.requests = [wake]
+        await h.model.refresh()
+        let lock = try XCTUnwrap(h.model.activeLock)
+        let saved = h.repository.state
+        let writes = h.repository.writes
+        let monitoring = h.schedule.calls
+        let shields = h.shield.calls
+        let outcome = await h.model.cancelFreeWake(for: lock)
+        XCTAssertEqual(outcome, .rejected)
+        XCTAssertNotNil(h.model.lastErrorMessage)
+        XCTAssertEqual(h.repository.state, saved)
+        XCTAssertEqual(h.repository.writes, writes)
+        XCTAssertEqual(h.schedule.calls, monitoring)
+        XCTAssertEqual(h.shield.calls, shields)
+    }
+
     func testConfirmedWakeOccurrenceCannotTransferToNewRepresentative() async throws {
         let h = try Harness()
         let old = LockRule(kind: .immediate, startsAt: Date().addingTimeInterval(-60),

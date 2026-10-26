@@ -1,0 +1,24 @@
+{
+  "branchParent": "10b6cb4bf667318de7f58de6b7123ca3c9b44f08",
+  "mainParent": "3e433c9937f75e991e94c0c400c9a3b7fdf9c488",
+  "xcode": "27.1 (27A9275)",
+  "sdk": "iPhoneSimulator 27.1",
+  "device": "iPhone 16 / iOS 27.0 (24A434)",
+  "core": {
+    "passed": 82,
+    "failed": 0,
+    "skipped": 0
+  },
+  "appModel": {
+    "passed": 26,
+    "failed": 0,
+    "skipped": 0
+  },
+  "repositoryProcesses": "passed: one writer, 200 snapshots, four readers",
+  "metadata": "passed",
+  "debugBuild": "passed",
+  "releaseBuild": "passed",
+  "uiTests": "not rerun for merge",
+  "storeKitTests": "not rerun for merge",
+  "androidTests": "not rerun for merge"
+}

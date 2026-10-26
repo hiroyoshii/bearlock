@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Delete active all-day repeats through the UI; verify cancellation and remaining shields."""
+"""Delete legacy overlapping all-day data through the UI; verify cancellation and remaining shields.
+The old state is injected directly, not created through the overlap-rejecting application entry.
+"""
 import json, os, re, subprocess, time
 from pathlib import Path
 import product_qa as q

@@ -2,7 +2,7 @@
 
 初回調査: 2026-10-25。基準と対応の再整理: 2026-10-26。対象は現在の作業ツリーであり、配布済みAPK/iOS版の適合宣言ではない。
 
-iOS全体のSDK/シミュレーター検証は第13節、StoreKitの追跡は第14節、利用者承認による購入失敗表示の統一と最新検証は第15節。第8〜12節の「未実行」は各記録時点の状態であり、実機・Android固有の未確認は引き続き未確認とする。
+iOS全体のSDK/シミュレーター検証は第14節、main側の統合記録は第15節、StoreKit追跡は第16節、購入失敗表示の統一と検証は第17節。今回のmain取込み後の確認は第18節。第8〜12節の「未実行」は各記録時点の状態であり、実機・Android固有の未確認は引き続き未確認とする。
 
 ## 1. 何を基準に、何を判定するか
 
@@ -34,11 +34,11 @@ iOS全体のSDK/シミュレーター検証は第13節、StoreKitの追跡は第
 
 | 基準 | iOSの現行担当・経路 | Androidの現行担当・経路 | 対応状況と必要な検証 |
 |---|---|---|---|
-| R01 | 作成/編集ViewのState、TargetSelectionButton、RootView、WakeOptionsDialog | EditorDraft、Route、TargetPicker、MainActivity.showWakeOptions | 対象選択の下書きを維持。iOSは起床dialogのBoolをActiveLockの保持へ置換し、確認時のID/発生回を固定。Androidも開いたidentityを保持する。Coreの古い回拒否を共有試験、アプリ入口の保持/拒否を各OSの操作試験で検証。iOS SDK/AppModel/mock UIの実行結果は第13節。実機は未確認 |
+| R01 | 作成/編集ViewのState、TargetSelectionButton、RootView、WakeOptionsDialog | EditorDraft、Route、TargetPicker、MainActivity.showWakeOptions | 対象選択の下書きを維持。iOSは起床dialogのBoolをActiveLockの保持へ置換し、確認時のID/発生回を固定。Androidも開いたidentityを保持する。Coreの古い回拒否を共有試験、アプリ入口の保持/拒否を各OSの操作試験で検証。取り込んだiOS SDK/AppModel/mock UIの実行結果は第14節。統合後のSDK実行と実機は未確認 |
 | R02 | LockPlanner、RecurrenceRule、LockState、WakeState、ShieldSlotPlanner | Planner、Rule、State、Domain | SDKなしで判定できる点は整合。正常入力の発生回/起床/競合は共有データで一部検証。複数要求や不正zoneの結果はD03/D07で未定義。ファイル数が違うことは問題ではない |
-| R03 | 対象選択/予定/無料起床/履歴はAppModel.performSavedOperation→LockStore actor→fresh load/validate/save | 対象選択/予定/無料起床/履歴はLockOperations→Store.change→Planner | 保存時刻/最新状態再検証と保存→必要な反映→結果を対応させた。画面内の直接保存と履歴用mutate経路を除去。履歴のpin/解除/削除はOS反映不要。iOSの削除予約取消も同じ入口。SDK/mockの実行結果と実機未確認は第13節で区別。予定作成と履歴記録の原子性はD06で判断待ち |
+| R03 | 対象選択/予定/無料起床/履歴はAppModel.performSavedOperation→LockStore actor→fresh load/validate/save | 対象選択/予定/無料起床/履歴はLockOperations→Store.change→Planner | 保存時刻/最新状態再検証と保存→必要な反映→結果を対応させた。画面内の直接保存と履歴用mutate経路を除去。履歴のpin/解除/削除はOS反映不要。iOSの削除予約取消も同じ入口。取り込んだSDK/mockの実行結果と実機未確認は第14節で区別。予定作成と履歴記録の原子性はD06で判断待ち |
 | R04 | LockRepository protocol、JSONFileLockRepository、App Group | Storeの共有guard/AtomicFile、Codec、schema移行 | 原子的更新と原本保持はコード/故障テストに整合。プロセス構成/JSONを揃える必要なし。不正形式のすべての意味的検証を確認したわけではない |
-| R05 | ScheduleController、ShieldController、Monitor/Shield Configuration拡張 | Scheduling、BoundaryReceiver、GuardService、Shield、SnapshotGate | 最新状態から再評価し、登録失敗と期限判定を分離する経路がある。iOS SDKビルド/mock UIの実行結果は第13節。実OS遮断/実機は未判定。iOS容量事前検査の範囲はD08 |
+| R05 | ScheduleController、ShieldController、Monitor/Shield Configuration拡張 | Scheduling、BoundaryReceiver、GuardService、Shield、SnapshotGate | 最新状態から再評価し、登録失敗と期限判定を分離する経路がある。取り込んだiOS SDKビルド/mock UIの実行結果は第14節。実OS遮断/実機は未判定。iOS容量事前検査の範囲はD08 |
 | R06 | AppModelのOperationOutcome/readStatus/monitoringUpdateFailed、Home/Root/Settings、作成/編集View | LockOperationsのOperationOutcome、MainActivityの結果表示/statusWarnings、Composer | 対象選択/予定/無料起床は保存拒否と保存後反映失敗を区別。履歴の保存後読込失敗はiOSのsavedNeedsReload/readStatus.failedで保存拒否と区別。OS反映の不要な履歴変更で既存の監視エラーを消さない。終了表示/代表選択はD01。課金配送は別経路 |
 
 ### 主要コードへの入口
@@ -63,19 +63,19 @@ iOS全体のSDK/シミュレーター検証は第13節、StoreKitの追跡は第
 | TGT-03 / R02,R03,R06 | AppModel.performSavedOperation→LockStore.setRecentLockTargetPinned/deleteRecentLockTarget、displayedRecentLockTargets | LockOperations.setRecentPinned/deleteRecentTarget→Planner.pinRecent/deleteRecent/displayedRecent | 3件表示/3件pin/原本を切捨てない処理と、選択・予定・起床要求の不変を共有historyCasesで検証。保存区間内の時刻/最新pin数、保存故障、OS未呼出し、保存後読込失敗は各OSの操作試験に対応。実行範囲は第11節 |
 | SCH-01 / R01,R02 | LockComposerMode、makeRequest、LockSchedule | ComposerMode、DraftTiming、makeRule、LockSchedule | 4モードは整合。LockPlannerTests、EditorStateTest、両OSの作成UI試験。クラス構成の一致は不要 |
 | SCH-02 / R02,R03 | AppModel.performSavedOperation→validateEditable/replaceRule/deleteRule、各editor | LockOperations.updateSchedule/deleteSchedule→editable/scheduleEditable/replace/delete、MainActivity.edit | 単発の開始前/開始時の編集・削除と実行中拒否は共有操作列で整合。保存前の開始境界と削除済み編集はCore/LockOperations/AppModel試験へ対応。繰り返しの編集/無効化は各OS試験、削除はIOS-03/AND-02へ分離 |
-| SCH-03 / R02,R03 | LockPlanner.overlaps、replaceRule | Planner.overlappingRules/save/replace | 通常作成/編集と起床で空いた区間の利用は共有操作列で整合。取消による区間の復元との優先関係はD02。再現した重複を、取消拒否という決定済み仕様には読み替えない |
+| SCH-03 / R02,R03 | LockPlanner.overlaps、replaceRule、cancelScheduledDeletion | Planner.overlappingRules/save/replace | 繰り返し同士も含めた重複禁止へ変更。共有overlapCasesで作成/編集/有効化、曜日/日またぎ/週境界/zone/DST、隣接許可を確認。D02はユーザー判断により解決し、取消で衝突を戻す場合も拒否。最新記録は第13節 |
 | SCH-04 / R01,R06 | LockComposerViewの初期値/slider/preset | DraftTiming、EditorDraft、Composer.fields | 通常UIの範囲・初期値（遅延/日時/繰り返しを含む）はコードで整合。SelectionControlsUITests、EditorStateTest/EditorInstrumentationあり。Core内部APIの許容範囲はD05で別論点 |
 | SCH-05 / R01,R03,R06 | canSubmit、makeConfirmationDetails、AppModel.createLock/performSavedOperation→LockStore.createRule | EditorDraft.canSubmit、Composer.confirm/permissionsReady→LockOperations.createSchedule→Planner.save | 確認前の検査と保存区間での再検証を区別し、相対時刻は保存区間内で構築。保存/反映故障と再試行は操作試験、Core/LockOperationsは時計境界も検証。Androidのnative作成試験は確認後と同じ操作入口を使うが権限/確認sheet全体を通さない。iOS SDKと全権限組合せは未確認、参照存在チェックの保証も旧G13の検証不足を維持 |
 | SCH-06 / R01,R02,R06 | ScheduleDatePicker、recurrence.nextInterval、編集View | DateFormat.is24HourFormat、Composerのpreview、Rule.nextOccurrence | 保存zoneでの次回表示はコード/EditorStateTestに整合。iOS/Android UIの12/24時間設定を組合せた実行は今回未確認 |
 | TIM-01 / R02,R04 | LockState/LockSchedule、JSON encoding | State/LockSchedule、Codec | 保存は予定等、ActiveLockは派生値。JSON repository/SelectedTarget/Codec試験で整合。SDKの実行状態を保存正本へ加えない |
 | TIM-02 / R02 | occurrence(containing:)、WakeState.effectiveEnd、activeLocks | Rule.occurrences、State.effective/activeLocks | 正常な要求1件の半開区間/照合/有効範囲はlock-contract.tsvとwake-contract.tsvで整合。返すActiveLockが元終了か実効終了かは表現差であり、それ自体は違反ではない。重複要求はD03 |
-| TIM-03 / R02,R05 | shieldSlotDecisions、名前付きstoreの和集合 | activeLocks、blockingLockの対象照合/max end | 重複繰り返しと対象和集合はLockContract/LockLifecycle/PlannerTestで整合。iOSのShield期限文字列は元終了を読むが、表示の意味はD01。制限反映と文字列の判定を分ける |
+| TIM-03 / R02,R05 | shieldSlotDecisions、名前付きstoreの和集合 | activeLocks、blockingLockの対象照合/max end | 旧データに残る重複の安全な評価としてLockContract/LockLifecycle/PlannerTestを維持。新規作成を許可するテストではない。iOSのShield期限文字列は元終了を読むが、表示の意味はD01 |
 | TIM-04 / R02 | RecurrenceRule.nextInterval、Calendar | Rule.occurrences、java.time | 正常zoneのDST/日またぎはlock-contract.tsvと各OS試験で整合。無効zone時の例外/fallbackはD07。Linux Swiftの合格をDarwin SDKでの確認としない |
 | TIM-05 / R02,R04 | 保存済みDate、activeLocks、WakeState | 保存済みepoch、activeLocks、WakeRequest | 時計巻戻しと期限維持は共有データ/各OSのWake試験で整合。実経過時間の保証は要求しない |
 | TIM-06 / R02,R05 | Monitor.handle→最新JSON→ShieldController | Receiver/Scheduling、GuardService.reconcile | 現在状態/時刻へ再評価する経路は整合。LockLifecycle/MonitoringScheduleの注入試験、Android native/probe試験あり。callback実動は今回未判定 |
 | WAK-01 / R02,R03 | WakePolicy.freeDelay、LockStore.scheduleFreeWake | WAKE_DELAY、canScheduleFreeWake/scheduleWake | 新規閾値・30分期限・再送で延長しない点は共有操作列で整合。残り30分以下になった後の再送の成功/エラー差はD04であり、現行条項の違反とは断定しない |
 | WAK-02 / R02,R03 | WakeRequest.matches、effectiveEnd、要求の保持 | WakeRequest.matches、effective、要求の保持 | 古い回/不在/期限と次回維持は共有データおよびWakePolicyTests/WakeTestで整合。weeklyと複数ロックの完全な共通操作列はない |
-| WAK-03 / R02,R03 | LockStore.cancelFreeWake | Planner.cancelWake | 通常の取消・再予約・期限到達後の拒否は共有操作列で整合。取消で別予定と競合するときの優先順位はD02 |
+| WAK-03 / R02,R03 | LockStore.cancelFreeWake→LockPlanner.overlaps | Planner.cancelWake→overlappingRules | 通常取消・再予約・期限境界に加え、復元後の重複を拒否して保存済み予約を保持。共有操作列で拒否時の原本保持も検証。D02は解決済み |
 | WAK-04 / R01,R03 | RootView.wakeTarget→WakeOptionsDialog.presenting→AppModel→activeOccurrence | intent/表示時のidentity→LockOperations→scheduleWake/cancelWake | 確認対象のID/発生回保持と保存側の再検証を実装。iOSの代表ロック再参照経路を除去。Core共有試験、Android LockOperationsTestで古い対象の予約/取消拒否を確認。iOS AppModelにも同じ試験を追加したがSDK実行は未確認 |
 | ERR-01 / R04,R06 | JSON repository、AppModel.readStatus、RootViewの復旧 | Store.read/error、savedDataAvailable、statusWarnings | 読込失敗時の原本/最後のsnapshot保持と復旧はコードに整合。JSONFileLockRepositoryTests、AppModelTests、Lock/RecoveryInstrumentationに対応。実行範囲は末尾の記録を参照 |
 | ERR-02 / R03,R04,R05,R06 | LockStore.update、AppModel.performSavedOperation/reloadState/synchronizeAndReconcile、Service protocols | LockOperations、Store.change、Scheduling.sync | 対象選択/予定/無料起床は保存拒否と保存後反映失敗をOperationOutcomeで返す。履歴はOS反映せず、iOSの保存後読込失敗も保存拒否にしない。操作故障/再試行はLockOperationsTest/RecoveryInstrumentation/AppModelTests、共有データは業務拒否時の不変まで。iOS統合試験の実行は未確認 |
@@ -130,13 +130,14 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 | ID | 関連する基準 | 何が未定義か | 現行の差・必要な判断 |
 |---|---|---|---|
 | D01 | TIM-02/03、UI-02、R06 | ホームの代表ロック選択基準、元の終了/実効終了のどちらをどの表示に使うか | iOSは元終了が最遅のActiveLock、Androidは実効終了が最遅。iOSのShield期限文字列も元終了。制限判定自体と表示仕様を分け、複数ロック/対象別/起床予約中の表示結果を定める必要がある |
-| D02 | SCH-03、WAK-03、R03 | 起床で空いた区間へ予約した後、取消で元の終了へ戻す際の優先順位 | 両OSで重複する状態を再現済み。重複禁止と取消可能を両立できない場合の結果が必要。「取消拒否」は未採用であり正本/テストに追加しない |
 | D03 | TIM-02、WAK-02、R02/R04 | 同一発生回の起床要求が複数保存されていた場合の読込/有効期限 | iOSは有効な最短、request(for:)はlast、Androidはfirst。一意性を保証するか、複数からどう評価するかが必要。破損データの無断初期化とは別に扱う |
 | D04 | WAK-01、R03/R06 | 既存予約の再送時、期限不変に加えて成功/エラーも揃えるか | 31分ロックで予約し2分後に再送するとiOSはエラー、Androidは既存状態を返す。両方とも期限は延長せず、明示済みのWAK-01には整合 |
 | D05 | SCH-04/05、R02/R03 | 通常UIの15〜720分と、内部API/旧保存/QA用の許容範囲の関係 | iOS Coreは正のduration、Android Plannerは単発1分〜24時間、EditorDraftは15〜720分。UI範囲が違うという指摘ではなく、内部入口まで同じ制約を求めるかの判断 |
 | D06 | TGT-01、ERR-02、R03/R04 | 予定作成と再利用履歴の記録が一つの原子的操作か、履歴失敗だけを許容するか | iOSは二段保存で履歴失敗をwarning、Androidは同じ次状態。作成成功の条件を定めるまでは二段保存を不適合としない |
 | D07 | TIM-04、ERR-01、R02/R04 | 保存zoneを解決できない場合の読込・制限・復旧の結果 | iOSは現在zoneへfallback、Androidは例外。正常zoneの契約だけで、不正zone時の期待値を決定しない |
 | D08 | IOS-01、ERR-02/03、R03/R05 | iOSの監視容量事前検査に起床monitorを含めるか、保存後のOS登録失敗として扱うか | validateCapacityはrules版desired、起床追加はstate版desired。現行仕様は登録失敗時の保存維持/再試行を要求するが、全登録の事前成功保証までは要求していない |
+
+D02は2026-10-26のユーザー判断「重複を許容しない」により解決済み。SCH-03/WAK-03を更新し、取消で他予定と重なる場合は取消を拒否する。実装・検証は第13節。残るD01/D03〜D08の判断は変更しない。
 
 ## 7. 以前のG01〜G16の扱い直し
 
@@ -146,7 +147,7 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 |---|---|---|
 | G01 終了表示/代表選択 | D01、TIM-02/03、UI-02 | 仕様判断待ち。現状の表示差は確認したが、代表選択/全表示の結果仕様は未定義 |
 | G02 起床確認対象 | WAK-04、R01/R03 | 確認時のActiveLockを保持する実装へ置換。Core試験とAppModel試験を追加。iOS SDK/UIでの実行は未確認であり実動完了とはしない |
-| G03 取消で重複 | D02、SCH-03/WAK-03 | 仕様の組合せが未定義。状態の重複は再現済みだが、取消拒否はまだ決定していない |
+| G03 取消で重複 | 解決済みD02、SCH-03/WAK-03 | ユーザー判断後、取消拒否と保存状態保持を正本・両OS・共有試験へ反映。第13節参照 |
 | G04 複数起床要求 | D03、TIM-02/WAK-02 | 不正/重複入力の結果が未定義。OS差だけで違反としない |
 | G05 再送結果 | D04、WAK-01 | 明示済みの期限不変には両OSとも整合。戻り値を共通化するかは別判断 |
 | G06 選択保存の境界 | TGT-02、R03 | LockOperations→Store.change内のPlanner.selectTargetsで再検証する形へ修正。共有の開始境界/更新入口の故障試験と実画面の開始後拒否試験へ対応付けた |
@@ -164,7 +165,7 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 ### 現在の対応順序
 
 1. 対象選択/無料起床・予定作成/編集/削除に加え、履歴pin/解除/削除も更新入口へ集約した。末尾の検証記録を確認し、iOS SDK/統合試験の未確認を残す。課金配送はiOS固有の別経路を維持する。
-2. 仕様判断待ち: D01〜D08。決まったものだけ正本へ反映し、期待値→コードの順で対応する。未決定の結果を「iOSに揃える」で処理しない。
+2. 仕様判断待ち: D01/D03〜D08。D02のみユーザー判断により解決済み。未決定の結果を「iOSに揃える」で処理しない。
 3. 検証不足: 各表の必要な試験。既存の保証を確認するものと、未定義結果を決めないと作れないものを分ける。
 4. 任意の構造改善: 1〜3を満たすため必要な範囲だけ行う。一律のActivity分割/DTO変更/interface追加は着手条件にしない。
 
@@ -311,7 +312,36 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 - SwiftCore 79件、既存の別プロセス保存テスト（writer 200更新・reader 4プロセス）が成功。変更したSwiftの構文解析、Android検証用Pythonの構文検査、差分の空白検査も成功。iOS SDK型検査/実行は含まない。
 - ログは同じローカル証拠ディレクトリの `final-build.log`、`final-swift-test.log`、`final-repository-processes.log`。過去の試行を上書きせず分離した。製品修正に新しい共通ランタイムや別の検証runnerは導入していない。
 
-## 13. 2026-10-26 MacでのiOS SDK・シミュレーター検証
+## 13. 2026-10-26 繰り返しを含む全予定の重複禁止
+
+ユーザーの判断「重複を許容するのが間違い」により、従来の繰り返し同士だけを除外する実装を撤去した。製品仕様は正本のSCH-03/TIM-03/WAK-03を更新。D02は判断待ちから解決済みへ移し、他の判断待ちや課金・削除方式は変更していない。以前の節で重複を許可/判断待ちとした記録は、この判断前の履歴である。
+
+### 判定と保存の経路
+
+- SwiftのLockPlanner.overlapsとAndroidのPlanner.overlappingRulesを既存の重複判定の正本として変更。単発/繰り返しの各組合せを対象によらず検査し、同時刻の終了/開始は許可する。無効予定・編集元自身・終了済み区間は競合対象にしない。有効化も同じ保存入口で再検査する。
+- 同一zoneの無期限の繰り返し同士は、曜日と分の週内区間で判定し、週境界を含めて比較する。一回の起床は将来の繰り返しを消さないため、現在回の短縮だけで恒久的な繰り返しの衝突を許可しない。
+- 異なるzone、またはiOSの有限な削除予約がある場合は本番の発生回・実効終了を比較する。異なるzoneは既知のoffset遷移/起床境界で区切り、各区間の両端の8日を確認する。無期限の場合は現在のtimezoneデータとグレゴリオ暦の400年周期で評価し、直近1週間だけの判定で将来の夏時間衝突を見逃さない。OSのtimezoneデータの将来の改訂まで予言する保証ではない。
+- 起床取消は要求を除いた候補状態で同じ重複判定を行い、競合すれば保存せず予約を保持する。Androidの画面はこの拒否を保存障害に変換せず、既存の重複エラーで案内する。
+- iOSの削除予約取消も同じ判定へ接続し、元のルールIDを維持して起床済みの回を誤って元の長さとして扱わない。監視容量検査は既存のまま維持する。
+- 旧データを読んだだけで予定を削除・無効化しない。既存の重複は従来の対象和集合/最後の期限で安全に評価し、削除時も残りの制限を落とさない。既存のnative/probeの重複fixtureはこの旧データ評価用であり、作成許可のテストではないことを明記した。
+
+### テストと実行範囲
+
+- 既存のlock-operations.jsonへ23件のoverlapCasesを追加し、SwiftのLockStore、AndroidのLockOperationsから同じ期待値を実行する。作成/編集/有効化、無効の下書き、曜日違い、包含、隣接、日またぎ、週境界、24時間、異なるzone、将来のDST、現在回の起床と翌週、取消拒否/隣接許可を扱う。別のfixture一覧/runnerは作っていない。
+- 既存の単発操作列にも「起床で空いた区間へ予約→起床取消拒否」を追加し、拒否時の全状態不変を確認する。iOSの削除予約取消はCoreテストで繰り返し競合の拒否と、起床identityを保った空き区間の許可を追加。旧重複データの評価/削除テストも維持した。
+- iOS AppModelに取消拒否時の保存/監視/Shield未更新のテストを1件追加し、計26件。構文解析は成功。Xcode/iOS SDKがないため26件のSDK実行は未確認。
+- AndroidのRecoveryInstrumentationへ、実際の起床取消ボタンから重複エラーと予約保持、監視未呼出しを確認するケースを追加。ローカルエミュレーター検証の中止は維持し、今回このnativeケースの実行成功とは扱わない。
+- SwiftCore 82件成功。今回の証拠はローカルの `artifacts/overlap-rejection-2026-10-26/` へ分離し、以前のAPK/スクショ/エミュレーター結果を今回の成功として流用しない。
+
+### 最終確認記録
+
+- 最終コードでSwiftCore 82件、Android product単体74件が成功（失敗/エラー/skipなし）。共有23件の重複シナリオと既存の操作/履歴ケースを含む。仕様40件の対応が各1行、共有39シナリオのIDが一意で宣言済み仕様に対応すること、差分の空白検査も確認した。
+- Android Debug/Release APKビルドとlint成功（エラー0・警告41）。Debug APKのSHA-256は `aba940b143694aa67a11088be93026fe9f63077682f777c23c3321b3f907bfef`。ログは同証拠ディレクトリの `android-build.log`、`swift-test.log`。
+- 最初のAndroidビルドは古いKotlin daemonへの接続待ちで進まなかったため、その実行だけcompilerをin-process指定して再実行した。repoのCI/configurationへ恒久的な回避処理は追加していない。
+- 別プロセス保存試験の初回は並行コンパイル中に既存の120秒上限を超過した。Swiftの長い判定処理を同じPlanner内の小さな補助関数へ整理した最終コードでは、上限を変えず既存スクリプトの再実行が成功（writer 200更新・reader 4プロセス）。初回ログは `repository-processes.log`、最終成功ログは `repository-processes-final.log` と区別する。
+- iOS SDK/AppModel 26件/StoreKit/UI、Android native UI・実機/OEMの今回の実行は未確認。追加したテストが存在することを実行成功に読み替えない。ローカルエミュレーターの疎通中止は継続する。
+
+## 14. 2026-10-26 MacでのiOS SDK・シミュレーター検証（取り込んだブランチの記録）
 
 ### 基準・環境・証拠
 
@@ -387,13 +417,39 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 
 テストの削除・skip・期待値緩和、CI/別runnerの追加、Kotlin製品コード/共有fixture/保存形式の変更はない。置換したmock pickerのonDismiss保存経路と余分なcount状態を削除し、スイッチ操作helperも既存の一か所へ統一した。元の作業ツリーの未コミット変更は保持した。GitHub上でのCI実行成功を今回のローカル結果へ追加してはいない。
 
-## 14. 2026-10-26 iOS 27.0 StoreKit失敗の追跡
+## 15. 2026-10-26 iOS検証ブランチの取込みとAndroidへのフィードバック
+
+- `origin/codex/ios-structure-verification` の `b7e0d74`（修正）と `083e4e6`（実行証拠）を、統合用 `codex/android-overlap-feedback` へmergeした。重複禁止の変更は `792dd2c`、取込みmergeは `b58ff94`。mainと作業中のiOSブランチは書き換えていない。
+- 第13節の重複禁止と第14節のiOS検証記録は別の変更・別の実行結果として保持した。iOSブランチの証拠ディレクトリもそのまま取り込み、元の画像・ログ・指紋を統合版の実行結果へ書き換えない。
+- 取り込んだ指紋128ファイルを照合。重複禁止に伴うCore/テスト/fixtureの8ファイルだけが異なり、iOSの本体・UIテストソースは検証ブランチと一致する。AppModel 25件のSDK成功はb7e0d74時点の結果で、追加後の26件や新しい重複禁止のSDK成功ではない。
+
+### Android側へ適用するかの判断
+
+| iOSで見つかった問題 | Androidの対応経路とフィードバック |
+|---|---|
+| 保存前にmock対象pickerを閉じ、拒否時に下書きへ戻れない | AndroidのsaveSelectionはselectTargets成功後だけnavigateし、拒否時はpicker/下書きを保持。onDismiss保存経路はない。既存RecoveryInstrumentationの保存拒否/取消/再試行を維持し、iOS固有のmock経路は追加しない |
+| 親alert終了に伴って作成確認/編集sheetも消える | AndroidのfinishScheduleOperationはSavedだけでonSavedを呼ぶ。Composerの確認dialog dismissと編集終了はそのcallback内。Rejectedはエラー表示だけで、下書きを破棄しない。既存RecoveryへエラーOK後の下書き/原本保持、実際の編集Cancel後の原本保持、再オープン時に原本の値へ戻るassertを追加した。作成試験は従来同様、確認後と同じ保存入口であり権限前段/確認dialog全体の実動試験ではない |
+| Swiftの非公開初期化子を別moduleの試験から使用 | iOSの公開LockRule初期化子を使う修正をそのまま取り込む。Kotlin側へSwiftのアクセス制御回避や別のテスト用モデルを追加しない |
+| 小数秒入力と秒切上げ正規化の完全一致失敗 | iOS試験の整数秒境界入力を取り込む。Androidはepochミリ秒の期待値を既存のJVM/共有試験で検証し、不要な秒丸めを製品処理へ追加しない |
+| XCTestのSwitch中央tapが値を変えない | iOSの実コントロール操作helper統合を取り込む。Androidの既存native制御と別のSwift用helperは共有しない |
+| StoreKitのiOS 27.0で残る4件の失敗 | 第14節のruntime別結果を保持。AndroidはBillingなしのため課金処理/非公開エラーコード特例を移植しない。26.2の10件成功で27.0の失敗を解消済みにしない |
+
+今回のAndroidへのフィードバックで新しい製品経路を追加していない。同型の画面終了不具合があると断定できるコードはなく、既存の成功時限定callbackと失敗時の下書き保持を再確認し、直接関係する既存native試験を補強した。ローカルエミュレーター検証は再開せず、追加assertはコンパイル確認と実行未確認を区別する。
+
+### 統合後の確認と引継ぎ
+
+- SwiftCore 82件、別プロセス保存試験（writer 200更新・reader 4プロセス）、Android product単体74件、Debug/Release APKビルド・lint成功。失敗/エラー/skipは0、lintはエラー0・既存警告41。取り込んだSwiftUI/AppModel/UIテストと追加AppModelテストの構文解析、40仕様の一意な対応、競合marker/空白検査も成功。
+- 証拠はローカルの `artifacts/ios-feedback-integration-2026-10-26/` の `swift-test.log`、`repository-processes.log`、`android-build.log`。Debug APK SHA-256は `9fa91df0119f8298f4286b261a4728672c0baff756d9ae62d631954a584225c3`。追加したnative assertを含むAPKのコンパイル成功であり、操作成功の記録ではない。
+- 最終fetch時のiOSブランチは `083e4e6d79b257fd7145a6e972c3ce7ab498c29f` で、統合ブランチに含まれることを確認した。取込み先はmainでも検証中のiOSブランチでもなく、`codex/android-overlap-feedback`。
+- Mac側の次の確認対象は、この統合ブランチのCore 82件、AppModel 26件、SDKビルド、既存の通常/小型UI・StoreKit。特に重複する繰り返しの作成/編集/有効化拒否、起床取消の拒否と予約保持、保存拒否時の確認/編集画面の維持を組み合わせて再確認する。b7e0d74でのUI 28件/AppModel 25件成功を、この統合版の成功へ読み替えない。iOS 27.0 StoreKitの4件とAndroid固有の未確認は残す。
+
+## 16. 2026-10-26 iOS 27.0 StoreKit失敗の追跡
 
 **4件のうち取引状態に関する2件を解消。取消の2件はこの環境のStoreKitTest経路で再現が残り、全4件の解消完了とはしない。** 製品の課金コード、商品、期待する取消表示を変更して通したものではない。
 
 ### 環境と変更範囲
 
-- 基準は前節の記録commit `083e4e6d79b257fd7145a6e972c3ce7ab498c29f`。修正ソースは `a8124042c1d95a5e5b962220af0029d66c029c0b`。元のmainの未コミット変更は引き続き保護した。
+- 基準は第14節の記録commit `083e4e6d79b257fd7145a6e972c3ce7ab498c29f`。修正ソースは `a8124042c1d95a5e5b962220af0029d66c029c0b`。元のmainの未コミット変更は引き続き保護した。
 - Xcode 27.1 (27A9275)、iPhoneSimulator SDK 27.1、iPhone 16／iOS 27.0 (24A434)、比較はiPhone 16／iOS 26.2 (23C54)。StoreKit設定は同じJPN storefront。既存 `BearLockPurchases` schemeを、既存CIと同じ `CODE_SIGNING_ALLOWED=NO`、並列実行なしで使用した。最終試験は各runtimeで直列に実行し、`-test-iterations 3` で全10件を各3回検証した。
 - 変更は `BearLockPurchaseTests` の2ファイルのみ。テスト名/10件をすべて維持。テスト削除・skip・期待値緩和・タイムアウト延長・製品用fallback・CI/別runnerの追加はない。診断用の一時test/printは最終ソースから削除した。
 - [今回の証拠](../../ci-results/ios-review/2026-10-26-storekit-ios27/) に環境、ソース指紋、rawログ、xcresulttoolの要約とtestごとの反復結果を保存。元のxcresultは `artifacts/storekit-ios27-followup/` に保持する。
@@ -428,11 +484,11 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 
 初回の再現ではキャッシュ状態により、既存4件に加え起動時回収/finish確認も失敗し4成功・6失敗だった。同期後はこれらも3回ずつ成功した。反復回数を独立した30種類のテストへ数えず、診断用testのPassedも製品の合格件数に加算しない。
 
-[最終集計](../../ci-results/ios-review/2026-10-26-storekit-ios27/verification-results.json)、[27.0の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios27-final-summary.json)、[26.2の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios26-final-summary.json)を参照する。今回Core/AppModel/全UIを再実行したわけではなく、それらの結果は前節のcommit/実行記録のまま。実機・実課金・Androidの未確認項目も変更しない。
+[最終集計](../../ci-results/ios-review/2026-10-26-storekit-ios27/verification-results.json)、[27.0の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios27-final-summary.json)、[26.2の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios26-final-summary.json)を参照する。今回Core/AppModel/全UIを再実行したわけではなく、それらの結果は第14節のcommit/実行記録のまま。実機・実課金・Androidの未確認項目も変更しない。
 
-## 15. 2026-10-26 購入未完了時の表示統一
+## 17. 2026-10-26 購入未完了時の表示統一
 
-利用者の明示指示「取消でも購入失敗表示でよい」に従い、仕様正本のiOS課金節を更新した。取消・ネットワーク障害・不明エラーの購入API結果を、日英とも同一の購入失敗案内（日本語「購入できませんでした。」）に統一する。第14節は変更前の期待値での履歴として残す。SDKが取消をunknownへ変換する現象を修正したという意味ではない。
+利用者の明示指示「取消でも購入失敗表示でよい」に従い、仕様正本のiOS課金節を更新した。取消・ネットワーク障害・不明エラーの購入API結果を、日英とも同一の購入失敗案内（日本語「購入できませんでした。」）に統一する。第16節は変更前の期待値での履歴として残す。SDKが取消をunknownへ変換する現象を修正したという意味ではない。
 
 ### 変更と検証条件
 
@@ -449,7 +505,7 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 - 通知待ちでも毎回同期する試行は27.0で10件×3回成功したが、26.2では承認待ち2件が失敗。この広範な同期を撤去し、通知待ちは元の条件、unfinished情報確認は同期済みsnapshotという分担に戻した（`ios27-verified` / `ios26-verified`）。
 - 26.2の再起動直後の再実行は、test hostの起動preflightがBusyで拒否され、テスト未実行。この試行をskipや成功として数えない（`ios26-final` / `ios26-ready` / `ios26-reinstalled`）。テスト終了後に長時間のsimctl診断収集のみ中断した。
 
-実機Screen Time遮断・Family Controls認可・DeviceActivity、実App Store/Sandbox課金、Android固有項目の未確認は維持する。今回は全Core/AppModel/UIを再実行したものではなく、第13節の結果を参照する。新しい課金表示のUIスクリーンショットは取得していないため、既存画像を変更後の表示証拠に流用しない。
+実機Screen Time遮断・Family Controls認可・DeviceActivity、実App Store/Sandbox課金、Android固有項目の未確認は維持する。今回は全Core/AppModel/UIを再実行したものではなく、第14節の結果を参照する。新しい課金表示のUIスクリーンショットは取得していないため、既存画像を変更後の表示証拠に流用しない。
 
 26.2端末を明示的にbootしてbootstatus完了を待ち、テストhostだけを再導入した `ios26-booted` では承認待ち2件は各3回成功した。一方、無関係な取引の最終snapshotへの再反映が1反復遅れた。処理前の存在確認と同様に、処理後も同期済みsnapshotで同じIDが存在するまで既存helperで待機するよう修正した。ID/商品/成功件数・タイムアウトは維持し、取引を再作成する操作は追加していない。
 
@@ -465,3 +521,11 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 | 本体・3extensionのDebug/Release simulator build | — | 両方成功 | `debug.log.gz` / `release.log.gz` |
 
 [最終集計](../../ci-results/ios-review/2026-10-26-purchase-failure-message/verification-results.json)、[27.0要約](../../ci-results/ios-review/2026-10-26-purchase-failure-message/ios27-lifecycle-summary.json)、[26.2要約](../../ci-results/ios-review/2026-10-26-purchase-failure-message/ios26-lifecycle-summary.json)を参照。最初の4件は、取引状態の同期と今回承認された失敗表示方針の下で全件成功。取消とネットワーク障害をSDK内部で識別できるようにしたという主張ではない。元の作業ツリーの未コミット変更は保持した。
+
+## 18. 2026-10-26 最新mainのiOS作業ブランチへの取込み
+
+- 取込み前のiOSブランチは `10b6cb4bf667318de7f58de6b7123ca3c9b44f08`、取り込んだ `origin/main` は `3e433c9937f75e991e94c0c400c9a3b7fdf9c488`。mainへのマージではなく、`codex/ios-structure-verification` にmainを取り込む。
+- コード/仕様正本は自動merge。対応表の導入文と末尾追記の競合は、重複禁止・Androidフィードバック・iOS SDK・StoreKit追跡・購入表示変更の記録をすべて残して解消した。main側の第13〜15節を維持し、iOS側の追記を第16〜17節へ整理した。購入失敗表示の統一とmain側の重複禁止の両方を保持する。
+- 統合後にXcodeGen生成・メタデータ検証、Core 82件、別プロセス保存整合性（writer 200更新・reader 4プロセス）、AppModel 26件を実行し成功。テスト失敗0・skip 0。本体と3extensionのDebug/Release simulator buildも成功。Xcode 27.1 (27A9275)、SDK 27.1、AppModelはiPhone 16／iOS 27.0 (24A434)を使用。
+- [今回の集計](../../ci-results/ios-review/2026-10-26-main-integration/verification-results.json)と同ディレクトリの圧縮ログ・AppModel結果要約を保持した。通常/小型UI、StoreKit、Android試験は今回のmerge後には再実行していない。第14〜17節の履歴を統合後の新しい実行結果へ読み替えない。実機と実課金の未確認も維持する。
+- 元のmain作業ツリーの未コミット変更と、iOS作業ツリーの未追跡生成プロジェクトは保持した。テスト削除・skip・期待値緩和、CIや別runnerの追加はない。

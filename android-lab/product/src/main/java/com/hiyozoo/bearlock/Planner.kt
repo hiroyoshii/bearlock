@@ -107,7 +107,9 @@ object Planner {
             ?: error("wake_ended")
         val request = state.wakeRequest(lock) ?: error("wake_missing")
         require(request.wakesAt > now) { "wake_ended" }
-        return state.copy(wakes = state.wakes.filterNot { it == request })
+        val restored = state.copy(wakes = state.wakes.filterNot { it == request })
+        require(overlappingRules(restored, restored.rules.first { it.id == ruleId }, now).isEmpty()) { "overlap" }
+        return restored
     }
     fun editable(state: State, rule: Rule, now: Long) = rule.occurrences(now, now + 1)
         .none { state.effective(it).active(now) }
@@ -137,14 +139,41 @@ object Planner {
     }
     fun overlappingRules(state: State, rule: Rule, now: Long): List<Rule> {
         if(!rule.enabled) return emptyList()
-        return state.rules.filter { it.id != rule.id && it.enabled && (it.recurring || it.nextOccurrence(now)?.let { lock -> state.effective(lock).end > now } == true) }.filter { other ->
-            if (rule.recurring && other.recurring) false else {
-                val fixed = (if (rule.recurring) other else rule).single!!
-                val candidate = if (rule.recurring) rule else other
-                val fixedLock = if (rule.recurring) other.nextOccurrence(fixed.start) else rule.nextOccurrence(fixed.start)
-                val effectiveFixed = fixedLock?.let { state.effective(it) }
-                effectiveFixed != null && candidate.occurrences(fixed.start, fixed.end).map { state.effective(it) }
-                    .any { it.start < effectiveFixed.end && effectiveFixed.start < it.end }
+        return state.rules.filter { it.id != rule.id && it.enabled }.filter { other ->
+            fun intersects(from: Long, until: Long): Boolean {
+                if(from >= until) return false
+                val left=rule.occurrences(from,until).map(state::effective)
+                val right=other.occurrences(from,until).map(state::effective)
+                return left.any { a -> right.any { b -> maxOf(from,a.start,b.start) < minOf(until,a.end,b.end) } }
+            }
+            val single=rule.single ?: other.single
+            if(single != null) intersects(maxOf(now,single.start),single.end)
+            else {
+                val a=rule.weekly!!; val b=other.weekly!!
+                if(a.zone==b.zone) {
+                    a.days.any { x -> b.days.any { y -> listOf(-10080,0,10080).any { shift ->
+                        val startA=(x-1)*1440+a.startMinute
+                        val startB=(y-1)*1440+b.startMinute+shift
+                        startA < startB+b.durationMinutes && startB < startA+a.durationMinutes
+                    } } }
+                } else {
+                    // Sample the edges of constant-offset/wake segments over a Gregorian cycle,
+                    // not merely the next week (different zones can first collide after DST).
+                    val limit=Instant.ofEpochMilli(now).atZone(ZoneOffset.UTC).plusYears(400).toInstant().toEpochMilli()
+                    val zones=listOf(ZoneId.of(a.zone),ZoneId.of(b.zone))
+                    val boundaries=state.wakes.filter { it.ruleId==rule.id || it.ruleId==other.id }
+                        .flatMap { listOf(it.occurrenceStart,it.wakesAt) }
+                    var cursor=now
+                    var overlaps=false
+                    while(cursor<limit && !overlaps) {
+                        val transitions=zones.mapNotNull { it.rules.nextTransition(Instant.ofEpochMilli(cursor))?.instant?.toEpochMilli() }
+                        val next=(transitions+boundaries.filter { it>cursor }+limit).min()
+                        overlaps=intersects(cursor,minOf(next,cursor+8*DAY)) ||
+                            (next-cursor>8*DAY && intersects(next-8*DAY,next))
+                        cursor=next
+                    }
+                    overlaps
+                }
             }
         }
     }

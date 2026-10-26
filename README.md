@@ -53,7 +53,7 @@ swift test
 Current WSL validation:
 
 - Swift 6.3.3 installed with Swiftly.
-- `swift test` passes for `BearLockCore` with 79 tests (2026-10-26).
+- `swift test` passes for `BearLockCore` with 82 tests (2026-10-26).
 
 Real Screen Time behavior must be verified on a physical iOS device. Simulator-only validation is not enough for this app.
 

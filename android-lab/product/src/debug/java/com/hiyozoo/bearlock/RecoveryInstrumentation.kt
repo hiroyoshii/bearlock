@@ -197,6 +197,17 @@ class RecoveryInstrumentation : Instrumentation() {
         runOnMainSync { a.syncSchedules() }
         check(!Scheduling.updateFailed && a.store.read().activeLocks(System.currentTimeMillis()).single().end == rule.single!!.end)
 
+        val nextStart=booked.wakes.single().wakesAt
+        val next=rule.copy(id="after-free-wake",schedule=LockSchedule.Single(nextStart,nextStart+60_000))
+        val conflict=booked.copy(rules=listOf(rule,next))
+        runOnMainSync { a.store.change { conflict }; a.syncSchedules() }
+        val calls=RecoveryTestActivity.monitoringCalls
+        open(); click("Cancel wake-up")
+        check(windowText().contains("This overlaps another lock"))
+        check(a.store.read()==conflict && RecoveryTestActivity.monitoringCalls==calls)
+        capture("wake-cancel-overlap-rejected"); click("OK")
+        runOnMainSync { a.store.change { State(rules=listOf(rule)) }; a.syncSchedules() }
+
         // A dialog must keep its original rule/occurrence, not redirect to a new representative.
         open()
         val other = rule.copy(id="another-rule")
@@ -454,6 +465,8 @@ class RecoveryInstrumentation : Instrumentation() {
             check(windowText().contains("Could not save the schedule change"))
             check(a.route==Route.Editor && a.editor.at==future && file.readText()==original)
             capture("schedule-create-save-failed"); click("OK")
+            check(a.route==Route.Editor && a.editor.at==future && a.editor.duration==30)
+            check(file.readText()==original) { "Dismissing the save error changed the draft or saved schedule" }
         } finally { unblockCreate() }
         runOnMainSync { RecoveryTestActivity.failMonitoring=true; submit() }
         check(a.route==Route.Home && a.store.read().rules.size==1)
@@ -477,6 +490,15 @@ class RecoveryInstrumentation : Instrumentation() {
             check(windowText().contains("Could not save the schedule change"))
             check(a.route==Route.Editor && a.editor.repeatEnd==480 && file.readText()==beforeEdit)
             capture("schedule-edit-save-failed"); click("OK")
+            check(a.route==Route.Editor && a.editor.repeatEnd==480 && file.readText()==beforeEdit)
+            click("Cancel")
+            check(a.route==Route.Home && file.readText()==beforeEdit) { "Cancelling a rejected draft changed saved data" }
+            runOnMainSync {
+                a.edit(rule)
+                check(a.editor.repeatEnd==420) { "Reopening the editor reused the rejected draft instead of the original" }
+                a.editor.repeatEnd=480
+                a.render()
+            }
         } finally { unblockEdit() }
         RecoveryTestActivity.failMonitoring=true
         saveEditor()
