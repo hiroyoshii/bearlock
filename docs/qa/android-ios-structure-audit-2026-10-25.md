@@ -537,4 +537,6 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 - [run 201](https://github.com/hiroyoshii/bearlock/actions/runs/40281488393)の通常UIは27成功・1失敗・skip 0。ソースは `d901649`、Xcode 26.6、iPhone 17 Pro Max / iOS 26.5 (23F77)。小型試験とApp Store画像撮影は、後続main更新によるキャンセルのため完了していない。テスト添付を商品ページ用の撮影成果物と混同しない。
 - 失敗は `SelectionControlsUITests.testSelectionAtAccessibilityTextSizeInEnglishAndJapanese`。英語の最大文字サイズでDate & TimeからRepeatへ切り替える操作後、メニューが残り、選択はDate & Timeのままだった。[画面録画の操作後フレーム](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before.png)、[AX情報](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before-ax.txt)、[結果要約](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before-summary.json)を保持した。押下座標(217,528)はRepeatのAX範囲(17,465,400,126)の中心に一致する。表示だけで成功としていない。
 - 既存helperの「主ウインドウを明示して座標を押す」経路を、Application基準の単回tapへ置換する修正候補を作成した。ネイティブメニューの別ウインドウを主ウインドウへ固定しないための変更である。旧ウインドウ探索とguardを削除し、選択成功の期待値・5秒の待機条件・既存全件を維持。操作の再送・タイムアウト延長・skipは追加していない。
-- この候補は構文解析のみ確認済み。修正後のCI・操作成功・after画像は未確認であり、解消済みとはしない。利用者がmainへ追加修正中のため、最終対象へ統合した後に既存CIで検証する。
+- Application基準の候補を最終mainへ統合した `e3af31e` / CI run 206では、元の英語Repeat切替は通過したが、日本語通常サイズと日英最大文字サイズの2テストが失敗した。座標の参照先変更だけで解消したとはしない。既存CIの撮影成果物を回収し、公開用画像とテスト失敗の証拠を分けて保持する。
+- 次の候補では、モード切替とメニュー項目選択を既存要素への単回のネイティブ `tap()` に統一し、200msのpressとApplication基準の座標回避処理を削除した。表示範囲/有限座標の検査、切替成功の期待値、5秒の待機は維持し、操作の再送はしない。
+- [事前確認](../../ci-results/ios-review/2026-10-26-ci-ui-menu/native-tap-local/summary.json)はXcode 27.1 / iOS 27.0 / iPhone 17 Pro Maxで、CIで失敗した既存2件を対象に2成功・失敗0・skip 0。日本語通常サイズと日英最大文字サイズの実操作を含む。これはCIのiOS 26.5成功ではなく、ネイティブtapの事前検証に限る。最終CIの全通常/小型試験とafter画像の確認は未完了。

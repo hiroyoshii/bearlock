@@ -605,14 +605,13 @@ extension XCTestCase {
     }
 
     func selectComposerMode(_ title: String, in app: XCUIApplication) {
-        // Use one 200ms press to open/change the picker and one tap for a menu item.
+        // Use one native tap and wait for the selection to change.
         // Do not retry a missed touch or change the product's controls.
-        let pressDuration: TimeInterval = 0.2
         let buttons = app.segmentedControls["lock-composer-mode-picker"]
         if buttons.exists {
             let button = buttons.buttons[title]
             scrollToButton(button, in: app)
-            button.press(forDuration: pressDuration)
+            button.tap()
             let selected = XCTNSPredicateExpectation(
                 predicate: NSPredicate { _, _ in button.isSelected }, object: button
             )
@@ -621,17 +620,13 @@ extension XCTestCase {
             let menu = app.buttons["lock-composer-mode-picker"]
             XCTAssertTrue(menu.waitForExistence(timeout: 5))
             scrollToButton(menu, in: app)
-            menu.press(forDuration: pressDuration)
+            menu.tap()
             let choice = app.collectionViews.buttons[title]
             XCTAssertTrue(choice.waitForExistence(timeout: 5))
             let visibleFrame = choice.frame.intersection(app.frame)
             XCTAssertFalse(visibleFrame.isEmpty)
             XCTAssertTrue(visibleFrame.midX.isFinite && visibleFrame.midY.isFinite)
-            // A native menu can live in a separate window. Route the single tap
-            // through the application instead of binding it to the main window.
-            app.coordinate(withNormalizedOffset: .zero)
-                .withOffset(CGVector(dx: visibleFrame.midX - app.frame.minX, dy: visibleFrame.midY - app.frame.minY))
-                .tap()
+            choice.tap()
             let selected = XCTNSPredicateExpectation(
                 predicate: NSPredicate { _, _ in menu.exists && menu.label.hasSuffix(title) },
                 object: menu
