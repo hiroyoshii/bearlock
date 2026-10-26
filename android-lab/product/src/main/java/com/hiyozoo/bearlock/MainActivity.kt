@@ -237,7 +237,7 @@ open class MainActivity : Activity() {
                 val side=ui.dp(if(ui.compact) 132 else 96)
                 toolbar.addView(cancel,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_START) })
                 toolbar.addView(save,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_END) })
-                val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロックを編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); "support"->t("Bear Lockを応援","Support Bear Lock"); "diagnostics"->t("診断","Diagnostics"); else->t("設定","Settings") }
+                val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロック予定を編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); "support"->t("サポート","Support"); "diagnostics"->t("診断","Diagnostics"); else->t("設定","Settings") }
                 if(!grouped) toolbar.addView(ui.label(name,17f,true).apply { gravity=Gravity.CENTER; minHeight=ui.dp(50) },android.widget.RelativeLayout.LayoutParams(-1,-2).apply { if(ui.compact) addRule(android.widget.RelativeLayout.BELOW,cancel.id) else { addRule(android.widget.RelativeLayout.END_OF,cancel.id); addRule(android.widget.RelativeLayout.START_OF,save.id) } })
                 bar.addView(toolbar,LinearLayout.LayoutParams(-1,-2))
             }
@@ -312,16 +312,16 @@ open class MainActivity : Activity() {
             "selection_save" -> t("対象を保存できませんでした。選択内容はこの画面に保持しています。再試行してください。","Could not save the selection. Your draft is kept on this screen. Please retry.")
             "schedule_storage" -> t("予定の変更を保存できませんでした。元の状態を保持しています。再試行してください。","Could not save the schedule change. The previous state is preserved. Please retry.")
             "history_storage" -> t("履歴の変更を保存できませんでした。元の状態を保持しています。再試行してください。","Could not save the history change. The previous state is preserved. Please retry.")
-            "pin_limit" -> t("ピン留めできる対象は3件までです。","You can pin up to three targets.")
-            "empty_targets" -> t("対象を1つ以上選んでください。","Choose at least one target.")
-            "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps another lock. Choose a different time.")
+            "pin_limit" -> t("固定できる対象は3件までです。","You can pin up to three targets.")
+            "empty_targets" -> t("ロック対象が選択されていません。","No targets are selected.")
+            "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps a scheduled lock. Choose a time that does not overlap.")
             "rule_not_found" -> t("この予定は削除されています。", "This schedule is no longer available.")
-            "active_immutable" -> t("開始したロックは変更・削除できません。","An active lock cannot be changed or deleted.")
-            "storage_error" -> t("保存データを読み込めません。上書きせず保持しています。ホーム画面から再読み込みしてください。","Saved data cannot be read. It has been preserved. Retry from the home screen.")
+            "active_immutable" -> t("このロックは開始済みのため変更できません。","This lock has already started and cannot be changed.")
+            "storage_error" -> t("データは上書きしていません。再試行して、ロック対象と予定を読み込んでください。","Your data has not been replaced. Retry to load your targets and schedules.")
             "invalid_domain" -> t("有効なドメインを入力してください。","Enter a valid domain.")
             "wake_ended" -> t("このロックはすでに終了しています。","This lock has already ended.")
-            "wake_missing" -> t("起床予約はすでに取り消されています。","The wake-up request is no longer active.")
-            "wake_unavailable" -> t("残り30分以下です。予定の起床時刻までお待ちください。","30 minutes or less remain. Wait for the scheduled wake time.")
+            "wake_missing" -> t("起床リクエストはすでに終了しています。","The wake-up request is no longer active.")
+            "wake_unavailable" -> t("残り30分以下です。予定した起床時刻までお待ちください。","30 minutes or less remain. Wait for the scheduled wake time.")
             "wake_storage" -> t("起床予約の変更を保存できません。元の状態を保持しています。再試行してください。","Could not save the wake-up change. The previous state is preserved. Please retry.")
             "browser_unavailable" -> t("Webサイトを開くブラウザが見つかりませんでした。","No browser is available to open the website.")
             else -> t("日時・曜日とロック時間を確認してください。","Check the date, weekdays and lock duration.")
@@ -334,7 +334,7 @@ open class MainActivity : Activity() {
                 "\n\n"+catalog.summary(rule.targets)+(interval?.let { "\n"+dateText(it.start,this)+" → "+dateText(it.end,this) } ?: "")
             }
         }
-        AlertDialog.Builder(this).setTitle(if(key=="browser_unavailable") t("Webサイトを開けません","Cannot open website") else t("保存できません","Cannot save")).setMessage(message).setPositiveButton("OK",null).show()
+        AlertDialog.Builder(this).setTitle(if(key=="browser_unavailable") t("Webサイトを開けません","Cannot open website") else if(key=="storage_error") t("保存データを読み込めません","Saved data could not be read") else t("保存できません","Cannot save")).setMessage(message).setPositiveButton("OK",null).show()
     }
     private fun statusWarnings(parent: LinearLayout) {
         val now=System.currentTimeMillis()
@@ -345,15 +345,16 @@ open class MainActivity : Activity() {
         if(!readFailed && !Scheduling.updateFailed && !missingAccess && !missingAlarm) return
         val warning=ui.card().apply { tag="home-status-warning" }
         if(readFailed) {
-            ui.add(warning,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
-            ui.add(warning,ui.button(t("再読み込み","Reload saved data")) { restoreSelection(); load(); syncSchedules() }.apply { tag="storage-retry" },12)
-            ui.add(warning,ui.textButton(t("設定を開く","Open settings")) { navigate("settings") },12)
+            ui.add(warning,ui.label(t("保存データを読み込めません","Saved data could not be read"),17f,true),12)
+            ui.add(warning,ui.label(t("データは上書きしていません。再試行して、ロック対象と予定を読み込んでください。","Your data has not been replaced. Retry to load your targets and schedules."),15f),12)
+            ui.add(warning,ui.button(t("再試行","Retry")) { restoreSelection(); load(); syncSchedules() }.apply { tag="storage-retry" },12)
+            ui.add(warning,ui.textButton(t("設定を開く","Open Settings")) { navigate("settings") },12)
         }
         if(Scheduling.updateFailed) {
             ui.add(warning,ui.label(t("ロックの監視を更新できません", "Monitoring could not be updated"),17f,true).apply {
                 setCompoundDrawables(ui.icon("warning",Palette.navy).apply { setBounds(0,0,ui.dp(20),ui.dp(20)) },null,null,null); compoundDrawablePadding=ui.dp(8)
             },12)
-            ui.add(warning,ui.label(t("監視を更新するまで、予定時刻にロックが動作しない可能性があります。保存された予定は変更していません。", "Scheduled blocking may not work until monitoring is updated. Your saved schedules have not been changed."),15f),12)
+            ui.add(warning,ui.label(t("予定は保存されています。監視を更新するまで、予定時刻にロックが動作しない可能性があります。", "Your schedules are saved. Scheduled blocking may not work until monitoring is updated."),15f),12)
             if(!readFailed) ui.add(warning,ui.textButton(t("再試行","Retry")) { syncSchedules() }.apply {
                 tag="monitoring-retry"; setTextColor(Palette.link); layoutParams=LinearLayout.LayoutParams(-2,-2); setPadding(0,ui.dp(4),ui.dp(8),ui.dp(4))
             },0)
@@ -392,17 +393,16 @@ open class MainActivity : Activity() {
         if(active==null) { error("wake_ended"); return }
         val request=state.wakeRequest(active)
         val content=ui.column().apply { setPadding(ui.dp(24),ui.dp(12),ui.dp(24),ui.dp(12)) }
-        ui.add(content,ui.label(if(request!=null) t("${dateText(request.wakesAt,this)}に起床します。","Wakes at ${dateText(request.wakesAt,this)}.")
-            else t("このロックを30分後に終了します。","This lock will end in 30 minutes."),16f),12)
+        ui.add(content,ui.label(if(request!=null) t("${timeText(request.wakesAt,this)}に起床","Wakes at ${timeText(request.wakesAt,this)}")
+            else t("起床で終了するのは今回のロックだけです。今後の繰り返し予定は残ります。","A wake-up ends only the current lock. Future repeating locks stay scheduled."),16f),12)
         TargetRows(this).details(content,active.targets)
-        if(state.activeLocks(now).size>1) ui.add(content,ui.label(t("他のロックは続きます。同じ対象が別のロック中なら、制限は続きます。","Other locks continue. Targets blocked by another lock will stay blocked."),14f,muted=true),12)
         if(!Scheduling.permitted(this)) ui.add(content,ui.label(t("正確なアラームが許可されていません。起床の反映が遅れる可能性があります。","Exact alarms are not allowed. Wake-up may be delayed."),14f,muted=true),12)
         if(GuardService.instance==null) ui.add(content,ui.label(t("アプリの制限は停止中です。設定からユーザー補助を再接続してください。","App blocking is stopped. Reconnect accessibility in Settings."),14f,muted=true),12)
         val builder=AlertDialog.Builder(this).setTitle(t("熊を起こす","Wake the bear"))
             .setView(ScrollView(this).apply { addView(content) }).setNegativeButton(t("キャンセル","Cancel"),null)
-        if(request!=null) builder.setPositiveButton(t("起床予約を取り消す","Cancel wake-up")) { _,_-> changeWake(active,true) }
+        if(request!=null) builder.setPositiveButton(t("起床を取り消す","Cancel wake-up")) { _,_-> changeWake(active,true) }
         else if(Planner.canScheduleFreeWake(active,now)) builder.setPositiveButton(t("無料で30分後に起こす","Wake in 30 minutes for free")) { _,_-> changeWake(active,false) }
-        else ui.add(content,ui.label(t("残り30分以下です。予定の起床時刻までお待ちください。","30 minutes or less remain. Wait for the scheduled wake time."),14f,muted=true),0)
+        else ui.add(content,ui.label(t("残り30分以下です。予定した起床時刻までお待ちください。","30 minutes or less remain. Wait for the scheduled wake time."),14f,muted=true),0)
         wakeDialog?.dismiss()
         wakeDialog=builder.show().apply { getButton(AlertDialog.BUTTON_POSITIVE)?.tag=if(request!=null) "cancel-free-wake" else "schedule-free-wake" }
     }
@@ -420,8 +420,8 @@ open class MainActivity : Activity() {
         }
     }
     private fun showReflectionFailure() {
-        AlertDialog.Builder(this).setTitle(t("監視を更新できません","Monitoring could not be updated"))
-            .setMessage(t("変更は保存されています。設定を確認し、再試行してください。","Your change is saved. Review settings and retry."))
+        AlertDialog.Builder(this).setTitle(t("ロックの監視を更新できません","Monitoring could not be updated"))
+            .setMessage(t("予定は保存されています。監視を更新するまで、予定時刻にロックが動作しない可能性があります。","Your schedules are saved. Scheduled blocking may not work until monitoring is updated."))
             .setNegativeButton(t("閉じる","Close"),null).setPositiveButton(t("再試行","Retry")) { _,_-> syncSchedules() }.show()
     }
     fun schedules(parent: LinearLayout) { if(savedDataAvailable) ScheduleList(this).show(parent) }
@@ -429,8 +429,8 @@ open class MainActivity : Activity() {
         parent.gravity=Gravity.CENTER
         val group=ui.column().apply { setPadding(ui.dp(4),0,ui.dp(4),0) }
         ui.add(group,ui.asset(R.drawable.brand_hero,175).apply { layoutParams=LinearLayout.LayoutParams(minOf(ui.dp(310),resources.displayMetrics.widthPixels-ui.dp(48)),ui.dp(175)).apply { gravity=Gravity.CENTER_HORIZONTAL } },18)
-        ui.add(group,ui.label(t("アプリを選び、時間を\n決めて、ロックします。","Choose apps, set a time,\nand lock them."),20f,true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },28)
-        ui.add(group,ui.label(t("指定時刻に自動で解除します。無料で30分後の起床も予約できます。繰り返しは予定を削除すると終了します。","Locks end automatically at the chosen time. You can also schedule a free wake-up in 30 minutes. Repeating locks end when you delete the schedule."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
+        ui.add(group,ui.label(t("アプリを選び、時間を決めて、ロックします。","Choose apps. Set a time. Keep the lock."),20f,true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },28)
+        ui.add(group,ui.label(t("指定時刻になると自動で解除します。必要な場合は無料で30分後に起こせます。","Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
         ui.add(group,ui.button(t("はじめる","Get started"),true) {
             getPreferences(0).edit().putBoolean("onboarded",true).apply(); navigate("home")
         },0)
@@ -464,7 +464,7 @@ open class MainActivity : Activity() {
     private fun disclose() {
         AlertDialog.Builder(this).setTitle(t("ユーザー補助の使用について","Accessibility access"))
             .setMessage(t("Bear Lockは前面アプリの識別情報を読み、指定時間にブロック画面を表示します。Web制限が実行中の場合だけ、対応ブラウザのアドレス欄も読みます。本文やパスワードは読みません。URLや閲覧履歴を保存・送信せず、判定は端末内で行います。", "Bear Lock reads the foreground app identity to display your scheduled block screen. Only while website locks are active, it also reads the address bar in supported browsers. It does not read page contents or passwords, or store or transmit URLs or browsing history. Processing stays on your device."))
-            .setNegativeButton(t("同意しない","Not now"),null).setPositiveButton(t("同意して設定へ","Agree and open settings")) { _,_->getPreferences(0).edit().putBoolean("access_consent_v1",true).apply(); startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }.show()
+            .setNegativeButton(t("同意しない","Do not agree"),null).setPositiveButton(t("同意して設定へ","Agree and open settings")) { _,_->getPreferences(0).edit().putBoolean("access_consent_v1",true).apply(); startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }.show()
     }
     private fun settings(parent: LinearLayout) = SettingsScreen(this).show(parent)
 }

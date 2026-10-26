@@ -18,8 +18,8 @@ class Shield(private val context: Context, private val manager: WindowManager = 
         val ui = Ui(context)
         val body = ui.column().apply { gravity = Gravity.CENTER; setPadding(ui.dp(28),ui.dp(48),ui.dp(28),ui.dp(36)) }
         ui.add(body,ui.asset(R.drawable.bear_locked,220),24)
-        ui.add(body,ui.label(name+"\n"+tr(context,"は眠っています。","is sleeping."),24f,true).apply { gravity=Gravity.CENTER },16)
-        ui.add(body,ui.label(tr(context,"${timeText(session.end,context)} に解除","Wakes at ${timeText(session.end,context)}"),16f).apply { gravity=Gravity.CENTER },12)
+        ui.add(body,ui.label(tr(context,"${name}は眠っています。","$name is sleeping."),24f,true).apply { gravity=Gravity.CENTER },16)
+        ui.add(body,ui.label(tr(context,"解除予定 ${timeText(session.end,context)}","Unlocks at ${timeText(session.end,context)}"),16f).apply { gravity=Gravity.CENTER },12)
         val navigationError=ui.label(tr(context,"Bear Lockを開けません。ホームに戻ってアプリを開いてください。","Could not open Bear Lock. Return home and open the app."),14f).apply { visibility=android.view.View.GONE }
         ui.add(body,navigationError,12)
         ui.add(body,ui.button(tr(context,"熊を起こす","Wake the bear")) {

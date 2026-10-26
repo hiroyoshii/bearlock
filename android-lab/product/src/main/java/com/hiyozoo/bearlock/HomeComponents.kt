@@ -16,7 +16,7 @@ class SelectionSummary(private val a: MainActivity) {
         u.add(c,top,12)
         if(!a.editor.targets.empty) {
         val counts=u.column()
-        val entries=listOf(a.t("アプリ","Apps") to a.editor.targets.apps.size,a.t("カテゴリ","Categories") to a.editor.targets.categories.size,a.t("Webサイト","Websites") to a.editor.targets.domains.size)
+        val entries=listOf(a.t("対象アプリ","Apps") to a.editor.targets.apps.size,a.t("カテゴリ","Categories") to a.editor.targets.categories.size,a.t("Webサイト","Websites") to a.editor.targets.domains.size)
         u.choices(counts,entries.map { (label,count) ->
             u.column().apply {
                 background=u.bg(Palette.ice); setPadding(u.dp(4),u.dp(8),u.dp(4),u.dp(8))
@@ -29,7 +29,7 @@ class SelectionSummary(private val a: MainActivity) {
         },if(a.resources.configuration.fontScale>1.2f) 1 else 3,if(a.resources.configuration.fontScale>1.2f) 8 else 0)
         u.add(c,counts,8)
         }
-        if(a.editor.targets.empty) u.add(c,u.label(a.t("対象が選択されていません。","No targets are selected."),15f,muted=true),12)
+        if(a.editor.targets.empty) u.add(c,u.label(a.t("ロック対象が選択されていません。","No targets are selected."),15f,muted=true),12)
         val disclosure=u.row().apply { minimumHeight=u.dp(44); isClickable=true; isFocusable=true; background=u.touchBackground(android.graphics.Color.TRANSPARENT); contentDescription=a.t("対象一覧","Target list")
             accessibilityDelegate=object: android.view.View.AccessibilityDelegate() {
                 override fun onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
@@ -59,15 +59,15 @@ class SelectionSummary(private val a: MainActivity) {
                     r.addView(TargetRows(a).recent(recent) {
                         if(a.selectTargets(recent.targets)) a.render()
                     },LinearLayout.LayoutParams(0,-2,1f))
-                    r.addView(u.iconButton("more",a.t("対象のメニュー","Selection menu")) {
+                    r.addView(u.iconButton("more",a.t("対象の操作","Target actions")) {
                         val menu=PopupMenu(a,r.getChildAt(1))
-                        menu.menu.add(if(recent.pinned) a.t("ピン解除","Unpin") else a.t("ピン留め","Pin")).setOnMenuItemClickListener {
+                        menu.menu.add(if(recent.pinned) a.t("対象の固定を解除","Unpin target") else a.t("対象を固定","Pin target")).setOnMenuItemClickListener {
                             a.setRecentPinned(recent,!recent.pinned); true
                         }
-                        menu.menu.add(a.t("削除","Delete")).setOnMenuItemClickListener {
-                            AlertDialog.Builder(a).setTitle(a.t("履歴から削除しますか？","Remove from recent selections?"))
-                                .setMessage(a.t("予約や実行中のロックには影響しません。","Scheduled and active locks are unchanged."))
-                                .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Delete")) { _,_-> a.deleteRecentTarget(recent) }.show(); true
+                        menu.menu.add(a.t("対象を削除","Remove target")).setOnMenuItemClickListener {
+                            AlertDialog.Builder(a).setTitle(a.t("最近使った対象から削除しますか？","Remove from recent targets?"))
+                                .setMessage(a.t("作成済みの予定と実行中のロックは変更されません。","Existing schedules and the active lock will not change."))
+                                .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Remove")) { _,_-> a.deleteRecentTarget(recent) }.show(); true
                         }; menu.show()
                     }); u.add(c,r,8)
                 }
@@ -102,14 +102,11 @@ class ActiveCard(private val u: Ui) {
         val countdown=u.label(remaining,44f,true).apply { gravity=Gravity.CENTER; typeface=android.graphics.Typeface.create("sans-serif-rounded",android.graphics.Typeface.BOLD) }
         u.add(c,countdown,18)
         u.add(c,u.label(tr(u.c,"${wakes}に起床","Wakes at $wakes"),15f,muted=true).apply { gravity=Gravity.CENTER },0)
-        if(wakeRequest != null) u.add(c,u.label(tr(u.c,"30分後の起床を予約済み","Wake-up scheduled"),14f,muted=true).apply { tag="wake-scheduled"; gravity=Gravity.CENTER },12)
-        if(wakeRequest!=null || canScheduleWake) u.add(c,u.button(if(wakeRequest!=null) tr(u.c,"起床予約を取り消す","Cancel wake-up") else tr(u.c,"熊を起こす","Wake the bear"),radius=100,action=onWake).apply {
+        if(wakeRequest!=null || canScheduleWake) u.add(c,u.button(tr(u.c,"熊を起こす","Wake the bear"),radius=100,action=onWake).apply {
             tag="open-wake-options"
-            if(wakeRequest==null) contentDescription=tr(u.c,"無料で30分後に起こす","Wake in 30 minutes for free")
             background=u.touchBackground(Palette.subtle,radius=100); setTextColor(Palette.link)
             minHeight=u.dp(44); textSize=15f; layoutParams=LinearLayout.LayoutParams(-2,-2).apply { gravity=Gravity.CENTER_HORIZONTAL }
         },0)
-        else u.add(c,u.label(tr(u.c,"30分以内に自然に起床します。","The bear will wake naturally within 30 minutes."),14f,muted=true).apply { gravity=Gravity.CENTER },0)
         u.add(parent,c,20); return countdown
     }
 }
@@ -119,7 +116,7 @@ class ScheduleList(private val a: MainActivity) {
         val u=a.ui; val now=System.currentTimeMillis()
         u.add(parent,u.label(a.t("ロック予定","Scheduled Locks"),17f,true),12)
         val rules=a.state.scheduledRules(now)
-        if(rules.isEmpty()) { val c=u.card(); u.add(c,u.label(a.t("ロック予定はありません。","No scheduled locks."),15f,muted=true),0); u.add(parent,c,12) }
+        if(rules.isEmpty()) { val c=u.card(); u.add(c,u.label(a.t("予定されたロックはありません。","No scheduled locks."),15f,muted=true),0); u.add(parent,c,12) }
         for(rule in rules) {
             val isActive=!Planner.editable(a.state,rule,now)
             val canEdit=Planner.scheduleEditable(a.state,rule,now)
@@ -134,14 +131,14 @@ class ScheduleList(private val a: MainActivity) {
             val next=rule.copy(enabled=true).nextOccurrence(now)
             val interval=next?.let { a.state.effective(it) }
             val intervalText=interval?.let { dateText(it.start,a,rule.weekly?.zone)+(if(u.compact) "\n→ " else " → ")+dateText(it.end,a,rule.weekly?.zone) }
-            u.add(info,u.label(intervalText ?: a.t("次の予定はありません","No upcoming lock"),12f,muted=true),0)
+            u.add(info,u.label(intervalText ?: a.t("今後の冬眠予定はありません","No upcoming hibernation"),12f,muted=true),0)
             if(isActive) u.add(info,u.label(if(rule.recurring) a.t("実行中です。予定を削除すると、このロックも終了します。","Active. You can delete this schedule to end its lock.") else a.t("実行中です。開始後は予定の編集・削除はできません。","Active. This schedule cannot be edited or deleted after it starts."),12f,muted=true),0)
             else if(!canEdit) u.add(info,u.label(a.t("起床済みです。開始後は予定の編集・削除はできません。","Woken. This schedule cannot be edited or deleted after it starts."),12f,muted=true),0)
             if(!rule.enabled) u.add(info,u.label(a.t("オフ","Off"),11f,true,true),0)
             r.addView(info,LinearLayout.LayoutParams(0,-2,1f))
-            r.addView(u.iconButton("edit",a.t("予約を編集","Edit scheduled lock")) { a.edit(rule) }.apply { isEnabled=canEdit; alpha=if(canEdit) 1f else .5f })
-            r.addView(u.iconButton("trash",a.t("予約を削除","Delete scheduled lock")) {
-                AlertDialog.Builder(a).setTitle(a.t("予約を削除しますか？","Delete this schedule?"))
+            r.addView(u.iconButton("edit",a.t("予定ロックを編集","Edit scheduled lock")) { a.edit(rule) }.apply { isEnabled=canEdit; alpha=if(canEdit) 1f else .5f })
+            r.addView(u.iconButton("trash",a.t("予定ロックを削除","Delete scheduled lock")) {
+                AlertDialog.Builder(a).setTitle(a.t("この予約を削除しますか？","Delete this schedule?"))
                     .setMessage(listOf(title,a.t("対象: ","Targets: ")+a.catalog.summary(rule.targets),intervalText,if(rule.recurring) a.t("この予定による実行中のロックも終了します。他の予定によるロックは続きます。","Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.") else a.t("この予定を削除します。他の予定は変更しません。","This schedule will be deleted. Other schedules are unchanged.")).filterNotNull().joinToString("\n\n"))
                     .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Delete")) { _,_-> a.deleteSchedule(rule.id) }.show()
             }.apply { isEnabled=rule.recurring || canEdit; alpha=if(isEnabled) 1f else .5f; setTextColor(android.graphics.Color.rgb(255,59,48)) })

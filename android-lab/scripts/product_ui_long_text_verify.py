@@ -15,7 +15,7 @@ def tap(label):
     raise AssertionError(label)
 q.sh('wm','size','960x2082');q.sh('settings','put','system','font_scale','1.5');time.sleep(1)
 q.page('home',True);tap('繰り返し');q.sh('input','swipe',480,1800,480,600,350);time.sleep(.5);q.shot('repeat-controls')
-q.page('targets',True);tap('Web');q.edit('example.com','this-is-a-long-domain-name-for-confirmation-layout.example.com');tap('Webサイトを追加');tap('保存')
+q.page('targets',True);tap('Webサイト');q.edit('example.com','this-is-a-long-domain-name-for-confirmation-layout.example.com');tap('Webサイトを追加');tap('保存')
 tap('後で');tap('ロックを予約');q.shot('confirmation-long-target');tap('キャンセル')
 q.page('targets',True);tap('保存')
 q.sh('wm','size','1284x2778');q.sh('settings','put','system','font_scale','1.0');q.page('home')

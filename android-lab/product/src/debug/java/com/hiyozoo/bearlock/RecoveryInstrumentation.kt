@@ -174,7 +174,7 @@ class RecoveryInstrumentation : Instrumentation() {
         open(); click("Wake in 30 minutes for free")
         val booked = a.store.read()
         check(booked.wakes.size == 1 && booked.rules == listOf(rule))
-        check(Scheduling.updateFailed && windowText().contains("Your change is saved"))
+        check(Scheduling.updateFailed && windowText().contains("Your schedules are saved"))
         capture("wake-registration-error"); click("Close")
         runOnMainSync { a.load(); a.render() }
         RecoveryTestActivity.failMonitoring = false
@@ -191,7 +191,7 @@ class RecoveryInstrumentation : Instrumentation() {
         RecoveryTestActivity.failMonitoring = true
         open(); click("Cancel wake-up")
         check(a.store.read() == State(rules=listOf(rule))) { "Registration failure reverted cancellation" }
-        check(Scheduling.updateFailed && windowText().contains("Your change is saved"))
+        check(Scheduling.updateFailed && windowText().contains("Your schedules are saved"))
         capture("wake-cancel-registration-error"); click("Close")
         RecoveryTestActivity.failMonitoring = false
         runOnMainSync { a.syncSchedules() }
@@ -203,7 +203,7 @@ class RecoveryInstrumentation : Instrumentation() {
         runOnMainSync { a.store.change { conflict }; a.syncSchedules() }
         val calls=RecoveryTestActivity.monitoringCalls
         open(); click("Cancel wake-up")
-        check(windowText().contains("This overlaps another lock"))
+        check(windowText().contains("This overlaps a scheduled lock"))
         check(a.store.read()==conflict && RecoveryTestActivity.monitoringCalls==calls)
         capture("wake-cancel-overlap-rejected"); click("OK")
         runOnMainSync { a.store.change { State(rules=listOf(rule)) }; a.syncSchedules() }
@@ -220,9 +220,9 @@ class RecoveryInstrumentation : Instrumentation() {
         runOnMainSync { a.store.change { State(rules=listOf(short)) }; a.syncSchedules() }
         runOnMainSync {
             check(a.findViewById<View>(android.R.id.content).findViewWithTag<Button>("open-wake-options")==null)
-            val explanations=arrayListOf<View>()
-            a.findViewById<View>(android.R.id.content).findViewsWithText(explanations,"The bear will wake naturally within 30 minutes.",View.FIND_VIEWS_WITH_TEXT)
-            check(explanations.size==1)
+            val summaries=arrayListOf<View>()
+            a.findViewById<View>(android.R.id.content).findViewsWithText(summaries,"Wakes at ",View.FIND_VIEWS_WITH_TEXT)
+            check(summaries.size==1)
         }
         check(a.store.read() == State(rules=listOf(short)))
 
@@ -316,7 +316,7 @@ class RecoveryInstrumentation : Instrumentation() {
             for(day in listOf(java.time.DayOfWeek.SATURDAY,java.time.DayOfWeek.SUNDAY)) {
                 controls(day.getDisplayName(java.time.format.TextStyle.FULL,java.util.Locale.ENGLISH)).single().performClick()
             }
-            check(preview.text.toString()=="No upcoming lock")
+            check(preview.text.toString()=="No upcoming hibernation")
             check(!root().findViewWithTag<Button>("editor-save").isEnabled)
             controls("Sunday").single().performClick()
             check(root().findViewWithTag<Button>("editor-save").isEnabled)
@@ -336,14 +336,14 @@ class RecoveryInstrumentation : Instrumentation() {
         try {
             file.writeText("corrupt")
             runOnMainSync { a.visualPreview=false; a.render(); check(!a.savedDataAvailable) }
-            check(windowText().contains("Schedule status is unknown"))
+            check(windowText().contains("Saved data could not be read"))
             check(!windowText().contains("Start Lock") && !windowText().contains("Schedule Lock"))
             runOnMainSync { check(root().findViewWithTag<LinearLayout>("target-summary")==null) { "Unavailable data showed a stale selection" } }
             check(file.readText()=="corrupt")
             capture("saved-data-unavailable")
             file.writeText(original)
             RecoveryTestActivity.failMonitoring=false
-            click("Reload saved data")
+            click("Retry")
             check(a.savedDataAvailable && a.store.read().rules.size==1 && !Scheduling.updateFailed)
         } finally { a.visualPreview=true; file.writeText(original); RecoveryTestActivity.failMonitoring=false }
     }
@@ -386,7 +386,7 @@ class RecoveryInstrumentation : Instrumentation() {
         try {
             File(a.filesDir,"locks-v1.json").writeText("corrupt")
             runOnMainSync { a.render() }
-            check(!a.savedDataAvailable && windowText().contains("Schedule status is unknown"))
+            check(!a.savedDataAvailable && windowText().contains("Saved data could not be read"))
             check(windowText().lineSequence().none { it=="Saved" } && !windowText().contains("fixture.changed"))
             capture("selection-read-failed")
         } finally {
@@ -405,7 +405,7 @@ class RecoveryInstrumentation : Instrumentation() {
         check(!a.savedDataAvailable)
         check(a.getPreferences(0).getString("selection",null)=="malformed legacy selection")
         runOnMainSync { a.getPreferences(0).edit().putString("selection",Codec.targets(original).toString()).commit() }
-        click("Reload saved data")
+        click("Retry")
         check(a.savedDataAvailable && a.store.read().selection==original)
         // A picker opened while idle must not save a new selection after a schedule starts.
         val active=scheduled.copy(schedule=LockSchedule.Single(System.currentTimeMillis()-1_000,System.currentTimeMillis()+3_600_000))
@@ -427,7 +427,7 @@ class RecoveryInstrumentation : Instrumentation() {
             RecoveryTestActivity.failMonitoring=true
             a.saveSelection()
         }
-        check(windowText().contains("Your change is saved"))
+        check(windowText().contains("Your schedules are saved"))
         check(a.route==Route.Home && a.store.read().selection==changed)
         val committed=File(a.filesDir,"locks-v1.json").readText()
         capture("selection-saved-reflection-failed"); click("Close")
@@ -470,7 +470,7 @@ class RecoveryInstrumentation : Instrumentation() {
         } finally { unblockCreate() }
         runOnMainSync { RecoveryTestActivity.failMonitoring=true; submit() }
         check(a.route==Route.Home && a.store.read().rules.size==1)
-        check(windowText().contains("Your change is saved"))
+        check(windowText().contains("Your schedules are saved"))
         capture("schedule-create-reflection-failed"); click("Close"); retryWithoutSaving()
 
         // A disabled weekly rule needs no permission preflight, but uses the real editor save button.
@@ -503,7 +503,7 @@ class RecoveryInstrumentation : Instrumentation() {
         RecoveryTestActivity.failMonitoring=true
         saveEditor()
         check(a.route==Route.Home && a.store.read().rules.single().weekly!!.endMinute==480)
-        check(windowText().contains("Your change is saved"))
+        check(windowText().contains("Your schedules are saved"))
         capture("schedule-edit-reflection-failed"); click("Close"); retryWithoutSaving()
 
         fun openDelete() {
@@ -524,7 +524,7 @@ class RecoveryInstrumentation : Instrumentation() {
         } finally { unblockDelete() }
         RecoveryTestActivity.failMonitoring=true
         openDelete(); click("Delete")
-        check(a.store.read().rules.isEmpty() && windowText().contains("Your change is saved"))
+        check(a.store.read().rules.isEmpty() && windowText().contains("Your schedules are saved"))
         capture("schedule-delete-reflection-failed"); click("Close"); retryWithoutSaving()
     }
     private fun verifyHistoryOperations(a: RecoveryTestActivity) {
@@ -545,13 +545,13 @@ class RecoveryInstrumentation : Instrumentation() {
         fun openMenu() {
             runOnMainSync {
                 val buttons=arrayListOf<View>()
-                a.findViewById<View>(android.R.id.content).findViewsWithText(buttons,"Selection menu",View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+                a.findViewById<View>(android.R.id.content).findViewsWithText(buttons,"Target actions",View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
                 check(buttons.single().performClick())
             }
         }
         fun request(action: String) {
-            openMenu(); click(action)
-            if(action=="Delete") click("Delete") // Confirm the native destructive dialog.
+            openMenu(); click(when(action) { "Pin" -> "Pin target"; "Unpin" -> "Unpin target"; else -> "Remove target" })
+            if(action=="Delete") click("Remove") // Confirm the native destructive dialog.
         }
         fun unchangedLockState() {
             val state=a.store.read()
@@ -586,7 +586,7 @@ class RecoveryInstrumentation : Instrumentation() {
         val pins=(1..3).map { Recent(Targets(domains=setOf("pinned$it.example.com")),now,true,now-it) }
         runOnMainSync { a.store.change { it.copy(recent=it.recent+pins) } }
         val beforeLimit=file.readText()
-        click("Pin")
+        click("Pin target")
         check(windowText().contains("You can pin up to three targets"))
         check(file.readText()==beforeLimit)
         unchangedLockState()

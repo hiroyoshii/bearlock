@@ -557,7 +557,7 @@ final class BearLockAppModel: ObservableObject {
             case .activeLockNotFound:
                 return L10n.string("This lock has already ended.")
             case .freeWakeUnavailable:
-                return L10n.string("Less than 30 minutes remain. Wait for the scheduled wake time.")
+                return L10n.string("30 minutes or less remain. Wait for the scheduled wake time.")
             case .noWakeRequest:
                 return L10n.string("The wake-up request is no longer active.")
             case .noWakeCredit:

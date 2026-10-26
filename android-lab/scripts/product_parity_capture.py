@@ -104,13 +104,13 @@ for lang in args.languages:
         snap('setup-home','はじめる→ホーム',tr('ロック対象を選ぶ','Select targets'))
         tap(tr('ロック対象を選ぶ','Select targets'));tap('Chrome');tap('Bear Lock Probe')
         snap('targets-apps','アプリ2件を選択',tr('保存','Save'))
-        tap('Web');q.edit('example.com','example.com');tap(tr('Webサイトを追加','Add website'))
+        tap(tr('Webサイト','Websites'));q.edit('example.com','example.com');tap(tr('Webサイトを追加','Add website'))
         snap('targets-web','Webを追加',tr('保存','Save'))
         tap(tr('カテゴリ','Categories'));snap('targets-categories','カテゴリを確認',tr('保存','Save'))
         tap(tr('キャンセル','Cancel'));assert state()['selection']==targets()
         snap('targets-cancelled','対象の取消→ホーム',tr('ロック対象を選ぶ','Select targets'))
         tap(tr('ロック対象を選ぶ','Select targets'));tap('Chrome');tap('Bear Lock Probe')
-        tap('Web');q.edit('example.com','example.com');tap(tr('Webサイトを追加','Add website'));tap(tr('保存','Save'))
+        tap(tr('Webサイト','Websites'));q.edit('example.com','example.com');tap(tr('Webサイトを追加','Add website'));tap(tr('保存','Save'))
         assert len(state()['selection']['apps'])==2 and state()['selection']['domains']==['example.com']
         snap('targets-saved','対象の保存→ホーム',tr('ロック対象を選ぶ','Select targets'))
         page();tap(tr('対象一覧','Target list'));snap('target-details','再表示して対象一覧を展開','Bear Lock Probe')
@@ -148,22 +148,22 @@ for lang in args.languages:
         tap(tr('ロックを予約','Schedule Lock'));tap(tr('ロックを予約','Schedule Lock'))
         assert len(state()['rules'])==1 and len(state()['recent'])==1
         snap('savedHome','予約保存→ホーム',tr('ロック予定','Scheduled Locks'))
-        tap(tr('対象一覧','Target list'));tap(tr('対象のメニュー','Selection menu'))
-        snap('recent-menu','履歴メニュー');tap(tr('ピン留め','Pin'))
+        tap(tr('対象一覧','Target list'));tap(tr('対象の操作','Target actions'))
+        snap('recent-menu','履歴メニュー');tap(tr('対象を固定','Pin target'))
         assert state()['recent'][0]['pinned'];snap('recent','履歴をピン留め')
-        page();tap(tr('予約を編集','Edit scheduled lock'))
+        page();tap(tr('予定ロックを編集','Edit scheduled lock'))
         snap('scheduledEditor','単発予定の編集',tr('保存','Save'),'scheduledEditor')
         tap(tr('30分','30 min'));tap(tr('キャンセル','Cancel'))
         assert state()['rules'][0]['schedule']['end']-state()['rules'][0]['schedule']['start']==900000
         snap('edit-cancelled','編集取消→ホーム')
-        tap(tr('予約を編集','Edit scheduled lock'));tap(tr('30分','30 min'));tap(tr('保存','Save'))
+        tap(tr('予定ロックを編集','Edit scheduled lock'));tap(tr('30分','30 min'));tap(tr('保存','Save'))
         assert state()['rules'][0]['schedule']['end']-state()['rules'][0]['schedule']['start']==1800000
         snap('editedHome','編集保存→ホーム')
-        tap(tr('予約を削除','Delete scheduled lock'))
+        tap(tr('予定ロックを削除','Delete scheduled lock'))
         snap('deleteConfirmation','単発の削除確認',tr('削除','Delete'))
         tap(tr('キャンセル','Cancel'));assert len(state()['rules'])==1
         snap('delete-cancelled','削除取消→ホーム')
-        tap(tr('予約を削除','Delete scheduled lock'));tap(tr('削除','Delete'));assert not state()['rules']
+        tap(tr('予定ロックを削除','Delete scheduled lock'));tap(tr('削除','Delete'));assert not state()['rules']
         snap('deletedHome','削除後のホーム');end()
     if not args.flows or 'repeat-save-edit-delete' in args.flows:
         begin('repeat-save-edit-delete')
@@ -171,15 +171,15 @@ for lang in args.languages:
         snap('repeatConfirmation','繰り返しの確認');tap(tr('ロックを予約','Schedule Lock'))
         assert len(state()['rules'])==1 and state()['rules'][0]['schedule']['type']=='weekly'
         snap('repeat-saved','繰り返し保存後')
-        tap(tr('予約を編集','Edit scheduled lock'))
+        tap(tr('予定ロックを編集','Edit scheduled lock'))
         snap('recurringEditor','繰り返し編集',tr('保存','Save'),'recurringEditor')
         toggle_enabled();tap(tr('キャンセル','Cancel'));assert state()['rules'][0]['enabled']
         snap('repeat-edit-cancelled','有効変更の取消')
-        tap(tr('予約を編集','Edit scheduled lock'));toggle_enabled();tap(tr('保存','Save'))
+        tap(tr('予定ロックを編集','Edit scheduled lock'));toggle_enabled();tap(tr('保存','Save'))
         assert not state()['rules'][0]['enabled'];snap('repeat-off','無効を保存')
-        tap(tr('予約を編集','Edit scheduled lock'));toggle_enabled();tap(tr('保存','Save'))
+        tap(tr('予定ロックを編集','Edit scheduled lock'));toggle_enabled();tap(tr('保存','Save'))
         assert state()['rules'][0]['enabled'];snap('repeat-on','再有効化を保存')
-        tap(tr('予約を削除','Delete scheduled lock'));snap('repeat-delete-confirmation','繰り返し削除確認')
+        tap(tr('予定ロックを削除','Delete scheduled lock'));snap('repeat-delete-confirmation','繰り返し削除確認')
         tap(tr('削除','Delete'));assert not state()['rules'];snap('repeat-deleted','繰り返し削除後');end()
     if not args.flows or 'scheduled-list' in args.flows:
         begin('scheduled-list')
@@ -191,16 +191,16 @@ for lang in args.languages:
         active['rules']=[single('capture-active','Focus',now-60000,now+7200000,True)]
         seed(active);page()
         snap('activeLock','実行中・対象固定',tr('熊は眠っています。','Bear is sleeping.'),'activeLock')
-        tap(tr('無料で30分後に起こす','Wake in 30 minutes for free'))
+        tap(tr('熊を起こす','Wake the bear'))
         snap('wakeOptions','無料30分の確認',tr('キャンセル','Cancel'),'wakeOptions')
         tap(tr('キャンセル','Cancel'));assert not state()['wakes'];snap('wake-confirm-cancelled','起床確認の取消')
-        tap(tr('無料で30分後に起こす','Wake in 30 minutes for free'));start=q.device_clock()[0]
+        tap(tr('熊を起こす','Wake the bear'));start=q.device_clock()[0]
         tap(tr('無料で30分後に起こす','Wake in 30 minutes for free'));booked=state();deadline=booked['wakes'][0]['wakesAt']
         assert start+1800000<=deadline<=q.device_clock()[0]+1801000
         snap('wake-booked','無料30分を予約')
-        tap(tr('起床予約を取り消す','Cancel wake-up'));snap('wake-cancel-confirmation','起床予約の取消確認')
+        tap(tr('熊を起こす','Wake the bear'));snap('wake-cancel-confirmation','起床予約の取消確認')
         tap(tr('キャンセル','Cancel'));assert state()['wakes']==booked['wakes'];snap('wake-keep-booking','取消確認を閉じ予約維持')
-        tap(tr('起床予約を取り消す','Cancel wake-up'));tap(tr('起床予約を取り消す','Cancel wake-up'))
+        tap(tr('熊を起こす','Wake the bear'));tap(tr('起床を取り消す','Cancel wake-up'))
         assert not state()['wakes'];snap('wakeCancelled','起床予約を取消した結果')
         # Only the expiry deadline is shortened; actual booking above uses 30 minutes.
         now=q.device_clock()[0];active['rules'][0]['schedule']['end']=now+8000
@@ -211,27 +211,27 @@ for lang in args.languages:
         begin('settings-support-diagnostics-permissions')
         fixture=base(lang);fixture['rules']=fixture['rules'][:3];seed(fixture);page('settings')
         snap('settings','設定',tr('設定','Settings'),'settings')
-        q.scroll();q.scroll();snap('settings-bottom','設定の下部・診断項目',tr('端末内の診断','On-device diagnostics'))
-        page('settings');tap(tr('Bear Lockを応援','Support Bear Lock'))
+        q.scroll();q.scroll();snap('settings-bottom','設定の下部・診断項目',tr('診断','Diagnostics'))
+        page('settings');tap(tr('サポート','Support'))
         snap('support','応援・公式サイト導線',tr('公式サイトを開く','Open website'),'support')
-        tap(tr('戻る','Back'));page('settings');tap(tr('端末内の診断','On-device diagnostics'))
+        tap(tr('戻る','Back'));page('settings');tap(tr('診断','Diagnostics'),clickable=True)
         snap('diagnostics','端末内の診断ページ',tr('状態','Status'),'diagnostics')
         tap(tr('共有','Share'));snap('diagnostics-share','OS共有シート');q.sh('input','keyevent','4')
         page('settings');tap(tr('権限・動作状態を確認','Permissions and status'))
         snap('permissions','権限・動作状態',tr('ユーザー補助を設定','Set up accessibility'))
         tap(tr('ユーザー補助を設定','Set up accessibility'))
-        snap('accessibility-disclosure','ユーザー補助の事前説明',tr('同意しない','Not now'))
-        tap(tr('同意しない','Not now'));snap('disclosure-cancelled','事前説明の取消')
+        snap('accessibility-disclosure','ユーザー補助の事前説明',tr('同意しない','Do not agree'))
+        tap(tr('同意しない','Do not agree'));snap('disclosure-cancelled','事前説明の取消')
         tap(tr('ユーザー補助を設定','Set up accessibility'));tap(tr('同意して設定へ','Agree and open settings'))
         snap('accessibility-os','OSユーザー補助設定');q.sh('input','keyevent','4')
         snap('permissions-returned','OS設定から戻る',tr('ロックに必要な設定','Required settings'));page('settings');tap(tr('対応する制限','Supported blocking'))
         snap('supported-blocking','対応範囲の説明dialog');tap('OK');end()
     if not args.flows or 'external-return' in args.flows:
         begin('external-return')
-        seed(empty(targets([PROBE])));page('settings');tap(tr('端末内の診断','On-device diagnostics'))
+        seed(empty(targets([PROBE])));page('settings');tap(tr('診断','Diagnostics'),clickable=True)
         tap(tr('共有','Share'));snap('share-os','OS共有シートを開く');q.sh('input','keyevent','4')
         snap('share-return','OS共有から診断へ戻る',tr('診断','Diagnostics'))
-        page('settings');tap(tr('Bear Lockを応援','Support Bear Lock'))
+        page('settings');tap(tr('サポート','Support'))
         snap('support-before-external','応援の外部起動前',tr('公式サイトを開く','Open website'))
         tap(tr('公式サイトを開く','Open website'))
         snap('support-external','外部ブラウザー入口（選択/初回説明を含み得る）')

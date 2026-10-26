@@ -32,11 +32,11 @@ class TargetRows(private val a: MainActivity) {
                 row.contentDescription=name; u.add(parent,row,0)
             }
         }
-        group(a.t("アプリ","Apps"),targets.apps.sorted().map { a.catalog.name(it) to it },"apps")
+        group(a.t("対象アプリ","Apps"),targets.apps.sorted().map { a.catalog.name(it) to it },"apps")
         group(a.t("カテゴリ","Categories"),targets.categories.sorted().map { a.catalog.categoryName(it) to null },"category")
         group(a.t("Webサイト","Websites"),targets.domains.sorted().map { it to null },"web")
         val overflow=listOf(targets.apps.size,targets.categories.size,targets.domains.size).sumOf { (it-5).coerceAtLeast(0) }
-        if(overflow>0) u.add(parent,u.label(a.t("ほか${overflow}件","+$overflow more"),13f,true,true),12)
+        if(overflow>0) u.add(parent,u.label(a.t("他${overflow}件","+$overflow more"),13f,true,true),12)
     }
     fun recent(recent: Recent, select: ()->Unit): LinearLayout {
         val t=recent.targets; val selected=t==a.editor.targets
@@ -45,7 +45,7 @@ class TargetRows(private val a: MainActivity) {
         val row=u.row().apply {
             minimumHeight=u.dp(52); setPadding(u.dp(8),u.dp(8),u.dp(8),u.dp(8))
             isClickable=true; isFocusable=true; background=u.touchBackground(android.graphics.Color.TRANSPARENT)
-            contentDescription=listOf(if(recent.pinned) a.t("ピン留め","Pinned") else "",name,a.t("${t.count}件の対象","${t.count} targets"),if(selected) a.t("選択中","Selected") else a.t("未選択","Not selected")).filter { it.isNotEmpty() }.joinToString("、")
+            contentDescription=listOf(if(recent.pinned) a.t("固定済み","Pinned") else "",name,a.t("${t.count}件の対象","${t.count} targets"),if(selected) a.t("選択中","Selected") else a.t("未選択","Not selected")).filter { it.isNotEmpty() }.joinToString("、")
             accessibilityDelegate=object: View.AccessibilityDelegate() {
                 override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfo) { super.onInitializeAccessibilityNodeInfo(host,info); info.className="android.widget.Button"; info.isSelected=selected }
             }
@@ -58,7 +58,7 @@ class TargetRows(private val a: MainActivity) {
                 compoundDrawablePadding=u.dp(4)
             }
         },3)
-        u.add(text,u.label(a.t("保存済み対象","Saved target"),12f,muted=true),0)
+        u.add(text,u.label(a.t("保存済みの対象","Saved target"),12f,muted=true),0)
         val badge=u.label(a.t("選択中","Selected"),12f,true).apply { importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO; setTextColor(Palette.white); background=u.bg(Palette.navy,20); setPadding(u.dp(8),u.dp(5),u.dp(8),u.dp(5)) }
         if(selected && u.compact) u.add(text,badge,0)
         row.addView(text,LinearLayout.LayoutParams(0,-2,1f))

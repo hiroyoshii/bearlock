@@ -138,7 +138,7 @@
 "A wake-up ends only the current lock. Future repeating locks stay scheduled." = "起床で終了するのは今回のロックだけです。今後の繰り返し予定は残ります。";
 "After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up." = "開始後は予定を変更できません。早く起こすには30分かかります。購入するとすぐ起こせます。";
 "This lock has already ended." = "このロックはすでに終了しています。";
-"Less than 30 minutes remain. Wait for the scheduled wake time." = "残り30分未満です。予定した起床時刻までお待ちください。";
+"30 minutes or less remain. Wait for the scheduled wake time." = "残り30分以下です。予定した起床時刻までお待ちください。";
 "The wake-up request is no longer active." = "起床リクエストはすでに終了しています。";
 "No wake-up ticket is available." = "利用できる起床券がありません。";
 "The selected apps are available again." = "選択したアプリを利用できます。";
@@ -242,7 +242,7 @@
 
 "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry." = "予定は保存されていますが、ロックの監視を更新できませんでした。Bear Lockを開き直して再試行してください。";
 "This schedule is no longer available." = "この予定は削除されています。";
-"This lock is active. Changes are available after it ends." = "実行中です。終了後に変更できます。";
+"Active. This schedule cannot be edited or deleted after it starts." = "実行中です。開始後は予定の編集・削除はできません。";
 "Repeating schedules cannot be changed while they are active." = "繰り返し予定は、実行中には変更できません。";
 
 "Delete After This Lock" = "このロックの終了時に削除";

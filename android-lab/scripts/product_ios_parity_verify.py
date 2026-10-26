@@ -26,7 +26,7 @@ def check(name):checks.append(name);print('PASS: '+name,flush=True)
 def language(lang):
     q.page('settings',language=lang)
 def support(ja):
-    q.page('settings');tap('Bear Lockを応援' if ja else 'Support Bear Lock')
+    q.page('settings');tap('サポート' if ja else 'Support')
     all_nodes=nodes()
     label='公式サイトを開く' if ja else 'Open website'
     assert any(n.get('text')==label and n.get('enabled')=='true' for n in all_nodes)
@@ -37,7 +37,7 @@ def support(ja):
 q.sh('wm','size','1284x2778');q.sh('wm','density','480');q.sh('settings','put','system','font_scale','1.0')
 q.page('home',True);tap('対象一覧')
 assert any(n.get('text')=='Bear Lock Probe' for n in nodes())
-assert sum(n.get('content-desc')=='対象のメニュー' for n in nodes())<=3
+assert sum(n.get('content-desc')=='対象の操作' for n in nodes())<=3
 q.shot('target-details')
 recent_before=json.loads(q.adb('exec-out','run-as',q.APP,'cat','files/locks-v1.json'))['recent']
 choice=next((n for n in nodes() if n.get('class')=='android.widget.Button' and n.get('content-desc','').endswith('未選択')),None)

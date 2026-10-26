@@ -25,14 +25,14 @@ def tree():
     sh('uiautomator','dump','/sdcard/bearlock-product.xml')
     return ET.fromstring(sh('cat','/sdcard/bearlock-product.xml'))
 def texts():return [(n.get('text'),n.get('content-desc'),n.get('bounds')) for n in tree().iter('node') if n.get('text') or n.get('content-desc')]
-def tap(text):
+def tap(text, *, clickable=False):
     def visible_point(node,clip=None):
         bounds=list(map(int,re.findall(r'-?\d+',node.get('bounds',''))))
         if len(bounds)==4:
             x,y,z,w=bounds
             clip=(x,y,z,w) if clip is None else (max(x,clip[0]),max(y,clip[1]),min(z,clip[2]),min(w,clip[3]))
             if clip[2]<=clip[0] or clip[3]<=clip[1]:return None
-        if clip and clip[3]-clip[1]>=24 and any(node.get(key,'').casefold()==text.casefold() for key in ('text','content-desc')):
+        if clip and clip[3]-clip[1]>=24 and (not clickable or node.get('clickable')=='true') and any(node.get(key,'').casefold()==text.casefold() for key in ('text','content-desc')):
             return ((clip[0]+clip[2])//2,(clip[1]+clip[3])//2)
         for child in node:
             point=visible_point(child,clip)

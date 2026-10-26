@@ -9,7 +9,7 @@ q.page('home',True);q.shot('home')
 q.tap('ロック対象を選ぶ');q.edit('アプリを検索','chrome')
 labels=[x[0] for x in q.texts()]
 assert 'Chrome' in labels and 'Bear Lock Probe' not in labels
-q.tap('Chrome');q.tap('カテゴリ');q.tap('アプリ')
+q.tap('Chrome');q.tap('カテゴリ');q.tap('対象アプリ')
 labels=[x[0] for x in q.texts()]
 assert 'Chrome' in labels and 'Bear Lock Probe' not in labels
 assert any(n.get('text')=='Chrome' and n.get('checked')=='true' for n in q.tree().iter('node'))
