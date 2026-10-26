@@ -157,7 +157,7 @@ class Composer(private val a: MainActivity) {
                 val now=System.currentTimeMillis()
                 val next=runCatching { make(now).copy(enabled=true).nextOccurrence(now) }.getOrNull()
                 val zone=(a.editor.timing as DraftTiming.Weekly).zone
-                preview.text=next?.let { t("次回: ","Next: ")+dateText(it.start,a,zone)+"\n→ "+dateText(it.end,a,zone)+"\n"+zone } ?: t("次の予定はありません","No upcoming lock")
+                preview.text=next?.let { t("次回の開始 ","Next start ")+dateText(it.start,a,zone)+"\n"+t("次回の起床 ","Next wake-up ")+dateText(it.end,a,zone) } ?: t("次の予定はありません","No upcoming lock")
             }
             updateSummary?.invoke(); u.add(c,preview,0)
             return
@@ -241,7 +241,7 @@ class Composer(private val a: MainActivity) {
             if(!permissionsReady(a.mode != 0, true)) return
             val first=rule.nextOccurrence(now) ?: error("invalid_time")
             val dialog=Dialog(a)
-            val content=ConfirmationContent(u).build(rule.targets,when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.editor.delay}分後","${a.editor.delay} min after confirmation"); 3 -> daysText(a.editor.days)+"\n"+dateText(first.start,a,rule.weekly!!.zone)+"\n"+rule.weekly!!.zone; else -> dateText(first.start,a) },
+            val content=ConfirmationContent(u).build(rule.targets,when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.editor.delay}分後","${a.editor.delay} min after confirmation"); 3 -> daysText(a.editor.days)+"\n"+dateText(first.start,a,rule.weekly!!.zone); else -> dateText(first.start,a) },
                 if(a.mode in listOf(0,1)) t("開始から${a.editor.duration}分後","${a.editor.duration} min after start") else dateText(first.end,a,rule.weekly?.zone),a.mode==0,a.mode==3,{ dialog.dismiss() }) {
                 a.createSchedule(::make) {
                     a.store.event("lock_saved"); dialog.dismiss(); a.navigate("home")

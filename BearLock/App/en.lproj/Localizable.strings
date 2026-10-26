@@ -52,6 +52,8 @@
 "Shield" = "Shield";
 "Shield UI" = "Shield UI";
 "Next" = "Next";
+"Next start" = "Next start";
+"Next wake-up" = "Next wake-up";
 "No" = "No";
 "No blocked apps are selected." = "No blocked apps are selected.";
 "No events yet." = "No events yet.";

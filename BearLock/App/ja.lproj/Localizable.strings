@@ -52,6 +52,8 @@
 "Shield" = "シールド";
 "Shield UI" = "シールドUI";
 "Next" = "次回";
+"Next start" = "次回の開始";
+"Next wake-up" = "次回の起床";
 "No" = "いいえ";
 "No blocked apps are selected." = "ブロック対象アプリが選択されていません。";
 "No events yet." = "まだイベントはありません。";

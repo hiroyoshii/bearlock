@@ -56,8 +56,17 @@ struct RecurringRuleEditorView: View {
                             .disabled(isSaving || isActive)
                         timePicker(title: "Ends", components: $endsAt)
                             .disabled(isSaving || isActive)
-                        LabeledContent("Next") {
-                            Text(nextIntervalText)
+                        if let interval = makeRecurrence().nextInterval(after: context.date) {
+                            LabeledContent("Next start") {
+                                Text(interval.start.formatted(date: .abbreviated, time: .shortened))
+                            }
+                            LabeledContent("Next wake-up") {
+                                Text(interval.end.formatted(date: .abbreviated, time: .shortened))
+                            }
+                        } else {
+                            LabeledContent("Next") {
+                                Text("No upcoming hibernation")
+                            }
                         }
                         if let safetyLimitText {
                             Label(safetyLimitText, systemImage: "exclamationmark.shield")
@@ -87,13 +96,6 @@ struct RecurringRuleEditorView: View {
                 }
             }
         }
-    }
-
-    private var nextIntervalText: String {
-        guard let interval = makeRecurrence().nextInterval(after: Date()) else {
-            return L10n.string("No upcoming hibernation")
-        }
-        return "\(interval.start.formatted(date: .abbreviated, time: .shortened)) -> \(interval.end.formatted(date: .abbreviated, time: .shortened))"
     }
 
     private var isOverSafetyLimit: Bool {

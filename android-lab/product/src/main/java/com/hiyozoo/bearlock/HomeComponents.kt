@@ -142,7 +142,7 @@ class ScheduleList(private val a: MainActivity) {
             r.addView(u.iconButton("edit",a.t("予約を編集","Edit scheduled lock")) { a.edit(rule) }.apply { isEnabled=canEdit; alpha=if(canEdit) 1f else .5f })
             r.addView(u.iconButton("trash",a.t("予約を削除","Delete scheduled lock")) {
                 AlertDialog.Builder(a).setTitle(a.t("予約を削除しますか？","Delete this schedule?"))
-                    .setMessage(listOf(title,a.t("対象: ","Targets: ")+a.catalog.summary(rule.targets),intervalText,rule.weekly?.zone,if(rule.recurring) a.t("この予定による実行中のロックも終了します。他の予定によるロックは続きます。","Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.") else a.t("この予定を削除します。他の予定は変更しません。","This schedule will be deleted. Other schedules are unchanged.")).filterNotNull().joinToString("\n\n"))
+                    .setMessage(listOf(title,a.t("対象: ","Targets: ")+a.catalog.summary(rule.targets),intervalText,if(rule.recurring) a.t("この予定による実行中のロックも終了します。他の予定によるロックは続きます。","Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.") else a.t("この予定を削除します。他の予定は変更しません。","This schedule will be deleted. Other schedules are unchanged.")).filterNotNull().joinToString("\n\n"))
                     .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Delete")) { _,_-> a.deleteSchedule(rule.id) }.show()
             }.apply { isEnabled=rule.recurring || canEdit; alpha=if(isEnabled) 1f else .5f; setTextColor(android.graphics.Color.rgb(255,59,48)) })
             u.add(parent,r,12)
