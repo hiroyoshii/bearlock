@@ -243,11 +243,13 @@
 "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry." = "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry.";
 "This schedule is no longer available." = "This schedule is no longer available.";
 "Active. This schedule cannot be edited or deleted after it starts." = "Active. This schedule cannot be edited or deleted after it starts.";
+"Woken. This schedule cannot be edited or deleted after it starts." = "Woken. This schedule cannot be edited or deleted after it starts.";
 "Repeating schedules cannot be changed while they are active." = "Repeating schedules cannot be changed while they are active.";
 
 "Delete After This Lock" = "Delete After This Lock";
 "This lock will continue until %@. The schedule and future repeating locks will then be deleted." = "This lock will continue until %@. The schedule and future repeating locks will then be deleted.";
-"Deletion scheduled for %@. This lock will continue until then." = "Deletion scheduled for %@. This lock will continue until then.";
+"This schedule will be deleted at %@." = "This schedule will be deleted at %@.";
+"This lock ends at %@. This schedule will be deleted at %@." = "This lock ends at %@. This schedule will be deleted at %@.";
 "Cancel scheduled deletion" = "Cancel scheduled deletion";
 "Active. Deleting this schedule takes effect when this lock ends." = "Active. Deleting this schedule takes effect when this lock ends.";
 "Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends." = "Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends.";

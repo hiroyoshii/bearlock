@@ -28,7 +28,7 @@ class TargetRows(private val a: MainActivity) {
             for((name,pkg) in entries.take(5)) {
                 val row=u.row().apply { setPadding(0,u.dp(4),0,u.dp(4)) }
                 row.addView(icon(pkg,symbol))
-                row.addView(u.label(name,17f).apply { setTextColor(Palette.textPrimary); maxLines=2; ellipsize=android.text.TextUtils.TruncateAt.END },LinearLayout.LayoutParams(0,-2,1f))
+                row.addView(u.label(name,17f).apply { maxLines=2; ellipsize=android.text.TextUtils.TruncateAt.END },LinearLayout.LayoutParams(0,-2,1f))
                 row.contentDescription=name; u.add(parent,row,0)
             }
         }

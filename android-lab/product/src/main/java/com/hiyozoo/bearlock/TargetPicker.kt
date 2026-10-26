@@ -21,7 +21,7 @@ class TargetPicker(private val a: MainActivity) {
 
         // Selection count is shown once in the fixed footer.
         fun update() {
-            a.pickerCount?.text=t("${a.editor.targets.count}件を選択中","${a.editor.targets.count} selected")
+            a.pickerCount?.text=if(a.editor.targets.empty) t("ロック対象が選択されていません。","No targets are selected.") else t("${a.editor.targets.count}件の対象","${a.editor.targets.count} targets")
             a.pickerSave?.apply { isEnabled=!a.editor.targets.empty; alpha=if(isEnabled) 1f else .5f }
         }
         val tabIds=List(3) { android.view.View.generateViewId() }

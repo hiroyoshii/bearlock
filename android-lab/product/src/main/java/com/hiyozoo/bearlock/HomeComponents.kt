@@ -8,12 +8,19 @@ class SelectionSummary(private val a: MainActivity) {
     private val u get()=a.ui
     fun show(parent: LinearLayout, locked: Boolean) {
         val c=u.card().apply { tag="target-summary" }
+        if(a.state.selection==null && a.editor.targets.empty && !locked) {
+            u.add(c,u.label(a.t("まずはブロック対象アプリを選びます。","Select blocked apps first."),17f,true),12)
+            u.add(c,u.label(a.t("対象アプリを1つ以上選ぶ","Choose at least one target"),15f,muted=true),12)
+            u.add(c,u.button(a.t("ロック対象を選ぶ","Select targets"),true,radius=100) { a.pickTargets() },0)
+            u.add(parent,c,20)
+            return
+        }
         val top=if(u.compact) u.column() else u.row()
         top.addView(u.label(a.t("選択済み対象","Selected targets"),17f,true),if(u.compact) LinearLayout.LayoutParams(-1,-2) else LinearLayout.LayoutParams(0,-2,1f))
         top.addView(u.label(if(a.editor.targets.empty) a.t("なし","None") else a.t("${a.editor.targets.count}件の対象","${a.editor.targets.count} targets"),15f,true,a.editor.targets.empty).apply {
             if(u.compact) setPadding(0,u.dp(4),0,0)
         })
-        u.add(c,top,12)
+        u.add(c,top,10)
         if(!a.editor.targets.empty) {
         val counts=u.column()
         val entries=listOf(a.t("対象アプリ","Apps") to a.editor.targets.apps.size,a.t("カテゴリ","Categories") to a.editor.targets.categories.size,a.t("Webサイト","Websites") to a.editor.targets.domains.size)
@@ -27,7 +34,7 @@ class SelectionSummary(private val a: MainActivity) {
                 for(i in 0 until childCount) getChildAt(i).importantForAccessibility=android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }
         },if(a.resources.configuration.fontScale>1.2f) 1 else 3,if(a.resources.configuration.fontScale>1.2f) 8 else 0)
-        u.add(c,counts,8)
+        u.add(c,counts,0)
         }
         if(a.editor.targets.empty) u.add(c,u.label(a.t("ロック対象が選択されていません。","No targets are selected."),15f,muted=true),12)
         val disclosure=u.row().apply { minimumHeight=u.dp(44); isClickable=true; isFocusable=true; background=u.touchBackground(android.graphics.Color.TRANSPARENT); contentDescription=a.t("対象一覧","Target list")
@@ -44,8 +51,9 @@ class SelectionSummary(private val a: MainActivity) {
             compoundDrawablePadding=u.dp(8)
         },LinearLayout.LayoutParams(0,-2,1f))
         disclosure.addView(ImageView(a).apply { setImageDrawable(u.icon(if(a.expandedTargets) "up" else "down",Palette.muted)); importantForAccessibility=android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(u.dp(18),u.dp(18)))
-        u.add(c,disclosure,4)
-        val details=u.column(); u.add(c,details,0)
+        val showsDetails=!a.editor.targets.empty || (!locked && a.state.recent.isNotEmpty())
+        if(showsDetails) u.add(c,disclosure,0)
+        val details=u.column(); if(showsDetails) u.add(c,details,0)
         fun bindDetails() {
             details.removeAllViews()
             val c=details
@@ -139,7 +147,7 @@ class ScheduleList(private val a: MainActivity) {
             r.addView(u.iconButton("edit",a.t("予定ロックを編集","Edit scheduled lock")) { a.edit(rule) }.apply { isEnabled=canEdit; alpha=if(canEdit) 1f else .5f })
             r.addView(u.iconButton("trash",a.t("予定ロックを削除","Delete scheduled lock")) {
                 AlertDialog.Builder(a).setTitle(a.t("この予約を削除しますか？","Delete this schedule?"))
-                    .setMessage(listOf(title,a.t("対象: ","Targets: ")+a.catalog.summary(rule.targets),intervalText,if(rule.recurring) a.t("この予定による実行中のロックも終了します。他の予定によるロックは続きます。","Deleting this schedule also ends its active lock. Other schedules will keep blocking their targets.") else a.t("この予定を削除します。他の予定は変更しません。","This schedule will be deleted. Other schedules are unchanged.")).filterNotNull().joinToString("\n\n"))
+                    .setMessage(listOf(intervalText,if(rule.recurring) a.t("予定を削除すると、実行中のロックも終了します。","Deleting this schedule also ends its active lock.") else null).filterNotNull().joinToString("\n\n"))
                     .setNegativeButton(a.t("キャンセル","Cancel"),null).setPositiveButton(a.t("削除","Delete")) { _,_-> a.deleteSchedule(rule.id) }.show()
             }.apply { isEnabled=rule.recurring || canEdit; alpha=if(isEnabled) 1f else .5f; setTextColor(android.graphics.Color.rgb(255,59,48)) })
             u.add(parent,r,12)

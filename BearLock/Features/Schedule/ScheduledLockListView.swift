@@ -26,6 +26,7 @@ struct ScheduledLockListView: View {
                     ForEach(scheduledRules(at: context.date)) { rule in
                         ScheduledLockRow(
                             rule: rule,
+                            state: model.lockState,
                             canEdit: canEdit(rule, at: context.date),
                             now: context.date,
                             onEdit: {
@@ -59,9 +60,17 @@ struct ScheduledLockListView: View {
             Button("Cancel", role: .cancel) { pendingDeletion = nil }
         } message: {
             if let active = pendingDeletionActiveLock {
-                Text(L10n.format("This lock will continue until %@. The schedule and future repeating locks will then be deleted.",
-                    active.endsAt.formatted(date: .abbreviated, time: .shortened)))
-            } else if let interval = pendingDeletion?.displayInterval(at: Date()) {
+                let end = model.lockState.wakeState.effectiveEnd(of: active)
+                if end < active.endsAt {
+                    Text(L10n.format("This lock ends at %@. This schedule will be deleted at %@.",
+                        end.formatted(date: .abbreviated, time: .shortened),
+                        active.endsAt.formatted(date: .abbreviated, time: .shortened)))
+                } else {
+                    Text(L10n.format("This lock will continue until %@. The schedule and future repeating locks will then be deleted.",
+                        active.endsAt.formatted(date: .abbreviated, time: .shortened)))
+                }
+            } else if let rule = pendingDeletion,
+                      let interval = model.lockState.displayInterval(for: rule, at: Date()) {
                 Text("\(interval.start.formatted()) → \(interval.end.formatted())")
             }
         }
@@ -120,7 +129,7 @@ struct ScheduledLockListView: View {
     private func scheduledRules(at date: Date) -> [LockRule] {
         model.lockState.rules
             .filter { !$0.isDeleted(at: date) && $0.kind != .immediate && (!$0.isOneShot || $0.single!.endsAt > date) }
-            .sorted { ($0.displayInterval(at: date)?.start ?? .distantFuture) < ($1.displayInterval(at: date)?.start ?? .distantFuture) }
+            .sorted { (model.lockState.displayInterval(for: $0, at: date)?.start ?? .distantFuture) < (model.lockState.displayInterval(for: $1, at: date)?.start ?? .distantFuture) }
     }
 
     private func canEdit(_ rule: LockRule, at date: Date) -> Bool {
@@ -150,6 +159,7 @@ private enum ScheduledLockEditSheet: Identifiable {
 
 private struct ScheduledLockRow: View {
     let rule: LockRule
+    let state: LockState
     let canEdit: Bool
     let now: Date
     let onEdit: () -> Void
@@ -166,19 +176,23 @@ private struct ScheduledLockRow: View {
                 Text(LocalizedStringKey(title))
                     .font(.subheadline.bold())
                     .foregroundStyle(AppTheme.navy)
-                if let interval = rule.displayInterval(at: now) {
-                    Text("\(interval.start.formatted(date: .abbreviated, time: .shortened)) -> \(interval.end.formatted(date: .abbreviated, time: .shortened))")
+                if let interval = state.displayInterval(for: rule, at: now) {
+                    Text("\(interval.start.formatted(date: .abbreviated, time: .shortened)) → \(interval.end.formatted(date: .abbreviated, time: .shortened))")
                         .font(.caption)
                         .foregroundStyle(AppTheme.navy.opacity(0.62))
                 }
                 if let deletion = rule.scheduledDeletionAt {
-                    Text(L10n.format("Deletion scheduled for %@. This lock will continue until then.",
+                    Text(L10n.format("This schedule will be deleted at %@.",
                         deletion.formatted(date: .abbreviated, time: .shortened)))
                         .font(.caption)
                         .foregroundStyle(AppTheme.steel)
                         .accessibilityIdentifier("scheduled-lock-deletion-summary")
                 } else if !canEdit {
-                    Text(LocalizedStringKey(rule.kind == .recurring ? "Active. Deleting this schedule takes effect when this lock ends." : "Active. This schedule cannot be edited or deleted after it starts."))
+                    Text(LocalizedStringKey(rule.kind == .recurring
+                        ? "Active. Deleting this schedule takes effect when this lock ends."
+                        : state.activeLocks(at: now).contains(where: { $0.id == rule.id })
+                            ? "Active. This schedule cannot be edited or deleted after it starts."
+                            : "Woken. This schedule cannot be edited or deleted after it starts."))
                         .font(.caption)
                         .foregroundStyle(AppTheme.navy.opacity(0.72))
                 }
@@ -239,11 +253,5 @@ private struct ScheduledLockRow: View {
 
     private var iconName: String {
         rule.kind == .recurring ? "repeat" : "calendar"
-    }
-}
-
-private extension LockRule {
-    func displayInterval(at date: Date) -> DateInterval? {
-        nextInterval(after: date) ?? single?.interval
     }
 }

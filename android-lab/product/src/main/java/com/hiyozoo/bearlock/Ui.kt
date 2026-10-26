@@ -33,6 +33,7 @@ object Palette {
     val textPrimary = Color.BLACK
     val background = Color.rgb(242,250,255); val ice = Color.rgb(212,230,247)
     val navy = Color.rgb(20,46,79); val muted = Color.rgb(78,102,129); val line = Color.rgb(218,229,239)
+    val secondary = Color.rgb(142,142,147)
     val subtle = Color.rgb(227,236,245); val steel = Color.rgb(99,143,191)
     val link = Color.rgb(53,106,159)
     val navigation = Color.rgb(0,122,255)
@@ -82,10 +83,15 @@ class Ui(val c: Context) {
         includeFontPadding = false
         setLineSpacing(dp(2).toFloat(),1f)
     }
-    fun button(value: String, primary: Boolean = false, radius: Int = 8, action: () -> Unit) = Button(c).apply {
+    fun button(value: String, primary: Boolean = false, radius: Int = 100, action: () -> Unit) = Button(c).apply {
         contentDescription=value
-        text = if(value in listOf("ロック開始","ロックを予約","Start Lock","Schedule Lock")) android.text.SpannableString("  $value").apply {
-            setSpan(android.text.style.ImageSpan(icon("lock",Palette.white).apply { setBounds(0,0,dp(16),dp(16)) },android.text.style.ImageSpan.ALIGN_CENTER),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val symbol=when(value) {
+            "ロック開始","ロックを予約","Start Lock","Schedule Lock" -> "lock"
+            "はじめる","Get started" -> "right"
+            else -> null
+        }
+        text = if(symbol!=null) android.text.SpannableString("  $value").apply {
+            setSpan(android.text.style.ImageSpan(icon(symbol,Palette.white).apply { setBounds(0,0,dp(16),dp(16)) },android.text.style.ImageSpan.ALIGN_CENTER),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         } else value
         isAllCaps = false; textSize = 16f; minHeight = dp(50); minimumHeight=0; minimumWidth=0; includeFontPadding=false
         setPadding(dp(16),dp(8),dp(16),dp(8)); setTextColor(if (primary) Palette.white else Palette.navy)
@@ -96,7 +102,7 @@ class Ui(val c: Context) {
     fun dateTimeButton(value: String, description: String, action: () -> Unit) = button(value,action=action).apply {
         contentDescription=description
         background=touchBackground(Palette.control,radius=100)
-        textSize=17f; minWidth=dp(76); minHeight=dp(44)
+        textSize=17f; setTextColor(Palette.textPrimary); minWidth=dp(76); minHeight=dp(44)
         setPadding(dp(12),dp(6),dp(12),dp(6))
     }
     fun input(hintText: String, value: String = "") = EditText(c).apply {
@@ -106,7 +112,7 @@ class Ui(val c: Context) {
     }
     fun card() = column().apply { setPadding(dp(16),dp(16),dp(16),dp(16)); background = bg(Palette.white,8) }
     fun section(parent: LinearLayout, title: String? = null): LinearLayout {
-        title?.let { add(parent,label(it,13f,muted=true).apply { setPadding(dp(16),0,0,0) },8) }
+        title?.let { add(parent,label(it,17f,true).apply { setTextColor(Palette.secondary); setPadding(dp(16),0,0,0) },8) }
         return card().apply { background=bg(Palette.white,20); add(parent,this,24) }
     }
     fun divider(parent: LinearLayout) = add(parent,View(c).apply {
@@ -129,11 +135,12 @@ class Ui(val c: Context) {
         setPadding(dp(12),dp(14),dp(12),dp(14)); layoutParams=LinearLayout.LayoutParams(dp(44),dp(48))
     }
     fun pair(parent: LinearLayout, name: String, value: String, gap: Int = 12, emphasized: Boolean = false) {
+        val size=if(emphasized) 15f else 17f
         if(compact) {
-            val group=column(); add(group,label(name,14f,emphasized,true),4); add(group,label(value,15f,emphasized),0); add(parent,group,gap); return
+            val group=column(); add(group,label(name,size,emphasized,emphasized).apply { if(!emphasized) setTextColor(Palette.textPrimary) },4); add(group,label(value,size,emphasized).apply { if(!emphasized) setTextColor(Palette.secondary) },0); add(parent,group,gap); return
         }
-        val r=row(); r.addView(label(name,14f,emphasized,true),LinearLayout.LayoutParams(0,-2,1f))
-        r.addView(label(value,15f,emphasized).apply { gravity=Gravity.END },LinearLayout.LayoutParams(0,-2,2f)); add(parent,r,gap)
+        val r=row(); r.addView(label(name,size,emphasized,emphasized).apply { if(!emphasized) setTextColor(Palette.textPrimary) },LinearLayout.LayoutParams(0,-2,1f))
+        r.addView(label(value,size,emphasized).apply { gravity=Gravity.END; if(!emphasized) setTextColor(Palette.secondary) },LinearLayout.LayoutParams(0,-2,2f)); add(parent,r,gap)
     }
     fun art(sleep: Boolean = false, height: Int = 180) = ImageView(c).apply {
         setImageResource(if(sleep) R.drawable.bear_sleep else R.drawable.bear_ready)

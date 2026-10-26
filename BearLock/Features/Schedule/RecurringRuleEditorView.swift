@@ -58,10 +58,10 @@ struct RecurringRuleEditorView: View {
                             .disabled(isSaving || isActive)
                         if let interval = makeRecurrence().nextInterval(after: context.date) {
                             LabeledContent("Next start") {
-                                Text(interval.start.formatted(date: .abbreviated, time: .shortened))
+                                Text(interval.start.formatted(previewDateStyle))
                             }
                             LabeledContent("Next wake-up") {
-                                Text(interval.end.formatted(date: .abbreviated, time: .shortened))
+                                Text(interval.end.formatted(previewDateStyle))
                             }
                         } else {
                             LabeledContent("Next") {
@@ -103,6 +103,11 @@ struct RecurringRuleEditorView: View {
             return false
         }
         return makeRecurrence().duration > maximumDuration
+    }
+
+    private var previewDateStyle: Date.FormatStyle {
+        Date.FormatStyle(date: .abbreviated, time: .shortened,
+                         timeZone: TimeZone(identifier: rule.recurrence?.timeZoneIdentifier ?? "") ?? .current)
     }
 
     private var safetyLimitText: String? {

@@ -17,9 +17,9 @@ class SettingsScreen(private val a: MainActivity) {
     private fun row(parent: LinearLayout, label: String, symbol: String = "info", navigation: Boolean = false, action: ()->Unit) {
         if(parent.childCount>0) u.divider(parent)
         u.add(parent,u.textButton(label,action).apply {
-            gravity=Gravity.START or Gravity.CENTER_VERTICAL; setTextColor(Palette.navigation); compoundDrawablePadding=u.dp(12)
+            gravity=Gravity.START or Gravity.CENTER_VERTICAL; textSize=17f; setTextColor(if(navigation) Palette.textPrimary else Palette.navigation); compoundDrawablePadding=u.dp(12)
             setCompoundDrawables(u.icon(symbol,Palette.navigation).apply { setBounds(0,0,u.dp(22),u.dp(22)) },null,
-                if(navigation) u.icon("right",Palette.muted).apply { setBounds(0,0,u.dp(16),u.dp(16)) } else null,null)
+                if(navigation) u.icon("right",Palette.secondary).apply { setBounds(0,0,u.dp(16),u.dp(16)) } else null,null)
         },0)
     }
     fun show(parent: LinearLayout) {
@@ -27,7 +27,7 @@ class SettingsScreen(private val a: MainActivity) {
         u.add(hero,u.asset(R.drawable.bear_ready,108),12)
         u.add(hero,u.label(t("選んだ時刻に自動で終わるアプリロックを設定します。","Set app locks that end automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },0)
         val data=u.section(parent,t("データの扱い","Data handling"))
-        u.add(data,u.label(t("選択と予定はこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),16f).apply { setTextColor(Palette.textPrimary) },0)
+        u.add(data,u.label(t("選択と予定はこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),17f).apply { setTextColor(Palette.textPrimary) },0)
         val info=u.section(parent,t("情報","Information"))
         row(info,t("プライバシーポリシー","Privacy Policy")) { link("privacy") }
         row(info,t("サポート・よくある質問","Support and FAQ")) { link("support") }
@@ -64,7 +64,7 @@ class SettingsScreen(private val a: MainActivity) {
         summary.forEachIndexed { i,(name,value) -> if(i>0) u.divider(status); u.pair(status,name,value,12) }
         val text=("Bear Lock "+BuildConfig.VERSION_NAME+"\n"+summary.joinToString("\n") { it.first+": "+it.second }+"\nAndroid "+Build.VERSION.RELEASE+" / "+Build.MANUFACTURER+" "+Build.MODEL+"\n\n"+records)
         val sharing=u.section(parent)
-        row(sharing,t("共有","Share")) {
+        row(sharing,t("診断を共有","Share diagnostics")) {
             a.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type="text/plain"; putExtra(Intent.EXTRA_TEXT,text) },t("診断を共有","Share diagnostics")))
         }
         u.add(sharing,u.label(t("共有前に診断内容を確認してください。対象や予約時刻が含まれる場合があります。","Review diagnostics before sharing. They may include your selections and schedule times."),13f,muted=true),0)
@@ -72,9 +72,9 @@ class SettingsScreen(private val a: MainActivity) {
         u.pair(device,t("バージョン","Version"),BuildConfig.VERSION_NAME)
         u.pair(device,"OS","Android "+Build.VERSION.RELEASE)
         u.pair(device,t("端末","Device"),Build.MANUFACTURER+" "+Build.MODEL,0)
-        val events=u.section(parent,t("診断記録","Diagnostic records"))
+        val events=u.section(parent,t("最近のイベント","Recent Events"))
         u.add(events,u.label(records.ifBlank { t("まだイベントはありません。","No events yet.") },13f,muted=true).apply { setTextIsSelectable(true) },0)
         val actions=u.section(parent)
-        row(actions,t("診断ログを消去","Clear diagnostics"),"trash") { a.store.clearLogs(); a.render(); Toast.makeText(a,t("診断ログを消去しました","Diagnostics cleared"),Toast.LENGTH_SHORT).show() }
+        row(actions,t("診断ログを消去","Clear Diagnostics"),"trash") { a.store.clearLogs(); a.render() }
     }
 }

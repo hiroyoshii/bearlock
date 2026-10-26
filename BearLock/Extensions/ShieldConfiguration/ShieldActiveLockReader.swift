@@ -8,7 +8,7 @@ struct ShieldActiveLockReader {
         let deadlines = state.activeLocks(at: now).compactMap { lock -> Date? in
             guard let ref = state.targetSelections.first(where: { $0.id == lock.targetSelectionID }),
                   let selection = try? ref.decodedSelection(), matches(selection) else { return nil }
-            return lock.endsAt
+            return state.wakeState.effectiveEnd(of: lock)
         }
         guard let endsAt = deadlines.max() else { return nil }
         let formatter = DateFormatter()

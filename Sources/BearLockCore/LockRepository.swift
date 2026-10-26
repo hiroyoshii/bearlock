@@ -39,7 +39,18 @@ public struct LockState: Codable, Equatable, Sendable {
     }
 
     public func activeLockForDisplay(at date: Date) -> ActiveLock? {
-        activeLocks(at: date).max { $0.endsAt < $1.endsAt }
+        activeLocks(at: date).map { lock in
+            var display = lock
+            display.endsAt = wakeState.effectiveEnd(of: lock)
+            return display
+        }.max { $0.endsAt < $1.endsAt }
+    }
+
+    public func displayInterval(for rule: LockRule, at date: Date) -> DateInterval? {
+        guard let interval = rule.nextInterval(after: date) ?? rule.single?.interval else { return nil }
+        let occurrence = ActiveLock(id: rule.id, startedAt: interval.start, endsAt: interval.end,
+                                    targetSelectionID: rule.targetSelectionID)
+        return DateInterval(start: interval.start, end: wakeState.effectiveEnd(of: occurrence))
     }
 
     public func activeLocks(at date: Date) -> [ActiveLock] {

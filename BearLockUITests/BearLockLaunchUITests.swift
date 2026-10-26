@@ -487,12 +487,19 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-free-wake-available")
         schedule.tap()
 
+        let countdown = app.staticTexts["active-lock-countdown"]
+        XCTAssertTrue(countdown.waitForExistence(timeout: 5))
+        let shortened = expectation(for: NSPredicate(format: "label MATCHES %@", "^(30:00|29:[0-5][0-9])$"), evaluatedWith: countdown)
+        wait(for: [shortened], timeout: 5)
+
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
         let cancel = app.buttons.matching(identifier: "cancel-free-wake").firstMatch
         XCTAssertTrue(cancel.waitForExistence(timeout: 10))
         captureScreenshot(named: "e2e-free-wake-pending")
         cancel.tap()
+        let restored = expectation(for: NSPredicate(format: "label BEGINSWITH %@", "1:"), evaluatedWith: countdown)
+        wait(for: [restored], timeout: 5)
         scrollToButton(openWakeOptions, in: app)
         openWakeOptions.tap()
         XCTAssertTrue(schedule.waitForExistence(timeout: 10))

@@ -128,7 +128,7 @@ for lang in args.languages:
         tap(tr('キャンセル','Cancel'));assert not state()['rules']
         snap('confirmation-cancelled','開始確認の取消',tr('ロック開始','Start Lock'))
         tap(tr('後で','In'));snap('composeDelayed','30分後の作成',tr('開始まで','Starts in'),'composeDelayed')
-        page();tap(tr('日時指定','Date'));snap('composeDate','日時指定の作成',tr('開始','Starts'),'composeDate')
+        page();tap(tr('日時指定','Date & Time'));snap('composeDate','日時指定の作成',tr('開始','Starts'),'composeDate')
         tap(tr('開始日','Start date'))
         snap('date-picker','OS日付入力');q.sh('input','keyevent','4')
         tap(tr('開始日','Start date'));tap('OK')
@@ -216,7 +216,7 @@ for lang in args.languages:
         snap('support','応援・公式サイト導線',tr('公式サイトを開く','Open website'),'support')
         tap(tr('戻る','Back'));page('settings');tap(tr('診断','Diagnostics'),clickable=True)
         snap('diagnostics','端末内の診断ページ',tr('状態','Status'),'diagnostics')
-        tap(tr('共有','Share'));snap('diagnostics-share','OS共有シート');q.sh('input','keyevent','4')
+        tap(tr('診断を共有','Share diagnostics'));snap('diagnostics-share','OS共有シート');q.sh('input','keyevent','4')
         page('settings');tap(tr('権限・動作状態を確認','Permissions and status'))
         snap('permissions','権限・動作状態',tr('ユーザー補助を設定','Set up accessibility'))
         tap(tr('ユーザー補助を設定','Set up accessibility'))
@@ -229,17 +229,17 @@ for lang in args.languages:
     if not args.flows or 'external-return' in args.flows:
         begin('external-return')
         seed(empty(targets([PROBE])));page('settings');tap(tr('診断','Diagnostics'),clickable=True)
-        tap(tr('共有','Share'));snap('share-os','OS共有シートを開く');q.sh('input','keyevent','4')
+        tap(tr('診断を共有','Share diagnostics'));snap('share-os','OS共有シートを開く');q.sh('input','keyevent','4')
         snap('share-return','OS共有から診断へ戻る',tr('診断','Diagnostics'))
         page('settings');tap(tr('サポート','Support'))
         snap('support-before-external','応援の外部起動前',tr('公式サイトを開く','Open website'))
         tap(tr('公式サイトを開く','Open website'))
         snap('support-external','外部ブラウザー入口（選択/初回説明を含み得る）')
         resumed=lambda:[s for s in q.sh('dumpsys','activity','activities').splitlines() if 'mResumedActivity:' in s or 'topResumedActivity=' in s]
-        assert not any(q.APP+'/.MainActivity' in s for s in resumed()),'Website intent did not leave the app'
+        assert not any(q.APP+'/' in s for s in resumed()),'Website intent did not leave the app'
         for _ in range(4):
             q.sh('input','keyevent','4');time.sleep(.5)
-            if any(q.APP+'/.MainActivity' in s for s in resumed()):break
+            if any(q.APP+'/' in s for s in resumed()):break
         snap('support-external-return','外部ブラウザー入口から戻る',tr('公式サイトを開く','Open website'));end()
     verify_apk()
     proof.setdefault('completedLanguages',[])

@@ -36,7 +36,6 @@ class Catalog(private val context: Context) {
     fun category(pkg: String): Int = runCatching { context.packageManager.getApplicationInfo(pkg, 0).category }.getOrDefault(-1)
     @Suppress("DEPRECATION")
     fun name(pkg: String): String = runCatching { context.packageManager.getApplicationLabel(context.packageManager.getApplicationInfo(pkg, 0)).toString() }.getOrDefault(pkg)
-    fun summary(t: Targets): String = (t.apps.map(::name) + t.domains + t.categories.map { categoryName(it) }).joinToString(" · ")
     fun categoryName(id: Int) = when(id) {
         0 -> tr(context,"ゲーム","Games"); 1 -> tr(context,"音楽","Audio"); 2 -> tr(context,"動画","Video")
         3 -> tr(context,"写真","Photos"); 4 -> tr(context,"ソーシャル","Social"); 5 -> tr(context,"ニュース","News")

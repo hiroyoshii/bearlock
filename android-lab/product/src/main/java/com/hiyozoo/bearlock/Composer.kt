@@ -15,22 +15,24 @@ class Composer(private val a: MainActivity) {
         val c=u.card()
         fun bind() {
             c.removeAllViews()
-            val modes=listOf(t("今すぐ","Now"),t("後で","In"),t("日時指定",if(a.resources.configuration.screenWidthDp>=440) "Date & Time" else "Date"),t("繰り返し","Repeat"))
+            val modes=listOf(t("今すぐ","Now"),t("後で","In"),t("日時指定","Date & Time"),t("繰り返し","Repeat"))
             val context=android.view.ContextThemeWrapper(a,R.style.BearSegmentTheme)
             val segments=com.google.android.material.button.MaterialButtonToggleGroup(context).apply {
                 isSingleSelection=true; isSelectionRequired=true; tag="composer-mode-picker"
+                background=u.bg(Palette.control,100); setPadding(u.dp(2),u.dp(2),u.dp(2),u.dp(2))
             }
             for(i in (0..3).filterNot { it==0 && a.state.activeLocks(System.currentTimeMillis()).isNotEmpty() }) {
                 val button=com.google.android.material.button.MaterialButton(context,null,
                     com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
                     id=android.view.View.generateViewId(); tag="composer-mode-$i"
                     text=modes[i]; contentDescription=modes[i]; isAllCaps=false
-                    textSize=12f; setTypeface(typeface,android.graphics.Typeface.BOLD)
+                    textSize=13f; setTypeface(typeface,if(a.mode==i) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
                     minWidth=0; minimumWidth=0; minHeight=u.dp(44)
                     insetTop=0; insetBottom=0; setPadding(u.dp(8),u.dp(8),u.dp(8),u.dp(8))
-                    setTextColor(android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked),intArrayOf()),intArrayOf(Palette.white,Palette.navy)))
-                    backgroundTintList=android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked),intArrayOf()),intArrayOf(Palette.navy,Palette.ice))
-                    if(!compact) { maxLines=1; androidx.core.widget.TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(this,10,12,1,android.util.TypedValue.COMPLEX_UNIT_SP) }
+                    setTextColor(Palette.textPrimary)
+                    backgroundTintList=android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_checked),intArrayOf()),intArrayOf(Palette.white,Palette.control))
+                    strokeWidth=0
+                    if(!compact) { maxLines=1; androidx.core.widget.TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(this,10,13,1,android.util.TypedValue.COMPLEX_UNIT_SP) }
                     isSelected=a.mode==i
                 }
                 segments.addView(button,LinearLayout.LayoutParams(if(compact) -2 else 0,-2,if(compact) 0f else 1f))
@@ -47,15 +49,15 @@ class Composer(private val a: MainActivity) {
     }
     fun showEditor(parent: LinearLayout) {
         if(a.mode==3) u.add(u.section(parent,t("状態","Status")),Switch(a).apply {
-            text=t("有効","Enabled"); textSize=17f; setTextColor(Palette.navy); isChecked=a.editor.enabled; minHeight=u.dp(48)
+            text=t("有効","Enabled"); textSize=17f; setTextColor(Palette.textPrimary); isChecked=a.editor.enabled; minHeight=u.dp(48)
             setOnCheckedChangeListener { _,on -> a.editor.enabled=on }
         },0)
         fields(if(a.mode==3) parent else u.section(parent,t("予定","Schedule")),grouped=a.mode==3)
         val confirmation=u.section(parent,if(a.mode==3) null else t("確認","Confirmation"))
-        u.add(confirmation,u.label(if(a.mode==3) t("実行中は時刻・曜日を変更できません。予定を削除すると、実行中のロックも終了します。","Times and weekdays cannot be changed during a lock. Deleting this schedule also ends its active lock.") else t("開始前の予定だけ編集できます。開始後は短縮、削除、対象アプリ削減はできません。","Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced."),13f,muted=true),0)
+        u.add(confirmation,u.label(if(a.mode==3) t("実行中は時刻・曜日を変更できません。予定を削除すると、実行中のロックも終了します。","Times and weekdays cannot be changed during a lock. Deleting this schedule also ends its active lock.") else t("開始前の予定だけ編集できます。開始後は短縮、削除、対象アプリ削減はできません。","Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced."),13f).apply { setTextColor(Palette.secondary) },0)
         if(a.mode!=3) {
-            val row=u.row(); val wake=u.label(dateText(a.editor.at+a.editor.duration*60_000L,a),15f).apply { gravity=Gravity.END }
-            row.addView(u.label(t("起床","Wakes"),14f,false,true),LinearLayout.LayoutParams(0,-2,1f)); row.addView(wake,LinearLayout.LayoutParams(0,-2,2f)); confirmation.addView(row,0); (row.layoutParams as LinearLayout.LayoutParams).bottomMargin=u.dp(12)
+            val row=u.row(); val wake=u.label(dateText(a.editor.at+a.editor.duration*60_000L,a),17f).apply { gravity=Gravity.END; setTextColor(Palette.secondary) }
+            row.addView(u.label(t("起床","Wakes"),17f).apply { setTextColor(Palette.textPrimary) },LinearLayout.LayoutParams(0,-2,1f)); row.addView(wake,LinearLayout.LayoutParams(0,-2,2f)); confirmation.addView(row,0); (row.layoutParams as LinearLayout.LayoutParams).bottomMargin=u.dp(12)
             updateSummary={ wake.text=dateText(a.editor.at+a.editor.duration*60_000L,a) }
         }
     }
@@ -84,7 +86,7 @@ class Composer(private val a: MainActivity) {
             if(a.editor.originalID==null) u.add(c,u.label(t("日時指定","Date & Time"),17f,true).apply { setTextColor(Palette.textPrimary) },12)
             val date=Instant.ofEpochMilli(a.editor.at).atZone(ZoneId.systemDefault())
             val row=u.row()
-            row.addView(u.label(t("開始","Starts"),17f),LinearLayout.LayoutParams(0,-2,1f))
+            row.addView(u.label(t("開始","Starts"),17f).apply { setTextColor(Palette.textPrimary) },LinearLayout.LayoutParams(0,-2,1f))
             val formatter=java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT)
             row.addView(u.dateTimeButton(formatter.format(java.util.Date(a.editor.at)),t("開始日","Start date")) { chooseDate() }.apply {
                 tag="start-date"
@@ -97,7 +99,7 @@ class Composer(private val a: MainActivity) {
         }
         if(a.mode==3) {
             if(grouped) c=u.section(parent,t("曜日","Weekdays"))
-            else u.add(c,u.label(t("曜日","Weekdays"),17f,true),10)
+            else u.add(c,u.label(t("曜日","Weekdays"),17f,true).apply { setTextColor(Palette.textPrimary) },10)
             val largeWeekdays=a.resources.configuration.fontScale>=1.5f
             val weekdays=listOf(7,1,2,3,4,5,6).map { day ->
                 lateinit var button: Button
@@ -144,7 +146,7 @@ class Composer(private val a: MainActivity) {
             if(grouped) c=u.section(parent,t("時刻","Time"))
             for(start in listOf(true,false)) {
                 val minute=if(start) a.editor.repeatStart else a.editor.repeatEnd; val row=u.row()
-                row.addView(u.label(if(start) t("開始","Starts") else t("終了","Ends"),17f),LinearLayout.LayoutParams(0,-2,1f))
+                row.addView(u.label(if(start) t("開始","Starts") else t("終了","Ends"),17f).apply { setTextColor(Palette.textPrimary) },LinearLayout.LayoutParams(0,-2,1f))
                 val display=LocalDate.now().atTime(minute/60,minute%60).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 row.addView(u.dateTimeButton(timeText(display,a),if(start) t("開始時刻","Start time") else t("終了時刻","End time")) {
                     TimePickerDialog(a,{ _,h,m -> if(start) a.editor.repeatStart=h*60+m else a.editor.repeatEnd=h*60+m; refresh() },minute/60,minute%60,DateFormat.is24HourFormat(a)).show()
@@ -152,25 +154,32 @@ class Composer(private val a: MainActivity) {
                 u.add(c,row,18)
                 if(grouped) u.divider(c)
             }
-            val preview=u.label("",14f,muted=true).apply { tag="recurring-next-preview" }
+            if(!grouped) return
+            val preview=u.column().apply { tag="recurring-next-preview" }
             updateSummary={
                 val now=System.currentTimeMillis()
                 val next=runCatching { make(now).copy(enabled=true).nextOccurrence(now) }.getOrNull()
                 val zone=(a.editor.timing as DraftTiming.Weekly).zone
-                preview.text=next?.let { t("次回の開始 ","Next start ")+dateText(it.start,a,zone)+"\n"+t("次回の起床 ","Next wake-up ")+dateText(it.end,a,zone) } ?: t("今後の冬眠予定はありません","No upcoming hibernation")
+                preview.removeAllViews()
+                if(next!=null) {
+                    u.pair(preview,t("次回の開始","Next start"),dateText(next.start,a,zone),12)
+                    u.pair(preview,t("次回の起床","Next wake-up"),dateText(next.end,a,zone),0)
+                } else u.pair(preview,t("次回","Next"),t("今後の冬眠予定はありません","No upcoming hibernation"),0)
             }
             updateSummary?.invoke(); u.add(c,preview,0)
             return
         }
         val row=u.row(); row.addView(u.label(t("ロック時間","Duration"),17f,true).apply { setTextColor(Palette.textPrimary) },LinearLayout.LayoutParams(0,-2,1f))
         val value=u.label("${a.editor.duration}"+t("分"," min"),17f,true); row.addView(value); u.add(c,row,10)
-        val slider=SeekBar(a).apply { max=141; progress=((a.editor.duration-15)/5).coerceIn(0,141); minimumHeight=u.dp(44); setPadding(u.dp(14),0,u.dp(14),0); contentDescription=t("ロック時間（分）","Duration in minutes")
+        val slider=SeekBar(a).apply { max=141; progress=((a.editor.duration-15)/5).coerceIn(0,141); minimumHeight=u.dp(44); setPadding(u.dp(14),0,u.dp(14),0); contentDescription=t("ロック時間","Duration")
             progressTintList=android.content.res.ColorStateList.valueOf(Palette.navy)
             thumb=android.graphics.drawable.GradientDrawable().apply { shape=android.graphics.drawable.GradientDrawable.OVAL; setColor(Palette.white); setStroke(u.dp(1),Palette.line); setSize(u.dp(28),u.dp(28)) }
         }
         val presets=u.column()
         val presetButtons=mutableListOf<Button>()
-        fun markPresets() { presetButtons.forEachIndexed { i, button -> button.apply {
+        fun markPresets() {
+            if(android.os.Build.VERSION.SDK_INT>=30) slider.stateDescription=value.text
+            presetButtons.forEachIndexed { i, button -> button.apply {
             isSelected=listOf(15,30,60,120)[i]==a.editor.duration
             // A low visual capsule inside the unchanged 44dp touch target.
             background=android.graphics.drawable.InsetDrawable(u.touchBackground(if(isSelected) Palette.navy else Palette.subtle,radius=100),0,u.dp(6),0,u.dp(6))
@@ -196,9 +205,7 @@ class Composer(private val a: MainActivity) {
         }
     }
     fun dayName(d: Int)=if(a.resources.configuration.locales[0].language=="ja") listOf("月","火","水","木","金","土","日")[d-1] else listOf("M","T","W","T","F","S","S")[d-1]
-    fun daysText(days: Set<Int>)=days.sorted().joinToString(" ") {
-        java.time.DayOfWeek.of(it).getDisplayName(java.time.format.TextStyle.SHORT,a.resources.configuration.locales[0])
-    }
+    fun daysText(days: Set<Int>)=days.sortedBy { it%7 }.joinToString(" · ",transform=::dayName)
     private fun chooseDate() {
         val date=Instant.ofEpochMilli(a.editor.at).atZone(ZoneId.systemDefault())
         DatePickerDialog(a,{ _,y,m,d ->
@@ -241,12 +248,13 @@ class Composer(private val a: MainActivity) {
             if(!permissionsReady(a.mode != 0, true)) return
             val first=rule.nextOccurrence(now) ?: error("invalid_time")
             val dialog=Dialog(a)
-            val content=ConfirmationContent(u).build(rule.targets,when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.editor.delay}分後","${a.editor.delay} min after confirmation"); 3 -> daysText(a.editor.days)+"\n"+dateText(first.start,a,rule.weekly!!.zone); else -> dateText(first.start,a) },
+            val content=ConfirmationContent(u).build(rule.targets,when(a.mode) { 0 -> t("確定後に開始","After confirmation"); 1 -> t("確定から${a.editor.delay}分後","${a.editor.delay} min after confirmation"); 3 -> daysText(a.editor.days)+" "+timeText(first.start,a,rule.weekly!!.zone); else -> dateText(first.start,a) },
                 if(a.mode in listOf(0,1)) t("開始から${a.editor.duration}分後","${a.editor.duration} min after start") else dateText(first.end,a,rule.weekly?.zone),a.mode==0,a.mode==3,{ dialog.dismiss() }) {
                 a.createSchedule(::make) {
                     a.store.event("lock_saved"); dialog.dismiss(); a.navigate("home")
                 }
             }
+            a.saveErrorLabel=content.findViewWithTag("schedule-save-error")
             dialog.setContentView(ScrollView(a).apply {
                 background=u.bg(Palette.background,24); clipToOutline=true; addView(content)
             })
@@ -265,10 +273,10 @@ class ConfirmationContent(private val u: Ui) {
         u.add(c,u.label(tr(u.c,if(immediate) "このロックを開始しますか？" else "このロックを予約しますか？",if(immediate) "Start this lock?" else "Schedule this lock?"),22f,true).apply { gravity=Gravity.CENTER },10)
         u.add(c,u.label(if(recurring) tr(u.c,"起床で終了するのは今回のロックだけです。今後の繰り返し予定は残ります。","A wake-up ends only the current lock. Future repeating locks stay scheduled.") else tr(u.c,"開始後は予定を変更できません。早く起こすには30分かかります。","After this starts, the schedule cannot be changed. Waking early takes 30 minutes."),15f,muted=true).apply { gravity=Gravity.CENTER },22)
         val summary=u.card().apply { background=u.bg(Palette.ice) }
-        val kinds=listOf(Triple("アプリ","Apps",targets.apps.size),Triple("カテゴリ","Categories",targets.categories.size),Triple("Webサイト","Websites",targets.domains.size))
-        kinds.filter { it.third>0 }.forEach { (ja,en,count) -> u.pair(summary,tr(u.c,ja,en),tr(u.c,"${count}件の対象","$count targets"),12,emphasized=true) }
+        u.pair(summary,tr(u.c,"対象アプリ","Apps"),tr(u.c,"${targets.count}件の対象","${targets.count} targets"),12,emphasized=true)
         u.pair(summary,tr(u.c,"開始","Starts"),start,12,emphasized=true)
         u.pair(summary,tr(u.c,"起床","Wakes"),end,0,emphasized=true); u.add(c,summary,22)
+        u.add(c,u.label("",14f).apply { tag="schedule-save-error"; setTextColor(android.graphics.Color.RED); visibility=android.view.View.GONE },0)
         u.add(c,u.button(tr(u.c,if(immediate) "ロック開始" else "ロックを予約",if(immediate) "Start Lock" else "Schedule Lock"),true,radius=100,action=confirm).apply { textSize=17f },10)
         u.add(c,u.button(tr(u.c,"キャンセル","Cancel"),radius=100,action=cancel).apply {
             textSize=17f; background=u.touchBackground(Palette.white,radius=100); setTextColor(Palette.link)

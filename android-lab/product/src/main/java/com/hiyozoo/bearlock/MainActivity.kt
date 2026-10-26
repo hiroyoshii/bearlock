@@ -29,6 +29,7 @@ open class MainActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
     var pickerCount: TextView? = null
     var pickerSave: Button? = null
+    var saveErrorLabel: TextView? = null
     private var countdown: TextView? = null
     private var countdownEnd = 0L
     private var lastStatus = ""
@@ -191,7 +192,10 @@ open class MainActivity : Activity() {
         load()
         if(!savedDataAvailable) { error("storage_error"); return }
         val saved=state.rules.find { it.id==rule.id } ?: run { error("rule_not_found"); return }
-        if (!Planner.scheduleEditable(state, saved, System.currentTimeMillis())) { error("active_immutable"); return }
+        val now=System.currentTimeMillis()
+        if (!Planner.scheduleEditable(state, saved, now)) {
+            error(if(Planner.editable(state,saved,now)) "rule_started" else "active_immutable"); return
+        }
         editor=EditorDraft.editing(saved)
         navigate(Route.Editor)
     }
@@ -262,7 +266,9 @@ open class MainActivity : Activity() {
         }
         if(page=="targets") {
             val footer=ui.column().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(12)); background=ui.bg(Palette.white,0) }
-            pickerCount=ui.label(t("${editor.targets.count}件を選択中","${editor.targets.count} selected"),13f,muted=true)
+            saveErrorLabel=ui.label("",14f).apply { tag="selection-save-error"; setTextColor(android.graphics.Color.RED); visibility=View.GONE }
+            ui.add(footer,saveErrorLabel!!,0)
+            pickerCount=ui.label(if(editor.targets.empty) t("ロック対象が選択されていません。","No targets are selected.") else t("${editor.targets.count}件の対象","${editor.targets.count} targets"),13f,muted=true)
             ui.add(footer,pickerCount!!,8)
             pickerSave=ui.button(t("保存","Save"),true) { saveSelection() }.apply { isEnabled=!editor.targets.empty; alpha=if(isEnabled) 1f else .5f }
             ui.add(footer,pickerSave!!,0); root.addView(footer)
@@ -308,15 +314,20 @@ open class MainActivity : Activity() {
         render()
     }
     fun error(key: String?) {
-        var message=when(key) {
+        val message=when(key) {
             "selection_save" -> t("対象を保存できませんでした。選択内容はこの画面に保持しています。再試行してください。","Could not save the selection. Your draft is kept on this screen. Please retry.")
             "schedule_storage" -> t("予定の変更を保存できませんでした。元の状態を保持しています。再試行してください。","Could not save the schedule change. The previous state is preserved. Please retry.")
             "history_storage" -> t("履歴の変更を保存できませんでした。元の状態を保持しています。再試行してください。","Could not save the history change. The previous state is preserved. Please retry.")
             "pin_limit" -> t("固定できる対象は3件までです。","You can pin up to three targets.")
-            "empty_targets" -> t("ロック対象が選択されていません。","No targets are selected.")
+            "empty_targets" -> t("ブロック対象アプリが選択されていません。","No blocked apps are selected.")
+            "past_time" -> t("未来の開始時刻を選んでください。","Choose a start time in the future.")
+            "invalid_time" -> if(mode==3 && editor.days.isEmpty()) t("曜日を1つ以上選んでください。","Choose at least one weekday.")
+                else if(mode!=3 && editor.duration<=0) t("ロック時間を1分以上にしてください。","Choose a lock duration longer than zero.")
+                else t("日時・曜日とロック時間を確認してください。","Check the date, weekdays and lock duration.")
             "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps a scheduled lock. Choose a time that does not overlap.")
             "rule_not_found" -> t("この予定は削除されています。", "This schedule is no longer available.")
-            "active_immutable" -> t("このロックは開始済みのため変更できません。","This lock has already started and cannot be changed.")
+            "active_immutable" -> t("このロックは実行中のため変更できません。","This lock is already active and cannot be changed.")
+            "rule_started" -> t("このロックは開始済みのため変更できません。","This lock has already started and cannot be changed.")
             "storage_error" -> t("データは上書きしていません。再試行して、ロック対象と予定を読み込んでください。","Your data has not been replaced. Retry to load your targets and schedules.")
             "invalid_domain" -> t("有効なドメインを入力してください。","Enter a valid domain.")
             "wake_ended" -> t("このロックはすでに終了しています。","This lock has already ended.")
@@ -326,15 +337,13 @@ open class MainActivity : Activity() {
             "browser_unavailable" -> t("Webサイトを開くブラウザが見つかりませんでした。","No browser is available to open the website.")
             else -> t("日時・曜日とロック時間を確認してください。","Check the date, weekdays and lock duration.")
         }
-        if(key=="overlap") {
-            val now=System.currentTimeMillis()
-            val conflicts=runCatching { Planner.overlappingRules(state,Composer(this).make(now),now) }.getOrDefault(emptyList())
-            message += conflicts.joinToString("",prefix="") { rule ->
-                val interval=rule.nextOccurrence(now)?.let { state.effective(it) }
-                "\n\n"+catalog.summary(rule.targets)+(interval?.let { "\n"+dateText(it.start,this)+" → "+dateText(it.end,this) } ?: "")
-            }
+        val inline=saveErrorLabel
+        if(key in listOf("selection_save","schedule_storage") && inline?.isAttachedToWindow==true) {
+            inline.text=message; inline.visibility=View.VISIBLE
+            inline.announceForAccessibility(message)
+            return
         }
-        AlertDialog.Builder(this).setTitle(if(key=="browser_unavailable") t("Webサイトを開けません","Cannot open website") else if(key=="storage_error") t("保存データを読み込めません","Saved data could not be read") else t("保存できません","Cannot save")).setMessage(message).setPositiveButton("OK",null).show()
+        AlertDialog.Builder(this).setTitle("Bear Lock").setMessage(message).setPositiveButton("OK",null).show()
     }
     private fun statusWarnings(parent: LinearLayout) {
         val now=System.currentTimeMillis()
@@ -395,7 +404,6 @@ open class MainActivity : Activity() {
         val content=ui.column().apply { setPadding(ui.dp(24),ui.dp(12),ui.dp(24),ui.dp(12)) }
         ui.add(content,ui.label(if(request!=null) t("${timeText(request.wakesAt,this)}に起床","Wakes at ${timeText(request.wakesAt,this)}")
             else t("起床で終了するのは今回のロックだけです。今後の繰り返し予定は残ります。","A wake-up ends only the current lock. Future repeating locks stay scheduled."),16f),12)
-        TargetRows(this).details(content,active.targets)
         if(!Scheduling.permitted(this)) ui.add(content,ui.label(t("正確なアラームが許可されていません。起床の反映が遅れる可能性があります。","Exact alarms are not allowed. Wake-up may be delayed."),14f,muted=true),12)
         if(GuardService.instance==null) ui.add(content,ui.label(t("アプリの制限は停止中です。設定からユーザー補助を再接続してください。","App blocking is stopped. Reconnect accessibility in Settings."),14f,muted=true),12)
         val builder=AlertDialog.Builder(this).setTitle(t("熊を起こす","Wake the bear"))
@@ -420,9 +428,7 @@ open class MainActivity : Activity() {
         }
     }
     private fun showReflectionFailure() {
-        AlertDialog.Builder(this).setTitle(t("ロックの監視を更新できません","Monitoring could not be updated"))
-            .setMessage(t("予定は保存されています。監視を更新するまで、予定時刻にロックが動作しない可能性があります。","Your schedules are saved. Scheduled blocking may not work until monitoring is updated."))
-            .setNegativeButton(t("閉じる","Close"),null).setPositiveButton(t("再試行","Retry")) { _,_-> syncSchedules() }.show()
+        render()
     }
     fun schedules(parent: LinearLayout) { if(savedDataAvailable) ScheduleList(this).show(parent) }
     private fun setup(parent: LinearLayout) {

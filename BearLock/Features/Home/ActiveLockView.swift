@@ -23,6 +23,7 @@ struct ActiveLockView: View {
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(AppTheme.navy)
+                .accessibilityIdentifier("active-lock-countdown")
 
             Text(L10n.format("Wakes at %@", activeLock.endsAt.formatted(date: .omitted, time: .shortened)))
                 .font(.subheadline)

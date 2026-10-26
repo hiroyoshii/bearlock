@@ -243,11 +243,13 @@
 "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry." = "予定は保存されていますが、ロックの監視を更新できませんでした。Bear Lockを開き直して再試行してください。";
 "This schedule is no longer available." = "この予定は削除されています。";
 "Active. This schedule cannot be edited or deleted after it starts." = "実行中です。開始後は予定の編集・削除はできません。";
+"Woken. This schedule cannot be edited or deleted after it starts." = "起床済みです。開始後は予定の編集・削除はできません。";
 "Repeating schedules cannot be changed while they are active." = "繰り返し予定は、実行中には変更できません。";
 
 "Delete After This Lock" = "このロックの終了時に削除";
 "This lock will continue until %@. The schedule and future repeating locks will then be deleted." = "このロックは%@まで継続します。その後、予定と今後の繰り返しを削除します。";
-"Deletion scheduled for %@. This lock will continue until then." = "%@に削除予定です。それまではロックが継続します。";
+"This schedule will be deleted at %@." = "この予定は%@に削除されます。";
+"This lock ends at %@. This schedule will be deleted at %@." = "今回のロックは%@に終了します。この予定は%@に削除されます。";
 "Cancel scheduled deletion" = "削除予約を取り消す";
 "Active. Deleting this schedule takes effect when this lock ends." = "実行中です。削除はこのロックの終了時に反映されます。";
 "Times and weekdays cannot be changed during a lock. Deletion takes effect when the current lock ends." = "実行中は時刻・曜日を変更できません。削除は現在のロックの終了時に反映されます。";

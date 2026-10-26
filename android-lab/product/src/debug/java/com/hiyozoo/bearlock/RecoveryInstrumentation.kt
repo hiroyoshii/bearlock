@@ -102,6 +102,10 @@ class RecoveryInstrumentation : Instrumentation() {
         }
         runOnMainSync {
             a.editor.chooseMode(ComposerMode.NOW,System.currentTimeMillis())
+            a.store.change { State() }; a.restoreSelection(); a.navigate(Route.Home)
+            val prompts=arrayListOf<View>()
+            root().findViewsWithText(prompts,"Select blocked apps first.",View.FIND_VIEWS_WITH_TEXT)
+            check(prompts.size==1)
             a.store.change { State(selection=Targets()) }; a.restoreSelection(); a.navigate(Route.Home)
             check(listOf("0 Apps","0 Categories","0 Websites").all { controls(it).isEmpty() })
             check(controls("Select targets").single().isEnabled)
@@ -123,8 +127,8 @@ class RecoveryInstrumentation : Instrumentation() {
             check(mode.typeface.isBold && mode.minHeight>=a.ui.dp(44))
             if(a.ui.compact) {
                 check(mode.autoSizeTextType==TextView.AUTO_SIZE_TEXT_TYPE_NONE) { "Large text must not be shrunk" }
-                check(kotlin.math.abs(mode.textSize-android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,12f,a.resources.displayMetrics))<=1f)
-            } else check(kotlin.math.abs(mode.autoSizeMaxTextSize-android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,12f,a.resources.displayMetrics))<=1f)
+                check(kotlin.math.abs(mode.textSize-android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,13f,a.resources.displayMetrics))<=1f)
+            } else check(kotlin.math.abs(mode.autoSizeMaxTextSize-android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,13f,a.resources.displayMetrics))<=1f)
             val group=mode.parent as com.google.android.material.button.MaterialButtonToggleGroup
             val container=if(a.ui.compact) (group.parent as android.widget.HorizontalScrollView).apply {
                 check(isFillViewport)
@@ -133,7 +137,8 @@ class RecoveryInstrumentation : Instrumentation() {
             for(text in listOf("Duration",a.catalog.name("com.android.chrome"))) {
                 val labels=arrayListOf<View>()
                 root().findViewsWithText(labels,text,View.FIND_VIEWS_WITH_TEXT)
-                check(labels.filterIsInstance<TextView>().filter { it.text.toString()==text }.any { it.currentTextColor==Palette.textPrimary }) { "Primary text color differs: $text" }
+                val color=if(text=="Duration") Palette.textPrimary else Palette.navy
+                check(labels.filterIsInstance<TextView>().filter { it.text.toString()==text }.any { it.currentTextColor==color }) { "Primary text color differs: $text" }
             }
             val disclosure=controls("Target list").single()
             check(disclosure.isFocusable)
@@ -175,7 +180,7 @@ class RecoveryInstrumentation : Instrumentation() {
         val booked = a.store.read()
         check(booked.wakes.size == 1 && booked.rules == listOf(rule))
         check(Scheduling.updateFailed && windowText().contains("Your schedules are saved"))
-        capture("wake-registration-error"); click("Close")
+        capture("wake-registration-error")
         runOnMainSync { a.load(); a.render() }
         RecoveryTestActivity.failMonitoring = false
         runOnMainSync { a.findViewById<View>(android.R.id.content).findViewWithTag<Button>("monitoring-retry").performClick() }
@@ -192,7 +197,7 @@ class RecoveryInstrumentation : Instrumentation() {
         open(); click("Cancel wake-up")
         check(a.store.read() == State(rules=listOf(rule))) { "Registration failure reverted cancellation" }
         check(Scheduling.updateFailed && windowText().contains("Your schedules are saved"))
-        capture("wake-cancel-registration-error"); click("Close")
+        capture("wake-cancel-registration-error")
         RecoveryTestActivity.failMonitoring = false
         runOnMainSync { a.syncSchedules() }
         check(!Scheduling.updateFailed && a.store.read().activeLocks(System.currentTimeMillis()).single().end == rule.single!!.end)
@@ -292,10 +297,14 @@ class RecoveryInstrumentation : Instrumentation() {
         }
         waitForIdleSync()
         runOnMainSync {
-            val preview=root().findViewWithTag<TextView>("recurring-next-preview")
+            val preview=root().findViewWithTag<View>("recurring-next-preview")
+            fun previewTexts(view: View = preview): List<String> = when(view) {
+                is TextView -> listOf(view.text.toString())
+                is android.view.ViewGroup -> (0 until view.childCount).flatMap { previewTexts(view.getChildAt(it)) }
+                else -> emptyList()
+            }
             val occurrence=Composer(a).make(now).copy(enabled=true).nextOccurrence(now)!!
-            check(preview.text.contains(dateText(occurrence.start,a)))
-            check(preview.text.contains(dateText(occurrence.end,a)))
+            check(previewTexts()==listOf("Next start",dateText(occurrence.start,a),"Next wake-up",dateText(occurrence.end,a)))
             for(day in java.time.DayOfWeek.values()) {
                 val button=controls(day.getDisplayName(java.time.format.TextStyle.FULL,java.util.Locale.ENGLISH)).single() as Button
                 check(button.measuredWidth>=a.ui.dp(44) && button.measuredHeight>=a.ui.dp(44)) { "Weekday touch target too small" }
@@ -312,11 +321,11 @@ class RecoveryInstrumentation : Instrumentation() {
             }
             check(a.editor.days==setOf(6,7))
             val changed=Composer(a).make(now).nextOccurrence(now)!!
-            check(preview.text.contains(dateText(changed.start,a)))
+            check(previewTexts()==listOf("Next start",dateText(changed.start,a),"Next wake-up",dateText(changed.end,a)))
             for(day in listOf(java.time.DayOfWeek.SATURDAY,java.time.DayOfWeek.SUNDAY)) {
                 controls(day.getDisplayName(java.time.format.TextStyle.FULL,java.util.Locale.ENGLISH)).single().performClick()
             }
-            check(preview.text.toString()=="No upcoming hibernation")
+            check(previewTexts()==listOf("Next","No upcoming hibernation"))
             check(!root().findViewWithTag<Button>("editor-save").isEnabled)
             controls("Sunday").single().performClick()
             check(root().findViewWithTag<Button>("editor-save").isEnabled)
@@ -371,10 +380,10 @@ class RecoveryInstrumentation : Instrumentation() {
             check(windowText().contains("Could not save the selection"))
             check(a.route is Route.Picker && a.editor.targets==changed) { "Failed save discarded the picker draft" }
             check(File(a.filesDir,"locks-v1.json").readText()==bytes) { "Failed selection save changed reservations" }
-            capture("selection-save-failed"); click("OK")
+            capture("selection-save-failed")
             runOnMainSync { a.goBack(); check(a.editor.targets==original && a.route==Route.Home) }
             runOnMainSync { a.pickTargets(); a.editor.targets=changed; a.saveSelection() }
-            check(windowText().contains("Could not save the selection")); click("OK")
+            check(windowText().contains("Could not save the selection"))
         } finally { unblock() }
         runOnMainSync { a.saveSelection() }
         check(a.route==Route.Home && a.store.read().selection==changed && a.store.read().rules==listOf(scheduled))
@@ -415,7 +424,7 @@ class RecoveryInstrumentation : Instrumentation() {
             a.store.change { it.copy(rules=listOf(active)) }
             a.saveSelection()
         }
-        check(windowText().contains("An active lock cannot be changed"))
+        check(windowText().contains("This lock is already active and cannot be changed"))
         check(a.route is Route.Picker && a.editor.targets==changed)
         check(a.store.read()==State(selection=original,rules=listOf(active)))
         capture("selection-started-before-commit"); click("OK")
@@ -430,7 +439,7 @@ class RecoveryInstrumentation : Instrumentation() {
         check(windowText().contains("Your schedules are saved"))
         check(a.route==Route.Home && a.store.read().selection==changed)
         val committed=File(a.filesDir,"locks-v1.json").readText()
-        capture("selection-saved-reflection-failed"); click("Close")
+        capture("selection-saved-reflection-failed")
         runOnMainSync {
             RecoveryTestActivity.failMonitoring=false
             a.findViewById<View>(android.R.id.content).findViewWithTag<Button>("monitoring-retry").performClick()
@@ -471,7 +480,7 @@ class RecoveryInstrumentation : Instrumentation() {
         runOnMainSync { RecoveryTestActivity.failMonitoring=true; submit() }
         check(a.route==Route.Home && a.store.read().rules.size==1)
         check(windowText().contains("Your schedules are saved"))
-        capture("schedule-create-reflection-failed"); click("Close"); retryWithoutSaving()
+        capture("schedule-create-reflection-failed"); retryWithoutSaving()
 
         // A disabled weekly rule needs no permission preflight, but uses the real editor save button.
         val rule=a.store.read().rules.single().copy(enabled=false,schedule=LockSchedule.Weekly(setOf(1,2,3,4,5),1380,420,"UTC"))
@@ -504,7 +513,7 @@ class RecoveryInstrumentation : Instrumentation() {
         saveEditor()
         check(a.route==Route.Home && a.store.read().rules.single().weekly!!.endMinute==480)
         check(windowText().contains("Your schedules are saved"))
-        capture("schedule-edit-reflection-failed"); click("Close"); retryWithoutSaving()
+        capture("schedule-edit-reflection-failed"); retryWithoutSaving()
 
         fun openDelete() {
             runOnMainSync {
@@ -525,7 +534,7 @@ class RecoveryInstrumentation : Instrumentation() {
         RecoveryTestActivity.failMonitoring=true
         openDelete(); click("Delete")
         check(a.store.read().rules.isEmpty() && windowText().contains("Your schedules are saved"))
-        capture("schedule-delete-reflection-failed"); click("Close"); retryWithoutSaving()
+        capture("schedule-delete-reflection-failed"); retryWithoutSaving()
     }
     private fun verifyHistoryOperations(a: RecoveryTestActivity) {
         val targets=Targets(domains=setOf("history.example.com"))

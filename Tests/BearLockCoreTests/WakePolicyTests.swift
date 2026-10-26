@@ -66,6 +66,11 @@ final class WakePolicyTests: XCTestCase {
         let request = try await store.scheduleFreeWake(for: active, at: now)
 
         XCTAssertEqual(request.wakesAt, now.addingTimeInterval(30 * 60))
+        let display = try XCTUnwrap(repository.state.activeLockForDisplay(at: now))
+        XCTAssertEqual(display.endsAt, request.wakesAt)
+        XCTAssertEqual(display.remainingTime(at: now), 30 * 60)
+        XCTAssertEqual(repository.state.displayInterval(for: rule, at: now)?.end, request.wakesAt)
+        XCTAssertEqual(repository.state.rules.first?.single?.endsAt, rule.single?.endsAt)
         XCTAssertNotNil(repository.state.activeLockForDisplay(at: request.wakesAt.addingTimeInterval(-1)))
         XCTAssertNil(repository.state.activeLockForDisplay(at: request.wakesAt))
         XCTAssertTrue(try repository.state.shieldSlotDecisions(at: request.wakesAt).isEmpty)
@@ -84,6 +89,8 @@ final class WakePolicyTests: XCTestCase {
         _ = try await store.scheduleFreeWake(for: active, at: now)
         try await store.cancelFreeWake(for: active, at: now.addingTimeInterval(10))
         XCTAssertTrue(repository.state.wakeState.requests.isEmpty)
+        XCTAssertEqual(repository.state.activeLockForDisplay(at: now.addingTimeInterval(10))?.endsAt, rule.single?.endsAt)
+        XCTAssertEqual(repository.state.displayInterval(for: rule, at: now.addingTimeInterval(10))?.end, rule.single?.endsAt)
 
         let nearEnd = rule.single!.endsAt.addingTimeInterval(-WakePolicy.freeDelay)
         do {
@@ -92,6 +99,23 @@ final class WakePolicyTests: XCTestCase {
         } catch {
             XCTAssertEqual(error as? WakeError, .freeWakeUnavailable)
         }
+    }
+
+    func testDisplaySelectsLatestEffectiveEndAndRetainsWokenScheduleInterval() throws {
+        let now = date("2026-09-20T01:00:00Z")
+        let target = UUID()
+        let longer = LockRule(kind: .delayed, startsAt: now, duration: 7200, targetSelectionID: target)
+        let shorter = LockRule(kind: .delayed, startsAt: now, duration: 3600, targetSelectionID: target)
+        let request = WakeRequest(ruleID: longer.id, occurrenceStartedAt: now, requestedAt: now,
+                                  wakesAt: now.addingTimeInterval(1800), source: .delayed)
+        let state = LockState(rules: [longer, shorter], wakeState: WakeState(requests: [request]))
+        // Legacy overlapping rules are still evaluated; a display must use the latest actual deadline.
+        XCTAssertEqual(state.activeLockForDisplay(at: now)?.id, shorter.id)
+        XCTAssertEqual(state.activeLockForDisplay(at: now)?.endsAt, shorter.single?.endsAt)
+        let afterWake = now.addingTimeInterval(1800)
+        XCTAssertFalse(state.activeLocks(at: afterWake).contains { $0.id == longer.id })
+        XCTAssertEqual(state.displayInterval(for: longer, at: afterWake)?.end, request.wakesAt)
+        XCTAssertEqual(state.rules.first?.single?.endsAt, now.addingTimeInterval(7200))
     }
 
     func testFreeWakeAllowsRelockingAfterWakeWithoutRemovingRecurringRule() async throws {
