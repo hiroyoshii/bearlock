@@ -16,6 +16,7 @@ struct LockConfirmationSheet: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let details: LockConfirmationDetails
     let isSubmitting: Bool
+    var saveError: String? = nil
     let onCancel: () -> Void
     let onConfirm: () -> Void
 
@@ -47,6 +48,10 @@ struct LockConfirmationSheet: View {
                 .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
 
                 VStack(spacing: 12) {
+                    if let saveError {
+                        Text(saveError).foregroundStyle(.red)
+                            .accessibilityIdentifier("schedule-save-error")
+                    }
                     Button {
                         onConfirm()
                     } label: {

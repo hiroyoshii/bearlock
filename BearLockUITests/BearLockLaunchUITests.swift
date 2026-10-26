@@ -6,6 +6,71 @@ final class BearLockLaunchUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    func testTargetSaveFailureKeepsPickerDraftAndCancelKeepsSavedTargets() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-target-picker", "--ui-testing-write-failure"])
+        app.buttons["Select targets"].tap()
+        let messages = app.buttons["ui-testing-target-app-messages"]
+        XCTAssertTrue(messages.waitForExistence(timeout: 5))
+        messages.tap()
+        app.buttons["ui-testing-target-save"].tap()
+        // Allow the asynchronous save result to reach the sheet before inspecting it.
+        XCTAssertTrue(app.staticTexts["target-selection-save-error"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-target-save-rejected")
+        XCTAssertTrue(app.buttons["ui-testing-target-save"].exists)
+        XCTAssertEqual(messages.value as? String, "Selected")
+        app.buttons["Cancel"].tap()
+        XCTAssertEqual(app.staticTexts["selected-target-count"].label, "3 targets")
+        captureScreenshot(named: "e2e-target-save-cancelled")
+    }
+
+    func testScheduleSaveFailureKeepsConfirmationAndEditorDraft() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-write-failure"])
+        selectComposerMode("In", in: app)
+        app.buttons["duration-preset-30"].tap()
+        app.buttons["lock-composer-primary-button"].tap()
+        let confirm = app.buttons["lock-confirmation-confirm-button"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        confirm.tap()
+        XCTAssertTrue(app.staticTexts["schedule-save-error"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-schedule-create-rejected")
+        XCTAssertTrue(confirm.exists)
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.buttons["duration-preset-30"].isSelected)
+        XCTAssertTrue(app.staticTexts["No scheduled locks."].exists)
+        app.terminate()
+
+        let editor = launchApprovedSeededApp(extraArguments: ["--ui-testing-disabled-recurring", "--ui-testing-write-failure"])
+        tapFirstButton(editor, identifier: "scheduled-lock-edit-button")
+        let enabled = editor.switches["recurring-rule-enabled-toggle"]
+        XCTAssertTrue(enabled.waitForExistence(timeout: 5))
+        tapSwitch(editor, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
+        editor.buttons["Save"].tap()
+        XCTAssertTrue(editor.staticTexts["schedule-save-error"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-schedule-edit-rejected")
+        XCTAssertEqual(enabled.value as? String, "1")
+        editor.buttons["Cancel"].tap()
+        tapFirstButton(editor, identifier: "scheduled-lock-edit-button")
+        XCTAssertEqual(enabled.value as? String, "0")
+        captureScreenshot(named: "e2e-schedule-edit-original")
+    }
+
+    func testSavedScheduleMonitoringRetryDoesNotCreateAnotherRule() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["--ui-testing-monitoring-failure"])
+        selectComposerMode("In", in: app)
+        app.buttons["lock-composer-primary-button"].tap()
+        app.buttons["lock-confirmation-confirm-button"].tap()
+        XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["lock-confirmation-confirm-button"].exists)
+        XCTAssertEqual(app.buttons.matching(identifier: "scheduled-lock-edit-button").count, 1)
+        captureScreenshot(named: "e2e-schedule-saved-monitoring-error")
+        let retry = app.buttons["monitoring-retry"]
+        scrollToButton(retry, in: app)
+        retry.tap()
+        XCTAssertTrue(retry.waitForExistence(timeout: 5))
+        XCTAssertEqual(app.buttons.matching(identifier: "scheduled-lock-edit-button").count, 1)
+        captureScreenshot(named: "e2e-schedule-monitoring-retried")
+    }
+
     func testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets() throws {
         let app = XCUIApplication()
         let base = ["--ui-testing", "--ui-testing-approved", "--ui-testing-target-summary"]
@@ -241,6 +306,10 @@ final class BearLockLaunchUITests: XCTestCase {
 
         actionsButton.tap()
         XCTAssertTrue(app.buttons["Unpin target"].waitForExistence(timeout: 5))
+        app.buttons["Unpin target"].tap()
+        actionsButton.tap()
+        XCTAssertTrue(app.buttons["Pin target"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "e2e-target-flow-recent-unpinned")
         XCTAssertTrue(app.buttons["Remove target"].exists)
         app.buttons["Remove target"].tap()
         XCTAssertTrue(app.buttons["Remove"].waitForExistence(timeout: 5))
@@ -296,31 +365,43 @@ final class BearLockLaunchUITests: XCTestCase {
         captureScreenshot(named: "e2e-target-summary-confirmation")
     }
 
-    func testScheduleEditAndDeleteDelayedLockWithMockServices() throws {
-        let app = launchApprovedSeededApp()
+    func testScheduleEditAndDeleteDelayedAndFixedDateLocksWithMockServices() throws {
+        for (mode, state, rowTitle) in [("In", "delayed", "Starts later"), ("Date & Time", "fixed-date", "Date & Time")] {
+            let app = launchApprovedSeededApp()
 
-        XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        selectComposerMode("In", in: app)
-        XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
-        app.buttons["lock-composer-primary-button"].tap()
-        XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
-        captureScreenshot(named: "e2e-delayed-confirmation")
+            XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
+            selectComposerMode(mode, in: app)
+            if mode == "In" {
+                XCTAssertTrue(app.staticTexts["Start delay"].waitForExistence(timeout: 5))
+            } else {
+                XCTAssertTrue(app.datePickers.firstMatch.exists)
+            }
+            app.buttons["lock-composer-primary-button"].tap()
+            XCTAssertTrue(app.staticTexts["Schedule this lock?"].waitForExistence(timeout: 5))
+            captureScreenshot(named: "e2e-\(state)-confirmation")
 
-        app.buttons["lock-confirmation-confirm-button"].tap()
-        XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
-        captureScreenshot(named: "e2e-delayed-scheduled")
+            app.buttons["Cancel"].tap()
+            XCTAssertFalse(app.buttons["lock-confirmation-confirm-button"].exists)
+            app.buttons["lock-composer-primary-button"].tap()
+            app.buttons["lock-confirmation-confirm-button"].tap()
+            XCTAssertTrue(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.waitForExistence(timeout: 10))
+            XCTAssertFalse(app.buttons["lock-confirmation-confirm-button"].exists)
+            XCTAssertTrue(app.staticTexts[rowTitle].waitForExistence(timeout: 10))
+            captureScreenshot(named: "e2e-\(state)-scheduled")
 
-        tapFirstButton(app, identifier: "scheduled-lock-edit-button")
-        XCTAssertTrue(app.navigationBars["Edit Lock"].waitForExistence(timeout: 5))
-        captureScreenshot(named: "e2e-delayed-editor")
-        app.buttons["Save"].tap()
-        XCTAssertTrue(app.staticTexts["Starts later"].waitForExistence(timeout: 10))
+            tapFirstButton(app, identifier: "scheduled-lock-edit-button")
+            XCTAssertTrue(app.navigationBars["Edit Lock"].waitForExistence(timeout: 5))
+            captureScreenshot(named: "e2e-\(state)-editor")
+            app.buttons["Save"].tap()
+            XCTAssertTrue(app.staticTexts[rowTitle].waitForExistence(timeout: 10))
 
-        tapFirstButton(app, identifier: "scheduled-lock-delete-button")
-        XCTAssertTrue(app.buttons["Delete"].waitForExistence(timeout: 5))
-        app.buttons["Delete"].tap()
-        XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 10))
-        captureScreenshot(named: "e2e-delayed-deleted")
+            tapFirstButton(app, identifier: "scheduled-lock-delete-button")
+            XCTAssertTrue(app.buttons["Delete"].waitForExistence(timeout: 5))
+            app.buttons["Delete"].tap()
+            XCTAssertTrue(app.staticTexts["No scheduled locks."].waitForExistence(timeout: 10))
+            captureScreenshot(named: "e2e-\(state)-deleted")
+            app.terminate()
+        }
     }
 
     func testCreateAndOpenRecurringEditorWithMockServices() throws {
@@ -483,7 +564,17 @@ final class BearLockLaunchUITests: XCTestCase {
         return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
     }
 
-    private func tapSwitch(_ app: XCUIApplication, identifier: String, label: String) {
+    private func scrollToStaticText(_ text: String, in app: XCUIApplication) {
+        let element = app.staticTexts[text]
+        for _ in 0..<4 where !element.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(element.waitForExistence(timeout: 5), "Expected static text \(text)")
+    }
+}
+
+extension XCTestCase {
+    func tapSwitch(_ app: XCUIApplication, identifier: String, label: String) {
         let identifiedSwitch = app.switches.matching(identifier: identifier).firstMatch
         if identifiedSwitch.waitForExistence(timeout: 3) {
             let before = identifiedSwitch.value as? String
@@ -499,16 +590,7 @@ final class BearLockLaunchUITests: XCTestCase {
         labeledSwitch.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
     }
 
-    private func scrollToStaticText(_ text: String, in app: XCUIApplication) {
-        let element = app.staticTexts[text]
-        for _ in 0..<4 where !element.exists {
-            app.swipeUp()
-        }
-        XCTAssertTrue(element.waitForExistence(timeout: 5), "Expected static text \(text)")
-    }
-}
 
-extension XCTestCase {
     func launchApprovedSeededApp(extraArguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = [

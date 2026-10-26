@@ -74,6 +74,11 @@ struct UITestingLockRepository: LockRepository {
         }
         return try base.load()
     }
-    func save(_ state: LockState) throws { try base.save(state) }
+    func save(_ state: LockState) throws {
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-write-failure") {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        try base.save(state)
+    }
 }
 #endif

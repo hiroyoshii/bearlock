@@ -148,7 +148,7 @@ final class BearLockAppModelTests: XCTestCase {
 
     func testScheduledEditDistinguishesFailedSaveFromFailedReflection() async throws {
         let h = try Harness()
-        let start = Date().addingTimeInterval(7200)
+        let start = Date(timeIntervalSince1970: ceil(Date().timeIntervalSince1970) + 7200)
         let rule = LockRule(kind: .fixedDateTime, startsAt: start, duration: 300, targetSelectionID: h.target.id)
         h.repository.state.rules = [rule]
         await h.model.refresh()
@@ -178,8 +178,8 @@ final class BearLockAppModelTests: XCTestCase {
         let displayed = LockRule(kind: .fixedDateTime, startsAt: start, duration: 300, targetSelectionID: h.target.id)
         h.repository.state.rules = [displayed]
         await h.model.refresh()
-        var started = displayed
-        started.schedule = .single(SingleLockSchedule(kind: .fixedDateTime, startsAt: Date().addingTimeInterval(-60), duration: 300))
+        let started = LockRule(id: displayed.id, kind: .fixedDateTime,
+            startsAt: Date().addingTimeInterval(-60), duration: 300, targetSelectionID: h.target.id)
         h.repository.state.rules = [started]
         let original = h.repository.state, calls = h.schedule.calls
         let edit = await h.model.updateScheduledRule(displayed, startsAt: start, duration: 300)
@@ -342,16 +342,20 @@ final class BearLockAppModelTests: XCTestCase {
         let confirmed = try XCTUnwrap(h.model.activeLock)
         let next = LockRule(kind: .immediate, startsAt: Date().addingTimeInterval(-30),
             duration: 10800, targetSelectionID: h.target.id)
-        h.repository.state.rules = [next]
-        await h.model.refresh()
-        XCTAssertEqual(h.model.activeLock?.id, next.id)
-        let current = h.repository.state
-        let result = await h.model.scheduleFreeWake(for: confirmed)
-        XCTAssertEqual(result, .rejected)
-        XCTAssertEqual(h.repository.state, current)
-        let cancel = await h.model.cancelFreeWake(for: confirmed)
-        XCTAssertEqual(cancel, .rejected)
-        XCTAssertEqual(h.repository.state, current)
+        let ended = LockRule(id: old.id, kind: .immediate, startsAt: confirmed.startedAt,
+            duration: 1, targetSelectionID: h.target.id)
+        for rules in [[next], [ended, next]] {
+            h.repository.state.rules = rules
+            await h.model.refresh()
+            XCTAssertEqual(h.model.activeLock?.id, next.id)
+            let current = h.repository.state
+            let result = await h.model.scheduleFreeWake(for: confirmed)
+            XCTAssertEqual(result, .rejected)
+            XCTAssertEqual(h.repository.state, current)
+            let cancel = await h.model.cancelFreeWake(for: confirmed)
+            XCTAssertEqual(cancel, .rejected)
+            XCTAssertEqual(h.repository.state, current)
+        }
     }
 
     func testSelectionRevalidatesAfterDisplayedStateHasBecomeStale() async throws {

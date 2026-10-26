@@ -5,6 +5,70 @@ final class SelectionControlsUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    func testDateAndTimeButtonsOpenIndependently() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLocale", "en_US"])
+        selectComposerMode("Date & Time", in: app)
+        let picker = app.datePickers.firstMatch
+        let parts = picker.buttons.allElementsBoundByIndex.filter { $0.buttons.count == 0 }
+        XCTAssertEqual(parts.count, 2)
+        let before = picker.buttons["Date and Time Picker"].value as? String
+        parts[0].tap()
+        let dismiss = app.buttons["PopoverDismissRegion"]
+        XCTAssertTrue(dismiss.waitForExistence(timeout: 5))
+        XCTAssertEqual(app.pickerWheels.count, 0)
+        selectionScreenshot(app, "calendar-open")
+        dismiss.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.95)).tap()
+        XCTAssertEqual(picker.buttons["Date and Time Picker"].value as? String, before)
+        parts[1].tap()
+        XCTAssertTrue(app.pickerWheels.firstMatch.waitForExistence(timeout: 5))
+        let hour = app.pickerWheels.element(boundBy: 0)
+        let newHour = (hour.value as? String)?.hasPrefix("3 ") == true ? "4" : "3"
+        hour.adjust(toPickerWheelValue: newHour)
+        selectionScreenshot(app, "time-open")
+        dismiss.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.95)).tap()
+        XCTAssertFalse(app.pickerWheels.firstMatch.exists)
+        XCTAssertNotEqual(picker.buttons["Date and Time Picker"].value as? String, before)
+        selectionScreenshot(app, "time-changed")
+    }
+
+    func testJapaneseNormalControlsAndFixedDateFlow() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"])
+        for title in ["今すぐ", "後で", "日時指定", "繰り返し"] {
+            selectComposerMode(title, in: app)
+            let create = app.buttons["lock-composer-primary-button"]
+            scrollToButton(create, in: app)
+            create.tap()
+            XCTAssertTrue(app.buttons["lock-confirmation-confirm-button"].waitForExistence(timeout: 5))
+            selectionScreenshot(app, "normal-ja-\(title)-confirmation")
+            app.buttons["キャンセル"].tap()
+            XCTAssertFalse(app.buttons["lock-confirmation-confirm-button"].exists)
+        }
+        assertWeekdaysShareOneRow(in: app)
+        let sunday = app.buttons["weekday-1"]
+        sunday.tap()
+        XCTAssertTrue(sunday.isSelected)
+        XCTAssertEqual(sunday.label, "日曜日")
+        selectionScreenshot(app, "normal-ja-weekdays")
+
+        selectComposerMode("日時指定", in: app)
+        app.buttons["lock-composer-primary-button"].tap()
+        app.buttons["lock-confirmation-confirm-button"].tap()
+        XCTAssertTrue(app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch.waitForExistence(timeout: 10))
+        let edit = app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch
+        scrollToButton(edit, in: app)
+        edit.tap()
+        XCTAssertTrue(app.navigationBars["ロック予定を編集"].waitForExistence(timeout: 5))
+        selectionScreenshot(app, "normal-ja-fixed-date-editor")
+        app.buttons["保存"].tap()
+        let delete = app.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch
+        scrollToButton(delete, in: app)
+        delete.tap()
+        XCTAssertTrue(app.buttons["削除"].waitForExistence(timeout: 5))
+        app.buttons["削除"].tap()
+        XCTAssertTrue(app.staticTexts["予定されたロックはありません。"].waitForExistence(timeout: 5))
+        selectionScreenshot(app, "normal-ja-fixed-date-deleted")
+    }
+
     func testDurationPresetsAndModeReflectCurrentValue() throws {
         let app = launchApprovedSeededApp()
         let picker = app.segmentedControls["lock-composer-mode-picker"]
@@ -107,7 +171,7 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertTrue(enabled.isEnabled)
         XCTAssertTrue(app.buttons["weekday-1"].isEnabled)
         XCTAssertTrue(app.buttons["Save"].isEnabled)
-        enabled.tap()
+        tapSwitch(app, identifier: "recurring-rule-enabled-toggle", label: "Enabled")
         app.buttons["Save"].tap()
         XCTAssertTrue(edit.waitForExistence(timeout: 5))
         scrollToButton(edit, in: app)
