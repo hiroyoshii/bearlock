@@ -49,4 +49,11 @@ Settings also offers optional consumable support products: com.hiyozoo.bearlock.
 
 `project.yml` の1.3設定とこの更新説明をmainへ取り込み、既存iOS CIを実行する。署名・TestFlight uploadは既存 `iOS TestFlight Upload` を使用する。新しいrunner、テスト一覧、署名/配布経路は追加しない。
 
-ローカルのXcodeGen実行PATH・シミュレーター言語/StoreKitサーバーの問題は、既存CIや公開済み1.2の問題と混同しない。Privacy Manifestやテスト既定言語の追加は今回の変更から外した。App Store Connectの1.3設定・build選択・審査提出の状態は未確認。
+ローカルのXcodeGen実行PATH・シミュレーター言語/StoreKitサーバーの問題は、既存CIや公開済み1.2の問題と混同しない。Privacy Manifestやテスト既定言語の追加は今回の変更から外した。
+
+## App Store Connectへの設定（2026-10-26 JST）
+
+- main `8ab300f` の [TestFlight run 37](https://github.com/hiroyoshii/bearlock/actions/runs/40279497407) は成功。配信1.3にbuild 37を選択・保存し、暗号化質問を実装内容に合わせて回答した。
+- 日本語の更新説明と概要、App Reviewメモを保存。旧「途中解除できない」の説明を現在の無料/有料起床へ修正。ストアの既存ローカライズは日本語のみで、英語ローカライズの追加はしていない。既存画像は保持した。
+- 1.3 (37) を提出下書きに追加し、「審査準備完了」を確認。「審査へ提出」は未操作。公開方法は従来の「承認後自動リリース」のまま。
+- 通常iOS CI run 200のStoreKitは、macos-15/Xcode 16.4で対象シミュレーターが存在せず未実行。既存ジョブを本体CIと同じmacos-26/iPhone 17 Pro Maxへ変更し、テスト・期待値・ジョブ数は維持した。通常UIステップも失敗しているため、新しいCI全体の結果確認が必要。CI合格の確認前に審査提出しない。
