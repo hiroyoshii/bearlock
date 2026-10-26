@@ -68,13 +68,15 @@ The workflow at `.github/workflows/ios-ci.yml` performs automated validation wit
 - Build the iOS app and extensions in Release and Debug for iOS Simulator with signing disabled.
 - Run the complete mock-driven UI test suite against an iPhone simulator.
 - Run StoreKit purchase tests in a separate macOS 15 job.
-- Export e2e screenshots and English/Japanese static screen snapshots as workflow artifacts.
+- Export e2e screenshots as workflow artifacts.
 
 The artifacts are named `bearlock-ios-ci-artifacts` and `storekit-purchase-results`. CI does not commit test results or screenshots to `main`.
 
 The mock e2e tests currently cover setup launch, immediate lock creation, delayed lock creation, delayed lock edit/delete, recurring lock creation/disable, and active-lock immutability controls. This CI can catch Swift/package regressions, Xcode project generation failures, iOS compile errors, extension compile errors, and the main mock UI workflows. It cannot prove real Screen Time enforcement, Shield display over third-party apps, Family Controls authorization behavior, or DeviceActivity background callback behavior. Those still require a signed build on a physical iOS device with the Family Controls entitlement.
 
 Pushes to the repository are expected to start this workflow automatically.
+
+App Store screenshots are generated separately by the manual `iOS Screenshots` workflow (`.github/workflows/ios-screenshots.yml`). In GitHub Actions, select that workflow, choose the source branch, and click **Run workflow**. Download `bearlock-ios-screenshots` for the English/Japanese PNGs under `screenshots/iphone-app-store-en` and `screenshots/iphone-app-store-ja`. Captures use iPhone 17 at 1206 × 2622 pixels for the Dynamic Island medium display upload slot. The workflow does not wait for UI tests, and later pushes do not cancel it. Neither iOS workflow configures automatic cancellation.
 
 ## Verification artifacts
 

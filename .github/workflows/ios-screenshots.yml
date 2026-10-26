@@ -1,0 +1,156 @@
+name: iOS Screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    name: App Store screenshots
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      PROJECT: BearLock.xcodeproj
+      SCREENSHOT_SCHEME: BearLockScreenshot
+      SCREENSHOT_BUNDLE_ID: com.hiyozoo.bearlock.screenshot
+      DERIVED_DATA: DerivedData
+      SCREENSHOT_DIR: artifacts/screenshots
+      APP_STORE_DEVICE_NAME: iPhone 17
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show tool versions
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcrun simctl list runtimes
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Validate project metadata
+        run: bash Scripts/validate-ios-project.sh
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build screenshot app for simulator
+        run: |
+          set -o pipefail
+          mkdir -p artifacts
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCREENSHOT_SCHEME" \
+            -destination "platform=iOS Simulator,name=$APP_STORE_DEVICE_NAME,OS=latest" \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee artifacts/xcodebuild-screenshot-build.log
+
+      - name: Capture launched app screenshot
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts "$SCREENSHOT_DIR"
+          APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name BearLockScreenshot.app -type d | head -n 1)"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "BearLockScreenshot.app was not found in DerivedData."
+            exit 1
+          fi
+
+          find_device_udid() {
+            local device_name="$1"
+            xcrun simctl list devices available -j | python3 -c 'import json, sys; name = sys.argv[1]; data = json.load(sys.stdin); matches = [device["udid"] for devices in data.get("devices", {}).values() for device in devices if device.get("isAvailable") and device.get("name") == name]; print(matches[0] if matches else "")' "$device_name"
+          }
+
+          capture_locale() {
+            local device_name="$1"
+            local base_label="$2"
+            local locale_label="$3"
+            shift 3
+            local udid
+            udid="$(find_device_udid "$device_name")"
+
+            if [ -z "$udid" ]; then
+              echo "App Store screenshot simulator not found: $device_name" >&2
+              return 1
+            fi
+
+            local label="${base_label}-${locale_label}"
+            mkdir -p "$SCREENSHOT_DIR/$label"
+            xcrun simctl boot "$udid" || true
+            xcrun simctl bootstatus "$udid" -b
+            xcrun simctl install "$udid" "$APP_PATH"
+
+            for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock wakeOptions wakeResult scheduledEditor recurringEditor settings support diagnostics; do
+              local screenshot_path="$SCREENSHOT_DIR/$label/$screen.png"
+              local screenshot_size=0
+              xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
+              local launch_output
+              launch_output="$(xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@")"
+              echo "$launch_output"
+              local launched_app_pid="${launch_output##*: }"
+              [[ "$launched_app_pid" =~ ^[0-9]+$ ]]
+              for attempt in 1 2 3; do
+                sleep $((attempt + 2))
+                kill -0 "$launched_app_pid"
+                xcrun simctl io "$udid" screenshot "$screenshot_path"
+                screenshot_size="$(stat -f%z "$screenshot_path")"
+                if [ "$screenshot_size" -ge 100000 ]; then
+                  break
+                fi
+                echo "Screenshot appears blank; retrying $label/$screen (attempt $attempt, $screenshot_size bytes)."
+              done
+              test "$screenshot_size" -ge 100000
+              file "$screenshot_path"
+            done
+          }
+
+          validate_app_store_screenshot_sizes() {
+            local failures=0
+            while IFS= read -r screenshot; do
+              local width
+              local height
+              width="$(sips -g pixelWidth "$screenshot" | awk '/pixelWidth/ { print $2 }')"
+              height="$(sips -g pixelHeight "$screenshot" | awk '/pixelHeight/ { print $2 }')"
+              case "${width}x${height}" in
+                1206x2622)
+                  echo "Valid App Store screenshot size: $screenshot ${width}x${height}"
+                  ;;
+                *)
+                  echo "Unexpected App Store screenshot size: $screenshot ${width}x${height}"
+                  failures=1
+                  ;;
+              esac
+            done < <(find "$SCREENSHOT_DIR" -path "*/iphone-app-store-*/*.png" -type f | sort)
+
+            if [ "$failures" -ne 0 ]; then
+              return 1
+            fi
+          }
+
+          capture_device() {
+            local device_name="$1"
+            local label="$2"
+            capture_locale "$device_name" "$label" "en"
+            capture_locale "$device_name" "$label" "ja" -AppleLanguages "(ja)" -AppleLocale "ja_JP"
+          }
+
+          xcrun simctl shutdown all
+          echo "Capturing App Store screenshots on $APP_STORE_DEVICE_NAME"
+          capture_device "$APP_STORE_DEVICE_NAME" "iphone-app-store"
+          validate_app_store_screenshot_sizes
+
+          test -s "$SCREENSHOT_DIR/iphone-app-store-en/setup.png"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bearlock-ios-screenshots
+          path: |
+            artifacts/*.log
+            artifacts/screenshots/**/*.png
+          if-no-files-found: error

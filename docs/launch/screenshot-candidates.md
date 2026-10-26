@@ -1,6 +1,6 @@
 # Screenshot Candidates
 
-Source: iOS CI artifacts. Current repository screenshots are in `ci-screenshots/app-store-en` and `ci-screenshots/app-store-ja`; their source commit and run are recorded in [app-store-source.json](../../ci-screenshots/app-store-source.json). CI artifact folders are `screenshots/iphone-app-store-en` and `screenshots/iphone-app-store-ja`. Historical QA comparisons are not the current gallery.
+Generate new App Store captures with the manual `iOS Screenshots` workflow described in the [README](../../README.md#github-actions-ios-ci). Current repository screenshots are in `ci-screenshots/app-store-en` and `ci-screenshots/app-store-ja`; their source commit, run and dimensions are recorded in [app-store-source.json](../../ci-screenshots/app-store-source.json). The existing gallery remains the earlier 1284 × 2778 capture until replaced with verified output from the manual workflow. Artifact folders are `screenshots/iphone-app-store-en` and `screenshots/iphone-app-store-ja`. Historical QA comparisons are not the current gallery.
 
 ## Primary App Store / LP Candidates
 
