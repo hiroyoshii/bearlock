@@ -2,6 +2,70 @@ import XCTest
 @testable import BearLockCore
 
 final class LockContractTests: XCTestCase {
+    func testSharedOverlapOperations() async throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        let fixture = try JSONDecoder().decode(OperationFixture.self,
+            from: Data(contentsOf: root.appendingPathComponent("ContractFixtures/lock-operations.json")))
+        let specification = try String(contentsOf: root.deletingLastPathComponent().appendingPathComponent("docs/design-doc.md"))
+        let formatter = ISO8601DateFormatter()
+        func time(_ value: String) -> Date { formatter.date(from: value)! }
+        XCTAssertFalse(fixture.overlapCases.isEmpty)
+        XCTAssertEqual(Set(fixture.overlapCases.map(\.id)).count, fixture.overlapCases.count)
+        for scenario in fixture.overlapCases {
+            XCTAssertTrue(specification.contains("- \(scenario.id.split(separator: ".")[0]):"), scenario.id)
+            let ids = Dictionary(uniqueKeysWithValues: Set((scenario.existing + [scenario.proposed]).map(\.key)).map { ($0, UUID()) })
+            func rule(_ value: OperationFixture.Schedule) -> LockRule {
+                var rule: LockRule
+                if let days = value.days {
+                    rule = LockRule(recurrence: RecurrenceRule(
+                        weekdays: Set(days.map { Weekday(rawValue: $0 % 7 + 1)! }),
+                        startsAt: TimeOfDay(hour: value.startMinute! / 60, minute: value.startMinute! % 60),
+                        endsAt: TimeOfDay(hour: value.endMinute! / 60, minute: value.endMinute! % 60),
+                        timeZoneIdentifier: value.zone!), targetSelectionID: ids[value.key]!)
+                } else {
+                    rule = LockRule(kind: .fixedDateTime, startsAt: time(value.start!),
+                        duration: time(value.end!).timeIntervalSince(time(value.start!)), targetSelectionID: ids[value.key]!)
+                }
+                rule.id = ids[value.key]!
+                rule.status = value.enabled == false ? .disabled : .scheduled
+                return rule
+            }
+            let wakes = scenario.existing.compactMap { value -> WakeRequest? in
+                guard let wakeAt = value.wakeAt, let wakeStart = value.wakeStart else { return nil }
+                return WakeRequest(ruleID: ids[value.key]!, occurrenceStartedAt: time(wakeStart),
+                    requestedAt: time(wakeAt).addingTimeInterval(-1800), wakesAt: time(wakeAt), source: .delayed)
+            }
+            let initial = LockState(rules: scenario.existing.map(rule), wakeState: WakeState(requests: wakes))
+            let repository = ContractRepository(state: initial)
+            let store = LockStore(repository: repository)
+            let proposed = rule(scenario.proposed)
+            let now = time(scenario.now)
+            var result = "ok"
+            do {
+                if scenario.action == "cancel" {
+                    try await store.cancelFreeWake(for: try XCTUnwrap(proposed.occurrence(containing: now)), at: now)
+                } else if scenario.action == "replace" { try await store.replaceRule(proposed, now: now) }
+                else if let recurrence = proposed.recurrence {
+                    _ = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: proposed.targetSelectionID), now: now)
+                } else {
+                    _ = try await store.createRule(.fixed(startsAt: proposed.single!.startsAt,
+                        duration: proposed.single!.duration, targetSelectionID: proposed.targetSelectionID), now: now)
+                }
+            } catch {
+                result = error as? LockValidationError == .overlappingLock ? "overlap" : "unexpected:\(error)"
+                XCTAssertEqual(repository.state, initial, scenario.id)
+            }
+            XCTAssertEqual(result, scenario.result, scenario.id)
+            if result == "ok" {
+                XCTAssertEqual(repository.state.rules.count, initial.rules.count + (scenario.action == nil ? 1 : 0), scenario.id)
+                if scenario.action == "cancel" {
+                    XCTAssertEqual(repository.state.rules, initial.rules, scenario.id)
+                    XCTAssertTrue(repository.state.wakeState.requests.isEmpty, scenario.id)
+                }
+            }
+        }
+    }
+
     func testSharedHistoryOperations() async throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
         let fixture = try JSONDecoder().decode(OperationFixture.self,
@@ -9,7 +73,7 @@ final class LockContractTests: XCTestCase {
         let specification = try String(contentsOf: root.deletingLastPathComponent().appendingPathComponent("docs/design-doc.md"))
         XCTAssertEqual(fixture.version, 1)
         XCTAssertFalse(fixture.historyCases.isEmpty)
-        let allIDs = fixture.cases.map(\.id) + fixture.historyCases.map(\.id)
+        let allIDs = fixture.cases.map(\.id) + fixture.historyCases.map(\.id) + fixture.overlapCases.map(\.id)
         XCTAssertEqual(Set(allIDs).count, allIDs.count)
         let epoch = Date(timeIntervalSince1970: 1_800_000_000)
         func time(_ seconds: Double) -> Date { epoch.addingTimeInterval(seconds) }
@@ -215,6 +279,27 @@ private struct OperationFixture: Decodable {
     let version: Int
     let cases: [Scenario]
     let historyCases: [HistoryScenario]
+    let overlapCases: [OverlapScenario]
+    struct OverlapScenario: Decodable {
+        let id: String
+        let now: String
+        let result: String
+        let action: String?
+        let existing: [Schedule]
+        let proposed: Schedule
+    }
+    struct Schedule: Decodable {
+        let key: String
+        let days: [Int]?
+        let startMinute: Int?
+        let endMinute: Int?
+        let zone: String?
+        let enabled: Bool?
+        let start: String?
+        let end: String?
+        let wakeStart: String?
+        let wakeAt: String?
+    }
     struct HistoryScenario: Decodable {
         let id: String
         let recent: [Recent]

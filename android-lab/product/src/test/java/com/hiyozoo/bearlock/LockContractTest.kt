@@ -7,6 +7,58 @@ import org.json.JSONObject
 
 /** Both platforms consume the same hand-specified expectations, including DST edge cases. */
 class LockContractTest {
+    @Test fun sharedOverlapOperations() {
+        val fixture=JSONObject(javaClass.getResourceAsStream("/lock-operations.json")!!.bufferedReader().use { it.readText() })
+        val cases=fixture.getJSONArray("overlapCases")
+        assertTrue(cases.length()>0)
+        val ids=mutableSetOf<String>()
+        fun time(value: String)=Instant.parse(value).toEpochMilli()
+        fun rule(value: JSONObject): Rule {
+            val schedule=if(value.has("days")) {
+                val days=value.getJSONArray("days")
+                LockSchedule.Weekly((0 until days.length()).map { days.getInt(it) }.toSet(),
+                    value.getInt("startMinute"),value.getInt("endMinute"),value.getString("zone"))
+            } else LockSchedule.Single(time(value.getString("start")),time(value.getString("end")))
+            return Rule(id=value.getString("key"),title="Contract",targets=Targets(apps=setOf(value.getString("key"))),
+                schedule=schedule,enabled=value.optBoolean("enabled",true))
+        }
+        for(i in 0 until cases.length()) {
+            val scenario=cases.getJSONObject(i)
+            val id=scenario.getString("id")
+            assertTrue(id,ids.add(id))
+            val saved=scenario.getJSONArray("existing")
+            val wakes=(0 until saved.length()).map { saved.getJSONObject(it) }.filter { it.has("wakeAt") }.map {
+                WakeRequest(it.getString("key"),time(it.getString("wakeStart")),time(it.getString("wakeAt")))
+            }
+            val original=State(rules=(0 until saved.length()).map { rule(saved.getJSONObject(it)) },wakes=wakes)
+            var state=original
+            var reflected=0
+            val operations=LockOperations(change={ command -> command(state).also { state=it } },
+                reflect={ reflected++; Result.success(Unit) },clock={ time(scenario.getString("now")) })
+            val proposed=rule(scenario.getJSONObject("proposed"))
+            val action=scenario.optString("action")
+            val outcome=when(action) {
+                "replace" -> operations.updateSchedule { proposed }
+                "cancel" -> operations.cancelWake(state.activeLocks(time(scenario.getString("now"))).single { it.ruleId==proposed.id })
+                else -> operations.createSchedule { proposed }
+            }
+            val result=if(outcome is OperationOutcome.Rejected) {
+                assertEquals(id,original,state)
+                assertEquals(id,0,reflected)
+                if(outcome.cause.message=="overlap") "overlap" else "unexpected:${outcome.cause}"
+            } else "ok"
+            assertEquals(id,scenario.getString("result"),result)
+            if(result=="ok") {
+                assertEquals(id,original.rules.size+(if(action.isEmpty()) 1 else 0),state.rules.size)
+                assertEquals(id,1,reflected)
+                if(action=="cancel") {
+                    assertEquals(id,original.rules,state.rules)
+                    assertTrue(id,state.wakes.isEmpty())
+                }
+            }
+        }
+    }
+
     @Test fun sharedHistoryOperations() {
         val fixture=JSONObject(javaClass.getResourceAsStream("/lock-operations.json")!!.bufferedReader().use { it.readText() })
         assertEquals(1,fixture.getInt("version"))
@@ -15,6 +67,8 @@ class LockContractTest {
         val ids=mutableSetOf<String>()
         val lockCases=fixture.getJSONArray("cases")
         for(i in 0 until lockCases.length()) assertTrue(ids.add(lockCases.getJSONObject(i).getString("id")))
+        val overlapCases=fixture.getJSONArray("overlapCases")
+        for(i in 0 until overlapCases.length()) assertTrue(ids.add(overlapCases.getJSONObject(i).getString("id")))
         val epoch=1_800_000_000_000L
         fun time(seconds: Double)=epoch+(seconds*1000).toLong()
         fun strings(array: org.json.JSONArray)=(0 until array.length()).map { array.getString(it) }

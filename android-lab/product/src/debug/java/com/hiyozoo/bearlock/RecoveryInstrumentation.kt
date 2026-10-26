@@ -197,6 +197,17 @@ class RecoveryInstrumentation : Instrumentation() {
         runOnMainSync { a.syncSchedules() }
         check(!Scheduling.updateFailed && a.store.read().activeLocks(System.currentTimeMillis()).single().end == rule.single!!.end)
 
+        val nextStart=booked.wakes.single().wakesAt
+        val next=rule.copy(id="after-free-wake",schedule=LockSchedule.Single(nextStart,nextStart+60_000))
+        val conflict=booked.copy(rules=listOf(rule,next))
+        runOnMainSync { a.store.change { conflict }; a.syncSchedules() }
+        val calls=RecoveryTestActivity.monitoringCalls
+        open(); click("Cancel wake-up")
+        check(windowText().contains("This overlaps another lock"))
+        check(a.store.read()==conflict && RecoveryTestActivity.monitoringCalls==calls)
+        capture("wake-cancel-overlap-rejected"); click("OK")
+        runOnMainSync { a.store.change { State(rules=listOf(rule)) }; a.syncSchedules() }
+
         // A dialog must keep its original rule/occurrence, not redirect to a new representative.
         open()
         val other = rule.copy(id="another-rule")

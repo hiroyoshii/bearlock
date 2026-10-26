@@ -120,34 +120,81 @@ public struct LockPlanner: Sendable {
         guard duration > 0 else { throw LockValidationError.nonPositiveDuration }
     }
 
-    private func overlaps(
+    func overlaps(
         rule: LockRule,
         existingState: LockState,
         now: Date
     ) -> Bool {
-        existingState.rules.filter {
-            $0.id != rule.id && $0.isScheduled(at: now) && ($0.single == nil || $0.single!.endsAt > now)
-        }.contains { other in
-            // Preserve the existing policy allowing multiple repeating rules.
-            // Enforcement takes the union of all currently active target sets.
-            if !rule.isOneShot && !other.isOneShot { return false }
-
-            if let proposed = rule.single {
-                guard let interval = other.nextInterval(after: proposed.startsAt) else { return false }
-                let occurrence = ActiveLock(id: other.id, startedAt: interval.start, endsAt: interval.end,
-                    targetSelectionID: other.targetSelectionID)
-                let occupiedEnd = existingState.wakeState.effectiveEnd(of: occurrence)
-                return proposed.startsAt < occupiedEnd && interval.start < proposed.endsAt
+        guard rule.isScheduled(at: now) else { return false }
+        for other in existingState.rules where other.id != rule.id && other.isScheduled(at: now) {
+            if let single = rule.single ?? other.single {
+                if intersects(rule, other, state: existingState, from: max(now, single.startsAt), until: single.endsAt) { return true }
+            } else if recurringOverlap(rule, other, state: existingState, now: now) {
+                return true
             }
-
-            guard let existing = other.single else { return false }
-            let occurrence = ActiveLock(id: other.id, startedAt: existing.startsAt, endsAt: existing.endsAt,
-                targetSelectionID: other.targetSelectionID)
-            let occupiedEnd = existingState.wakeState.effectiveEnd(of: occurrence)
-            guard existing.startsAt < occupiedEnd,
-                  let interval = rule.nextInterval(after: existing.startsAt)
-            else { return false }
-            return existing.startsAt < interval.end && interval.start < occupiedEnd
         }
+        return false
+    }
+
+    private func recurringOverlap(_ rule: LockRule, _ other: LockRule, state: LockState, now: Date) -> Bool {
+        let a = rule.recurrence!, b = other.recurrence!
+        if a.timeZoneIdentifier == b.timeZoneIdentifier && rule.scheduledDeletionAt == nil && other.scheduledDeletionAt == nil {
+            // Infinite weekly schedules eventually repeat beyond any occurrence-specific wake.
+            for first in a.weekdays {
+                let x = ((first.rawValue + 5) % 7) * 1440 + a.startsAt.minutesFromMidnight
+                for second in b.weekdays {
+                    let y = ((second.rawValue + 5) % 7) * 1440 + b.startsAt.minutesFromMidnight
+                    for shift in [-10080, 0, 10080] {
+                        if x < y + shift + Int(b.duration / 60) && y + shift < x + Int(a.duration / 60) { return true }
+                    }
+                }
+            }
+            return false
+        }
+        // Between offset/wake/deletion boundaries the UTC weekly pattern is constant.
+        // Check both edges of each segment for occurrences crossing a DST transition.
+        // Gregorian future timezone rules repeat over a 400-year calendar cycle.
+        let day: TimeInterval = 86_400
+        let window = 8 * day
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        var limit = calendar.date(byAdding: .year, value: 400, to: now)!
+        for deletion in [rule.scheduledDeletionAt, other.scheduledDeletionAt].compactMap({ $0 }) {
+            limit = min(limit, deletion.addingTimeInterval(2 * day))
+        }
+        let zones = [a, b].compactMap { TimeZone(identifier: $0.timeZoneIdentifier) }
+        let wakeBoundaries = state.wakeState.requests.filter { $0.ruleID == rule.id || $0.ruleID == other.id }
+            .flatMap { [$0.occurrenceStartedAt, $0.wakesAt] }
+        var cursor = now
+        while cursor < limit {
+            let transitions = zones.compactMap { $0.nextDaylightSavingTimeTransition(after: cursor) }
+            let next = (transitions + wakeBoundaries.filter { $0 > cursor } + [limit]).min()!
+            if intersects(rule, other, state: state, from: cursor, until: min(next, cursor.addingTimeInterval(window))) { return true }
+            if next.timeIntervalSince(cursor) > window && intersects(rule, other, state: state, from: next.addingTimeInterval(-window), until: next) { return true }
+            cursor = next
+        }
+        return false
+    }
+
+    private func intersects(_ rule: LockRule, _ other: LockRule, state: LockState, from: Date, until: Date) -> Bool {
+        guard from < until else { return false }
+        let left = occupiedIntervals(rule, state: state, from: from, until: until)
+        let right = occupiedIntervals(other, state: state, from: from, until: until)
+        return left.contains { a in right.contains { b in a.start < b.end && b.start < a.end } }
+    }
+
+    private func occupiedIntervals(_ rule: LockRule, state: LockState, from: Date, until: Date) -> [DateInterval] {
+        var cursor = from
+        var result: [DateInterval] = []
+        while let interval = rule.nextInterval(after: cursor), interval.start < until {
+            let lock = ActiveLock(id: rule.id, startedAt: interval.start, endsAt: interval.end,
+                                  targetSelectionID: rule.targetSelectionID)
+            let start = max(from, interval.start)
+            let end = min(until, state.wakeState.effectiveEnd(of: lock), rule.scheduledDeletionAt ?? until)
+            if start < end { result.append(DateInterval(start: start, end: end)) }
+            guard interval.end > cursor else { break }
+            cursor = interval.end
+        }
+        return result
     }
 }

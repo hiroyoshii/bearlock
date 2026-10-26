@@ -56,7 +56,7 @@ final class LockLifecycleTests: XCTestCase {
         XCTAssertTrue(state.activeLocks(at: start.addingTimeInterval(8 * 3600)).isEmpty)
     }
 
-    func testOverlappingRecurringRulesUnionAndDeduplicateTargets() throws {
+    func testLegacyOverlappingRecurringRulesUnionAndDeduplicateTargets() throws {
         let other = LockTargetSelectionRef(displayName: "Other")
         var later = recurring()
         later.id = UUID()

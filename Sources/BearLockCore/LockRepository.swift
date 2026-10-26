@@ -240,20 +240,19 @@ public actor LockStore {
     public func cancelScheduledDeletion(id: UUID, now: Date? = nil) throws {
         try update { state in
             guard let index = state.rules.firstIndex(where: { $0.id == id }),
-                  let recurrence = state.rules[index].recurrence,
+                  state.rules[index].recurrence != nil,
                   let deletion = state.rules[index].scheduledDeletionAt
             else { throw LockValidationError.ruleNotFound }
             let now = now ?? Date()
             guard now < deletion else { throw LockValidationError.ruleNotFound }
 
-            var stateWithoutRule = state
-            stateWithoutRule.rules.remove(at: index)
-            _ = try LockPlanner().makeRule(
-                from: .recurring(recurrence: recurrence, targetSelectionID: state.rules[index].targetSelectionID),
-                now: now,
-                existingState: stateWithoutRule
-            )
-            state.rules[index].scheduledDeletionAt = nil
+            var restored = state.rules[index]
+            restored.scheduledDeletionAt = nil
+            // Keep the original identity so occurrence-specific wakes still shorten this rule.
+            guard !LockPlanner().overlaps(rule: restored, existingState: state, now: now) else {
+                throw LockValidationError.overlappingLock
+            }
+            state.rules[index] = restored
             try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
         }
     }
@@ -289,6 +288,9 @@ public actor LockStore {
             let originalCount = state.wakeState.requests.count
             state.wakeState.requests.removeAll { $0.matches(lock) && $0.source == .delayed && $0.wakesAt > now }
             guard state.wakeState.requests.count != originalCount else { throw WakeError.noWakeRequest }
+            guard let rule = state.rules.first(where: { $0.id == lock.id }),
+                  !LockPlanner().overlaps(rule: rule, existingState: state, now: now)
+            else { throw LockValidationError.overlappingLock }
         }
     }
 

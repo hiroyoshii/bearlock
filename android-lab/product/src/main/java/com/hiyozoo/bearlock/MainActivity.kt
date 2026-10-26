@@ -408,7 +408,7 @@ open class MainActivity : Activity() {
     private fun changeWake(lock: ActiveLock, cancel: Boolean) {
         when(val outcome=if(cancel) operations.cancelWake(lock) else operations.scheduleWake(lock)) {
             is OperationOutcome.Rejected -> {
-                error(if(outcome.cause.message in listOf("wake_ended","wake_missing","wake_unavailable","storage_error")) outcome.cause.message else "wake_storage")
+                error(if(outcome.cause.message in listOf("wake_ended","wake_missing","wake_unavailable","overlap","storage_error")) outcome.cause.message else "wake_storage")
                 render()
             }
             is OperationOutcome.Saved -> {

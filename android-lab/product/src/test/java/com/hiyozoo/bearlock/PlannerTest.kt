@@ -59,10 +59,11 @@ class PlannerTest {
         assertEquals(target,s.activeLocks(now+1).single().targets)
         assertTrue(Planner.delete(s,r.id,now+30*60_000).rules.isEmpty())
     }
-    @Test fun deletingAllDayRepeatPreservesOtherRuleThenReleases() {
+    @Test fun deletingLegacyOverlappingAllDayRepeatPreservesOtherRuleThenReleases() {
         val a=weekly(days=(1..7).toSet(),minute=540,durationMinutes=1440)
         val b=a.copy(id="other")
-        val both=Planner.save(Planner.save(State(),a,now),b,now)
+        // Legacy data stays readable/enforced; new overlapping saves are rejected separately.
+        val both=State(rules=listOf(a,b))
         val one=Planner.delete(both,a.id,now)
         assertEquals(listOf(b),one.rules)
         assertNotNull(one.blockingLock(now,"app.a"))
@@ -154,10 +155,10 @@ class PlannerTest {
         assertNull(Planner.nextBoundary(off,now))
         assertTrue(off.activeLocks(now+7*Planner.DAY).isEmpty())
     }
-    @Test fun overlappingRepeatsRemainBlockedUntilLatestMatchingDeadline() {
+    @Test fun legacyOverlappingRepeatsRemainBlockedUntilLatestMatchingDeadline() {
         val a=weekly(days=setOf(1),minute=540,durationMinutes=30)
         val b=a.copy(id="other",schedule=a.weekly!!.copy(endMinute=600))
-        val state=Planner.save(Planner.save(State(),a,now),b,now)
+        val state=State(rules=listOf(a,b))
         assertEquals(now+60*60_000,state.blockingLock(now,"app.a")!!.end)
         assertEquals(now+60*60_000,state.blockingLock(now+30*60_000,"app.a")!!.end)
         assertNull(state.blockingLock(now+60*60_000,"app.a"))

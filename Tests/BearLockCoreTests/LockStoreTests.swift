@@ -214,21 +214,21 @@ final class LockStoreTests: XCTestCase {
         }
     }
 
-    func testDeleteActiveAllDayRecurringAtCurrentEndAndPreserveOtherRule() async throws {
-        let store = LockStore(repository: InMemoryLockRepository())
+    func testDeleteLegacyOverlappingRecurringPreservesOtherRuleAndRejectsRestore() async throws {
         let now = date("2026-09-13T09:00:00Z")
         let currentEnd = date("2026-09-14T09:00:00Z")
         let nextEnd = date("2026-09-15T09:00:00Z")
-        let target = try await store.saveTargetSelection(LockTargetSelectionRef(displayName: "Apps"), now: now)
+        let target = LockTargetSelectionRef(displayName: "Apps")
         let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases), startsAt: TimeOfDay(hour: 9, minute: 0),
             endsAt: TimeOfDay(hour: 9, minute: 0), timeZoneIdentifier: "UTC")
-        let a = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: target.id), now: now)
-        let b = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: target.id), now: now)
+        let a = LockRule(recurrence: recurrence, targetSelectionID: target.id)
+        let b = LockRule(recurrence: recurrence, targetSelectionID: target.id)
+        let store = LockStore(repository: InMemoryLockRepository(state: LockState(targetSelections: [target], rules: [a, b])))
         try await store.deleteRule(id: a.id, now: now)
-        try await store.cancelScheduledDeletion(id: a.id, now: now.addingTimeInterval(60))
-        let cancelledState = try await store.snapshot(at: now)
-        XCTAssertNil(cancelledState.rules.first?.scheduledDeletionAt)
-        try await store.deleteRule(id: a.id, now: now.addingTimeInterval(60))
+        do {
+            try await store.cancelScheduledDeletion(id: a.id, now: now.addingTimeInterval(60))
+            XCTFail("Restoring the legacy overlapping rule must be rejected")
+        } catch { XCTAssertEqual(error as? LockValidationError, .overlappingLock) }
         var state = try await store.snapshot(at: now)
         XCTAssertEqual(state.rules.map(\.id), [a.id, b.id])
         XCTAssertEqual(state.rules.first?.scheduledDeletionAt, currentEnd)
@@ -272,6 +272,47 @@ final class LockStoreTests: XCTestCase {
         }
         let state = try await store.snapshot(at: now)
         XCTAssertNotNil(state.rules.first { $0.id == recurring.id }?.scheduledDeletionAt)
+    }
+
+    func testScheduledDeletionCancellationRechecksFutureRecurringRules() async throws {
+        let store = LockStore(repository: InMemoryLockRepository())
+        let now = date("2026-09-13T09:00:00Z")
+        let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases), startsAt: TimeOfDay(hour: 9, minute: 0),
+            endsAt: TimeOfDay(hour: 9, minute: 0), timeZoneIdentifier: "UTC")
+        let first = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: UUID()), now: now)
+        try await store.deleteRule(id: first.id, now: now)
+        try await store.cancelScheduledDeletion(id: first.id, now: now) // No conflict: cancellation still works.
+        try await store.deleteRule(id: first.id, now: now)
+        let next = RecurrenceRule(weekdays: [.monday], startsAt: TimeOfDay(hour: 10, minute: 0),
+            endsAt: TimeOfDay(hour: 11, minute: 0), timeZoneIdentifier: "UTC")
+        _ = try await store.createRule(.recurring(recurrence: next, targetSelectionID: UUID()), now: now)
+        let saved = try await store.snapshot(at: now)
+        do {
+            try await store.cancelScheduledDeletion(id: first.id, now: now)
+            XCTFail("Deletion cancellation restored a weekly conflict")
+        } catch { XCTAssertEqual(error as? LockValidationError, .overlappingLock) }
+        let after = try await store.snapshot(at: now)
+        XCTAssertEqual(after, saved)
+    }
+
+    func testScheduledDeletionCancellationKeepsWakeIdentityAndAllowsFreeSingleInterval() async throws {
+        let repository = InMemoryLockRepository()
+        let store = LockStore(repository: repository)
+        let now = date("2026-09-13T09:00:00Z")
+        let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases), startsAt: TimeOfDay(hour: 9, minute: 0),
+            endsAt: TimeOfDay(hour: 11, minute: 0), timeZoneIdentifier: "UTC")
+        let rule = try await store.createRule(.recurring(recurrence: recurrence, targetSelectionID: UUID()), now: now)
+        let lock = try XCTUnwrap(rule.occurrence(containing: now))
+        _ = try await store.scheduleFreeWake(for: lock, at: now)
+        try await store.deleteRule(id: rule.id, now: now)
+        _ = try await store.createRule(.fixed(startsAt: now.addingTimeInterval(1800), duration: 900,
+            targetSelectionID: UUID()), now: now)
+        let saved = try await store.snapshot(at: now)
+        try await store.cancelScheduledDeletion(id: rule.id, now: now)
+        let restored = try await store.snapshot(at: now)
+        XCTAssertNil(restored.rules.first { $0.id == rule.id }?.scheduledDeletionAt)
+        XCTAssertEqual(restored.wakeState, saved.wakeState)
+        XCTAssertEqual(restored.rules.map(\.id), saved.rules.map(\.id))
     }
 
     func testDisabledRecurringRuleCanBeEditedDuringItsTimeWindow() async throws {
