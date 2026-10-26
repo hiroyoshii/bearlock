@@ -124,8 +124,7 @@ final class SupportPurchaseTests: XCTestCase {
         // A support purchase confirms that the service has processed StoreKit work.
         await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, thanks)
-        let remaining = try await synchronizedUnfinishedTransactionIDs()
-        XCTAssertTrue(remaining.contains(transaction.id))
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
         await transaction.finish()
     }
 
