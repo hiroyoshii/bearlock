@@ -465,6 +465,8 @@ class RecoveryInstrumentation : Instrumentation() {
             check(windowText().contains("Could not save the schedule change"))
             check(a.route==Route.Editor && a.editor.at==future && file.readText()==original)
             capture("schedule-create-save-failed"); click("OK")
+            check(a.route==Route.Editor && a.editor.at==future && a.editor.duration==30)
+            check(file.readText()==original) { "Dismissing the save error changed the draft or saved schedule" }
         } finally { unblockCreate() }
         runOnMainSync { RecoveryTestActivity.failMonitoring=true; submit() }
         check(a.route==Route.Home && a.store.read().rules.size==1)
@@ -488,6 +490,15 @@ class RecoveryInstrumentation : Instrumentation() {
             check(windowText().contains("Could not save the schedule change"))
             check(a.route==Route.Editor && a.editor.repeatEnd==480 && file.readText()==beforeEdit)
             capture("schedule-edit-save-failed"); click("OK")
+            check(a.route==Route.Editor && a.editor.repeatEnd==480 && file.readText()==beforeEdit)
+            click("Cancel")
+            check(a.route==Route.Home && file.readText()==beforeEdit) { "Cancelling a rejected draft changed saved data" }
+            runOnMainSync {
+                a.edit(rule)
+                check(a.editor.repeatEnd==420) { "Reopening the editor reused the rejected draft instead of the original" }
+                a.editor.repeatEnd=480
+                a.render()
+            }
         } finally { unblockEdit() }
         RecoveryTestActivity.failMonitoring=true
         saveEditor()

@@ -416,3 +416,29 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 | 大文字の繰り返し確認、確認/取消ボタン到達後 | [English](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-en-confirmation.png) | [日本語](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-ja-confirmation.png) | 同じSE、最大アクセシビリティ文字サイズ、同じ曜日/時刻設定と操作段階 |
 
 テストの削除・skip・期待値緩和、CI/別runnerの追加、Kotlin製品コード/共有fixture/保存形式の変更はない。置換したmock pickerのonDismiss保存経路と余分なcount状態を削除し、スイッチ操作helperも既存の一か所へ統一した。元の作業ツリーの未コミット変更は保持した。GitHub上でのCI実行成功を今回のローカル結果へ追加してはいない。
+
+## 15. 2026-10-26 iOS検証ブランチの取込みとAndroidへのフィードバック
+
+- `origin/codex/ios-structure-verification` の `b7e0d74`（修正）と `083e4e6`（実行証拠）を、統合用 `codex/android-overlap-feedback` へmergeした。重複禁止の変更は `792dd2c`、取込みmergeは `b58ff94`。mainと作業中のiOSブランチは書き換えていない。
+- 第13節の重複禁止と第14節のiOS検証記録は別の変更・別の実行結果として保持した。iOSブランチの証拠ディレクトリもそのまま取り込み、元の画像・ログ・指紋を統合版の実行結果へ書き換えない。
+- 取り込んだ指紋128ファイルを照合。重複禁止に伴うCore/テスト/fixtureの8ファイルだけが異なり、iOSの本体・UIテストソースは検証ブランチと一致する。AppModel 25件のSDK成功はb7e0d74時点の結果で、追加後の26件や新しい重複禁止のSDK成功ではない。
+
+### Android側へ適用するかの判断
+
+| iOSで見つかった問題 | Androidの対応経路とフィードバック |
+|---|---|
+| 保存前にmock対象pickerを閉じ、拒否時に下書きへ戻れない | AndroidのsaveSelectionはselectTargets成功後だけnavigateし、拒否時はpicker/下書きを保持。onDismiss保存経路はない。既存RecoveryInstrumentationの保存拒否/取消/再試行を維持し、iOS固有のmock経路は追加しない |
+| 親alert終了に伴って作成確認/編集sheetも消える | AndroidのfinishScheduleOperationはSavedだけでonSavedを呼ぶ。Composerの確認dialog dismissと編集終了はそのcallback内。Rejectedはエラー表示だけで、下書きを破棄しない。既存RecoveryへエラーOK後の下書き/原本保持、実際の編集Cancel後の原本保持、再オープン時に原本の値へ戻るassertを追加した。作成試験は従来同様、確認後と同じ保存入口であり権限前段/確認dialog全体の実動試験ではない |
+| Swiftの非公開初期化子を別moduleの試験から使用 | iOSの公開LockRule初期化子を使う修正をそのまま取り込む。Kotlin側へSwiftのアクセス制御回避や別のテスト用モデルを追加しない |
+| 小数秒入力と秒切上げ正規化の完全一致失敗 | iOS試験の整数秒境界入力を取り込む。Androidはepochミリ秒の期待値を既存のJVM/共有試験で検証し、不要な秒丸めを製品処理へ追加しない |
+| XCTestのSwitch中央tapが値を変えない | iOSの実コントロール操作helper統合を取り込む。Androidの既存native制御と別のSwift用helperは共有しない |
+| StoreKitのiOS 27.0で残る4件の失敗 | 第14節のruntime別結果を保持。AndroidはBillingなしのため課金処理/非公開エラーコード特例を移植しない。26.2の10件成功で27.0の失敗を解消済みにしない |
+
+今回のAndroidへのフィードバックで新しい製品経路を追加していない。同型の画面終了不具合があると断定できるコードはなく、既存の成功時限定callbackと失敗時の下書き保持を再確認し、直接関係する既存native試験を補強した。ローカルエミュレーター検証は再開せず、追加assertはコンパイル確認と実行未確認を区別する。
+
+### 統合後の確認と引継ぎ
+
+- SwiftCore 82件、別プロセス保存試験（writer 200更新・reader 4プロセス）、Android product単体74件、Debug/Release APKビルド・lint成功。失敗/エラー/skipは0、lintはエラー0・既存警告41。取り込んだSwiftUI/AppModel/UIテストと追加AppModelテストの構文解析、40仕様の一意な対応、競合marker/空白検査も成功。
+- 証拠はローカルの `artifacts/ios-feedback-integration-2026-10-26/` の `swift-test.log`、`repository-processes.log`、`android-build.log`。Debug APK SHA-256は `9fa91df0119f8298f4286b261a4728672c0baff756d9ae62d631954a584225c3`。追加したnative assertを含むAPKのコンパイル成功であり、操作成功の記録ではない。
+- 最終fetch時のiOSブランチは `083e4e6d79b257fd7145a6e972c3ce7ab498c29f` で、統合ブランチに含まれることを確認した。取込み先はmainでも検証中のiOSブランチでもなく、`codex/android-overlap-feedback`。
+- Mac側の次の確認対象は、この統合ブランチのCore 82件、AppModel 26件、SDKビルド、既存の通常/小型UI・StoreKit。特に重複する繰り返しの作成/編集/有効化拒否、起床取消の拒否と予約保持、保存拒否時の確認/編集画面の維持を組み合わせて再確認する。b7e0d74でのUI 28件/AppModel 25件成功を、この統合版の成功へ読み替えない。iOS 27.0 StoreKitの4件とAndroid固有の未確認は残す。
