@@ -8,7 +8,7 @@
 
 アプリのPlay登録・アップロード鍵・GitHub Secrets・Play連携は設定済み（2026-10-26、ユーザー確認）。再設定や鍵の作り直しは不要。[過去の配布CI](https://github.com/hiroyoshii/bearlock/actions/runs/34709724321)でも署名済みAABの生成・署名検証・Artifact保存が成功している。この実行ではPlayアップロードはオフだったため、アップロード成功の証跡とは区別する。
 
-2026-10-26時点の候補は **0.2.3 / versionCode 8**。前述の署名成功コミットは0.2.2 / 7。バージョン値の正本は [product/build.gradle.kts](../android-lab/product/build.gradle.kts)。versionCodeはPlayが更新順を判定する整数で、表示用のversionNameとは別。同じ番号は再アップロードできない。手動配布などで8が使用済みの場合だけ、Playの最大値を超える番号へ更新する。
+バージョン値の正本は [product/build.gradle.kts](../android-lab/product/build.gradle.kts)。2026-10-26、ユーザーからPlayでversionCode 8が使用済みとの報告を受け、次のAAB用に9へ更新した。表示用のversionNameは0.2.3のまま。versionCodeはPlayが更新順を判定する整数で、同じ番号は再アップロードできない。既存AABの番号は設定変更だけでは変わらないため、更新後のmainで **Run workflow** を新しく実行し、生成されたAABを使用する。古い実行の **Re-run jobs** は古い設定で再ビルドするため使わない。
 
 1. [Android Internal Release](https://github.com/hiroyoshii/bearlock/actions/workflows/android-internal.yml) → **Run workflow** → **main**。
 2. `upload_to_play` を **オン**、`release_status` を **draft** にして実行する。署名・単体テスト・Release lintが成功すると、AABを内部テストの下書きへアップロードする。
