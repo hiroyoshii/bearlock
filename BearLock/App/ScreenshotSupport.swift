@@ -103,7 +103,7 @@ struct ScreenshotHostView: View {
             .background(AppTheme.background.ignoresSafeArea())
         case .scheduledList:
             ScrollView {
-                screenshotStack(title: "Scheduled") {
+                screenshotStack(title: "Schedules") {
                     ScheduledLockListView()
                 }
             }
@@ -308,7 +308,7 @@ private extension BearLockAppModel {
 
         return BearLockAppModel(
             authorizationService: PreviewAuthorizationService(status: status),
-            targetSelectionCodec: PreviewTargetSelectionCodec(),
+            targetSelectionCodec: PreviewTargetSelectionCodec(usesSummaryFixtures: true),
             shieldController: NoopShieldController(),
             scheduleController: NoopScheduleController(),
             lockStore: lockStore
