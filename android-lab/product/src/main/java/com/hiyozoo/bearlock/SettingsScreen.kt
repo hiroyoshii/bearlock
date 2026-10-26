@@ -27,15 +27,15 @@ class SettingsScreen(private val a: MainActivity) {
         u.add(hero,u.asset(R.drawable.bear_ready,108),12)
         u.add(hero,u.label(t("選んだ時刻に自動で終わるアプリロックを設定します。","Set app locks that end automatically at the chosen time."),15f,muted=true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },0)
         val data=u.section(parent,t("データの扱い","Data handling"))
-        u.add(data,u.label(t("選択と予定はこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングはありません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),16f).apply { setTextColor(Palette.textPrimary) },0)
+        u.add(data,u.label(t("選択と予定はこの端末内に保存されます。アカウント、クラウド同期、広告、分析、トラッキングは使いません。","Selections and schedules stay on this device. No accounts, cloud sync, ads, analytics, or tracking."),16f).apply { setTextColor(Palette.textPrimary) },0)
         val info=u.section(parent,t("情報","Information"))
         row(info,t("プライバシーポリシー","Privacy Policy")) { link("privacy") }
-        row(info,t("サポートとよくある質問","Support and FAQ")) { link("support") }
+        row(info,t("サポート・よくある質問","Support and FAQ")) { link("support") }
         u.divider(info); u.pair(info,t("バージョン","Version"),BuildConfig.VERSION_NAME,12)
-        row(info,t("Bear Lockを応援","Support Bear Lock"),"heart",true) { a.navigate("support") }
+        row(info,t("サポート","Support"),"heart",true) { a.navigate("support") }
         if(BuildConfig.DEBUG) {
             val diagnostics=u.section(parent,t("診断","Diagnostics"))
-            row(diagnostics,t("端末内の診断","On-device diagnostics"),navigation=true) { a.navigate("diagnostics") }
+            row(diagnostics,t("診断","Diagnostics"),navigation=true) { a.navigate("diagnostics") }
         }
         val platform=u.section(parent,t("Androidの設定","Android settings"))
         row(platform,t("権限・動作状態を確認","Permissions and status")) { a.requestPermissions() }
@@ -54,11 +54,11 @@ class SettingsScreen(private val a: MainActivity) {
             t("制限サービス","Blocking service") to connected,
             t("予約権限","Scheduling permission") to alarm,
             t("保存状態","Storage") to storage,
-            t("選択対象","Target selections") to (a.state.selection?.count ?: 0).toString(),
+            t("対象選択","Target selections") to (a.state.selection?.count ?: 0).toString(),
             t("予定数","Scheduled rules") to a.state.rules.size.toString(),
             t("繰り返し予定","Recurring rules") to a.state.rules.count { it.recurring }.toString(),
             t("実行中","Active locks") to a.state.activeLocks(now).size.toString(),
-            t("最後の警告","Last warning") to if(Scheduling.updateFailed) t("監視を更新できません","Monitoring could not be updated") else t("なし","None")
+            t("最後の警告","Last warning") to if(Scheduling.updateFailed) t("ロックの監視を更新できません","Monitoring could not be updated") else t("なし","None")
         )
         val status=u.section(parent,t("状態","Status"))
         summary.forEachIndexed { i,(name,value) -> if(i>0) u.divider(status); u.pair(status,name,value,12) }
@@ -67,13 +67,13 @@ class SettingsScreen(private val a: MainActivity) {
         row(sharing,t("共有","Share")) {
             a.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type="text/plain"; putExtra(Intent.EXTRA_TEXT,text) },t("診断を共有","Share diagnostics")))
         }
-        u.add(sharing,u.label(t("共有前に診断を確認してください。選択対象や予定時刻が含まれることがあります。","Review diagnostics before sharing. They may include your selections and schedule times."),13f,muted=true),0)
+        u.add(sharing,u.label(t("共有前に診断内容を確認してください。対象や予約時刻が含まれる場合があります。","Review diagnostics before sharing. They may include your selections and schedule times."),13f,muted=true),0)
         val device=u.section(parent,t("アプリ・端末","App and device"))
         u.pair(device,t("バージョン","Version"),BuildConfig.VERSION_NAME)
         u.pair(device,"OS","Android "+Build.VERSION.RELEASE)
         u.pair(device,t("端末","Device"),Build.MANUFACTURER+" "+Build.MODEL,0)
         val events=u.section(parent,t("診断記録","Diagnostic records"))
-        u.add(events,u.label(records.ifBlank { t("記録はまだありません。","No events yet.") },13f,muted=true).apply { setTextIsSelectable(true) },0)
+        u.add(events,u.label(records.ifBlank { t("まだイベントはありません。","No events yet.") },13f,muted=true).apply { setTextIsSelectable(true) },0)
         val actions=u.section(parent)
         row(actions,t("診断ログを消去","Clear diagnostics"),"trash") { a.store.clearLogs(); a.render(); Toast.makeText(a,t("診断ログを消去しました","Diagnostics cleared"),Toast.LENGTH_SHORT).show() }
     }

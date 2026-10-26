@@ -24,7 +24,7 @@ record('Picker cancel restores original selection')
 tap('ロック対象を選ぶ');tap('Chrome');q.shot('targets-apps');tap('保存')
 assert set(selection()['apps'])=={'com.hiyozoo.bearlock.probe','com.android.chrome'}
 record('Picker save persists both selected apps')
-tap('ロック対象を選ぶ');tap('Web');q.edit('example.com','example.com');tap('Webサイトを追加');q.shot('targets-web');tap('保存')
+tap('ロック対象を選ぶ');tap('Webサイト');q.edit('example.com','example.com');tap('Webサイトを追加');q.shot('targets-web');tap('保存')
 q.page('home');assert selection()['domains']==['example.com'];assert any(x[0]=='3件の対象' for x in q.texts())
 record('Domain selection survives activity restart')
 assert state()['recent']==recent_before
@@ -47,34 +47,34 @@ record('Delayed schedule saved through confirmation')
 assert any(r['targets']==new[0]['targets'] for r in state()['recent'])
 assert state()['recent']!=recent_before
 record('Confirming a schedule records recent targets')
-tap('対象一覧');q.shot('target-details');tap('対象のメニュー');tap('ピン解除' if any(x[0]=='ピン解除' for x in q.texts()) else 'ピン留め')
-if not any(r['pinned'] for r in state()['recent']):tap('対象のメニュー');tap('ピン留め')
+tap('対象一覧');q.shot('target-details');tap('対象の操作');tap('対象の固定を解除' if any(x[0]=='対象の固定を解除' for x in q.texts()) else '対象を固定')
+if not any(r['pinned'] for r in state()['recent']):tap('対象の操作');tap('対象を固定')
 assert any(r['pinned'] for r in state()['recent'])
 record('Recent selection can be pinned')
 tap('対象一覧')
 
 recent_before=state()['recent']
-tap('予約を編集');q.shot('scheduled-editor');tap('30分');tap('保存')
+tap('予定ロックを編集');q.shot('scheduled-editor');tap('30分');tap('保存')
 assert duration(next(r for r in state()['rules'] if r['id']==new[0]['id']))==30
 assert state()['recent']==recent_before
 record('Pending schedule duration edited without changing recent history')
-tap('予約を削除');tap('削除');assert new[0]['id'] not in {r['id'] for r in state()['rules']}
+tap('予定ロックを削除');tap('削除');assert new[0]['id'] not in {r['id'] for r in state()['rules']}
 record('Pending schedule deleted')
 q.page('home',True);tap('繰り返し');q.shot('compose-repeat-home');tap('ロックを予約');tap('ロックを予約')
 repeat=next(r for r in state()['rules'] if r['schedule']['type']=='weekly')
 assert repeat['schedule']['days']==[1,2,3,4,5] and repeat['schedule']['startMinute']==1380 and repeat['schedule']['endMinute']==420
 record('Weekday overnight repeat saved as 23:00–07:00')
-tap('予約を編集');q.shot('recurring-editor');tap('有効')
+tap('予定ロックを編集');q.shot('recurring-editor');tap('有効')
 assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
 tap('キャンセル')
 assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
 record('Cancelling a recurring toggle preserves saved state')
-tap('予約を編集');tap('有効');tap('保存')
+tap('予定ロックを編集');tap('有効');tap('保存')
 assert not next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
-tap('予約を編集');tap('有効');tap('保存')
+tap('予定ロックを編集');tap('有効');tap('保存')
 assert next(r for r in state()['rules'] if r['id']==repeat['id'])['enabled']
 record('Recurring enabled changes persist only on Save')
-tap('予約を削除');tap('削除')
+tap('予定ロックを削除');tap('削除')
 assert repeat['id'] not in {r['id'] for r in state()['rules']}
 record('Repeat cleanup removes only the test schedule')
 q.page('settings');q.shot('settings');tap('権限・動作状態を確認');q.shot('permissions')

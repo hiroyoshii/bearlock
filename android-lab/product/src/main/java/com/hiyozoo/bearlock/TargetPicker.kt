@@ -26,7 +26,7 @@ class TargetPicker(private val a: MainActivity) {
         }
         val tabIds=List(3) { android.view.View.generateViewId() }
         val tabs=RadioGroup(a).apply { orientation=if(u.compact) RadioGroup.VERTICAL else RadioGroup.HORIZONTAL }
-        for((i,name) in listOf(t("アプリ","Apps"),t("Web","Web"),t("カテゴリ","Categories")).withIndex()) tabs.addView(RadioButton(a).apply { id=tabIds[i]; text=name; setTextColor(Palette.navy) },if(u.compact) RadioGroup.LayoutParams(-1,-2) else RadioGroup.LayoutParams(0,-2,1f))
+        for((i,name) in listOf(t("対象アプリ","Apps"),t("Webサイト","Websites"),t("カテゴリ","Categories")).withIndex()) tabs.addView(RadioButton(a).apply { id=tabIds[i]; text=name; setTextColor(Palette.navy) },if(u.compact) RadioGroup.LayoutParams(-1,-2) else RadioGroup.LayoutParams(0,-2,1f))
         u.add(parent,tabs,16)
         val viewport=FrameLayout(a)
         parent.addView(viewport,LinearLayout.LayoutParams(-1,0,1f))

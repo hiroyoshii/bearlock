@@ -138,7 +138,7 @@
 "A wake-up ends only the current lock. Future repeating locks stay scheduled." = "A wake-up ends only the current lock. Future repeating locks stay scheduled.";
 "After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up." = "After this starts, the schedule cannot be changed. Waking early takes 30 minutes unless you purchase an immediate wake-up.";
 "This lock has already ended." = "This lock has already ended.";
-"Less than 30 minutes remain. Wait for the scheduled wake time." = "Less than 30 minutes remain. Wait for the scheduled wake time.";
+"30 minutes or less remain. Wait for the scheduled wake time." = "30 minutes or less remain. Wait for the scheduled wake time.";
 "The wake-up request is no longer active." = "The wake-up request is no longer active.";
 "No wake-up ticket is available." = "No wake-up ticket is available.";
 "The selected apps are available again." = "The selected apps are available again.";
@@ -242,7 +242,7 @@
 
 "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry." = "Your schedules are saved, but monitoring could not be updated. Reopen Bear Lock to retry.";
 "This schedule is no longer available." = "This schedule is no longer available.";
-"This lock is active. Changes are available after it ends." = "This lock is active. Changes are available after it ends.";
+"Active. This schedule cannot be edited or deleted after it starts." = "Active. This schedule cannot be edited or deleted after it starts.";
 "Repeating schedules cannot be changed while they are active." = "Repeating schedules cannot be changed while they are active.";
 
 "Delete After This Lock" = "Delete After This Lock";

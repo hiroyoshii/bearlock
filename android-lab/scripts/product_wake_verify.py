@@ -55,12 +55,12 @@ def write(value):
                     "'cat > files/locks-v1.json'"], input=json.dumps(value).encode(), check=True, timeout=30)
 tap = q.tap
 def open_wake():
-    tap('Cancel wake-up' if state().get('wakes') else 'Wake in 30 minutes for free')
-def find_wake_summary(label):
+    tap('Wake the bear')
+def find_wake_summary():
     for _ in range(6):
-        if any(n.get('text') == label for n in q.tree().iter('node')): return
+        if any(n.get('text', '').startswith('Wakes at ') or n.get('text', '').endswith('に起床') for n in q.tree().iter('node')): return
         q.scroll()
-    raise AssertionError('Missing wake summary: '+label)
+    raise AssertionError('Missing scheduled wake time')
 
 start = now()
 rule = dict(id='wake-ui', title='Focus', targets=dict(apps=[probe], domains=[], categories=[]),
@@ -82,7 +82,7 @@ deadline = booked['wakes'][0]['wakesAt']
 assert before+30*60_000 <= deadline <= now()+30*60_000+clock_precision_ms-1
 assert booked['schema'] == 4 and len(booked['wakes']) == 1
 print('PASS: booking stores one 30-minute wake and migrates schema 3', flush=True)
-find_wake_summary('Wake-up scheduled')
+find_wake_summary()
 q.shot('en-wake-scheduled')
 open_wake()
 tap('Cancel wake-up')
@@ -116,7 +116,7 @@ q.sh('settings', 'put', 'secure', 'enabled_accessibility_services', q.APP+'/'+q.
 q.sh('settings', 'put', 'secure', 'accessibility_enabled', '1')
 time.sleep(3)
 q.page('home', language='ja')
-find_wake_summary('30分後の起床を予約済み')
+find_wake_summary()
 q.shot('ja-wake-scheduled')
 
 # OS permission loss is separate from persisted booking; reconnect must not extend it.
@@ -133,7 +133,7 @@ q.sh('settings','put','secure','accessibility_enabled','1')
 time.sleep(3)
 q.page('home',language='en')
 assert state()==booked
-find_wake_summary('Wake-up scheduled')
+find_wake_summary()
 q.shot('service-reconnected')
 if has_exact_alarm_permission:
     q.sh('appops','set',q.APP,'SCHEDULE_EXACT_ALARM','deny')

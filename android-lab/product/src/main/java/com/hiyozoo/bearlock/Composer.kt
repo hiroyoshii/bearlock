@@ -52,7 +52,7 @@ class Composer(private val a: MainActivity) {
         },0)
         fields(if(a.mode==3) parent else u.section(parent,t("予定","Schedule")),grouped=a.mode==3)
         val confirmation=u.section(parent,if(a.mode==3) null else t("確認","Confirmation"))
-        u.add(confirmation,u.label(if(a.mode==3) t("実行中は時刻・曜日を変更できません。予定はいつでも削除できます。","Times and weekdays cannot be changed during a lock. You can delete the schedule at any time.") else t("予約は開始前のみ編集できます。開始後は無料で30分後の起床を予約できますが、予定の編集・削除はできません。","Scheduled locks can only be edited before they start. During a lock you can schedule a free wake-up in 30 minutes, but cannot edit or delete the schedule."),13f,muted=true),0)
+        u.add(confirmation,u.label(if(a.mode==3) t("実行中は時刻・曜日を変更できません。予定を削除すると、実行中のロックも終了します。","Times and weekdays cannot be changed during a lock. Deleting this schedule also ends its active lock.") else t("開始前の予定だけ編集できます。開始後は短縮、削除、対象アプリ削減はできません。","Scheduled locks can only be edited before they start. After start, they cannot be shortened, deleted, or have target apps reduced."),13f,muted=true),0)
         if(a.mode!=3) {
             val row=u.row(); val wake=u.label(dateText(a.editor.at+a.editor.duration*60_000L,a),15f).apply { gravity=Gravity.END }
             row.addView(u.label(t("起床","Wakes"),14f,false,true),LinearLayout.LayoutParams(0,-2,1f)); row.addView(wake,LinearLayout.LayoutParams(0,-2,2f)); confirmation.addView(row,0); (row.layoutParams as LinearLayout.LayoutParams).bottomMargin=u.dp(12)
@@ -66,7 +66,7 @@ class Composer(private val a: MainActivity) {
             u.add(c,u.label(t("開始まで","Starts in"),17f,true),10)
             val r=u.row()
             r.addView(u.button("−") { a.editor.delay=(a.editor.delay-5).coerceAtLeast(5); refresh() }.apply {
-                contentDescription=t("開始を5分早める","Decrease start delay"); isEnabled=a.editor.delay>5; minWidth=0
+                contentDescription=t("開始までの時間を短くする","Decrease start delay"); isEnabled=a.editor.delay>5; minWidth=0
                 background=u.touchBackground(Palette.subtle,radius=100); setTextColor(Palette.link)
             },LinearLayout.LayoutParams(u.dp(54),u.dp(54)))
             val value=u.column().apply { gravity=Gravity.CENTER }
@@ -75,7 +75,7 @@ class Composer(private val a: MainActivity) {
             value.minimumHeight=u.dp(54)
             r.addView(value,LinearLayout.LayoutParams(0,-2,1f).apply { leftMargin=u.dp(12); rightMargin=u.dp(12) })
             r.addView(u.button("＋") { a.editor.delay=(a.editor.delay+5).coerceAtMost(240); refresh() }.apply {
-                contentDescription=t("開始を5分遅らせる","Increase start delay"); isEnabled=a.editor.delay<240; minWidth=0
+                contentDescription=t("開始までの時間を長くする","Increase start delay"); isEnabled=a.editor.delay<240; minWidth=0
                 background=u.touchBackground(Palette.subtle,radius=100); setTextColor(Palette.link)
             },LinearLayout.LayoutParams(u.dp(54),u.dp(54)))
             u.add(c,r,18)
@@ -157,7 +157,7 @@ class Composer(private val a: MainActivity) {
                 val now=System.currentTimeMillis()
                 val next=runCatching { make(now).copy(enabled=true).nextOccurrence(now) }.getOrNull()
                 val zone=(a.editor.timing as DraftTiming.Weekly).zone
-                preview.text=next?.let { t("次回の開始 ","Next start ")+dateText(it.start,a,zone)+"\n"+t("次回の起床 ","Next wake-up ")+dateText(it.end,a,zone) } ?: t("次の予定はありません","No upcoming lock")
+                preview.text=next?.let { t("次回の開始 ","Next start ")+dateText(it.start,a,zone)+"\n"+t("次回の起床 ","Next wake-up ")+dateText(it.end,a,zone) } ?: t("今後の冬眠予定はありません","No upcoming hibernation")
             }
             updateSummary?.invoke(); u.add(c,preview,0)
             return
@@ -263,7 +263,7 @@ class ConfirmationContent(private val u: Ui) {
         val c=u.column().apply { setPadding(u.dp(24),u.dp(24),u.dp(24),u.dp(24)); gravity=Gravity.CENTER_HORIZONTAL }
         u.add(c,u.asset(R.drawable.bear_arming,118),10)
         u.add(c,u.label(tr(u.c,if(immediate) "このロックを開始しますか？" else "このロックを予約しますか？",if(immediate) "Start this lock?" else "Schedule this lock?"),22f,true).apply { gravity=Gravity.CENTER },10)
-        u.add(c,u.label(if(recurring) tr(u.c,"予定はいつでも削除できます。削除すると、実行中のロックも終了します。","You can delete this schedule at any time. Deleting it also ends its active lock.") else tr(u.c,"開始後は編集・削除できません。無料で30分後の起床を予約できます。","Once started, you cannot edit or delete it. You can schedule a free wake-up in 30 minutes."),15f,muted=true).apply { gravity=Gravity.CENTER },22)
+        u.add(c,u.label(if(recurring) tr(u.c,"起床で終了するのは今回のロックだけです。今後の繰り返し予定は残ります。","A wake-up ends only the current lock. Future repeating locks stay scheduled.") else tr(u.c,"開始後は予定を変更できません。早く起こすには30分かかります。","After this starts, the schedule cannot be changed. Waking early takes 30 minutes."),15f,muted=true).apply { gravity=Gravity.CENTER },22)
         val summary=u.card().apply { background=u.bg(Palette.ice) }
         val kinds=listOf(Triple("アプリ","Apps",targets.apps.size),Triple("カテゴリ","Categories",targets.categories.size),Triple("Webサイト","Websites",targets.domains.size))
         kinds.filter { it.third>0 }.forEach { (ja,en,count) -> u.pair(summary,tr(u.c,ja,en),tr(u.c,"${count}件の対象","$count targets"),12,emphasized=true) }

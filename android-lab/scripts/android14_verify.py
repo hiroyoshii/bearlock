@@ -79,11 +79,11 @@ try:
     q.page('home', True)
     before = state()['recent']
     tap('ロック対象を選ぶ')
-    tap('Web')
+    tap('Webサイト')
     web_copy='\n'.join(x[0] or '' for x in q.texts())
     assert 'ChromeとFirefoxの通常タブに対応しています' in web_copy
     assert all(term not in web_copy for term in ['動作検証中','保証対象外','未検証','対応確認中'])
-    tap('アプリ')
+    tap('対象アプリ')
     tap('キャンセル')
     assert any(x[0]=='1件の対象' for x in q.texts())
     tap('ロック対象を選ぶ')
@@ -103,12 +103,12 @@ try:
     assert len(saved['recent'])==1
     q.shot('saved-schedule')
     record('Confirmed delayed schedule persists and records recent targets')
-    tap('予約を編集')
+    tap('予定ロックを編集')
     tap('30分')
     tap('保存')
     assert duration(state()['rules'][0])==30
     assert state()['recent']==saved['recent']
-    tap('予約を削除')
+    tap('予定ロックを削除')
     tap('削除')
     assert not state()['rules']
     record('Pending schedule edit/delete works and preserves recent history')
