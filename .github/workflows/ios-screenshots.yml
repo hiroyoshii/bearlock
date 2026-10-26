@@ -87,21 +87,22 @@ jobs:
             for screen in setup home composeNow composeDelayed composeDate composeRepeat confirmation scheduledList activeLock wakeOptions wakeResult scheduledEditor recurringEditor settings support diagnostics; do
               local screenshot_path="$SCREENSHOT_DIR/$label/$screen.png"
               local screenshot_size=0
-              xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
               local launch_output
-              launch_output="$(xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@")"
-              echo "$launch_output"
-              local launched_app_pid="${launch_output##*: }"
-              [[ "$launched_app_pid" =~ ^[0-9]+$ ]]
+              local launched_app_pid
               for attempt in 1 2 3; do
-                sleep $((attempt + 2))
+                xcrun simctl terminate "$udid" "$SCREENSHOT_BUNDLE_ID" || true
+                launch_output="$(xcrun simctl launch "$udid" "$SCREENSHOT_BUNDLE_ID" --ui-testing --screenshot "$screen" "$@")"
+                echo "$launch_output"
+                launched_app_pid="${launch_output##*: }"
+                [[ "$launched_app_pid" =~ ^[0-9]+$ ]]
+                sleep $((attempt * 5))
                 kill -0 "$launched_app_pid"
                 xcrun simctl io "$udid" screenshot "$screenshot_path"
                 screenshot_size="$(stat -f%z "$screenshot_path")"
                 if [ "$screenshot_size" -ge 100000 ]; then
                   break
                 fi
-                echo "Screenshot appears blank; retrying $label/$screen (attempt $attempt, $screenshot_size bytes)."
+                echo "Screenshot appears blank after launch attempt $attempt: $label/$screen ($screenshot_size bytes)."
               done
               test "$screenshot_size" -ge 100000
               file "$screenshot_path"
