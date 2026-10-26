@@ -1,0 +1,25 @@
+Attributes: Button, 0x117ef17c0, {{128.0, 367.7}, {92.0, 32.0}}, label: 'In'
+Element subtree:
+ →Button, 0x117ef17c0, {{128.0, 367.7}, {92.0, 32.0}}, label: 'In'
+Path to element:
+ →Application, 0x117ef0640, pid: 39863, label: 'Bear Lock'
+  ↳Window (Main), 0x117ef0780, {{inf, inf}, {0.0, 0.0}}
+   ↳Other, 0x117ef08c0, {{inf, inf}, {0.0, 0.0}}
+    ↳Other, 0x117ef0a00, {{inf, inf}, {0.0, 0.0}}
+     ↳Other, 0x117ef0b40, {{inf, inf}, {0.0, 0.0}}
+      ↳Other, 0x117ef0c80, {{inf, inf}, {0.0, 0.0}}
+       ↳Other, 0x117ef0dc0, {{inf, inf}, {0.0, 0.0}}
+        ↳Other, 0x117ef0f00, {{inf, inf}, {0.0, 0.0}}
+         ↳Other, 0x117ef1040, {{inf, inf}, {0.0, 0.0}}
+          ↳Other, 0x117ef1180, {{inf, inf}, {0.0, 0.0}}
+           ↳Other, 0x117ef12c0, {{inf, inf}, {0.0, 0.0}}
+            ↳ScrollView, 0x117ef1400, {{inf, inf}, {0.0, 0.0}}
+             ↳Other, 0x117ef1540, {{inf, inf}, {0.0, 0.0}}
+              ↳SegmentedControl, 0x117ef1680, {{inf, inf}, {0.0, 0.0}}, identifier: 'lock-composer-mode-picker'
+               ↳Button, 0x117ef17c0, {{128.0, 367.7}, {92.0, 32.0}}, label: 'In'
+Query chain:
+ →Find: Target Application 'com.hiyozoo.bearlock'
+  ↪︎Find: Descendants matching type SegmentedControl
+    ↪︎Find: Elements matching predicate '"lock-composer-mode-picker" IN identifiers'
+      ↪︎Find: Descendants matching type Button
+        ↪︎Find: Elements matching predicate '"In" IN identifiers'

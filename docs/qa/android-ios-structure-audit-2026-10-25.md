@@ -540,3 +540,10 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 - Application基準の候補を最終mainへ統合した `e3af31e` / CI run 206では、元の英語Repeat切替は通過したが、日本語通常サイズと日英最大文字サイズの2テストが失敗した。座標の参照先変更だけで解消したとはしない。既存CIの撮影成果物を回収し、公開用画像とテスト失敗の証拠を分けて保持する。
 - 次の候補では、モード切替とメニュー項目選択を既存要素への単回のネイティブ `tap()` に統一し、200msのpressとApplication基準の座標回避処理を削除した。表示範囲/有限座標の検査、切替成功の期待値、5秒の待機は維持し、操作の再送はしない。
 - [事前確認](../../ci-results/ios-review/2026-10-26-ci-ui-menu/native-tap-local/summary.json)はXcode 27.1 / iOS 27.0 / iPhone 17 Pro Maxで、CIで失敗した既存2件を対象に2成功・失敗0・skip 0。日本語通常サイズと日英最大文字サイズの実操作を含む。これはCIのiOS 26.5成功ではなく、ネイティブtapの事前検証に限る。最終CIの全通常/小型試験とafter画像の確認は未完了。
+
+### run 207の結果と残る制約
+
+- [run 207](https://github.com/hiroyoshii/bearlock/actions/runs/40295110542)、ソース `5766aa10d12a8f537925617111d197df1539fcc0`。通常UIは27成功・1失敗・skip 0、小型iPhone SE第3世代は7成功・失敗0・skip 0（既存7件の再実行）。両者はiOS 26.5 (23F77)。AppModelは26成功・失敗0・skip 0。メタデータ/XcodeGen、Core、別プロセス保存整合性、本体・3extensionのDebug/Releaseビルド、撮影は成功。StoreKitジョブも成功しているが、この回の課金xcresultは未回収で件数/skipの確定は未完了。
+- 前回の日本語通常サイズと日英最大文字サイズの失敗2件は成功した。今回の失敗は `testDurationPresetsAndModeReflectCurrentValue` のスライダー調整後の「In」選択。50msのタップのdown/upは同じ(174,383.67)で、ボタンAX範囲(128,367.67,92,32)の中心と一致する。録画でも操作後にNowのままである。座標ずれとは断定しない。[要約・ログ・操作後画像・AX・入力イベント](../../ci-results/ios-review/2026-10-26-ci-ui-menu/ci-run-207/)を保持した。
+- 同じ未変更コードの単独確認はXcode 27.1 / iOS 27.0で1回成功し、さらに10反復も成功した。CI 26.5の失敗解消の証拠ではない。ホームの定期更新とモードBindingの干渉は仮説であり、モード状態を子Viewへ移す修正候補は確証がないため撤去した。候補の局所テストは中断し、成功/skipや提出コードの検証には数えない。テスト削除、期待値緩和、再試行による成功扱いはしていない。
+- 同じCIからPNG 32枚を回収し、全画像の1284x2778を検査。従来と同じ5画面（home/composeRepeat/confirmation/activeLock/setup）の日英10枚を目視確認した。[素材の正本](../../ci-screenshots/app-store-source.json)へソースと各SHA-256を保存し、main `80b15a5` へpush。製品コードはbuild 39 (`e3af31e`)と同一。静的fixture画像であり、実操作成功、実Screen Time遮断・Family Controls・DeviceActivity・Sandbox課金の証明ではない。App Store Connectへの差し替えは、画面操作ツールの接続エラー `cgWindowNotFound` のため未完了。

@@ -1,0 +1,48 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "660E8F5D-9516-4A8E-AAE0-4BA2B7BE19BB",
+        "deviceName" : "BearLock QA iPhone 17 Pro Max",
+        "modelName" : "iPhone 17 Pro Max",
+        "osBuildNumber" : "24A434",
+        "osVersion" : "27.0",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 0,
+      "passedTests" : 10,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "BearLock · Built with macOS 27.0.1",
+  "expectedFailures" : 0,
+  "failedTests" : 0,
+  "finishTime" : 1793009060.557,
+  "passedTests" : 1,
+  "result" : "Passed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1793008934.651,
+  "statistics" : [
+    {
+      "subtitle" : "10 test runs",
+      "title" : "1 configuration ran with test repetitions"
+    }
+  ],
+  "testFailures" : [
+
+  ],
+  "title" : "Test - BearLock",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

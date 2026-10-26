@@ -1,0 +1,49 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "36E2B8D9-F7DC-43ED-8383-C3824D1485A8",
+        "deviceName" : "iPhone 17 Pro Max",
+        "modelName" : "iPhone 17 Pro Max",
+        "osBuildNumber" : "23F77",
+        "osVersion" : "26.5",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 0,
+      "passedTests" : 26,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "BearLockLogic · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 0,
+  "finishTime" : 1793005099.718,
+  "passedTests" : 26,
+  "result" : "Passed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1793004768.702,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+
+  ],
+  "title" : "Test - BearLockLogic",
+  "topInsights" : [
+    {
+      "category" : "Longest Test Runs",
+      "impact" : "26% of duration",
+      "text" : "1 longest test run with outlier durations exceeding 3.26s (three standard deviations)"
+    }
+  ],
+  "totalTestCount" : 26
+}

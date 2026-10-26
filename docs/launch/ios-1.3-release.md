@@ -2,9 +2,10 @@
 
 ## バージョンと対象
 
-- 2026-10-26 JST、Apple lookup APIで日本/米国の公開版1.2（公開日2026-09-28）、無料を確認。次版は1.3とする。App Store Connect内部の作成済みバージョン/審査状態は未確認。
+- 2026-10-26 JST、Apple lookup APIで日本/米国の公開版1.2（公開日2026-09-28）、無料を確認。次版は1.3とする。公開済み1.2はApp Store Connectでbuild 35と確認した。
 - 確認先: [日本](https://itunes.apple.com/lookup?id=6806725013&country=jp) / [米国](https://itunes.apple.com/lookup?id=6806725013&country=us)。Webページの古いキャッシュではなく取得時のlookup応答を基準とする。
-- 対象は `codex/ios-release-1.3`。main `3e433c9` とiOS修正を統合した `9e6d21e` が基準。設定の正本は `project.yml` の `MARKETING_VERSION`。本体と3extensionへ1.3を適用する。
+- 対象はmain。利用者の最終変更 `c719d9a` を統合した製品ソースは `e3af31e`。提出用1.3 build 39は、このソースの [TestFlight run 39](https://github.com/hiroyoshii/bearlock/actions/runs/40289265145) からアップロード済み。設定の正本は `project.yml` の `MARKETING_VERSION` で、本体と3extensionは1.3。
+- UIテスト操作の修正を含むmain `5766aa1` の [iOS CI run 207](https://github.com/hiroyoshii/bearlock/actions/runs/40295110542) は完了。通常UIは27成功・1失敗・skip 0、小型は7成功・失敗0・skip 0。StoreKitジョブと撮影は成功。残るモード切替1件は原因未確定。製品コード・project.yml・Package.swiftは `e3af31e` と同一で、build 39をテスト修正や素材更新だけで作り直さない。
 - build番号は既存 `iOS TestFlight Upload` workflowの `github.run_number` を使う。ローカルの既定build 1を配布build番号に使わず、別の番号管理やupload経路を追加しない。
 
 ## 更新説明（日本語、App Store Connect用）
@@ -49,7 +50,7 @@ Settings also offers optional consumable support products: com.hiyozoo.bearlock.
 
 ローカルのXcodeGen実行PATH・シミュレーター言語/StoreKitサーバーの問題は、既存CIや公開済み1.2の問題と混同しない。Privacy Manifestやテスト既定言語の追加は今回の変更から外した。
 
-## App Store Connectへの設定（2026-10-26 JST）
+## App Store Connectへの設定履歴（2026-10-26 JST）
 
 - main `8ab300f` の [TestFlight run 37](https://github.com/hiroyoshii/bearlock/actions/runs/40279497407) は成功。配信1.3にbuild 37を選択・保存し、暗号化質問を実装内容に合わせて回答した。
 - 日本語の更新説明と概要、App Reviewメモを保存。旧「途中解除できない」の説明を現在の無料/有料起床へ修正。ストアの既存ローカライズは日本語のみで、英語ローカライズの追加はしていない。既存画像は保持した。
@@ -58,3 +59,6 @@ Settings also offers optional consumable support products: com.hiyozoo.bearlock.
 - run 201では、iOS 26.5の最初のStoreKitテストで `SKInternalErrorDomain Code=3` が発生し、設定保存や取引リセットに失敗したまま20分でタイムアウトした。Appleの[既知のCLI問題の報告](https://developer.apple.com/forums/thread/826971)と一致する。既存runnerには26.2/26.4/26.5があるため、StoreKitジョブだけ26.2の新規端末を明示して実行する。非公開APIや製品側の回避処理、テストのskipは追加しない。修正後のCI成功は未確認。
 - 公開済み1.2はApp Store Connectでbuild 35と確認（TestFlight元commit `150b970`）。それ以降の差分で更新説明を具体化して保存し直した。旧画像をそのまま保持した前回の準備報告は不十分であり、1.3のCI撮影成果物での差し替えは未完了。審査提出前に完了する。
 - 後続のUI変更を含むmain `95ea8eb` はTestFlight run 38でアップロード成功。ただし、さらにmainへ修正が追加されているため、このbuildを最終提出物と確定していない。通常UIの修正候補と未確認範囲は[対応表第19節](../qa/android-ios-structure-audit-2026-10-25.md#19-2026-10-26-ciの大文字メニュー操作失敗の追跡)を参照する。最終mainが揃うまで撮影・提出ビルドの作り直しを繰り返さない。
+
+- 最終製品ソース `e3af31e` のbuild 39へ関連付けを変更・保存し、暗号化質問も回答済み。旧build 37の提出下書きからアプリを外し、画像差し替えのため1.3を「提出準備中」に戻した。日本語の更新説明・商品説明・審査メモは保存済み。既存の承認済み消耗品4件を確認した。最新CIの全件成功、スクリーンショット差し替え、提出下書きへの再追加は未完了であり、審査提出はしていない。
+- run 207の画像32枚を回収・検査し、従来と同じ5画面の日英10枚をアップロード用に準備した。素材の正本はmain `80b15a5` にpush済み。App Store Connectの既存ギャラリーはまだ変更していない。画面操作ツールが `cgWindowNotFound` で接続できず、差し替えと提出下書きへの再追加が残っている。状態を「審査準備完了」とは報告しない。
