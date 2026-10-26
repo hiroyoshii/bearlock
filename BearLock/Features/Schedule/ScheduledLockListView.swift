@@ -6,6 +6,7 @@ struct ScheduledLockListView: View {
     @State private var pendingDeletion: LockRule?
     @State private var showsDeleteConfirmation = false
     @State private var editingSheet: ScheduledLockEditSheet?
+    @State private var saveError: String?
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -28,6 +29,7 @@ struct ScheduledLockListView: View {
                             canEdit: canEdit(rule, at: context.date),
                             now: context.date,
                             onEdit: {
+                                saveError = nil
                                 if rule.kind == .recurring {
                                     editingSheet = .recurring(rule)
                                 } else {
@@ -64,40 +66,54 @@ struct ScheduledLockListView: View {
             }
         }
         .sheet(item: $editingSheet) { sheet in
-            switch sheet {
-            case let .oneShot(rule):
-                ScheduledLockEditorView(
-                    rule: rule,
-                    isSaving: model.isUpdatingLock,
-                    onCancel: {
-                        editingSheet = nil
-                    },
-                    onSave: { startsAt, duration in
-                        Task {
-                            let didUpdate = await model.updateScheduledRule(rule, startsAt: startsAt, duration: duration)
-                            if didUpdate.isSaved {
-                                editingSheet = nil
+            Group {
+                switch sheet {
+                case let .oneShot(rule):
+                    ScheduledLockEditorView(
+                        rule: rule,
+                        isSaving: model.isUpdatingLock,
+                        onCancel: {
+                            editingSheet = nil
+                        },
+                        onSave: { startsAt, duration in
+                            Task {
+                                let didUpdate = await model.updateScheduledRule(rule, startsAt: startsAt, duration: duration)
+                                finishSaving(didUpdate)
                             }
                         }
-                    }
-                )
-            case let .recurring(rule):
-                RecurringRuleEditorView(
-                    rule: rule,
-                    isSaving: model.isUpdatingLock,
-                    onCancel: {
-                        editingSheet = nil
-                    },
-                    onSave: { recurrence, enabled in
-                        Task {
-                            let didUpdate = await model.updateRecurringRule(rule, recurrence: recurrence, enabled: enabled)
-                            if didUpdate.isSaved {
-                                editingSheet = nil
+                    )
+                case let .recurring(rule):
+                    RecurringRuleEditorView(
+                        rule: rule,
+                        isSaving: model.isUpdatingLock,
+                        onCancel: {
+                            editingSheet = nil
+                        },
+                        onSave: { recurrence, enabled in
+                            Task {
+                                let didUpdate = await model.updateRecurringRule(rule, recurrence: recurrence, enabled: enabled)
+                                finishSaving(didUpdate)
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
+            .safeAreaInset(edge: .bottom) {
+                if let saveError {
+                    Text(saveError).foregroundStyle(.red).padding()
+                        .frame(maxWidth: .infinity)
+                        .background(.regularMaterial)
+                        .accessibilityIdentifier("schedule-save-error")
+                }
+            }
+        }
+    }
+
+    private func finishSaving(_ outcome: OperationOutcome) {
+        if outcome.isSaved { editingSheet = nil }
+        else {
+            saveError = model.lastErrorMessage
+            model.lastErrorMessage = nil
         }
     }
 

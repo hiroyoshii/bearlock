@@ -1,0 +1,76 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "830534AF-208F-4222-852A-41E141717CEA",
+        "deviceName" : "BearLock StoreKit iPhone",
+        "modelName" : "iPhone 16",
+        "osBuildNumber" : "24A434",
+        "osVersion" : "27.0",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 4,
+      "passedTests" : 6,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "BearLockPurchases · Built with macOS 27.0.1",
+  "expectedFailures" : 0,
+  "failedTests" : 4,
+  "finishTime" : 1792988029.591,
+  "passedTests" : 6,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1792987974.976,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertEqual failed: (\"5\") is not equal to (\"6\")",
+      "targetName" : "BearLockPurchaseTests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "SupportPurchaseTests/testAllProductsLoadAndCanBePurchasedRepeatedly()",
+      "testIdentifierURL" : "test://com.apple.xcode/BearLock/BearLockPurchaseTests/SupportPurchaseTests/testAllProductsLoadAndCanBePurchasedRepeatedly",
+      "testName" : "testAllProductsLoadAndCanBePurchasedRepeatedly()"
+    },
+    {
+      "failureText" : "XCTAssertEqual failed: (\"Optional(\"Immediate wake-up could not be purchased.\")\") is not equal to (\"Optional(\"The purchase was cancelled.\")\")",
+      "targetName" : "BearLockPurchaseTests",
+      "testIdentifier" : 9,
+      "testIdentifierString" : "WakePurchaseTests/testCancelledPurchaseAbandonsPendingIntent()",
+      "testIdentifierURL" : "test://com.apple.xcode/BearLock/BearLockPurchaseTests/WakePurchaseTests/testCancelledPurchaseAbandonsPendingIntent",
+      "testName" : "testCancelledPurchaseAbandonsPendingIntent()"
+    },
+    {
+      "failureText" : "XCTAssertEqual failed: (\"Optional(\"The purchase could not be completed.\")\") is not equal to (\"Optional(\"The purchase was cancelled.\")\")",
+      "targetName" : "BearLockPurchaseTests",
+      "testIdentifier" : 2,
+      "testIdentifierString" : "SupportPurchaseTests/testCancelledPurchaseDoesNotShowSuccess()",
+      "testIdentifierURL" : "test://com.apple.xcode/BearLock/BearLockPurchaseTests/SupportPurchaseTests/testCancelledPurchaseDoesNotShowSuccess",
+      "testName" : "testCancelledPurchaseDoesNotShowSuccess()"
+    },
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "BearLockPurchaseTests",
+      "testIdentifier" : 7,
+      "testIdentifierString" : "SupportPurchaseTests/testUnrelatedPurchaseIsNotFinishedBySupportStore()",
+      "testIdentifierURL" : "test://com.apple.xcode/BearLock/BearLockPurchaseTests/SupportPurchaseTests/testUnrelatedPurchaseIsNotFinishedBySupportStore",
+      "testName" : "testUnrelatedPurchaseIsNotFinishedBySupportStore()"
+    }
+  ],
+  "title" : "Test - BearLockPurchases",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 10
+}

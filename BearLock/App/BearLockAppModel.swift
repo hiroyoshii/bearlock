@@ -311,12 +311,12 @@ final class BearLockAppModel: ObservableObject {
     }
 
     #if DEBUG
-    func saveUITestingSelection(count: Int) async {
+    func saveUITestingSelection(count: Int) async -> OperationOutcome {
         guard ProcessInfo.processInfo.arguments.contains("--ui-testing-target-picker"), count > 0 else {
-            return
+            return .rejected
         }
 
-        _ = await performSavedOperation("Selection.uiTestingSave") {
+        return await performSavedOperation("Selection.uiTestingSave") {
             let ref = LockTargetSelectionRef(displayName: L10n.format("%d targets", count))
             _ = try await lockStore.saveTargetSelection(ref)
         }

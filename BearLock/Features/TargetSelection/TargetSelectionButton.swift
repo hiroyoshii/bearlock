@@ -9,9 +9,6 @@ struct TargetSelectionButton: View {
     @State private var isRequestingAccess = false
     @State private var isSaving = false
     @State private var saveError: String?
-    #if DEBUG
-    @State private var uiTestingSelectionCount: Int?
-    #endif
 
     let prominent: Bool
 
@@ -41,16 +38,7 @@ struct TargetSelectionButton: View {
             } message: {
                 Text("Screen Time access is used to select and lock apps on this device.")
             }
-            .sheet(isPresented: $isPickerPresented, onDismiss: {
-                #if DEBUG
-                if let uiTestingSelectionCount {
-                    Task {
-                        await model.saveUITestingSelection(count: uiTestingSelectionCount)
-                    }
-                    self.uiTestingSelectionCount = nil
-                }
-                #endif
-            }) {
+            .sheet(isPresented: $isPickerPresented) {
                 pickerContent
             }
     }
@@ -60,13 +48,16 @@ struct TargetSelectionButton: View {
         #if DEBUG
         if usesUITestingPicker {
             UITestingTargetSelectionPickerSheet(
+                isSaving: isSaving,
+                saveError: saveError,
                 onCancel: {
-                    uiTestingSelectionCount = nil
                     isPickerPresented = false
                 },
                 onSave: { count in
-                    uiTestingSelectionCount = count
-                    isPickerPresented = false
+                    isSaving = true
+                    Task {
+                        finishSaving(await model.saveUITestingSelection(count: count))
+                    }
                 }
             )
         } else {
@@ -88,16 +79,19 @@ struct TargetSelectionButton: View {
             onSave: {
                 isSaving = true
                 Task {
-                    let saved = await model.saveSelection(selection)
-                    isSaving = false
-                    if saved.isSaved { isPickerPresented = false }
-                    else {
-                        saveError = model.lastErrorMessage
-                        model.lastErrorMessage = nil
-                    }
+                    finishSaving(await model.saveSelection(selection))
                 }
             }
         )
+    }
+
+    private func finishSaving(_ outcome: OperationOutcome) {
+        isSaving = false
+        if outcome.isSaved { isPickerPresented = false }
+        else {
+            saveError = model.lastErrorMessage
+            model.lastErrorMessage = nil
+        }
     }
 
     @ViewBuilder
@@ -146,6 +140,8 @@ struct TargetSelectionButton: View {
 private struct UITestingTargetSelectionPickerSheet: View {
     @State private var selectedAppIDs: Set<String> = []
 
+    let isSaving: Bool
+    let saveError: String?
     let onCancel: () -> Void
     let onSave: (Int) -> Void
 
@@ -192,10 +188,15 @@ private struct UITestingTargetSelectionPickerSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onCancel)
+                        .disabled(isSaving)
                 }
             }
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 8) {
+                    if let saveError {
+                        Text(saveError).foregroundStyle(.red)
+                            .accessibilityIdentifier("target-selection-save-error")
+                    }
                     Text(selectionHint)
                         .font(.caption)
                         .foregroundStyle(AppTheme.navy.opacity(0.62))
@@ -209,7 +210,7 @@ private struct UITestingTargetSelectionPickerSheet: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .tint(AppTheme.navy)
-                    .disabled(selectedAppIDs.isEmpty)
+                    .disabled(isSaving || selectedAppIDs.isEmpty)
                     .accessibilityIdentifier("ui-testing-target-save")
                 }
                 .padding(.horizontal, 20)

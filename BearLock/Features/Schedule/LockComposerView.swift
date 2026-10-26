@@ -24,6 +24,7 @@ struct LockComposerView: View {
     @State private var recurringEnd = DateComponents(hour: 7, minute: 0)
     @State private var selectedWeekdays: Set<Weekday> = [.monday, .tuesday, .wednesday, .thursday, .friday]
     @State private var confirmationDetails: LockConfirmationDetails?
+    @State private var saveError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -60,6 +61,7 @@ struct LockComposerView: View {
             }
 
             Button {
+                saveError = nil
                 confirmationDetails = makeConfirmationDetails()
             } label: {
                 Label(LocalizedStringKey(primaryButtonTitle), systemImage: "lock.fill")
@@ -84,6 +86,7 @@ struct LockComposerView: View {
             LockConfirmationSheet(
                 details: details,
                 isSubmitting: model.isCreatingLock,
+                saveError: saveError,
                 onCancel: {
                     confirmationDetails = nil
                 },
@@ -92,6 +95,9 @@ struct LockComposerView: View {
                         let didCreate = await model.createLock(makeRequest())
                         if didCreate.isSaved {
                             confirmationDetails = nil
+                        } else {
+                            saveError = model.lastErrorMessage
+                            model.lastErrorMessage = nil
                         }
                     }
                 }
