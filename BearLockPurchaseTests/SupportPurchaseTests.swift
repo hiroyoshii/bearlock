@@ -17,7 +17,6 @@ final class SupportPurchaseTests: XCTestCase {
         let unfinished = try await synchronizedUnfinishedTransactionIDs()
         XCTAssertTrue(unfinished.isEmpty)
         DiagnosticsLogger.shared.clear()
-        store = SupportStore()
     }
 
     override func tearDown() async throws {
@@ -28,6 +27,7 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testAllProductsLoadAndCanBePurchasedRepeatedly() async throws {
+        store = SupportStore()
         await store.loadProducts()
         XCTAssertEqual(Set(store.products.keys), Set(SupportProduct.allCases.map(\.productID)))
         XCTAssertFalse(store.isLoading)
@@ -51,6 +51,7 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testPurchaseWithoutLoadedProductDoesNotCreateTransaction() async {
+        store = SupportStore()
         await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, L10n.string("Support items are not available yet."))
         XCTAssertTrue(session.allTransactions().isEmpty)
@@ -58,6 +59,7 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testPurchaseFailureCanBeRetried() async throws {
+        store = SupportStore()
         await store.loadProducts()
         try await session.setSimulatedError(.generic(.networkError(URLError(.notConnectedToInternet))), forAPI: .purchase)
         await store.purchase(.coffee, using: performPurchase)
@@ -74,6 +76,7 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testCancelledPurchaseDoesNotShowSuccess() async throws {
+        store = SupportStore()
         await store.loadProducts()
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
         await store.purchase(.coffee, using: performPurchase)
@@ -91,6 +94,7 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testPendingPurchaseFinishesWhenApproved() async throws {
+        store = SupportStore()
         await store.loadProducts()
         session.askToBuyEnabled = true
         await store.purchase(.coffee, using: performPurchase)
@@ -104,7 +108,6 @@ final class SupportPurchaseTests: XCTestCase {
 
     func testStartupRecoversUnfinishedSupportPurchase() async throws {
         // No service exists when the transaction is created; the next instance must recover it.
-        store = nil
         let transaction = try await session.buyProduct(identifier: SupportProduct.lunch.productID, options: [])
         try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
         store = SupportStore()
@@ -115,7 +118,6 @@ final class SupportPurchaseTests: XCTestCase {
     }
 
     func testUnrelatedPurchaseIsNotFinishedBySupportStore() async throws {
-        store = nil
         let transaction = try await session.buyProduct(identifier: "com.hiyozoo.bearlock.test.unrelated", options: [])
         XCTAssertEqual(transaction.productID, "com.hiyozoo.bearlock.test.unrelated")
         try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
