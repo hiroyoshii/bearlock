@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       upload_to_play:
-        description: 'Upload to Google Play internal testing (first release: leave off)'
+        description: 'Upload to Google Play internal testing (off: signed AAB only)'
         type: boolean
         default: false
       release_status:
@@ -33,6 +33,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Restore upload key
         env:

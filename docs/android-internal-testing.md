@@ -1,16 +1,25 @@
 # Bearlock: GitHub ActionsからGoogle Play内部テストへ配布する手順
 
-対象アプリID: `com.hiyozoo.bearlock`。2026-09-07作成。
+対象アプリID: `com.hiyozoo.bearlock`。2026-10-26更新。
 
-## 今回追加したもの・まだ必要なもの
+## 今回の更新版を内部テストへ進める
 
 [Android Internal Release](../.github/workflows/android-internal.yml) は手動実行する配布用Actions。mainでのみ動作し、テスト・Release lint・署名済みAABの生成・署名検証・Artifact保存を行う。オプションでGoogle Playの **internal** トラックへアップロードする。通常のAndroid CIは引き続き署名鍵を使用しない。
 
-この手順とworkflowをmainにpushしてから設定する。実際の署名鍵作成、GitHub Secrets登録、Google Cloud/Play Console設定、リモートActions実行、配信確認は未実施。以下の作業で接続する。
+アプリのPlay登録・アップロード鍵・GitHub Secrets・Play連携は設定済み（2026-10-26、ユーザー確認）。再設定や鍵の作り直しは不要。[過去の配布CI](https://github.com/hiroyoshii/bearlock/actions/runs/34709724321)でも署名済みAABの生成・署名検証・Artifact保存が成功している。この実行ではPlayアップロードはオフだったため、アップロード成功の証跡とは区別する。
 
-初回: 鍵作成 → GitHub Secrets登録 → ActionsでAAB生成 → Play Consoleに手動アップロード → 自分をテスター登録。
+2026-10-26時点の候補は **0.2.3 / versionCode 8**。前述の署名成功コミットは0.2.2 / 7。バージョン値の正本は [product/build.gradle.kts](../android-lab/product/build.gradle.kts)。versionCodeはPlayが更新順を判定する整数で、表示用のversionNameとは別。同じ番号は再アップロードできない。手動配布などで8が使用済みの場合だけ、Playの最大値を超える番号へ更新する。
 
-2回目以降: versionCode更新 → mainへpush → Actions実行（Playアップロードをオン）→ 内部テストへ配布。
+1. [Android Internal Release](https://github.com/hiroyoshii/bearlock/actions/workflows/android-internal.yml) → **Run workflow** → **main**。
+2. `upload_to_play` を **オン**、`release_status` を **draft** にして実行する。署名・単体テスト・Release lintが成功すると、AABを内部テストの下書きへアップロードする。
+3. Play Consoleの内部テストでバージョンと状態を確認し、[リリースノート](android-release-preparation.md#内部テスト版のリリースノート)を入力する。テスターへの配信を確定する。
+4. 登録済みテスターが参加リンクから更新する。新規インストール、更新前の対象・予定の保持、通常UIでの作成→遮断→自然終了を確認する。30分後起床は残り30分超のロックから予約・取消・実時間での解除を確認する。
+
+`completed` は内部テスターへの配信まで実行する指定。配信も同時に行うときに選ぶ。AAB生成だけを確認する場合は `upload_to_play` をオフにする。mainへのpushだけではこの配布workflowは実行されない。
+
+今回の準備作業ではPlayアップロード・テスター配信・実端末での更新確認は実行していない。以下の初期設定手順は保守用の参照であり、今回やり直す手順ではない。
+
+## 初期設定・保守用の参照
 
 ## 1. アップロード鍵を作る（初回のみ）
 
@@ -71,7 +80,7 @@ WSLでこのディレクトリを開くには `explorer.exe "$(wslpath -w "$HOME
 2. **テストとリリース → テスト → 内部テスト → 新しいリリースを作成**。
 3. **App Bundleのアップロード**へ手順3のAABをアップロードする。
 4. パッケージ名が `com.hiyozoo.bearlock` であることを確認する。
-5. リリース名、リリースノートを入力する（例: `0.1.0 / 初回の実機テスト版`）。
+5. リリース名、リリースノートを入力する。
 6. **プレビューして確認**に進み、表示される必須設定・エラーを解決して内部テストへの公開を確定する。
 
 新規アプリのPlayアプリ署名はGoogle生成鍵が標準。AABは自分のアップロード鍵で署名し、端末に配布するAPKはGoogleがアプリ署名鍵で署名する。Android Developer Consoleで鍵を追加する作業はこの配布手順には含まない。
@@ -111,19 +120,9 @@ WSLでこのディレクトリを開くには `explorer.exe "$(wslpath -w "$HOME
 
 JSONには秘密鍵が含まれるためGitやチャットに貼らない。この実装はSecrets経由のJSON鍵方式。組織ポリシーでJSON鍵作成が禁止されている場合は、ポリシーを解除せずWorkload Identity Federation方式へworkflowを変更する。
 
-## 7. 2回目以降はActionsから配布する
+## 7. 更新配布時の注意
 
-1. `android-lab/product/build.gradle.kts` の **versionCodeをPlayにアップロード済みの最大値より大きくする**。例: `1 → 2`。表示用のversionNameも必要に応じ `0.1.0 → 0.1.1` にする。
-2. 変更をmainへpushする。
-3. **Actions → Android Internal Release → Run workflow** を開く。
-4. Branch **main**、`upload_to_play` **オン**にする。
-5. `release_status` を選ぶ。
-   - **draft**: AABをPlayにアップロードして下書き保存。Consoleで確認・公開する。
-   - **completed**: 内部テストへのリリースまで実行。初回の手動配信完了後、継続配布で使う。
-6. 成功後、Play Consoleの内部テストでversionCodeと配信状態を確認する。
-7. スマホのGoogle Playで更新し、アプリのデータ・予約が引き継がれることを確認する。
-
-pushだけでは配布は走らない。Run workflowが配布の開始操作で、その後の署名・検証・アップロードを自動化している。配信先はinternal固定。Google側の審査や公開操作が別途必要な状態ではConsoleで対応する。
+`android-lab/product/build.gradle.kts` のversionCodeをPlayにアップロード済みの最大値より大きくし、変更をmainへpushしてから、[冒頭の配布手順](#今回の更新版を内部テストへ進める)を使う。表示用のversionNameも必要に応じて更新する。配信先はinternal固定。Google側の審査や公開操作が別途必要な状態ではConsoleで対応する。
 
 同じversionCodeを再アップロードしない。アップロード後にworkflowが失敗した場合も、Play側にAABが残っていないか確認する。登録済みならConsoleにあるAABを利用するか、versionCodeを増やして新規実行する。
 
@@ -134,6 +133,7 @@ pushだけでは配布は走らない。Run workflowが配布の開始操作で�
 | Actions一覧にworkflowがない | workflowがmainにpushされているか |
 | main以外の実行がSkipped | mainを選んで再実行する |
 | Missing secret / 鍵の復元失敗 | Environment名、Secret名、Base64全文を確認 |
+| SDK setupで `Failed to find package 'tools'` | 修正済みmainから新規実行する。setup-android v3の既定値に含まれる廃止済みtoolsを避け、platform-toolsを明示している。[上流の説明](https://github.com/android-actions/setup-android/blob/main/README.md?plain=1) |
 | Gradle ZIPのDownload timeout | Wrapperの待ち時間は120秒に設定。修正後のmainを選んでRun workflowで新規実行する。古い実行のRe-runは古い設定を使う |
 | keystore password incorrect / key alias not found | STORE_PASSWORD、KEY_PASSWORD、aliasを確認 |
 | version code already used | Playの最大versionCodeより大きくして新規実行 |
