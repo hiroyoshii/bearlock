@@ -1,11 +1,23 @@
 {
-  "run_id": 40295110542,
-  "source_commit": "5766aa10d12a8f537925617111d197df1539fcc0",
-  "artifact_id": 12640552195,
+  "run_id": 40323886294,
+  "source_commit": "8567e31777189246382b501ef60b14d96e96550a",
+  "artifact_id": 12650841794,
+  "source_archive_sha256": "7b580f13aae102b52c7443c7ec3aa7c411c8994eebb0c29795d16bebe871d978",
   "dimensions": [
-    1284,
-    2778
+    1206,
+    2622
   ],
+  "pixel_format": "RGB",
+  "conversion": "Removed fully opaque alpha channel; decoded RGB pixels unchanged.",
+  "source_overrides": {
+    "ci-screenshots/app-store-en/composeDelayed.png": {
+      "run_id": 40315675972,
+      "source_commit": "c642aaca147aa4db9f2ec6d340434340c0b69229",
+      "artifact_id": 12647113566,
+      "source_archive_sha256": "e7c84c88be2d6b9f31e360ea15abda1432d5e9a966c953206bd85e8701f700a2",
+      "reason": "Run 3 captured SpringBoard instead of the app. Retained the visually verified run 2 capture; the intervening fixture fixes do not alter this screen."
+    }
+  },
   "files": [
     "ci-screenshots/app-store-en/activeLock.png",
     "ci-screenshots/app-store-en/composeDate.png",
@@ -41,50 +53,38 @@
     "ci-screenshots/app-store-ja/wakeResult.png"
   ],
   "sha256": {
-    "ci-screenshots/app-store-en/activeLock.png": "917466a6209ce9ed58ec1f7fffb637b1a168b04a38662c967899c425388775f2",
-    "ci-screenshots/app-store-en/composeDate.png": "ab3856b892a5d9fcc0b3f112a3c889300a2aab80455d518a08e6c67102cfb312",
-    "ci-screenshots/app-store-en/composeDelayed.png": "78c62504aa4ad9efe7d4bcb5a0c1a3d0a2e21a86cecff984761ce27375edf37c",
-    "ci-screenshots/app-store-en/composeNow.png": "f46e231adbf25e9bc0895b6ae75251460986a6bc931011d9753f5572917a2051",
-    "ci-screenshots/app-store-en/composeRepeat.png": "c05175aa1d1a16c1558d5072766aa889752238eebe5d3d029d0ff130a34a7153",
-    "ci-screenshots/app-store-en/confirmation.png": "4eeda4d68ca13163a0ff9999d5c51d3625291e60e896668654d026036d100161",
-    "ci-screenshots/app-store-en/diagnostics.png": "5b744501a8ee3abc85093b90706c90fce9ba8cebb031b44d86525364c0889905",
-    "ci-screenshots/app-store-en/home.png": "f6f036e3d8cf5a63e7a894ab0a2209f58f2a128d7b1486158e9844576cf65cc3",
-    "ci-screenshots/app-store-en/recurringEditor.png": "5f00b48fa1a2be2f67ed28084cfc3271621996a9ee40c98938742678534bc65d",
-    "ci-screenshots/app-store-en/scheduledEditor.png": "a05607ad67844ff9e6ae590f1877da160be38557280edc0901533b09b4121fec",
-    "ci-screenshots/app-store-en/scheduledList.png": "991c7d782bd33fe2cac2ef2bba3bd14f0dda437a1943367ff29444f0635b2174",
-    "ci-screenshots/app-store-en/settings.png": "a08005b5568b3a8f244d1a37b05f94ca00040d605fada93da41102c30cc8a7e3",
-    "ci-screenshots/app-store-en/setup.png": "668163e65136297d7f4291a969ebfbc4da87ccb936c9cc256714c844a3a4db36",
-    "ci-screenshots/app-store-en/support.png": "c8bd98167df8bbfc3bc940fc7189f43ec784fa0f753ea52af483df2020c92ee1",
-    "ci-screenshots/app-store-en/wakeOptions.png": "4202cc753a51e1c3b45d72bf5c1502dcffec6ec928493d05abfa842d5456539b",
-    "ci-screenshots/app-store-en/wakeResult.png": "f95eefa7c594a49e7a2af1d90bf361502ee0f4f803fe03131eab89cf61d8a731",
-    "ci-screenshots/app-store-ja/activeLock.png": "983437df3ca3a368ce04f3bef6b8999afa20bff25f153711ea5f62eaab9feea3",
-    "ci-screenshots/app-store-ja/composeDate.png": "5107c52aa5118024e5a42ee28f29ee5ec612abe1338caf1ba61651f94948487f",
-    "ci-screenshots/app-store-ja/composeDelayed.png": "dca7700f4aad30ebf3322e6b22a4a3eaaba506e34518df3999b7cd00b7102dfd",
-    "ci-screenshots/app-store-ja/composeNow.png": "fc3deecc84481dbb41720ae6f18d42ccacd22c5b3afe371a14a180464dcabc91",
-    "ci-screenshots/app-store-ja/composeRepeat.png": "d5d01f4398a2dd517cd7cff477508259f0dbcb121478c8891671d0d17d74a21f",
-    "ci-screenshots/app-store-ja/confirmation.png": "940ee8b82026ea0c5d96dc301a71b10580b81b5f8dc14e5007a2342d6ca05455",
-    "ci-screenshots/app-store-ja/diagnostics.png": "4be4984fee8e6543309af1f1e5030c9356be5fedd2deda5aaa983288854e10e3",
-    "ci-screenshots/app-store-ja/home.png": "b5901b29aac5cb2acf3dfacb7c48553f77ab038bf22b6e4fa1cba39fdf3c390a",
-    "ci-screenshots/app-store-ja/recurringEditor.png": "f46e8021c5f7e08be75f119809a70b8387dba0dc4edad148fa4859fcd06ea621",
-    "ci-screenshots/app-store-ja/scheduledEditor.png": "b1b42cda7e2aa8c0f49a94a765f11c0d869cdcfdf391f358f26808ad6849d380",
-    "ci-screenshots/app-store-ja/scheduledList.png": "9f37fff3879d1567fcb702b1ab2a9c753badc86e105a5ce06d0860be13ccc9c8",
-    "ci-screenshots/app-store-ja/settings.png": "2ac694e001aa0cf5146a3d813ea079fe5a983da00c740743dd401409125cbdbc",
-    "ci-screenshots/app-store-ja/setup.png": "b1465a63db486b33c7e93b5a49a762a7db920ebaa2ad33c0d52b93d692f88003",
-    "ci-screenshots/app-store-ja/support.png": "0a77d5a3164eb5744a102f4ff77a464a72bffbe1e3a57aa932dfdbd29ba47539",
-    "ci-screenshots/app-store-ja/wakeOptions.png": "b8191b027e3193e907398fc6b40156fc42ce391a829644c0eba393fa44e34ddb",
-    "ci-screenshots/app-store-ja/wakeResult.png": "b94649fe6069d85cc6db2ebd8b4c902564f64238ffd376b5e936eba1035a447c"
+    "ci-screenshots/app-store-en/activeLock.png": "b1ec07cca481508bd6c522c02b3f232f732d56fb078dcb8d26cccd0740a20955",
+    "ci-screenshots/app-store-en/composeDate.png": "3df4ddab7fdd4eed3e6f807e70d06a077ff05f3cf002b39db11b7c38571a8a60",
+    "ci-screenshots/app-store-en/composeDelayed.png": "39c730430917d16f666ff060e1776d43fe68b7c162a0fa0adc8da66de435c69c",
+    "ci-screenshots/app-store-en/composeNow.png": "608bfdd4c612e1925691618d9ee1d11b81563739170bc5126ef562a04ca0e583",
+    "ci-screenshots/app-store-en/composeRepeat.png": "c854678f588671ced3d94c447c7b7cff0da47f3e6b1e96b617e20a9524fab622",
+    "ci-screenshots/app-store-en/confirmation.png": "256b567508f3d7ba1473a3b365ad7312efb67f35469b8eb1683a4e6d9c73f93d",
+    "ci-screenshots/app-store-en/diagnostics.png": "3923bf487db3700b91daaec8083c2f1e5bce04fb9d902a14603988d84bd0e4f3",
+    "ci-screenshots/app-store-en/home.png": "5bb042dbfc49073dc606260b4f5535d47b812bce8fa4508ab7f354e941140221",
+    "ci-screenshots/app-store-en/recurringEditor.png": "8926ebb63bb4cc38e227a4cd18b19f7d567193baa2e25f51ecc76741cb8ec6d2",
+    "ci-screenshots/app-store-en/scheduledEditor.png": "6607429ff31d7eaee15d1a0b8e87fd8ce305d14ae2e5648b8342a5f5f74117d4",
+    "ci-screenshots/app-store-en/scheduledList.png": "56d8bd76349b2315de19cd0ebf0f7bc13e5dedd3b11fa6e6283aefcc9c9d06f8",
+    "ci-screenshots/app-store-en/settings.png": "3e874213d6e1da349dccdd057bdd65e28c47375ff50edf064902be291517ce4e",
+    "ci-screenshots/app-store-en/setup.png": "5f6a83a470cc71c97eec8c3d12b319e8e097423c93350251ae6fa4468fa05c09",
+    "ci-screenshots/app-store-en/support.png": "78d1932db5d75cf2c474a7b153ecd8fcec52c0b81b59603f82075d816a8bfe18",
+    "ci-screenshots/app-store-en/wakeOptions.png": "029ae6fc94e5b37b2364a4154df230278ac10b304bec2ac864f5aff75f5a4f98",
+    "ci-screenshots/app-store-en/wakeResult.png": "f5f4c4507bd70701f90d93690b69a9693a14ffd4f46af111dabce65fe9c1b39c",
+    "ci-screenshots/app-store-ja/activeLock.png": "46271eaf50a5f04be0c977a7e34bb23ac73993939fbfe584feaefe24acce2cfa",
+    "ci-screenshots/app-store-ja/composeDate.png": "f14d1e3333186503934492f321aac73acbb5610b6d5807346abf93d7980ac60d",
+    "ci-screenshots/app-store-ja/composeDelayed.png": "34aa4f7879c1b5b2fbfb3b200a58a0d9f15a73f54d3cbeed57a08f5620631c3b",
+    "ci-screenshots/app-store-ja/composeNow.png": "3c23ad888fc677b7a5098894f91ba457a57ac33b5137eb3fc96c17deb45609e4",
+    "ci-screenshots/app-store-ja/composeRepeat.png": "ea525658f35148760c72d50f0bc76e07cdff1bd5f6e6eb2fd8cb29dd07d9256a",
+    "ci-screenshots/app-store-ja/confirmation.png": "bb71ddb542df4b462e8299a15f986a6ce25b2ef3072f136ff3a3812ace4376e6",
+    "ci-screenshots/app-store-ja/diagnostics.png": "db0f42a281f3457f4c133a326967bc7dc8494922f1dc3a40e24790cd8efd4546",
+    "ci-screenshots/app-store-ja/home.png": "22bd206969fed94f437f0d3311a623fbe1df2b6d4b470b1e31b2d58295253a52",
+    "ci-screenshots/app-store-ja/recurringEditor.png": "eb1fbea124c69a6eac8cc9ec9a9e483f0890f664febfbc5c8c8cef432357f24b",
+    "ci-screenshots/app-store-ja/scheduledEditor.png": "517bd385f8be059f8ab84315f4ec470939b95cb0b81f2c3bbff9ac72df003070",
+    "ci-screenshots/app-store-ja/scheduledList.png": "d3e97a06adcb9867b654d47a637343cb90f94ca4fc0a04a475f2556d703668fe",
+    "ci-screenshots/app-store-ja/settings.png": "aeb3ab9dfff9022853e9950ffca76adc214459d6645ce2d0b45b82b385060604",
+    "ci-screenshots/app-store-ja/setup.png": "e4904a8b8a4c8a14f07cfed561d5cacf4a090951fbff595ae2cd8767f3e4ac13",
+    "ci-screenshots/app-store-ja/support.png": "b17eee0f9662bd42a7b8ecb5515fe7f915fe2b4eae007afcedeaa870b55ef595",
+    "ci-screenshots/app-store-ja/wakeOptions.png": "b1a7775e81bda23e177c65de79388821845e14e53bdab854ef882622fda7603a",
+    "ci-screenshots/app-store-ja/wakeResult.png": "a0b779ff8f07d8759b7d6a66563cdd4cc5704858c4ea58d8828ab415c0c62be2"
   },
-  "ui_results": {
-    "normal": {
-      "passed": 27,
-      "failed": 1,
-      "skipped": 0
-    },
-    "small": {
-      "passed": 7,
-      "failed": 0,
-      "skipped": 0
-    }
-  },
-  "note": "Screenshot fixtures; not proof of real Screen Time blocking. Normal UI has one unresolved failure."
+  "note": "All 32 selected captures visually reviewed. Screenshot fixtures, not evidence of real Screen Time blocking. The manual screenshot workflow does not run the UI test suite."
 }

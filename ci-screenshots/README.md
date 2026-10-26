@@ -4,7 +4,9 @@ The current English and Japanese simulator captures are in `app-store-en` and `a
 
 These use the screenshot app's fixtures. They show the current UI, not evidence of actual Screen Time blocking. Interactive E2E evidence and the before/after review are recorded in [the selection-controls review](../docs/qa/ios-selection-controls-2026-10-11.md). Superseded QA and Android comparison images are available through fixed Git history links in the review notes.
 
-The 2026-10-26 captures come from [CI run 207](https://github.com/hiroyoshii/bearlock/actions/runs/40295110542), source `5766aa1`. All 32 PNGs are 1284x2778. Product code matches TestFlight 1.3 build 39 (`e3af31e`); intervening changes affect tests and records only. Normal-device UI: 27 passed, 1 failed, 0 skipped. Small iPhone selection UI: 7 passed, 0 failed, 0 skipped. Screenshot capture succeeded, but the full E2E suite is not green. The unresolved failure is `testDurationPresetsAndModeReflectCurrentValue`. These files have not yet replaced the App Store Connect gallery.
+The 2026-10-26 gallery contains 31 captures from [iOS Screenshots run 3](https://github.com/hiroyoshii/bearlock/actions/runs/40323886294), source `8567e31`, plus the English `composeDelayed.png` from [run 2](https://github.com/hiroyoshii/bearlock/actions/runs/40315675972), source `c642aac`. Run 3 captured the iPhone home screen for that one file; it was rejected. The intervening fixture changes do not alter the delayed composer. Per-file source exceptions and source archive hashes are recorded in the metadata.
+
+All 32 selected images were visually reviewed and are 1206x2622 RGB PNGs for the Dynamic Island medium display slot. Their fully opaque alpha channels were removed without changing the decoded RGB pixels. Home and active-lock captures now show three selected apps, and the Japanese schedule heading is translated. The manual workflow succeeded, but it does not run UI tests or verify real Screen Time blocking. App Store Connect upload is not confirmed by this gallery update.
 
 | Screen | Japanese | English |
 |---|---|---|
