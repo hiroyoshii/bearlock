@@ -1,0 +1,52 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "830534AF-208F-4222-852A-41E141717CEA",
+        "deviceName" : "BearLock StoreKit iPhone",
+        "modelName" : "iPhone 16",
+        "osBuildNumber" : "24A434",
+        "osVersion" : "27.0",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 0,
+      "passedTests" : 30,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "BearLockPurchases · Built with macOS 27.0.1",
+  "expectedFailures" : 0,
+  "failedTests" : 0,
+  "finishTime" : 1792992971.056,
+  "passedTests" : 10,
+  "result" : "Passed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1792992943.994,
+  "statistics" : [
+    {
+      "subtitle" : "30 test runs",
+      "title" : "1 configuration ran with test repetitions"
+    }
+  ],
+  "testFailures" : [
+
+  ],
+  "title" : "Test - BearLockPurchases",
+  "topInsights" : [
+    {
+      "category" : "Longest Test Runs",
+      "impact" : "16% of duration",
+      "text" : "1 longest test run with outlier durations exceeding 1.15s (three standard deviations)"
+    }
+  ],
+  "totalTestCount" : 10
+}

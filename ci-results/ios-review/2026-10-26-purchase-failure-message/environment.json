@@ -1,0 +1,25 @@
+{
+  "baselineCommit": "013eb34484952bb878eb61e44ce3f2444aa8c49e",
+  "xcode": "27.1 (27A9275)",
+  "sdk": "iPhoneSimulator 27.1",
+  "ios27": "27.0 (24A434)",
+  "ios26": "26.2 (23C54)",
+  "deviceType": "iPhone 16",
+  "ios27DeviceID": "830534AF-208F-4222-852A-41E141717CEA",
+  "ios26DeviceID": "23952DB7-B48D-45F0-9318-B3F1986B7CC9",
+  "isolationProbeDeviceID": "2A7B8CE7-AF85-4F83-8687-E4CC5D7B6212",
+  "storefront": "JPN",
+  "testScheme": "BearLockPurchases",
+  "finalRunOptions": [
+    "-parallel-testing-enabled NO",
+    "-test-iterations 3",
+    "CODE_SIGNING_ALLOWED=NO"
+  ],
+  "allOriginalTestsRetained": true,
+  "skippedTests": 0,
+  "displayPolicy": "User authorized cancellation, network errors and unknown purchase API errors to show the same unsuccessful purchase message.",
+  "verifiedSourceCommit": "cca3db1986bd9866512162ff04ab99b9cabde384",
+  "debugReleaseBuildsPassed": true,
+  "metadataValidationPassed": true,
+  "allFourFailuresResolvedUnderAuthorizedDisplayPolicy": true
+}

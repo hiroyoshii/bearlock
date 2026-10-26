@@ -1,0 +1,392 @@
+{
+  "verifiedSourceCommit": "cca3db1986bd9866512162ff04ab99b9cabde384",
+  "finalRuns": [
+    "ios27-lifecycle",
+    "ios26-lifecycle"
+  ],
+  "allOriginalTestCasesRetained": true,
+  "metadata": "passed",
+  "debugBuild": "passed",
+  "releaseBuild": "passed",
+  "runs": {
+    "ios26-booted": {
+      "result": "Failed",
+      "totalTestCount": 10,
+      "passedTests": 9,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "failed": 1,
+          "passed": 2
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios26-confirmed": {
+      "result": "Passed",
+      "totalTestCount": 10,
+      "passedTests": 10,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios26-final": {
+      "result": "Failed",
+      "totalTestCount": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {}
+    },
+    "ios26-lifecycle": {
+      "result": "Passed",
+      "totalTestCount": 10,
+      "passedTests": 10,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios26-ready": {
+      "result": "Failed",
+      "totalTestCount": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {}
+    },
+    "ios26-reinstalled": {
+      "result": "Failed",
+      "totalTestCount": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {}
+    },
+    "ios26-verified": {
+      "result": "Failed",
+      "totalTestCount": 10,
+      "passedTests": 8,
+      "failedTests": 2,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "failed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "failed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios27-confirmed": {
+      "result": "Failed",
+      "totalTestCount": 10,
+      "passedTests": 9,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 2,
+          "failed": 1
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios27-final": {
+      "result": "Failed",
+      "totalTestCount": 10,
+      "passedTests": 9,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "failed": 1,
+          "passed": 2
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios27-lifecycle": {
+      "result": "Passed",
+      "totalTestCount": 10,
+      "passedTests": 10,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios27-verified": {
+      "result": "Passed",
+      "totalTestCount": 10,
+      "passedTests": 10,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    },
+    "ios27": {
+      "result": "Failed",
+      "totalTestCount": 10,
+      "passedTests": 9,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "testRuns": {
+        "SupportPurchaseTests testAllProductsLoadAndCanBePurchasedRepeatedly": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testCancelledPurchaseDoesNotShowSuccess": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPendingPurchaseFinishesWhenApproved": {
+          "passed": 2,
+          "failed": 1
+        },
+        "SupportPurchaseTests testPurchaseFailureCanBeRetried": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testPurchaseWithoutLoadedProductDoesNotCreateTransaction": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testStartupRecoversUnfinishedSupportPurchase": {
+          "passed": 3
+        },
+        "SupportPurchaseTests testUnrelatedPurchaseIsNotFinishedBySupportStore": {
+          "passed": 3
+        },
+        "WakePurchaseTests testApprovedAskToBuyCanBecomeCredit": {
+          "passed": 3
+        },
+        "WakePurchaseTests testCancelledPurchaseAbandonsPendingIntent": {
+          "passed": 3
+        },
+        "WakePurchaseTests testWakeProductLoadsAndVerifiedPurchaseIsDeliveredBeforeFinish": {
+          "passed": 3
+        }
+      }
+    }
+  }
+}
