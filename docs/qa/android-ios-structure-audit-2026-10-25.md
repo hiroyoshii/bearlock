@@ -2,6 +2,8 @@
 
 初回調査: 2026-10-25。基準と対応の再整理: 2026-10-26。対象は現在の作業ツリーであり、配布済みAPK/iOS版の適合宣言ではない。
 
+iOSの最新SDK/シミュレーター検証は第13節。第8〜12節の「未実行」は各記録時点の状態であり、実機・Android固有の未確認は引き続き未確認とする。
+
 ## 1. 何を基準に、何を判定するか
 
 目的は、製品コードを共有せず、両OSで共通仕様を守り、意図的な差を維持できる構造・テストにすること。
@@ -32,11 +34,11 @@
 
 | 基準 | iOSの現行担当・経路 | Androidの現行担当・経路 | 対応状況と必要な検証 |
 |---|---|---|---|
-| R01 | 作成/編集ViewのState、TargetSelectionButton、RootView、WakeOptionsDialog | EditorDraft、Route、TargetPicker、MainActivity.showWakeOptions | 対象選択の下書きを維持。iOSは起床dialogのBoolをActiveLockの保持へ置換し、確認時のID/発生回を固定。Androidも開いたidentityを保持する。Coreの古い回拒否を共有試験、アプリ入口の保持/拒否を各OSの操作試験で検証。iOS SDK実行は未確認 |
+| R01 | 作成/編集ViewのState、TargetSelectionButton、RootView、WakeOptionsDialog | EditorDraft、Route、TargetPicker、MainActivity.showWakeOptions | 対象選択の下書きを維持。iOSは起床dialogのBoolをActiveLockの保持へ置換し、確認時のID/発生回を固定。Androidも開いたidentityを保持する。Coreの古い回拒否を共有試験、アプリ入口の保持/拒否を各OSの操作試験で検証。iOS SDK/AppModel/mock UIの実行結果は第13節。実機は未確認 |
 | R02 | LockPlanner、RecurrenceRule、LockState、WakeState、ShieldSlotPlanner | Planner、Rule、State、Domain | SDKなしで判定できる点は整合。正常入力の発生回/起床/競合は共有データで一部検証。複数要求や不正zoneの結果はD03/D07で未定義。ファイル数が違うことは問題ではない |
-| R03 | 対象選択/予定/無料起床/履歴はAppModel.performSavedOperation→LockStore actor→fresh load/validate/save | 対象選択/予定/無料起床/履歴はLockOperations→Store.change→Planner | 保存時刻/最新状態再検証と保存→必要な反映→結果を対応させた。画面内の直接保存と履歴用mutate経路を除去。履歴のpin/解除/削除はOS反映不要。iOSの削除予約取消も同じ入口。SDK未実行は末尾に区別。予定作成と履歴記録の原子性はD06で判断待ち |
+| R03 | 対象選択/予定/無料起床/履歴はAppModel.performSavedOperation→LockStore actor→fresh load/validate/save | 対象選択/予定/無料起床/履歴はLockOperations→Store.change→Planner | 保存時刻/最新状態再検証と保存→必要な反映→結果を対応させた。画面内の直接保存と履歴用mutate経路を除去。履歴のpin/解除/削除はOS反映不要。iOSの削除予約取消も同じ入口。SDK/mockの実行結果と実機未確認は第13節で区別。予定作成と履歴記録の原子性はD06で判断待ち |
 | R04 | LockRepository protocol、JSONFileLockRepository、App Group | Storeの共有guard/AtomicFile、Codec、schema移行 | 原子的更新と原本保持はコード/故障テストに整合。プロセス構成/JSONを揃える必要なし。不正形式のすべての意味的検証を確認したわけではない |
-| R05 | ScheduleController、ShieldController、Monitor/Shield Configuration拡張 | Scheduling、BoundaryReceiver、GuardService、Shield、SnapshotGate | 最新状態から再評価し、登録失敗と期限判定を分離する経路がある。既存mock/native試験はあるがSDK実動は今回未判定。iOS容量事前検査の範囲はD08 |
+| R05 | ScheduleController、ShieldController、Monitor/Shield Configuration拡張 | Scheduling、BoundaryReceiver、GuardService、Shield、SnapshotGate | 最新状態から再評価し、登録失敗と期限判定を分離する経路がある。iOS SDKビルド/mock UIの実行結果は第13節。実OS遮断/実機は未判定。iOS容量事前検査の範囲はD08 |
 | R06 | AppModelのOperationOutcome/readStatus/monitoringUpdateFailed、Home/Root/Settings、作成/編集View | LockOperationsのOperationOutcome、MainActivityの結果表示/statusWarnings、Composer | 対象選択/予定/無料起床は保存拒否と保存後反映失敗を区別。履歴の保存後読込失敗はiOSのsavedNeedsReload/readStatus.failedで保存拒否と区別。OS反映の不要な履歴変更で既存の監視エラーを消さない。終了表示/代表選択はD01。課金配送は別経路 |
 
 ### 主要コードへの入口
@@ -308,3 +310,79 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 - AndroidのDebug/Release APK・Release AAB、product単体73件、lab単体6件、product/probe lintが成功。product lintはエラー0・警告41。Debug APKのSHA-256は `f6a588ad9870a367ebfde8de5f926ef8aa535d0bf83f9990d0e41255af886cbd`。このAPKでAPI 34の全疎通が成功したという意味ではない。
 - SwiftCore 79件、既存の別プロセス保存テスト（writer 200更新・reader 4プロセス）が成功。変更したSwiftの構文解析、Android検証用Pythonの構文検査、差分の空白検査も成功。iOS SDK型検査/実行は含まない。
 - ログは同じローカル証拠ディレクトリの `final-build.log`、`final-swift-test.log`、`final-repository-processes.log`。過去の試行を上書きせず分離した。製品修正に新しい共通ランタイムや別の検証runnerは導入していない。
+
+## 13. 2026-10-26 MacでのiOS SDK・シミュレーター検証
+
+### 基準・環境・証拠
+
+- 取得した `origin/main` は `f29448bdd7e8eedc1c5b001d3afe96b0eff92f37`。このコミットの正本と本書第9〜12節を基準とした。元の `main` にある未コミットの画像・文書は変更せず、`codex/ios-structure-verification` の別worktreeで実施した。
+- macOS 27.0.1 (26A434)、Xcode 27.1 (27A9275)、Swift 6.4、XcodeGen 2.46.0。XcodeGenは公式releaseのバイナリを使用。Homebrewは未導入だった。SDKはiPhoneSimulator 27.1。初期試行は既存のiPhone 18 Pro Max、最終の通常端末はiPhone 17 Pro Max、小型端末はiPhone SE (3rd generation)、いずれもiOS 27.0 (24A434)。StoreKit比較用にiPhone 16／iOS 26.2 (23C54)も使用した。
+- 実行経路は既存の [iOS CI](../../.github/workflows/ios-ci.yml)。利用可能な端末・runtimeと通常UI試験の英語指定以外は同じscheme/操作を使用。小型試験は既存の `SelectionControlsUITests` 全体を実行し、別runner・テスト一覧・CI jobを追加していない。
+- 証拠は [今回の記録](../../ci-results/ios-review/2026-10-26-f29448b/) に置く。環境、xcresulttoolの結果要約、圧縮したrawログ、今回の実操作スクショを同梱。元のxcresultと追加診断ログは検証worktreeの `artifacts/` に保持する。過去のApp Store画像やAndroidの証拠を今回の結果として流用していない。
+
+検証した修正コードは `b7e0d74c59f53776025a84bde00a4cecbb2e6417`（この記録を追加するcommitの親）。最終試験は同commitと一致するソースから生成したバイナリを使う。
+
+### 再現と修正
+
+| 対象 | 再現条件・原因 | 修正・保持する期待値 |
+|---|---|---|
+| AppModel試験のSDKコンパイル | 別moduleから `SingleLockSchedule` の非公開memberwise initializerを呼び出していた | 公開 `LockRule` initializerで同じIDの開始済み予定を構築。古い編集/削除の拒否・状態不変のassertは維持 |
+| AppModelの固定日時比較 | 小数秒を含む入力が既存の秒切上げ正規化を受け、入力値との完全一致に失敗 | 入力を整数秒境界にする。完全一致・保存/反映失敗・再送禁止のassertは維持 |
+| mock対象pickerの保存拒否 | 保存前にsheetを閉じ、onDismissで保存していた。書込拒否時に選択下書きへ戻れない | onDismiss保存と余分なcount状態を除去。保存結果を待ち、本番pickerと同じ完了処理で成功時だけ閉じる。失敗時はsheet内エラー、下書きと取消を保持 |
+| 作成確認の保存拒否 | 親のalertを閉じると確認sheetも消えることを実操作で再現 | 作成/予定編集の保存拒否はsheet内に表示し、親alertへ残さない。保存済みの反映失敗は従来どおり保存成功として閉じる |
+| 起床済み繰り返し編集のUI試験 | Switchの行中央tapが値を切り替えず、元の有効値が再表示された | 既存のスイッチ操作helperをXCTestCase拡張へ移し共有。実コントロールのtap後の値変化と、保存後再オープンの値を検証 |
+
+対象picker・作成確認のbefore/afterは `screenshots/before/` と `screenshots/after/` の同名画像で対応させる。同じ入力と書込拒否後の段階で取得した。コンパイル/時刻入力の問題は画面不具合ではないため、失敗ログと修正後の実行結果で対応させる。本番FamilyActivityPickerで同じmockを実際のopaque tokenや認可の代替にはしない。
+
+日時指定の作成/確認取消/編集/削除、履歴のピン解除、日本語通常文字サイズの4モード確認・取消と日時指定の保存/編集/削除、対象pickerと作成/編集の保存拒否、保存後監視失敗からの再試行を、既存のUI試験へ追加した。D01〜D08、有料即時起床・チケット・応援IAP、現在回終了までの繰り返し削除保留は変更していない。
+
+### 自動試験と操作結果
+
+| 最終実行 | 成功 | 失敗 | skip | 未実行・判定範囲 |
+|---|---:|---:|---:|---|
+| XcodeGen生成・メタデータ検証 | 成功 | 0 | — | 既存validate scriptとproject.yml |
+| SwiftCore XCTest | 79 | 0 | 0 | SwiftPM。新しいSwift Testingの0件出力とは区別 |
+| 別プロセス保存整合性 | 成功 | 0 | — | writer 200更新、4 reader各2,000読込 |
+| BearLockLogic / AppModel | 25 | 0 | 0 | 削除/終了した起床対象から別代表へ転送しない条件も追加して全件再実行 |
+| 本体＋3 extension Debug / Release | 両方成功 | 0 | — | シミュレータービルド、署名なし |
+| BearLock / 通常iPhone全UI | 28 | 0 | 0 | iPhone 17 Pro Max、最終コードの全件 |
+| 小型iPhone / 選択UI | 7 | 0 | 0 | 既存selectionクラス全件。日英/大文字/通常日本語/日時popupを含む |
+| BearLockPurchases / iOS 26.2 | 10 | 0 | 0 | StoreKitTest。実課金/実機ではない |
+| BearLockPurchases / iOS 27.0比較 | 6 | 4 | 0 | 下記のruntime差が残る。26.2成功へ合算しない |
+
+初回のAppModelはコンパイル失敗で25件未実行、初期化子修正後は24成功・1失敗、時刻入力修正後および終了済み起床対象の条件追加後は25成功。拡張UI試験の初回完走は26件中23成功・3失敗、小型選択の初回は5件中4成功・1失敗。失敗ログを残し、修正後に対象・回帰試験を再実行した。英語指定のない初回UI試行、追加修正に伴う途中試行、ユーザーによる中断時のUI実行は未完了として扱い、全件成功には数えない。テスト削除・skip・期待値の緩和はしていない。
+
+#### 今回確認した責務の境界
+
+| 操作・条件 | 正常／拒否／保存後故障／復旧の確認方法 |
+|---|---|
+| 対象選択・履歴再選択 | UIで保存と表示更新、故障pickerで下書き保持と取消後の原本保持。AppModelで書込拒否・最新の実行状態による拒否・保存後読込/Shield/監視故障を区別し、refresh前後の保存状態と書込回数が不変であることを検証 |
+| 予定の作成・編集・削除 | UIで4モード、確認/取消、遅延/日時指定の編集・削除、繰り返しの有効/無効と取消。故障UIで作成確認と編集下書きを保持。AppModelで作成・編集・削除の保存拒否/保存後読込/反映故障、削除済み・開始済みの古い編集対象の拒否、復旧で再保存しないことを検証 |
+| 無料起床 | UIで予約後に取消actionへ切替、取消後に予約actionへ戻ることを確認。AppModelで書込拒否・反映故障・復旧時の要求と期限/書込回数不変、確認した発生回が削除済み/終了済みとなり別代表へ交代した場合の予約/取消拒否を検証。Coreの共有fixtureと境界試験も実行 |
+| 履歴pin/解除/削除 | UIでmenu操作と削除後の表示を確認。AppModelで各操作の読込/書込拒否、保存後読込失敗をsavedNeedsReloadとして扱うこと、復旧で再送しないことを検証。選択済み対象・予定・起床要求の不変、監視/Shield呼出し数不変、監視エラーの保持と最新pin上限もassert |
+| iOS固有の繰り返し | UIで実行中の編集禁止・削除予約・取消・再起動後の予約保持、無料起床済みの元終了前に編集/無効化して再オープンの値を確認。AppModel/Coreで削除予約取消の拒否/反映失敗と、起床処理が削除条件を消さないことを検証 |
+| UIの操作と可読性 | 通常/小型でセグメント、プリセット、曜日、無効操作、日英の最大アクセシビリティサイズでメニュー/曜日/日時表示/確認取消/編集保存。日本語通常サイズも4モードを操作。日時入力は別々の標準popupを開き、日付popupを閉じた際の値保持と、時刻wheel変更後の下書き更新を確認。静的画像だけを合格根拠にはしていない |
+| 設定・課金 | UIで設定/任意の応援の入口と操作不能状態。StoreKitでは3商品の各2回購入、未取得商品、失敗からの再購入、取消、Ask to Buy、未完了取引の起動時配送、無関係な取引保持、有料起床の検証済み配送/取消/チケット化を既存10件で確認。実課金ではない |
+
+#### StoreKitのruntime差と限界
+
+- iOS 27.0のCLI初回は商品取得後にApple Accountサインイン画面へ進み停止したため中断。その[画面](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/storekit-ios27-signin.png)を保持し、成功/skipとは数えない。同じ既存schemeをXcodeから実行してローカルStoreKit設定を適用した後は、CLIでも10件実行され、6成功・4失敗・skip 0だった。
+- 27.0の失敗は、同一商品連続購入で最後に同じ取引IDが返り6件でなく5件となるもの、`.generic(.userCancelled)` の注入が `ASDServerErrorDomain 907` → `StoreKitError` の別エラーとして返る応援/起床の2件、無関係な取引がunfinished列挙に現れない1件。これを未公開エラー番号の特別扱い・テスト削除・skip・期待値緩和で通していない。
+- Appleの公開download機能でiOS 26.2 runtimeを追加し、同じコード・StoreKitファイル・既存10件をiPhone 16でCLI実行すると10成功・失敗0・skip 0。26.2の成功を27.0の失敗解消とは扱わない。runtimeをまたぐ比較結果であり、27.0のStoreKit再検証は残る。
+- Simulatorのmock認可・対象名・NoopのShield/監視は、実Family Controls認可、実Screen Time遮断/解除、署名/entitlement付きDeviceActivity callbackの実機成功ではない。実機・実App Store/Sandbox課金・全OS版/全端末の保証は含まない。Android 14のRecovery/権限/無料起床/遮断/自然終了の未完了項目も、そのまま未完了とする。
+
+#### 証拠の対応と最終確認
+
+- [結果要約](../../ci-results/ios-review/2026-10-26-f29448b/verification-results.json)、[環境](../../ci-results/ios-review/2026-10-26-f29448b/environment.json)、[ソース指紋](../../ci-results/ios-review/2026-10-26-f29448b/source-sha256.json)、[Debugアプリ指紋](../../ci-results/ios-review/2026-10-26-f29448b/debug-app-sha256.json)を保存した。生成済みアプリの指紋と最終ソースの一致を回収時にも再確認した。
+- 画像は138枚（最終ビルドの添付画像135枚、修正前2枚、StoreKit比較の停止画面1枚）。[画像index](../../ci-results/ios-review/2026-10-26-f29448b/screenshots-index.json)にテスト名・操作段階を表す添付名・端末・時刻・結果bundle・SHA-256を対応付けた。日英の大文字比較は、同じ端末/画面幅・同じ操作段階の `accessibility-en-*` と `accessibility-ja-*` を使う。確認/取消へスクロールした画像を、sheet初期表示の画像と混ぜない。
+- 小型7件と追加の故障UI 2件は、通常端末の28件に含まれるテストの再実行を含む。独立した35件/37件のテストへ水増ししない。StoreKit 27.0のrawログにある6 failuresはassertion数であり、失敗test caseは結果要約どおり4件。
+- 最終ログは同ディレクトリ `logs/` の `ui-complete.log.gz`、`selection-small-complete.log.gz`、`failure-ui-verified.log.gz`、`logic-verified.log.gz`、`purchases-ios26.log.gz`、`debug-verified.log.gz`、`release-verified.log.gz`。初回失敗のログ/結果要約も別名で保持し、上書きしていない。
+
+| 操作段階 | 修正前 | 修正後 | 比較条件 |
+|---|---|---|---|
+| 対象1件を選んで保存、書込拒否後 | [before](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/before/target-save-rejected.png) | [after](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/target-save-rejected.png) | 同じSE 3rd generation、375pt。取消後の3件保持もassert |
+| 遅延30分/継続30分の確認で保存、書込拒否後 | [before](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/before/schedule-create-rejected.png) | [after](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/schedule-create-rejected.png) | beforeは18 Pro Max、afterは17 Pro Max、両方440pt・1320×2868。同一端末のpixel比較とはしない |
+| 繰り返し編集の有効化を保存、書込拒否後 | — | [下書きとエラー](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/schedule-edit-rejected.png) | SE、375pt。取消/再オープンで原本の無効値もassert |
+| 大文字の繰り返し確認、確認/取消ボタン到達後 | [English](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-en-confirmation.png) | [日本語](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-ja-confirmation.png) | 同じSE、最大アクセシビリティ文字サイズ、同じ曜日/時刻設定と操作段階 |
+
+テストの削除・skip・期待値緩和、CI/別runnerの追加、Kotlin製品コード/共有fixture/保存形式の変更はない。置換したmock pickerのonDismiss保存経路と余分なcount状態を削除し、スイッチ操作helperも既存の一か所へ統一した。元の作業ツリーの未コミット変更は保持した。GitHub上でのCI実行成功を今回のローカル結果へ追加してはいない。

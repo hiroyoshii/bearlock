@@ -1,0 +1,44 @@
+{
+  "ui-complete": {
+    "result": "Passed",
+    "totalTestCount": 28,
+    "passedTests": 28,
+    "failedTests": 0,
+    "skippedTests": 0
+  },
+  "selection-small-complete": {
+    "result": "Passed",
+    "totalTestCount": 7,
+    "passedTests": 7,
+    "failedTests": 0,
+    "skippedTests": 0
+  },
+  "logic-verified": {
+    "result": "Passed",
+    "totalTestCount": 25,
+    "passedTests": 25,
+    "failedTests": 0,
+    "skippedTests": 0
+  },
+  "purchases-ios26": {
+    "result": "Passed",
+    "totalTestCount": 10,
+    "passedTests": 10,
+    "failedTests": 0,
+    "skippedTests": 0
+  },
+  "failure-ui-verified": {
+    "result": "Passed",
+    "totalTestCount": 2,
+    "passedTests": 2,
+    "failedTests": 0,
+    "skippedTests": 0
+  },
+  "purchases-ios27-comparison": {
+    "result": "Failed",
+    "totalTestCount": 10,
+    "passedTests": 6,
+    "failedTests": 4,
+    "skippedTests": 0
+  }
+}

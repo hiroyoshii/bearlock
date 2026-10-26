@@ -1,0 +1,24 @@
+{
+  "baseCommit": "f29448bdd7e8eedc1c5b001d3afe96b0eff92f37",
+  "xcode": "Xcode 27.1\nBuild version 27A9275",
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "macOS": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+  "xcodegen": "2.46.0 (official release binary)",
+  "timezone": "Asia/Tokyo",
+  "mockUI": true,
+  "deviceScreenTimeVerified": false,
+  "androidVerifiedByThisRun": false,
+  "verifiedSourceCommit": "b7e0d74c59f53776025a84bde00a4cecbb2e6417",
+  "finalUIDevices": {
+    "normal": {
+      "name": "BearLock QA iPhone 17 Pro Max",
+      "id": "660E8F5D-9516-4A8E-AAE0-4BA2B7BE19BB",
+      "runtime": "iOS 27.0 (24A434)"
+    },
+    "small": {
+      "name": "BearLock Small iPhone (SE 3rd generation)",
+      "id": "7BC81EAE-3C0A-42E3-885E-6FE07486B21B",
+      "runtime": "iOS 27.0 (24A434)"
+    }
+  }
+}
