@@ -40,14 +40,14 @@ final class SupportPurchaseTests: XCTestCase {
                 await store.purchase(item, using: performPurchase)
                 XCTAssertEqual(store.message, thanks)
                 XCTAssertNil(store.purchasingProductID)
-                try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
+                try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().isEmpty }
                 purchases += 1
                 XCTAssertEqual(session.allTransactions().count, purchases)
                 XCTAssertEqual(Set(session.allTransactions().map(\.identifier)).count, purchases)
             }
         }
         XCTAssertEqual(session.allTransactions().count, 6)
-        try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().isEmpty }
     }
 
     func testPurchaseWithoutLoadedProductDoesNotCreateTransaction() async {
@@ -70,18 +70,19 @@ final class SupportPurchaseTests: XCTestCase {
         XCTAssertNil(remainingError)
         await store.purchase(.coffee, using: performPurchase)
         XCTAssertEqual(store.message, thanks)
-        try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().isEmpty }
     }
 
     func testCancelledPurchaseDoesNotShowSuccess() async throws {
         await store.loadProducts()
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
         await store.purchase(.coffee, using: performPurchase)
-        XCTAssertEqual(store.message, L10n.string("The purchase was cancelled."))
-        XCTAssertEqual(
-            DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.support.cancelled" }?.detail,
-            "product=\(SupportProduct.coffee.productID)"
-        )
+        XCTAssertEqual(store.message, L10n.string("The purchase could not be completed."))
+        let events = DiagnosticsLogger.shared.snapshot().events
+        let failure = try XCTUnwrap(events.first { $0.name == "Purchase.support.failed" })
+        let detail = try XCTUnwrap(failure.detail)
+        XCTAssertTrue(detail.contains("product=\(SupportProduct.coffee.productID)"))
+        XCTAssertFalse(events.contains { $0.name == "Purchase.support.verified" || $0.name == "Purchase.support.finished" })
         XCTAssertNil(store.purchasingProductID)
         // StoreKit Testing records cancelled attempts too; they must not be successful payments.
         XCTAssertFalse(session.allTransactions().contains { $0.state == .purchased })
@@ -97,27 +98,27 @@ final class SupportPurchaseTests: XCTestCase {
         XCTAssertNil(store.purchasingProductID)
         let transaction = try XCTUnwrap(session.allTransactions().first)
         try session.approveAskToBuyTransaction(identifier: transaction.identifier)
-        try await eventually { self.store.message == self.thanks }
-        try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
+        try await awaitStoreKitState { self.store.message == self.thanks }
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().isEmpty }
     }
 
     func testStartupRecoversUnfinishedSupportPurchase() async throws {
         // No service exists when the transaction is created; the next instance must recover it.
         store = nil
         let transaction = try await session.buyProduct(identifier: SupportProduct.lunch.productID, options: [])
-        try await eventually { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
         store = SupportStore()
         // StoreKit's test server can take longer than 10 seconds to finish
         // recovered transactions on CI; this is not a product latency assertion.
-        try await eventually(timeout: 30) { self.store.message == self.thanks }
-        try await eventually { try await synchronizedUnfinishedTransactionIDs().isEmpty }
+        try await awaitStoreKitState(timeout: 30) { self.store.message == self.thanks }
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().isEmpty }
     }
 
     func testUnrelatedPurchaseIsNotFinishedBySupportStore() async throws {
         store = nil
         let transaction = try await session.buyProduct(identifier: "com.hiyozoo.bearlock.test.unrelated", options: [])
         XCTAssertEqual(transaction.productID, "com.hiyozoo.bearlock.test.unrelated")
-        try await eventually { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
+        try await awaitStoreKitState { try await synchronizedUnfinishedTransactionIDs().contains(transaction.id) }
         store = SupportStore()
         await store.loadProducts()
         // A support purchase confirms that the service has processed StoreKit work.
@@ -132,14 +133,7 @@ final class SupportPurchaseTests: XCTestCase {
         try await product.purchase()
     }
 
-    private func eventually(timeout: TimeInterval = 10, _ condition: () async throws -> Bool, file: StaticString = #filePath, line: UInt = #line) async throws {
-        let deadline = Date().addingTimeInterval(timeout)
-        while Date() < deadline {
-            if try await condition() { return }
-            try await Task.sleep(for: .milliseconds(100))
-        }
-        XCTFail("StoreKit did not reach the expected state within \(timeout) seconds", file: file, line: line)
-    }
+
 }
 
 // SKTestSession changes the test server outside StoreKit's purchase flow.
@@ -152,4 +146,17 @@ func synchronizedUnfinishedTransactionIDs() async throws -> Set<UInt64> {
         if case let .verified(transaction) = verification { result.insert(transaction.id) }
     }
     return result
+}
+
+// StoreKitTest mutates the server out of band; refresh while waiting for the real store's callbacks.
+@MainActor
+func awaitStoreKitState(timeout: TimeInterval = 10, _ condition: () async throws -> Bool,
+                       file: StaticString = #filePath, line: UInt = #line) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+        try await AppStore.sync()
+        if try await condition() { return }
+        try await Task.sleep(for: .milliseconds(100))
+    }
+    XCTFail("StoreKit did not reach the expected state within \(timeout) seconds", file: file, line: line)
 }

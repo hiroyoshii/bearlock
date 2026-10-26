@@ -175,16 +175,16 @@ final class SupportStore: ObservableObject {
             case let .success(verification):
                 await complete(verification)
             case .userCancelled:
-                diagnostics.record("Purchase.support.cancelled", detail: "product=\(product.id)")
-                message = L10n.string("The purchase was cancelled.")
+                diagnostics.record("Purchase.support.failed", detail: "product=\(product.id) result=userCancelled")
+                message = L10n.string("The purchase could not be completed.")
             case .pending:
                 diagnostics.record("Purchase.support.pending", detail: "product=\(product.id)")
                 message = L10n.string("The purchase is pending.")
             @unknown default:
                 diagnostics.record(
-                    "Purchase.support.unknownResult",
+                    "Purchase.support.failed",
                     level: .warning,
-                    detail: "product=\(product.id)"
+                    detail: "product=\(product.id) result=unknown"
                 )
                 message = L10n.string("The purchase could not be completed.")
             }

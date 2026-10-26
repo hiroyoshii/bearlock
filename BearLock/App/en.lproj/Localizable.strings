@@ -130,7 +130,6 @@
 "Get up" = "Get up";
 "Immediate wake-up is not available yet." = "Immediate wake-up is not available yet.";
 "Immediate wake-up could not be loaded." = "Immediate wake-up could not be loaded.";
-"Immediate wake-up could not be purchased." = "Immediate wake-up could not be purchased.";
 "The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket." = "The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket.";
 "This lock already ended. Your wake-up ticket is saved for next time." = "This lock already ended. Your wake-up ticket is saved for next time.";
 "Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up." = "Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up.";
@@ -204,7 +203,6 @@
 "Support items could not be loaded." = "Support items could not be loaded.";
 "Thank you. This helps Bear Lock keep growing quietly." = "Thank you for supporting Bear Lock.";
 "The purchase could not be verified." = "The purchase could not be verified.";
-"The purchase was cancelled." = "The purchase was cancelled.";
 "The purchase is pending." = "The purchase is pending.";
 "The purchase could not be completed." = "The purchase could not be completed.";
 "Purchases are not allowed on this device." = "Purchases are not allowed on this device.";

@@ -106,20 +106,20 @@ final class WakePurchaseStore: ObservableObject {
             case let .success(verification):
                 await complete(verification)
             case .userCancelled:
-                diagnostics.record("Purchase.wake.cancelled", detail: "product=\(product.id)")
+                diagnostics.record("Purchase.wake.failed", detail: "product=\(product.id) result=userCancelled")
                 await abandon?()
-                message = L10n.string("The purchase was cancelled.")
+                message = L10n.string("The purchase could not be completed.")
             case .pending:
                 diagnostics.record("Purchase.wake.pending", detail: "product=\(product.id)")
                 message = L10n.string("The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket.")
             @unknown default:
                 diagnostics.record(
-                    "Purchase.wake.unknownResult",
+                    "Purchase.wake.failed",
                     level: .warning,
-                    detail: "product=\(product.id)"
+                    detail: "product=\(product.id) result=unknown"
                 )
                 await abandon?()
-                message = L10n.string("Immediate wake-up could not be purchased.")
+                message = L10n.string("The purchase could not be completed.")
             }
         } catch {
             diagnostics.recordError(
@@ -128,7 +128,7 @@ final class WakePurchaseStore: ObservableObject {
                 detail: "product=\(product.id)"
             )
             await abandon?()
-            message = L10n.string("Immediate wake-up could not be purchased.")
+            message = L10n.string("The purchase could not be completed.")
         }
     }
 

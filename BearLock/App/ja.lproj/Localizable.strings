@@ -130,7 +130,6 @@
 "Get up" = "しかたなく起きる";
 "Immediate wake-up is not available yet." = "今すぐ起こす機能はまだ利用できません。";
 "Immediate wake-up could not be loaded." = "今すぐ起こす機能を読み込めませんでした。";
-"Immediate wake-up could not be purchased." = "今すぐ起こす購入を完了できませんでした。";
 "The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket." = "購入は承認待ちです。先にロックが終了した場合は、次回使える起床券になります。";
 "This lock already ended. Your wake-up ticket is saved for next time." = "このロックは終了済みです。起床券を次回用に保存しました。";
 "Locks end automatically at the chosen time. If needed, you can request a free wake-up in 30 minutes or purchase an immediate wake-up." = "指定時刻になると自動で解除します。必要な場合は無料で30分後に起こすか、購入してすぐ起こせます。";
@@ -204,9 +203,8 @@
 "Support items could not be loaded." = "支援項目を読み込めませんでした。";
 "Thank you. This helps Bear Lock keep growing quietly." = "Bear Lockへのご支援ありがとうございます。";
 "The purchase could not be verified." = "購入を確認できませんでした。";
-"The purchase was cancelled." = "購入をキャンセルしました。";
 "The purchase is pending." = "購入は保留中です。";
-"The purchase could not be completed." = "購入を完了できませんでした。";
+"The purchase could not be completed." = "購入できませんでした。";
 "Purchases are not allowed on this device." = "このデバイスでは購入が許可されていません。";
 "Reload support items" = "応援アイテムを再読み込み";
 
