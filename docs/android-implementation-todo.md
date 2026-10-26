@@ -46,8 +46,8 @@ P0 は外部テスト配布前、P1 は一般公開前に完了する。チェ�
 
 ### P0 — 配布前の実装・検証
 
-- [ ] **AND-01: GitHub Actions の確認** — main に統合した Android CI の結果を確認し、失敗を修正する。完了条件: main の対象コミットのビルド・テスト・lint成功を確認した記録。
-  - 2026-10-26: 公開Actions APIでmain `3e433c9` のAndroid系3workflowがSDK setupで失敗し、製品ビルド・テストには到達していないことを確認。setup-android v3の既定値に廃止済みtoolsが含まれるため、配布用を含む既存4workflowでplatform-toolsを明示する。修正後のCI結果は別途確認する。
+- [x] **AND-01: GitHub Actions の確認（2026-10-26）** — main `a2a0e5c` の[Android CI](https://github.com/hiroyoshii/bearlock/actions/runs/40277470846)でDebug/Releaseビルド・AAB生成・製品/検証用アプリの単体テスト・lintが成功。
+  - main `3e433c9` のAndroid系3workflowはSDK setupで失敗し、製品ビルド・テストには到達していなかった。setup-android v3の既定値に廃止済みtoolsが含まれるため、配布用を含む既存4workflowでplatform-toolsを明示。push後、通常CI・Android 14 Acceptance・Store AssetsのSDK setup成功を確認。配布workflowの新規手動実行と、後者2本の全試験完了はこのチェックの対象外。
 - [ ] **AND-02: UIの残差を仕上げる** — iOS/Android の選択内容・日時・タイムゾーンを揃えて再比較し、意図しないカード高さ・余白・改行差を修正する。ホーム、確認、実行中、対象選択、編集、設定を対象にする。完了条件: 対応する比較画像と、許容するOS固有差分の一覧。
   - 2026-10-25（セグメント追加依頼）: 両OSのモードを標準/ライブラリのセグメント式へ変更。Androidの日時ボタンを共通化し、iOSの共有DatePickerをcompact指定。旧画像だけでなく実装にも形状指定の差があった。iOSの変更後ビルド/UI試験/撮影はMac待ち。[今回の範囲と検証](android-ios-execution-plan.md#2026-10-25-両osのセグメント式と日時ボタン共通化)。
   - 2026-10-25（追記）: 自作LineIconとピン留め/Web削除/カテゴリ開閉の記号アイコンを廃止し、Google公式Material Icons Outlined全21種類へ置換。図形は上流ハッシュで照合し、出典・ライセンスを同梱。モード配置は変更なし。[置換範囲と検証](android-ios-execution-plan.md#2026-10-25-自作アイコンの撤去)。
@@ -69,6 +69,7 @@ P0 は外部テスト配布前、P1 は一般公開前に完了する。チェ�
 - [ ] **AND-10: Android向け公開文書を整える** — 日本語/英語のPrivacy Policy・Support・FAQを、ユーザー補助、Webアドレス欄の処理、端末内データ、対応範囲、通常UIの時間制限に合わせる。完了条件: アプリ内リンク先とReleaseの挙動が一致。
 - [ ] **AND-11: 署名付きReleaseで内部テストする** — 既存の署名・Play連携で署名済みAABを内部テストへ配布する。完了条件: 新規インストール・更新・保存データ維持・予約・自然解除を配布ビルドで確認。Debug用QA経路やフィクスチャが含まれないことも確認。
   - 2026-10-26: 鍵・Secrets・Play連携・過去のアップロードは設定済みとユーザー確認。[配布CI](https://github.com/hiroyoshii/bearlock/actions/runs/34709724321)で0.2.2 / 7の署名済みAAB生成・署名検証も成功済み。今回の候補の配信と端末確認は未実施。再設定はせず、[内部テスト配布手順](android-internal-testing.md)から進める。
+  - 同日、候補の単体74件（失敗0）・Release lint・AAB生成をローカルでも確認。ローカルAABは署名鍵を使っていないためアップロード対象にせず、既存の配布CIで署名済みAABを生成する。日英の[内部テスト用リリースノート](android-release-preparation.md#内部テスト版のリリースノート)を用意。
 - [ ] **AND-12: Play申告・素材を完成させる** — Accessibility申告、明示的同意の実演動画、Data safety、ストア説明と日英スクショを準備する。動画はReleaseの通常操作で撮影し、1分のDebug試験を製品操作として使わない。完了条件: 申告内容と署名済みReleaseの実態が一致。
 - [ ] **AND-13: 審査・配信・公開後確認** — 審査提出、指摘への対応、配信範囲を決めたリリース、ストアの表示と問い合わせ導線を確認する。完了条件: 配信結果と公開後チェックの記録。
 
