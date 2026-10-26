@@ -1888,28 +1888,5 @@
     "resultBundle": "ui-complete.xcresult",
     "sourceCommit": "b7e0d74c59f53776025a84bde00a4cecbb2e6417",
     "sha256": "017e72f7fc27e6c7322035799a5f618b58ac76629af3d63b7bed0e43f37b4e99"
-  },
-  {
-    "path": "screenshots/before/target-save-rejected.png",
-    "resultBundle": "target-save-before.xcresult",
-    "testIdentifier": "BearLockLaunchUITests/testTargetSaveFailureKeepsPickerDraftAndCancelKeepsSavedTargets()",
-    "sourceState": "f29448b with test fault injection, before UI fixes",
-    "sha256": "9a67c7356047cf33415462fc7969a77ef169c46bcf813b421720ce315ca2c08e"
-  },
-  {
-    "path": "screenshots/before/schedule-create-rejected.png",
-    "resultBundle": "ui-final.xcresult",
-    "testIdentifier": "BearLockLaunchUITests/testScheduleSaveFailureKeepsConfirmationAndEditorDraft()",
-    "sourceState": "f29448b with test fault injection, before UI fixes",
-    "sha256": "0e2a138398c98954b54e0a24f22bef7a1c1caffa1019796523b4bbb4e531c524"
-  },
-  {
-    "path": "screenshots/storekit-ios27-signin.png",
-    "resultBundle": "purchases.xcresult (interrupted)",
-    "deviceId": "830534AF-208F-4222-852A-41E141717CEA",
-    "deviceName": "BearLock StoreKit iPhone (iPhone 16, iOS 27.0)",
-    "phase": "initial CLI purchase stopped at Apple Account prompt; no credentials entered",
-    "sourceState": "initial f29448b-based trial; purchase product code unchanged",
-    "sha256": "6df8af450cd9575416eba80c1e6c269e84924259583d4eb063fe51876158569e"
   }
 ]

@@ -1,5 +1,7 @@
 # Android UI修正とiOS比較（2026-09-08）
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 [レビューの17項目](android-ui-review-2026-09-08.md)を修正。Android版は0.1.1 / versionCode 2。
 
 ## 変更内容
@@ -31,29 +33,29 @@
 
 ### ホーム
 
-![ホーム比較](qa/android-ui-refresh/compare/ja/home.png)
+[ホーム比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/compare/ja/home.png)
 
 ### 繰り返し
 
-![繰り返し比較](qa/android-ui-refresh/compare/ja/composeRepeat.png)
+[繰り返し比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/compare/ja/composeRepeat.png)
 
 ### ロック中
 
-![ロック中比較](qa/android-ui-refresh/compare/ja/activeLock.png)
+[ロック中比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/compare/ja/activeLock.png)
 
 ### 確認
 
-![確認比較](qa/android-ui-refresh/compare/ja/confirmation.png)
+[確認比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/compare/ja/confirmation.png)
 
-[英語ホーム](qa/android-ui-refresh/compare/en/home.png)・[セットアップ](qa/android-ui-refresh/compare/ja/setup.png)・[設定](qa/android-ui-refresh/android/ja/settings.png)
+[英語ホーム（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/compare/en/home.png)・[セットアップ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/compare/ja/setup.png)・[設定（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/android/ja/settings.png)
 
 ## 実際の操作と文字拡大
 
-[対象選択](qa/android-ui-refresh/interactions/targets-apps.png)・[実確認シート](qa/android-ui-refresh/interactions/confirmation-sheet.png)・[予約編集](qa/android-ui-refresh/interactions/scheduled-editor.png)
+[対象選択（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/interactions/targets-apps.png)・[実確認シート（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/interactions/confirmation-sheet.png)・[予約編集（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/interactions/scheduled-editor.png)
 
-[320dp・文字150%ホーム](qa/android-ui-refresh/large-text/home.png)・[繰り返し](qa/android-ui-refresh/large-text/repeat-controls.png)・[設定](qa/android-ui-refresh/large-text/settings.png)・[対象選択](qa/android-ui-refresh/large-text/targets.png)・[確認シート](qa/android-ui-refresh/large-text/confirmation.png)・[横向き確認シート](qa/android-ui-refresh/large-text/confirmation-landscape.png)・[長い対象名](qa/android-ui-refresh/large-text/confirmation-long-target.png)
+[320dp・文字150%ホーム（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/home.png)・[繰り返し（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/repeat-controls.png)・[設定（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/settings.png)・[対象選択（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/targets.png)・[確認シート（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/confirmation.png)・[横向き確認シート（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/confirmation-landscape.png)・[長い対象名（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/large-text/confirmation-long-target.png)
 
-[操作の録画](qa/android-ui-refresh/acceptance/stability.mp4)・[配置検証結果](qa/android-ui-refresh/acceptance.json)・[保存／編集／削除の検証結果](qa/android-ui-refresh/interactions/result.json)
+[操作の録画（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/acceptance/stability.mp4)・[配置検証結果（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/acceptance.json)・[保存／編集／削除の検証結果（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/interactions/result.json)
 
 ## 検証条件
 
@@ -61,8 +63,8 @@ Pixel 9aエミュレーター / Android 15 API 35。標準1284×2778・density 4
 
 実機の全メーカー、TalkBack全操作、全ての長さの対象名を検証したという意味ではない。既存のAndroid製品版TODOの端末・権限・配信検証は継続する。
 
-単体テスト14件、Release lint、Debug APK・Release AABのビルドが成功。通常UIの保存・編集・取消など12項目、配置・文字拡大の追加検証8項目が成功。[ビルドログ](qa/android-ui-refresh/build.log)・[単体テスト結果](qa/android-ui-refresh/planner-tests.xml)。
+単体テスト14件、Release lint、Debug APK・Release AABのビルドが成功。通常UIの保存・編集・取消など12項目、配置・文字拡大の追加検証8項目が成功。[ビルドログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/build.log)・[単体テスト結果（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/planner-tests.xml)。
 
 今回のローカルRelease AABは署名用Secretsを使用していない。配布にはmainのAndroid Internal Releaseを新規実行して署名済みAABを取得する。PlayでversionCode 2が既に使用済みなら、さらに大きい値へ変更する。リモートCIとPlayへの配信は今回未確認。
 
-再現用スクリプト: `product_ui_parity_verify.py`（既存の保存・編集操作）、`product_ui_refresh_verify.py`（配置・文字拡大・撮影）、`product_ui_long_text_verify.py`（長い対象名）。今回の保存・編集操作は出力先のみ `artifacts/android-ui-refresh/interactions` に変更して実行した。比較図は `android_screenshot_diff.py --directory docs/qa/android-ui-refresh` で生成する。
+再現用スクリプト: `product_ui_parity_verify.py`（既存の保存・編集操作）、`product_ui_refresh_verify.py`（配置・文字拡大・撮影）、`product_ui_long_text_verify.py`（長い対象名）。今回の保存・編集操作は出力先のみ `artifacts/android-ui-refresh/interactions`（旧ローカル出力・整理済み） に変更して実行した。比較図は当時の専用スクリプトで生成した。入力画像と専用スクリプトは整理済みで、現在の撮影入口は [スクリーンショット一覧](../ANDROID_SCREENSHOTS.md) を参照する。

@@ -1,5 +1,7 @@
 # Android target picker performance and iOS interaction parity
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 ## Implementation
 
 - iOS continues using Apple's `FamilyActivityPicker`, with draft selection, Cancel, and Save.
@@ -27,6 +29,6 @@ Debug Logcat tag `BearLockPicker` records time from opening the picker to the fi
 
 - Final debug build, 20 Planner unit tests, and lint: PASS (`BUILD SUCCESSFUL in 3m 47s`).
 - Android 14 emulator instrumentation: PASS, 1,000 candidates / 13 attached rows. Category header tap expands/collapses and keeps child views bounded.
-- Actual device catalog: 15 candidates / 7 attached rows. Screenshots: [apps](apps.png), [expanded category](categories.png).
-- The local emulator experienced System UI ANRs and host contention. Raw timings are retained in [timing-log.txt](timing-log.txt), but they are not a reliable before/after performance comparison or a physical-device latency guarantee.
+- Actual device catalog: 15 candidates / 7 attached rows. Screenshots: [apps（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/target-picker-2026-09-13/apps.png), [expanded category（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/target-picker-2026-09-13/categories.png).
+- The local emulator experienced System UI ANRs and host contention. Raw timings are retained in [timing-log.txt（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/target-picker-2026-09-13/timing-log.txt), but they are not a reliable before/after performance comparison or a physical-device latency guarantee.
 - Android 14 CI now runs the picker test; remote CI results are not verified in this report.

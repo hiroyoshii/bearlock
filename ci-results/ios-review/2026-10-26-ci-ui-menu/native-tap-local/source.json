@@ -1,6 +1,0 @@
-{
-  "baselineCommit": "e3af31ec508c8421e4c2a06656444d6947c61ad2",
-  "candidateTestFileSHA256": "4d08424f627934cdd09776954893f5272142c5772b45d3daaf2e4e66d1b25ca6",
-  "xcode": "27.1 (27A9275)",
-  "scope": "Two existing failed UI cases only; final CI verification pending"
-}

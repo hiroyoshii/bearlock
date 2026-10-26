@@ -76,6 +76,12 @@ The mock e2e tests currently cover setup launch, immediate lock creation, delaye
 
 Pushes to the repository are expected to start this workflow automatically.
 
+## Verification artifacts
+
+Keep the current gallery in `ci-screenshots/`, the latest evidence for each verification scope in `ci-results/`, and evidence needed for unresolved issues. Capture provenance (source/APK hash, OS, test scope) travels with retained results; a newer build-only run does not replace UI or device evidence.
+
+Write local captures, reports and logs under ignored `artifacts/`. Replace superseded output instead of accumulating dated copies. Historical QA prose may link to a fixed Git commit; superseded images, rejected attempts, comparison exports and intermediate logs are not retained in the working tree. See [current captures](ANDROID_SCREENSHOTS.md) and [verification scope](docs/qa/android-ios-structure-audit-2026-10-25.md).
+
 ## Remaining Work
 
 製品方針は [現行仕様](docs/design-doc.md) を参照してください。[Android / iOS整合の実装・検証記録](docs/android-ios-execution-plan.md) は過去の結果であり、仕様変更の計画書ではありません。

@@ -1,5 +1,7 @@
 # Android / iOS 整合の実装・検証記録
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 現行の製品仕様・OS別方針・構造は [設計正本](design-doc.md) に集約した。本書は実施日・APK・参照画像・検証結果と限界の記録であり、製品仕様や今後の実行計画の正本ではない。
 
 2026-10-25整理: iOS課金廃止を前提にした記述、未採用のA〜F計画、古い差分/着手候補表を削除した。iOSの課金・チケットは維持する確定仕様である。以下の記録は当時の版・条件に限る。旧UIや古い完了件数を現在の保証としない。公開作業の進捗は [Android TODO](android-implementation-todo.md) と既存のtodo.mdで管理する。
@@ -35,7 +37,7 @@ AndroidのDebug/Releaseビルド・製品単体74件（失敗0）・Debug lint�
 
 検証APK: `93c882fea3179ba6644fac2d0127bed5303815be212102a4239cd9602055b507`。Debug/Releaseビルド、Android単体57件、Lint 0 errors / 41 warnings（Material導入でUseKtx推奨20件が追加）。既存EditorInstrumentationで単一選択と、日時指定/繰り返し/各編集の文字サイズ・最小サイズ・余白・角丸の一致を検査する。Swiftコア71件と変更したSwift/UIテストの構文解析は成功。Linux環境にはXcode/iOS SDKがなく、iOSアプリビルド・UIテスト・変更後撮影は未実施。コアテストをiOS UIの完了根拠にしない。
 
-比較のiOS画像4e9e377は変更前の公開fixture。比較ページにも旧画像・変更後未撮影と明記し、両OS変更後の一致を示すものとして扱わない。Androidの再撮影先は `artifacts/android-product/segments-time-2026-10-25/`、Beforeは直前の11c2e351。
+比較のiOS画像4e9e377は変更前の公開fixture。比較ページにも旧画像・変更後未撮影と明記し、両OS変更後の一致を示すものとして扱わない。Androidの再撮影先は `artifacts/android-product/segments-time-2026-10-25/`（旧ローカル出力・整理済み）、Beforeは直前の11c2e351。
 
 最終APKでAPI26通常幅のEditor/Lock/Picker/Recovery、320dp・文字200%のEditor/Recoveryが成功。途中の狭幅Recoveryでは旧ボタン行のLinearLayoutを前提にしたテストの型変換が失敗し、新しいライブラリセグメント＋横スクロール容器の検査へ変更して再実行した。製品側の代替描画経路やテスト用フォールバックは追加していない。
 
@@ -51,7 +53,7 @@ Androidの `LineIcon.kt` による手書きのパス描画と、Unicode記号か
 
 検証用APK: `11c2e35147929156734fe6d7d32ee206101b4dcfc497240916dbabe197979094`。Debug/Releaseビルド、単体57件、Lint 0 errors / 21 warnings。既存EditorInstrumentationで出典一覧にある全アイコンのVectorDrawable読み込み・非空描画・色付けを検査する。ピン留め・Web削除・カテゴリ開閉の記号文字も既成アイコンへ置換した。新しい診断画面や代替描画経路は追加しない。
 
-同じ最終APKでAPI26通常幅のEditor/Lock/Picker/Recovery、320dp・文字200%のEditor/Recoveryが成功。途中の通常幅Recoveryでは自動クリックが一度失敗し、同条件の再実行は成功。最終APKで改めて全系統を通した。日英16状態ずつ、操作前後128枚・16フローを `artifacts/android-product/material-icons-final-2026-10-25/capture-result.json` に記録し、完了フラグと画像/APKハッシュを照合した。比較のBeforeはアイコン置換直前の86558651へ更新し、現在のiOS画像は4e9e377のまま維持。実機/OEM・TalkBack音声・全OS検証を完了したという意味ではない。
+同じ最終APKでAPI26通常幅のEditor/Lock/Picker/Recovery、320dp・文字200%のEditor/Recoveryが成功。途中の通常幅Recoveryでは自動クリックが一度失敗し、同条件の再実行は成功。最終APKで改めて全系統を通した。日英16状態ずつ、操作前後128枚・16フローを `artifacts/android-product/material-icons-final-2026-10-25/capture-result.json`（旧ローカル出力・整理済み） に記録し、完了フラグと画像/APKハッシュを照合した。比較のBeforeはアイコン置換直前の86558651へ更新し、現在のiOS画像は4e9e377のまま維持。実機/OEM・TalkBack音声・全OS検証を完了したという意味ではない。
 
 Webの追加→公式closeアイコンから削除→空の選択を保存する実操作も成功（同撮影フォルダー内 `web-remove-verification/result.json`）。ギャラリーは20部品切り出しの元画像一致、画像260点のリンク切れゼロ、ページ内リンク、日英切替、320/768/1024/1440幅の横はみ出しなしを検査した。比較サイトは同じ8765ポートを維持し、新APKクエリ `apk=11c2e351` でキャッシュを区別する。
 
@@ -69,18 +71,18 @@ Webの追加→公式closeアイコンから削除→空の選択を保存する
 
 検証: Debug/Releaseビルド、単体57件成功、Lintは0 errors（既存を含む21 warnings）。同じ最終Debug APK `86558651ffd11a64e11244241723d6b9588b1d0371278b413b3e415fa49c1e4f` でAPI26通常幅のEditor/Lock/Picker/Recoveryが全成功。320dp・文字200%でもEditor/Recoveryが成功。Recoveryの通常幅専用auto-size検査を大文字設定へ無条件に適用していたテストを修正し、大文字では自動縮小しないことを検査した。最初のRecovery撮影失敗は残っていた論理解像度overrideを標準へ戻して解消し、同じテストを再実行済み。
 
-日英各16状態・操作前後128枚・16フローの撮影が完了し、`artifacts/android-product/ios-align-final-2026-10-25/capture-result.json` の `completeLatestCapture=true`、各画像/インストール済みAPKのハッシュ一致を確認した。Before/After18組と、現在のiOSとの部品/画面比較をギャラリーへ反映。部品切り出し20枚が元画像の宣言座標と完全一致することも検査した。iOSとの同条件の遷移連写、全OS/実機、TalkBack音声、実30分待機は今回の完了条件に含めず、未確認のまま明示する。比較レポートは画面/部品/機能/非対応を分け、ピクセル一致をUI受入の完了根拠にしない。
+日英各16状態・操作前後128枚・16フローの撮影が完了し、`artifacts/android-product/ios-align-final-2026-10-25/capture-result.json`（旧ローカル出力・整理済み） の `completeLatestCapture=true`、各画像/インストール済みAPKのハッシュ一致を確認した。Before/After18組と、現在のiOSとの部品/画面比較をギャラリーへ反映。部品切り出し20枚が元画像の宣言座標と完全一致することも検査した。iOSとの同条件の遷移連写、全OS/実機、TalkBack音声、実30分待機は今回の完了条件に含めず、未確認のまま明示する。比較レポートは画面/部品/機能/非対応を分け、ピクセル一致をUI受入の完了根拠にしない。
 
 ### U1の実装・検証状況
 
 2026-10-11進捗: Androidのカード/無料起床操作、予約保存（schema 3読込→4保存）、実効終了、重複判定、次の境界、Service/Shield連動を実装。課金や新しい対象選択画面は追加していない。現在の契約は [設計正本の共通仕様](design-doc.md#common) へ集約済み。コード/単体検証と、UI/実機の完了を分けて記録し、後者が未確認ならU1全体を完了扱いにしない。
 
 - 確認済み: `0640730` + Android作業差分。採用したiOSカード/起床ダイアログは `cade62c` から変更なし。単体48件（既存31、起床14、Codec3）成功。Debug/ReleaseビルドとLint成功（0 errors、17 warnings）。JSON依存はテスト限定。
-- Windowsのread-only Pixel 9a/API35で、日英の実画面、schema 3→4、予約/取消/再予約、アプリ再起動での保持、短縮fixtureで本体を開かない背景解除とProbe入力復帰が成功。幅320dp・文字200%でも同じ操作が成功。証拠は `artifacts/android-product/free-wake/` と `free-wake-compact/` の `result.json`・スクショ。
+- Windowsのread-only Pixel 9a/API35で、日英の実画面、schema 3→4、予約/取消/再予約、アプリ再起動での保持、短縮fixtureで本体を開かない背景解除とProbe入力復帰が成功。幅320dp・文字200%でも同じ操作が成功。証拠は `artifacts/android-product/free-wake/`（旧ローカル出力・整理済み） と `free-wake-compact/` の `result.json`・スクショ。
 - 最終レビューで、起床済みの繰り返しが「実行中・編集不可」に残る不具合も修正した。編集可否をStateの実効終了へ統一し、期限前の拒否・期限後の編集・今回の再ロック防止・次週の反映を単体と実画面で確認。
 - 同じ不具合をiOS編集画面でも修正（2026-10-11）。`RecurringRuleEditorView` の元の終了時刻による独自判定を削除し、一覧・保存処理と同じ `LockState.validateEditable` を参照。Coreの期限前/期限後/取消後/翌日の回帰を含む71件成功、変更Swiftファイルの構文検査成功。既存UIテストに起床済み繰り返しの操作・保存回帰を追加したが、Windows/WSLではXcodeがないためiOSビルド/UI実行は未確認。
-- 最終APKで正確なアラーム権限なしの警告、予約/取消/再起動保持、本体を開かない背景解除とProbe入力復帰も成功（短縮fixture）。証拠は `artifacts/android-product/free-wake-without-exact/result.json`。同じ試験を既存Acceptance CIにも追加。
-- `RecoveryInstrumentation` は隔離した保存領域で予約/取消の保存失敗、保存成功後のOS登録失敗、再試行での期限保持、別代表へ変わった確認の拒否、30分以下の予約禁止、起床済み繰り返しの編集を確認。`LockInstrumentation` のnative保存/監視/Shield失敗回帰、`EditorInstrumentation` の再生成/下書き保持も最終APKで成功。各ログと画面は `artifacts/android-product/recovery/`。テスト終了時は実保存状態から監視を復旧する。
+- 最終APKで正確なアラーム権限なしの警告、予約/取消/再起動保持、本体を開かない背景解除とProbe入力復帰も成功（短縮fixture）。証拠は `artifacts/android-product/free-wake-without-exact/result.json`（旧ローカル出力・整理済み）。同じ試験を既存Acceptance CIにも追加。
+- `RecoveryInstrumentation` は隔離した保存領域で予約/取消の保存失敗、保存成功後のOS登録失敗、再試行での期限保持、別代表へ変わった確認の拒否、30分以下の予約禁止、起床済み繰り返しの編集を確認。`LockInstrumentation` のnative保存/監視/Shield失敗回帰、`EditorInstrumentation` の再生成/下書き保持も最終APKで成功。各ログと画面は `artifacts/android-product/recovery/`（旧ローカル出力・整理済み）。テスト終了時は実保存状態から監視を復旧する。
 - 30分実待ちも成功（2026-10-11、日本時間15:07:38に再予約→15:37:38期限）。時計・保存期限を短縮せず、前面Probeを維持したまま本体を開かず入力復帰。期限+226msにShield除去ログ、期限+3,524msの入力対照で復帰を観測した。これはこのエミュレーターでの観測でありOS/OEMの精度保証ではない。`free-wake-real-time/result.json` と同配下の保存状態・診断ログを証拠とする。実待ちAPKは `ed28cfcd…`（その後の編集可否修正は解除処理を変更せず、単体と最終APKで再検証）。
 - 最終APKのSHA-256: Debug `ff7625a02597beb932016cd94733cec3d411bc901b4b4cb83edcfaec070cad3c`、未署名Release `11f8e416c7746704e2fcdcc9665e9bccc91615f38031f564e8219a3a33037fa3`。最初の長時間試験は前面がホームへ変わり入力対照が不成立だったため合格に含めない。
 - 未確認: TalkBackの音声/実操作、実機/OEM。今回のAndroid実装とローカルQAのFIXは、公開ゲート完了とは分ける。実機結果が揃うまでU1の公開ゲートは未完了。
@@ -110,8 +112,8 @@ Webの追加→公式closeアイコンから削除→空の選択を保存する
 - 最終APKでRecovery/Editor/LockInstrumentation成功。通常権限・正確なアラーム権限なしの無料起床予約/取消/再起動/前面Probeのバックグラウンド解除を再検証。短縮fixtureの試験であり、上記U1の30分実待ちと実機/OEM試験とは区別する。
 - 通常幅・320dp/文字200%・横画面それぞれの日英で、対象3種類のゼロ件表示、曜日の選択状態/フルラベル、次回プレビュー、確認画面のスクロール/取消・保存原本不変を確認。12/24時間のプレビューと標準pickerのAM/PM・午前/午後表示も確認。証拠は `artifacts/android-product/ui-parity-u2-u8/layouts/result.json` と同配下のPNG/XML。
 - 重複する繰り返しの実行中編集禁止、最初の期限で遮断維持・最後の期限で本体を開かず入力復帰、実行中繰り返しの削除取消・一件削除後の残りの遮断・最終削除で入力復帰が成功。証拠は `artifacts/android14/recurring-contract/result.json` / `recurring-deletion/result.json`。Android 15で診断出力の `ty` 表記が名称へ変わるため、既存試験のoverlay検出はWindowTokenの数値 `type=2032` を使うよう修正した。
-- 初回説明→対象選択→権限の取消/開示拒否/OS設定→元の30分draftの確認→再起動で初回説明を繰り返さない導線が成功。証拠は `artifacts/android14/onboarding/result.json`。Shieldの実際の「熊を起こす」→該当回の起床確認→取消でも保存原本不変を確認（`ui-parity-u2-u8/shield`）。
-- 最終APKで既存UI取引試験15条件が成功（選択取消/保存、アプリ+Web、再起動、履歴・ピン、確認取消、遅延作成/編集/削除、繰り返し有効切替の取消/保存、削除、権限設定）。証拠は `artifacts/android-product/ui-parity-u2-u8/interactions/result.json`。日英ともブラウザなしの設定リンク/応援リンクが専用エラーを表示することも確認し、QAエミュレーターのChromeは再有効化した（`browser-unavailable/result.json`）。
+- 初回説明→対象選択→権限の取消/開示拒否/OS設定→元の30分draftの確認→再起動で初回説明を繰り返さない導線が成功。証拠は `artifacts/android14/onboarding/result.json`（旧ローカル出力・整理済み）。Shieldの実際の「熊を起こす」→該当回の起床確認→取消でも保存原本不変を確認（`ui-parity-u2-u8/shield`）。
+- 最終APKで既存UI取引試験15条件が成功（選択取消/保存、アプリ+Web、再起動、履歴・ピン、確認取消、遅延作成/編集/削除、繰り返し有効切替の取消/保存、削除、権限設定）。証拠は `artifacts/android-product/ui-parity-u2-u8/interactions/result.json`（旧ローカル出力・整理済み）。日英ともブラウザなしの設定リンク/応援リンクが専用エラーを表示することも確認し、QAエミュレーターのChromeは再有効化した（`browser-unavailable/result.json`）。
 
 実機はユーザー回答により現在USB接続不可。AND-03〜09等の実機/OEM/ブラウザ保証、TalkBack音声、署名/配布は未完了。GitHub CLI未認証でAND-01のリモートCI結果も未確認。デザイン比較は以下の保存済みiOS画像で進められる。画像不足の画面と実機操作検証は別に未完了とする。
 
@@ -131,17 +133,17 @@ Firefox 153のComposeアドレス欄が旧View IDでは取得できず、通常�
 
 V01/V02/V03/V04/V09を修正。参照は9/21のI1/I5。白いカプセルの既存ロゴ素材、白丸の設定、見出し右の総数、大きな数字と種類の3枚カード、淡色の対象選択カプセル、アイコン付き太字の対象一覧、枠を除いた詳細、開始/予約/確認/取消の役割別カプセルを実装した。既存Uiの色・描画を使い、汎用ボタン全体や保存・無料30分後起床・課金・曜日の契約は変更していない。V12の確認画面全体は未完了。
 
-比較画像は `docs/qa/android-home-design-2026-10-11/`。通常英語は3 Apps / 0 Categories / 0 Websites、Now / 120 min、展開/折畳み、履歴件数5/3/2を揃えた。ロゴ形・ボタン形・情報順を一致させ、実アプリアイコン/名前とOSフォントは理由付きOS差とする。履歴の代表名表示はV05の残差。320dp日本語でも通常は3枚、文字200%では数字カードを縦積みにして読めることを優先する。選択の青文字は淡色背景とのコントラスト4.73:1、実行中の対象固定は読める説明を維持する。操作域は設定48dp、一覧44dp、対象選択/主要操作50dp以上を維持する。
+比較画像は [docs/qa/android-home-design-2026-10-11/（履歴）](https://github.com/hiroyoshii/bearlock/tree/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-home-design-2026-10-11)。通常英語は3 Apps / 0 Categories / 0 Websites、Now / 120 min、展開/折畳み、履歴件数5/3/2を揃えた。ロゴ形・ボタン形・情報順を一致させ、実アプリアイコン/名前とOSフォントは理由付きOS差とする。履歴の代表名表示はV05の残差。320dp日本語でも通常は3枚、文字200%では数字カードを縦積みにして読めることを優先する。選択の青文字は淡色背景とのコントラスト4.73:1、実行中の対象固定は読める説明を維持する。操作域は設定48dp、一覧44dp、対象選択/主要操作50dp以上を維持する。
 
 最終画像照合で文字200%のスクロール後に固定ヘッダーが消える描画不具合も修正した。固定ヘッダー自身の背景と描画順を明示し、同条件のスクロール後画像でロゴ・設定の残存を確認した。画像の座標情報だけを合格判定にはしていない。
 
-証拠は `artifacts/android-product/home-design-fix/`。単体57件、Debug/unsigned Releaseビルド、lint 0 errors / 21 warnings。Debug SHA256: `c789b3600235a55c8960704f95db0fd1864692fcd506ad67c27b002ee39f0bbe`、unsigned Release: `2a24b25d6119342d21167b297507f1b2358ee6520fa4e392bfd4ee39d61bdea9`。API34の実操作15件、native回帰3系統、通常/320dp/文字200%/横画面/キーボード5確認がすべて成功。同じ最終Debug APKのハッシュを各result.jsonに記録した。対象fixtureはQA用、実機/OEM・TalkBack音声・30分実時間の検証ではない。OS起動時のSystemUI ANRや失敗した診断は成功件数に含めない。
+証拠は `artifacts/android-product/home-design-fix/`（旧ローカル出力・整理済み）。単体57件、Debug/unsigned Releaseビルド、lint 0 errors / 21 warnings。Debug SHA256: `c789b3600235a55c8960704f95db0fd1864692fcd506ad67c27b002ee39f0bbe`、unsigned Release: `2a24b25d6119342d21167b297507f1b2358ee6520fa4e392bfd4ee39d61bdea9`。API34の実操作15件、native回帰3系統、通常/320dp/文字200%/横画面/キーボード5確認がすべて成功。同じ最終Debug APKのハッシュを各result.jsonに記録した。対象fixtureはQA用、実機/OEM・TalkBack音声・30分実時間の検証ではない。OS起動時のSystemUI ANRや失敗した診断は成功件数に含めない。
 
 回帰試験は既存経路を拡張した。空/混合/実行中のサマリーと対象固定をRecoveryで検証、Editorは前の試験状態を引き継がない初期化へ置換。操作ヘルパーは祖先の表示領域との交差内をタップするように修正し、画面外座標の擬似成功を除いた。別のテスト一覧や保存経路は増やしていない。
 
 ### 一覧密度・実行中・確認の追加修正（2026-10-11）
 
-上のHOME記録は前段APKの履歴。この追加変更でV05〜V15とV02〜V04/V09の残る密度・文字階層を修正した。参照正本は9/21コミット `483eec28bdb9dd30a33ab3dde9f2c78e54343c34` のI1〜I5と対応SwiftUIソース。最新Android比較画像は `docs/qa/android-ios-density-2026-10-11/`。
+上のHOME記録は前段APKの履歴。この追加変更でV05〜V15とV02〜V04/V09の残る密度・文字階層を修正した。参照正本は9/21コミット `483eec28bdb9dd30a33ab3dde9f2c78e54343c34` のI1〜I5と対応SwiftUIソース。最新Android比較画像は [docs/qa/android-ios-density-2026-10-11/（履歴）](https://github.com/hiroyoshii/bearlock/tree/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-density-2026-10-11)。
 
 一致させたアプリ所有の表示:
 
@@ -159,7 +161,7 @@ V01/V02/V03/V04/V09を修正。参照は9/21のI1/I5。白いカプセルの既�
 
 無料操作の表示改善に伴い、ホームを開いたまま残り30分を跨ぐとボタンが残る経路も修正。Plannerの `canScheduleFreeWake` を保存/ホーム/確認の判定正本とし、既存heartbeatの表示キーへ資格変化を含めた。クリックや画面遷移なしに4.5秒の実時計経過でボタンが消え、保存予定が不変である回帰試験を既存Recoveryへ追加。予約済みの取消は引き続き表示する。
 
-最終Debug SHA256: `2dd5c1b74c78faba0b2025667028ada0092c4717cd065da5b42077cd6d90e4d1`、unsigned Release: `384dd30e990398fd1f899262eef387b749962926a350e4a82cbcb224baa08758`。単体57件、Debug/unsigned Releaseビルド、lint 0 errors / 21 warnings。証拠正本は `artifacts/android-product/home-density-fix/` のnative/interactions/free-wake/visual各result.json。同じDebug APKでnative3系統、実操作15件、画面/操作11確認、無料起床の予約・取消・保存維持・ユーザー補助/アラーム許可の切断復旧・期限後入力復帰が成功。4つの結果のAPKハッシュ一致も確認済み。最終画面は上記docsの画像、nativeの最終証拠は3つのInstrumentationログで、途中診断の画像を最終APK画像として扱わない。
+最終Debug SHA256: `2dd5c1b74c78faba0b2025667028ada0092c4717cd065da5b42077cd6d90e4d1`、unsigned Release: `384dd30e990398fd1f899262eef387b749962926a350e4a82cbcb224baa08758`。単体57件、Debug/unsigned Releaseビルド、lint 0 errors / 21 warnings。証拠正本は `artifacts/android-product/home-density-fix/`（旧ローカル出力・整理済み） のnative/interactions/free-wake/visual各result.json。同じDebug APKでnative3系統、実操作15件、画面/操作11確認、無料起床の予約・取消・保存維持・ユーザー補助/アラーム許可の切断復旧・期限後入力復帰が成功。4つの結果のAPKハッシュ一致も確認済み。最終画面は上記docsの画像、nativeの最終証拠は3つのInstrumentationログで、途中診断の画像を最終APK画像として扱わない。
 
 期限後入力復帰のみ8秒へ短縮したfixtureを使う。30分実待機、実機/OEM、TalkBack音声、API26/35での今回の視覚受入、リモートCI・署名配布はこの結果に含めない。失敗した診断・試験前提や再接続準備の修正前結果は成功扱いにしない。最新実機iOSの実行確認ではなく9/21基準の照合。V13は対応予約行、V15は比較画面の横断整理で、V17の未提示画面を一致済みとしない。
 
@@ -174,20 +176,20 @@ V01/V02/V03/V04/V09を修正。参照は9/21のI1/I5。白いカプセルの既�
 
 既存RecoveryのHOME検証へ12sp上限、44dp操作域、18dp行間、本文色のチェックを追加。別のテスト一覧やUI実装は作らない。単体57件成功、Debug/unsigned Releaseビルド成功、lint 0 errors / 21 warnings、API34 native回帰3系統成功。Debug SHA256 `f14d3e35b3888ecc505c022c0a282e0ea025ed777ec9121b7774fc2249dbba9f`、unsigned Release `bbe4e5f6d374a019f5ca642f1e369820125278987bd3d0ba33dc8d623b4d1f7a`。証拠は `artifacts/android-product/ios-polish-2026-10-17/` に分離し、前段APKの画像・ハッシュを上書きしない。
 
-実操作15件も同じDebug APKで成功し、native/interactions各result.jsonのハッシュ一致を確認した。この時点では最終スクショ照合は未完了だったが、後続の2026-10-17再撮影で同一APKの日英16状態ずつをAndroid 8/API26で取得した。操作前後124枚・日英計16フロー、APK実体と画像のSHA-256は `artifacts/android-product/full-capture-2026-10-17/capture-result.json` に記録した。2026-10-18に比較粒度を訂正し、[比較一覧](../ANDROID_SCREENSHOTS.md)を画面6・部品5・目的4・非対応1へ分離。現在のiOS公開画像はdd83005 / run 39010305244（曜日修正後）。撮影専用の部品ホストをAndroid実ホームと全画面比較していた経路と、OS間RGB差分を撤去した。蜂蜜による課金起床結果と自然終了ホームは別操作のためペア解除し、Androidの不足機能とはしない。モード構成、選択色、日時入力、編集/設定のグループ構成などの実在する差と、状態・OS・方針差を分けて定義JSONで管理する。撮影完了をUI一致やV01〜V17の視覚受入完了とは扱わない。実機、TalkBack、iOSとの同条件の遷移撮影、Android 14の最新全画面撮影は未実施。
+実操作15件も同じDebug APKで成功し、native/interactions各result.jsonのハッシュ一致を確認した。この時点では最終スクショ照合は未完了だったが、後続の2026-10-17再撮影で同一APKの日英16状態ずつをAndroid 8/API26で取得した。操作前後124枚・日英計16フロー、APK実体と画像のSHA-256は `artifacts/android-product/full-capture-2026-10-17/capture-result.json`（旧ローカル出力・整理済み） に記録した。2026-10-18に比較粒度を訂正し、[比較一覧](../ANDROID_SCREENSHOTS.md)を画面6・部品5・目的4・非対応1へ分離。現在のiOS公開画像はdd83005 / run 39010305244（曜日修正後）。撮影専用の部品ホストをAndroid実ホームと全画面比較していた経路と、OS間RGB差分を撤去した。蜂蜜による課金起床結果と自然終了ホームは別操作のためペア解除し、Androidの不足機能とはしない。モード構成、選択色、日時入力、編集/設定のグループ構成などの実在する差と、状態・OS・方針差を分けて定義JSONで管理する。撮影完了をUI一致やV01〜V17の視覚受入完了とは扱わない。実機、TalkBack、iOSとの同条件の遷移撮影、Android 14の最新全画面撮影は未実施。
 
 撮影時に旧 `bearlock-qa-api34` でANR。保存した `diagnostics/anr.txt` ではmainがRenderProxy.setStopped待ち、RenderThreadがqemu_pipe_read経由のglCreateProgram待ちだった。再起動後はOSのnetdが `libnetd_resolv.so` 欠損で起動を繰り返した。既存AVDは消去せず停止。新規 `bearlock-polish-api34` / swangleでもSystem UI・system processの応答待ちが続き、host GPU（D3D12 / Intel Iris Xe認識）でも安定接続に至らなかった。最後に既存API26は起動完了ログが出たがADB/console接続が確立せず、当該コマンドを確認した専用emulatorプロセスだけSIGTERMで停止した。元のAVDデータと新規AVDは残している。他の作業プロセスやWSL自体の再起動は実施しない。
 
-失敗画像/XMLは `artifacts/android-product/ios-polish-2026-10-17/diagnostics/` へ移動し、repoの最終画像フォルダーには置かない。visual/result.jsonの成功記録も作成していない。環境復旧後、同じAPKで440dpの3対象・履歴5/3/2・Now120分・50dp開始ボタン全体、日本語320dp/200%/横画面、確認/取消を再撮影・照合する作業が残る。前回APKの画像を今回の仕上げの証拠として再利用しない。
+失敗画像/XMLは `artifacts/android-product/ios-polish-2026-10-17/diagnostics/`（旧ローカル出力・整理済み） へ移動し、repoの最終画像フォルダーには置かない。visual/result.jsonの成功記録も作成していない。環境復旧後、同じAPKで440dpの3対象・履歴5/3/2・Now120分・50dp開始ボタン全体、日本語320dp/200%/横画面、確認/取消を再撮影・照合する作業が残る。前回APKの画像を今回の仕上げの証拠として再利用しない。
 
 9/21 iOSとの比較、V17の参照不足、実機/OEM・TalkBack音声・今回のAPI26/35視覚受入・30分実待機の未確認という境界は維持する。意図的なOS/操作性/承認済み無料30分の差以外まで、全画面がピクセル一致したとは表現しない。
 
 ### 曜日UIのiOS追従（2026-10-11）
 
-初回は現行 `WeekdayPicker.swift` / `SelectionButtonStyle.swift` とレビュー記録に追従し、実画面との照合を欠いた。repo内 `docs/qa/android-ui-refresh/ios/en/composeRepeat.png` はチェックなしの角丸ボタン、ユーザー提示のiOS実画面はチェックなしの丸ボタンで、ソースと画像には世代差がある。今回の見た目の正本はユーザー提示画面とする。iOSソースは変更せず、Androidの既存Composer共通フィールドを変更した。
+初回は現行 `WeekdayPicker.swift` / `SelectionButtonStyle.swift` とレビュー記録に追従し、実画面との照合を欠いた。repo内 [docs/qa/android-ui-refresh/ios/en/composeRepeat.png（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-refresh/ios/en/composeRepeat.png) はチェックなしの角丸ボタン、ユーザー提示のiOS実画面はチェックなしの丸ボタンで、ソースと画像には世代差がある。今回の見た目の正本はユーザー提示画面とする。iOSソースは変更せず、Androidの既存Composer共通フィールドを変更した。
 
 - 通常表示は略称だけの44dp丸ボタン。選択済みは濃紺背景・白文字、未選択は薄いグレー背景・枠線。チェックと空丸アイコン、および専用LineIcon分岐を削除した。Android標準ripple、曜日の正式名称の読み上げとネイティブ選択属性は維持する。
 - 7個の44dp操作域と最小4dp間隔が収まるときは一列、狭い画面では4列。fontScale 1.5以上では正式名称の縦並びにし、読みやすさを優先して丸ではなく横長ボタンを使う。これはAndroidの文字拡大対応として明示する差分。日曜始まり・選択集合・次回計算・保存方式は変更しない。
 - 作成・編集は既存の同じComposerフィールド処理を使い、新しい状態や別部品は追加しない。検証も既存RecoveryInstrumentationのチェックなし・真円・44dp操作域のアサーションへ置き換える。
-- 前回の検証証拠 `artifacts/android-product/weekday-ios-parity` はチェック付きUIの結果であり今回の証拠ではない。上記U2〜U8のAPK/AAB・解除試験も今回のUI修正前の結果。この変更で解除ロジックは変更していない。
-- 修正版の単体53件、Debug/Release APKビルド、lint（0 errors / 17 warnings）が成功。通常サイズと320dp・文字200%のRecoveryInstrumentationで選択/解除、チェックなし、通常時の真円、44dp操作域、正式名称、空曜日の保存禁止・次回プレビューを確認した。実画面の証拠は `artifacts/android-product/weekday-circles`。Debug APK SHA-256: `5746ec636d547596a5630703294b4ed681a03cad6b6e56598baf6b7a9fef6f4d`。iOS最新ビルドの実行や、画面全体の一致を確認したという意味ではない。
+- 前回の検証証拠 `artifacts/android-product/weekday-ios-parity`（旧ローカル出力・整理済み） はチェック付きUIの結果であり今回の証拠ではない。上記U2〜U8のAPK/AAB・解除試験も今回のUI修正前の結果。この変更で解除ロジックは変更していない。
+- 修正版の単体53件、Debug/Release APKビルド、lint（0 errors / 17 warnings）が成功。通常サイズと320dp・文字200%のRecoveryInstrumentationで選択/解除、チェックなし、通常時の真円、44dp操作域、正式名称、空曜日の保存禁止・次回プレビューを確認した。実画面の証拠は `artifacts/android-product/weekday-circles`（旧ローカル出力・整理済み）。Debug APK SHA-256: `5746ec636d547596a5630703294b4ed681a03cad6b6e56598baf6b7a9fef6f4d`。iOS最新ビルドの実行や、画面全体の一致を確認したという意味ではない。

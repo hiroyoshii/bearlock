@@ -1,5 +1,7 @@
 # iOS review fixes — 2026-09-13
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 Source commit: `cbc1640233c06fa10c910b66f6f465391fa4b424`.
 
 ## Changes
@@ -26,6 +28,6 @@ The UI fixture replaces decoding/rendering of private Screen Time tokens only. S
 
 - [iOS Lock Lifecycle](https://github.com/hiroyoshii/bearlock/actions/runs/34741644777): **success** on the source commit above. Core: 57/57; AppModel: 7/7; UI regression: 10/10; process transactions and Debug/Release app/extension builds passed. The new target-reuse E2E passed in 14.034 seconds.
 - [iOS CI](https://github.com/hiroyoshii/bearlock/actions/runs/34741644778): **success** on the same source commit. Full UI E2E: 15/15, zero failures; target reuse passed in 14.747 seconds, and recurring confirmation passed. App/extension builds and screenshot generation passed.
-- Raw summaries and bounded logs: `ci-results/ios-review/cbc1640233c06fa10c910b66f6f465391fa4b424/`.
+- Raw summaries and bounded logs: [ci-results/ios-review/cbc1640233c06fa10c910b66f6f465391fa4b424/（履歴）](https://github.com/hiroyoshii/bearlock/tree/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/cbc1640233c06fa10c910b66f6f465391fa4b424).
 - Visually checked `screenshots/e2e-target-summary-before-reuse.png`, `e2e-target-summary-after-reuse.png`, and `e2e-target-summary-confirmation.png` in that directory: counts changed 3→2, Messages/Video/Games changed to Books/Music, and confirmation displayed 2 targets.
 - Local WSL validation: Swift core 57/57, changed Swift sources parsed successfully, workflow YAML and collector Python syntax validated. Xcode validation above ran on GitHub-hosted macOS; it was not claimed from WSL checks.

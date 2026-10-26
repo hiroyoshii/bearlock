@@ -1,6 +1,0 @@
---------- beginning of main
-09-13 03:24:56.634  5606  5606 D BearLockPicker: first_rows_ms=4614 apps=15 attached_rows=7
-09-13 03:25:28.966  6063  6063 D BearLockPicker: first_rows_ms=2909 apps=15 attached_rows=7
-09-13 03:28:45.213  6063  6063 D BearLockPicker: first_rows_ms=5850 apps=15 attached_rows=7
-09-13 03:30:44.376  7254  7254 D BearLockPicker: first_rows_ms=3908 apps=15 attached_rows=7
-09-13 03:31:15.631  7483  7483 D BearLockPicker: first_rows_ms=4144 apps=15 attached_rows=7

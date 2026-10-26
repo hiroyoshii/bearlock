@@ -1,5 +1,7 @@
 # AndroidをiOSに合わせる対応（2026-09-10）
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 > 過去の調査・実装・比較の記録。現行の製品仕様・OS別方針・構造は [設計正本](design-doc.md) に集約済み。本書の当時の目標や案を、現行の仕様・未採用案の実行指示として扱わない。
 
 基準: iOSのmain `074223b` のSwiftUI/StoreKit実装。Android 0.2.0 / versionCode 4。
@@ -26,55 +28,55 @@
 
 ## 画面・検証
 
-スクリーンショットは `docs/qa/android-ios-parity-2026-09-10` に保存する。通常操作と読み取り専用フィクスチャを分ける。iOS比較画像は保存済みCI画像を固定し、公開中のiOSバイナリを今回再撮影したものではない。日時・対象内容・OS標準UI・フォントには差が残る。
+スクリーンショットは [docs/qa/android-ios-parity-2026-09-10（履歴）](https://github.com/hiroyoshii/bearlock/tree/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10) に保存する。通常操作と読み取り専用フィクスチャを分ける。iOS比較画像は保存済みCI画像を固定し、公開中のiOSバイナリを今回再撮影したものではない。日時・対象内容・OS標準UI・フォントには差が残る。
 
 
 ビルド: Debug APK / Release AAB / Release lint成功。単体20件成功（Planner 18件、購入署名検証2件）。エミュレーターで対象・予約の操作14件、追加受け入れ5件が成功。追加確認には日英、320dp幅・文字150%、未設定時の購入無効化と戻る操作を含む。
 
-- [予約・履歴の操作結果](qa/android-ios-parity-2026-09-10/interactions.json)
-- [追加受け入れ結果](qa/android-ios-parity-2026-09-10/acceptance.json)
-- [ピクセル差分と元画像のSHA-256](qa/android-ios-parity-2026-09-10/pixel-diff.json)
+- [予約・履歴の操作結果（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/interactions.json)
+- [追加受け入れ結果（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/acceptance.json)
+- [ピクセル差分と元画像のSHA-256（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/pixel-diff.json)
 
 ### 日本語の比較（左iOS、右Android）
 
 **ホーム**
 
-![ホーム](qa/android-ios-parity-2026-09-10/compare/ja/home.png)
+[ホーム（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/home.png)
 
-[英語の比較](qa/android-ios-parity-2026-09-10/compare/en/home.png) · [赤色の差分](qa/android-ios-parity-2026-09-10/compare/ja/home-diff.png)
+[英語の比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/en/home.png) · [赤色の差分（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/home-diff.png)
 
 **初期設定**
 
-![初期設定](qa/android-ios-parity-2026-09-10/compare/ja/setup.png)
+[初期設定（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/setup.png)
 
-[英語の比較](qa/android-ios-parity-2026-09-10/compare/en/setup.png) · [赤色の差分](qa/android-ios-parity-2026-09-10/compare/ja/setup-diff.png)
+[英語の比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/en/setup.png) · [赤色の差分（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/setup-diff.png)
 
 **繰り返し**
 
-![繰り返し](qa/android-ios-parity-2026-09-10/compare/ja/composeRepeat.png)
+[繰り返し（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/composeRepeat.png)
 
-[英語の比較](qa/android-ios-parity-2026-09-10/compare/en/composeRepeat.png) · [赤色の差分](qa/android-ios-parity-2026-09-10/compare/ja/composeRepeat-diff.png)
+[英語の比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/en/composeRepeat.png) · [赤色の差分（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/composeRepeat-diff.png)
 
 **ロック中**
 
-![ロック中](qa/android-ios-parity-2026-09-10/compare/ja/activeLock.png)
+[ロック中（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/activeLock.png)
 
-[英語の比較](qa/android-ios-parity-2026-09-10/compare/en/activeLock.png) · [赤色の差分](qa/android-ios-parity-2026-09-10/compare/ja/activeLock-diff.png)
+[英語の比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/en/activeLock.png) · [赤色の差分（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/activeLock-diff.png)
 
 **開始確認**
 
-![開始確認](qa/android-ios-parity-2026-09-10/compare/ja/confirmation.png)
+[開始確認（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/confirmation.png)
 
-[英語の比較](qa/android-ios-parity-2026-09-10/compare/en/confirmation.png) · [赤色の差分](qa/android-ios-parity-2026-09-10/compare/ja/confirmation-diff.png)
+[英語の比較（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/en/confirmation.png) · [赤色の差分（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/compare/ja/confirmation-diff.png)
 
 ホームはAndroidの対象内訳と操作領域のため縦方向に長くなり、予定の続きはスクロールで表示する。確認画面は構成・情報の強調・中央のキャンセルを揃えた。OSバー、フォント、日付、予約内容を含むピクセル差は日本語で7.7〜22.2%、英語で10.2〜25.6%。これは機能の一致率や品質スコアではない。
 
 ### 通常操作の画面
 
-![対象一覧](qa/android-ios-parity-2026-09-10/acceptance/target-details.png)
+[対象一覧（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/acceptance/target-details.png)
 
-![応援購入・未設定](qa/android-ios-parity-2026-09-10/actual/ja/support-unconfigured.png)
+[応援購入・未設定（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/actual/ja/support-unconfigured.png)
 
-[設定](qa/android-ios-parity-2026-09-10/actual/ja/settings.png) · [320dp・文字150%の対象一覧](qa/android-ios-parity-2026-09-10/large-text/target-details.png) · [320dp・文字150%の応援画面](qa/android-ios-parity-2026-09-10/large-text/support-unconfigured.png)。拡大表示は縦スクロールを使用する。
+[設定（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/actual/ja/settings.png) · [320dp・文字150%の対象一覧（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/large-text/target-details.png) · [320dp・文字150%の応援画面（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/large-text/support-unconfigured.png)。拡大表示は縦スクロールを使用する。
 
-実ロックの回帰確認も成功: 1分間のProbe入力を遮断し、自然期限後に入力が復帰、予約・実行中セッションが空になった。[ログ](qa/android-ios-parity-2026-09-10/probe-result.json)。初回の確認は試験用InstrumentationがProbeプロセスを終了させて開始前に停止したため、事前のUI取得後にAccessibilityを再接続する手順で再実行した。
+実ロックの回帰確認も成功: 1分間のProbe入力を遮断し、自然期限後に入力が復帰、予約・実行中セッションが空になった。[ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ios-parity-2026-09-10/probe-result.json)。初回の確認は試験用InstrumentationがProbeプロセスを終了させて開始前に停止したため、事前のUI取得後にAccessibilityを再接続する手順で再実行した。

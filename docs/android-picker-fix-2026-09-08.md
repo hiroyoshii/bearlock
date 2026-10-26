@@ -1,5 +1,7 @@
 # Android 対象選択・履歴の修正（2026-09-08）
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 Android 0.1.2 / versionCode 3。
 
 - 対象選択画面を先に表示し、アプリ・ラベル・アイコンの取得はバックグラウンドで行う。読み込み中もキャンセルと Web タブは操作可能。
@@ -15,7 +17,7 @@ Android 0.1.2 / versionCode 3。
 
 - Debug APK ビルド、Release lint 成功。
 - Planner 単体テスト16件成功（作成時の記録、編集時の維持、ピン保持、失敗時の維持を含む）。
-- Pixel 9a エミュレーターで選択保存・キャンセル・予約確定・編集など14項目を確認。検索と文字150%の追加確認を含む結果は [result.json](qa/android-picker-fix/result.json) を参照。
+- Pixel 9a エミュレーターで選択保存・キャンセル・予約確定・編集など14項目を確認。検索と文字150%の追加確認を含む結果は [result.json（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-picker-fix/result.json) を参照。
 - 実機での待ち時間の定量比較は未実施。アプリ一覧が揃うまでの時間はインストール数と端末に依存する。
 - Play への配布は未実施。署名済み AAB は Android Internal Release の main から作成する。
 
@@ -23,8 +25,8 @@ Android 0.1.2 / versionCode 3。
 
 | 選択ボタン | アプリ一覧 |
 |---|---|
-| ![選択ボタン](qa/android-picker-fix/home.png) | ![アプリ一覧](qa/android-picker-fix/targets-apps.png) |
+| [選択ボタン（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-picker-fix/home.png) | [アプリ一覧（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-picker-fix/targets-apps.png) |
 
-[検索結果](qa/android-picker-fix/search.png) · [文字150%・幅320dp](qa/android-picker-fix/home-large-text.png)
+[検索結果（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-picker-fix/search.png) · [文字150%・幅320dp（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-picker-fix/home-large-text.png)
 
 再現スクリプトは `android-lab/scripts/product_ui_parity_verify.py` と `product_picker_verify.py`。両方に `BEARLOCK_QA_OUT=artifacts/android-picker-fix` を指定してこの順で実行する（Debug製品・Probe APK を入れた QA エミュレーター向け）。

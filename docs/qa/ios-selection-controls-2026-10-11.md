@@ -1,5 +1,7 @@
 # iOS 選択状態UIの修正と評価
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 ## 2026年10月18日 開始モードと曜日の外観を復元
 
 チェック追加直前の `3cde327` を基準に、通常文字の開始モードを元のアイコン・配色・並びのボタンへ戻した。選択値は元のBindingのままで、選択traitと正式名称の読み上げ情報を追加した。通常セグメントと85ptの幅判定を撤去し、全文が実際に収まらない場合だけDateへ短縮する。今回の375pt・440pt・App Store用428ptの英語4択はDate、3択ではDate & Timeを確認した。詳細見出しと読み上げ名は全文のまま。大きい文字の標準メニューは変更していない。
@@ -10,16 +12,16 @@
 
 | 検証 | 結果 |
 |---|---|
-| 通常端末のE2E | 22件、失敗0。開始モード、プリセット、曜日編集、英語・日本語の最大文字サイズの一連の操作が成功。[生ログ](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/xcodebuild-ui-e2e.log) |
-| SEのE2E | 4件中2件失敗。曜日の作成・編集・保存後の横1列判定と保存値、および操作不可状態のケースは成功。[生ログ](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/xcodebuild-selection-small-iphone.log) |
+| 通常端末のE2E | 22件、失敗0。開始モード、プリセット、曜日編集、英語・日本語の最大文字サイズの一連の操作が成功。[生ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/xcodebuild-ui-e2e.log) |
+| SEのE2E | 4件中2件失敗。曜日の作成・編集・保存後の横1列判定と保存値、および操作不可状態のケースは成功。[生ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/xcodebuild-selection-small-iphone.log) |
 | AppModel・StoreKit | 9件・10件がそれぞれ失敗0 |
 | Core・cross-process・ビルド | いずれも成功。Release・Debug・UIテスト・撮影アプリのビルドを含む |
 | 最新ギャラリー | 日英各16枚、計32枚、1284×2778。全画像を目視し、同runの未加工PNGへ置換 |
 
 **評価は、対象の通常時の外観復元を確認済み、全体E2Eは不合格。** SEの失敗は次の2件で、原因は未特定。これらの製品コントロール自体は今回変更していないが、今回の復元との因果も断定しない。再試行・スキップや追加のUI変更で成功扱いにはしていない。
 
-- `testDurationPresetsAndModeReflectCurrentValue` の28行: 開始モード4択の存在・選択情報・操作領域・同一行の判定は成功した後、30分プリセットの1回のtap直後にselected traitがfalseだった。録画の[最終保持フレーム](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/se-duration-final.png)も120分表示のまま。単なるassertionの読み取り遅れとは断定しない。
-- `testSelectionAtAccessibilityTextSizeInEnglishAndJapanese` の共通helper 564行: SE・英語・最大文字サイズでDate & TimeからRepeatへの切替がタイムアウトした。1回の200ms press後の[録画43秒のフレーム](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/se-menu-after-press.png)では、Date & Timeが選択されたメニューが開いたまま。SEの日本語の後半には到達していない。
+- `testDurationPresetsAndModeReflectCurrentValue` の28行: 開始モード4択の存在・選択情報・操作領域・同一行の判定は成功した後、30分プリセットの1回のtap直後にselected traitがfalseだった。録画の[最終保持フレーム（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/se-duration-final.png)も120分表示のまま。単なるassertionの読み取り遅れとは断定しない。
+- `testSelectionAtAccessibilityTextSizeInEnglishAndJapanese` の共通helper 564行: SE・英語・最大文字サイズでDate & TimeからRepeatへの切替がタイムアウトした。1回の200ms press後の[録画43秒のフレーム（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/se-menu-after-press.png)では、Date & Timeが選択されたメニューが開いたまま。SEの日本語の後半には到達していない。
 
 前回の通常端末で失敗した実行中の説明文の期待値は、現在の繰り返し予定の文言へ修正した。最大文字サイズのネイティブメニューの操作方法は変えていない。CIのアクセシビリティ情報の確認と実機VoiceOverの音声操作は区別し、実機確認済みとはしない。
 
@@ -29,10 +31,10 @@
 
 | 対象 | 今回直前 | 修正後 |
 |---|---|---|
-| 作成 | [セグメントと白い曜日](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-changed.png) | [アイコン付きボタンと薄灰の曜日](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-weekday-changed.png) |
-| 保存後の編集 | [白い曜日](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-editor-saved.png) | [薄灰の曜日](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-weekday-editor-saved.png) |
+| 作成 | [セグメントと白い曜日（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-changed.png) | [アイコン付きボタンと薄灰の曜日（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-weekday-changed.png) |
+| 保存後の編集 | [白い曜日（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-editor-saved.png) | [薄灰の曜日（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-weekday-editor-saved.png) |
 
-通常幅の[作成](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-weekday-changed.png)・[編集](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-weekday-editor-saved.png)、SEの[開始モード4択](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-duration-initial.png)、通常端末の最大文字サイズで保存後の[英語](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-accessibility-en-editor-saved.png)・[日本語](ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-accessibility-ja-editor-saved.png)も保存した。以下は過去時点の記録であり、今回の全体E2Eの合格へ流用しない。
+通常幅の[作成（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-weekday-changed.png)・[編集（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-weekday-editor-saved.png)、SEの[開始モード4択（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-375-duration-initial.png)、通常端末の最大文字サイズで保存後の[英語（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-accessibility-en-editor-saved.png)・[日本語（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/icon-restoration-2026-10-18/selection-440-accessibility-ja-editor-saved.png)も保存した。以下は過去時点の記録であり、今回の全体E2Eの合格へ流用しない。
 
 ## 2026年10月17日 曜日の横1列を復元
 
@@ -47,16 +49,16 @@
 - `testCreateAndOpenRecurringEditorWithMockServices`: 実行中の繰り返し予定で編集不可の分岐に入り、単発予定用の古い説明文を期待するassertionが失敗した（BearLockLaunchUITests.swift:352）。実装の現在の説明文は「削除は今回のロック終了時に反映」であり、期待文言と一致しない。このテストは今回変更していない。
 - `testSelectionAtAccessibilityTextSizeInEnglishAndJapanese`: 英語の一連の操作後、日本語の最大文字サイズで「日時指定」へ切り替えた値の待機がタイムアウトした（共通helperのBearLockLaunchUITests.swift:564）。原因は未特定で、曜日の行配置の不具合とは断定しない。SEの同じテストは成功している。
 
-Core、cross-process検証、AppModel 9件、StoreKit 10件、Release／Debugビルド、日英32枚のスクショ取得は成功。スクショ取得成功を全体E2Eの合格へ読み替えない。[通常端末の生ログ](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/xcodebuild-ui-e2e.log)と[SEの生ログ](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/xcodebuild-selection-small-iphone.log)を保存した。成果物IDは通常 `12093497281`、StoreKit `12093085952`。
+Core、cross-process検証、AppModel 9件、StoreKit 10件、Release／Debugビルド、日英32枚のスクショ取得は成功。スクショ取得成功を全体E2Eの合格へ読み替えない。[通常端末の生ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/xcodebuild-ui-e2e.log)と[SEの生ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/xcodebuild-selection-small-iphone.log)を保存した。成果物IDは通常 `12093497281`、StoreKit `12093085952`。
 
 今回のbeforeは前回「復元済み」とした2列の実画像、afterは今回runの実画像。過去の記録は書き換えず、repoの最新ギャラリーだけを今回の日英32枚へ置き換えた。以下の2026年10月12日の合格・最終runの記載は当時の記録であり、今回の全体合格を示さない。
 
 | 対象（SE・375pt） | Before：前回残した2列 | After：7曜日横1列 |
 |---|---|---|
-| 作成 | ![作成・修正前](ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) | ![作成・修正後](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-changed.png) |
-| 保存後の編集 | ![編集・修正前](ios-selection-controls-2026-10-11/after/selection-375-weekday-editor-saved.png) | ![編集・修正後](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-editor-saved.png) |
+| 作成 | [作成・修正前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) | [作成・修正後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-changed.png) |
+| 保存後の編集 | [編集・修正前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-weekday-editor-saved.png) | [編集・修正後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-weekday-editor-saved.png) |
 
-通常幅の[作成](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-440-weekday-changed.png)・[編集](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-440-weekday-editor-saved.png)、最大文字サイズの編集保存後の[英語](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-accessibility-en-editor-saved.png)・[日本語](ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-accessibility-ja-editor-saved.png)も同runから保存した。
+通常幅の[作成（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-440-weekday-changed.png)・[編集（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-440-weekday-editor-saved.png)、最大文字サイズの編集保存後の[英語（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-accessibility-en-editor-saved.png)・[日本語（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/weekday-row-2026-10-17/selection-375-accessibility-ja-editor-saved.png)も同runから保存した。
 
 ## 2026年10月12日時点の記録
 
@@ -73,16 +75,16 @@ repoの最新ギャラリーは同runの日英32画像へ更新。[画像一覧]
 
 | 対象 | Before | After |
 |---|---|---|
-| 曜日・通常幅 | [角丸とチェック](ios-selection-controls-2026-10-11/before/selection-440-weekday-changed.png) | [丸と塗りつぶし](ios-selection-controls-2026-10-11/after/selection-440-weekday-changed.png) |
-| 曜日・SE | [変更前](ios-selection-controls-2026-10-11/before/selection-375-weekday-changed.png) | [変更後](ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) |
-| 時間プリセット・通常幅 | [変更前](ios-selection-controls-2026-10-11/before/selection-440-duration-selected.png) | [変更後](ios-selection-controls-2026-10-11/after/selection-440-duration-selected.png) |
-| 時間プリセット・SE | [変更前](ios-selection-controls-2026-10-11/before/selection-375-duration-selected.png) | [変更後](ios-selection-controls-2026-10-11/after/selection-375-duration-selected.png) |
-| 最大文字サイズの時間 | [変更前](ios-selection-controls-2026-10-11/before/selection-375-accessibility-en-duration.png) | [変更後](ios-selection-controls-2026-10-11/after/selection-375-accessibility-en-duration.png) |
-| 開始モード、＋／− | [変更前](ios-selection-controls-2026-10-11/before/selection-440-mode-delayed.png) | [変更後](ios-selection-controls-2026-10-11/after/selection-440-mode-delayed.png) |
-| 予定編集・削除予約取消 | [変更前](ios-selection-controls-2026-10-11/before/e2e-active-recurring-deletion-scheduled.png) | [変更後](ios-selection-controls-2026-10-11/after/e2e-active-recurring-deletion-scheduled.png) |
-| 日時入力・確認 | [日時入力](ios-selection-controls-2026-10-11/before/selection-375-accessibility-en-times.png)、[確認](ios-selection-controls-2026-10-11/before/selection-375-accessibility-en-confirmation.png) | [日時入力](ios-selection-controls-2026-10-11/after/selection-375-accessibility-en-times.png)、[確認](ios-selection-controls-2026-10-11/after/selection-375-accessibility-en-confirmation.png) |
-| 保存済み対象・無効理由 | [対象](ios-selection-controls-2026-10-11/before/e2e-target-flow-recent-selected.png)、[無効理由](ios-selection-controls-2026-10-11/before/selection-375-locked-target-explanation.png) | [対象](ios-selection-controls-2026-10-11/after/e2e-target-flow-recent-selected.png)、[無効理由](ios-selection-controls-2026-10-11/after/selection-375-locked-target-explanation.png) |
-| 編集保存・再表示 | [変更前](ios-selection-controls-2026-10-11/before/selection-375-weekday-editor-saved.png) | [変更後](ios-selection-controls-2026-10-11/after/selection-375-weekday-editor-saved.png) |
+| 曜日・通常幅 | [角丸とチェック（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-440-weekday-changed.png) | [丸と塗りつぶし（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-440-weekday-changed.png) |
+| 曜日・SE | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-weekday-changed.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) |
+| 時間プリセット・通常幅 | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-440-duration-selected.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-440-duration-selected.png) |
+| 時間プリセット・SE | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-duration-selected.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-duration-selected.png) |
+| 最大文字サイズの時間 | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-accessibility-en-duration.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-accessibility-en-duration.png) |
+| 開始モード、＋／− | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-440-mode-delayed.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-440-mode-delayed.png) |
+| 予定編集・削除予約取消 | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/e2e-active-recurring-deletion-scheduled.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/e2e-active-recurring-deletion-scheduled.png) |
+| 日時入力・確認 | [日時入力（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-accessibility-en-times.png)、[確認（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-accessibility-en-confirmation.png) | [日時入力（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-accessibility-en-times.png)、[確認（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-accessibility-en-confirmation.png) |
+| 保存済み対象・無効理由 | [対象（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/e2e-target-flow-recent-selected.png)、[無効理由（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-locked-target-explanation.png) | [対象（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/e2e-target-flow-recent-selected.png)、[無効理由（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-locked-target-explanation.png) |
+| 編集保存・再表示 | [変更前（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-weekday-editor-saved.png) | [変更後（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-weekday-editor-saved.png) |
 
 途中の不合格画像は `rejected-*` に分離した。上記afterは最終runの合格と目視確認後の実画像であり、先行runや合成画像を混ぜていない。
 
@@ -90,8 +92,8 @@ repoの最新ギャラリーは同runの日英32画像へ更新。[画像一覧]
 
 | 対象 | Before | After |
 |---|---|---|
-| 曜日 | ![曜日 Before](ios-selection-controls-2026-10-11/before/selection-375-weekday-changed.png) | ![曜日 After](ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) |
-| 時間プリセット | ![時間 Before](ios-selection-controls-2026-10-11/before/selection-375-duration-selected.png) | ![時間 After](ios-selection-controls-2026-10-11/after/selection-375-duration-selected.png) |
+| 曜日 | [曜日 Before（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-weekday-changed.png) | [曜日 After（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-weekday-changed.png) |
+| 時間プリセット | [時間 Before（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/before/selection-375-duration-selected.png) | [時間 After（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/selection-375-duration-selected.png) |
 
 ## 原因と経緯
 
@@ -144,10 +146,10 @@ repoの最新ギャラリーは同runの日英32画像へ更新。[画像一覧]
 
 | 検証 | 結果・証拠 |
 |---|---|
-| 通常端末・440pt | 既存18件＋選択UI 4件＝22件、失敗0。[ログ](ios-selection-controls-2026-10-11/after/xcodebuild-ui-e2e.log) |
-| SE・375pt | 同じ選択UI 4件、失敗0。[ログ](ios-selection-controls-2026-10-11/after/xcodebuild-selection-small-iphone.log) |
-| AppModel | 9件、失敗0。[ログ](ios-selection-controls-2026-10-11/after/xcodebuild-logic-tests.log) |
-| StoreKit | 10件、失敗0。[ログ](ios-selection-controls-2026-10-11/after/purchases.log) |
+| 通常端末・440pt | 既存18件＋選択UI 4件＝22件、失敗0。[ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/xcodebuild-ui-e2e.log) |
+| SE・375pt | 同じ選択UI 4件、失敗0。[ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/xcodebuild-selection-small-iphone.log) |
+| AppModel | 9件、失敗0。[ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/xcodebuild-logic-tests.log) |
+| StoreKit | 10件、失敗0。[ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/after/purchases.log) |
 | core・cross-process・build | core、4 reader／200更新のcross-process検証、Debug／Release／UIテスト／撮影アプリのbuildが同runで成功。 |
 | 最新ギャラリー | 日英各16枚、計32枚、1284×2778。すべて目視し、白画面・SpringBoard・起床選択肢の誤状態がないことを確認。 |
 
@@ -186,11 +188,11 @@ afterのPNGと4つのログはCI成果物とバイト一致を確認した。ロ
 
 [復元1回目](https://github.com/hiroyoshii/bearlock/actions/runs/38129102203)（`0651da5`）も不合格。通常端末は22ケースすべて最終的に成功したが、英語の日時モード変更後にStartsが見つからず1件を再試行していた。SEは4件中2件がアプリの起動／終了タイムアウトで失敗し、最大文字サイズのケースはUI操作へ到達していない。SEの起動を明示してbootstatusを待ち、UIテストの並列クローンと自動再試行をやめた。menuは項目が実際にタップ可能になるまで待ち、変更後の入力表示を待ってからスクロールする。
 
-同runの実画像では曜日の丸・チェックなしは戻っていた。一方、標準プリセットのlargeサイズによる余白で分数が2行に割れ、SEのDate & Timeは「Date & Ti…」と省略された（[SEの不合格画像](ios-selection-controls-2026-10-11/rejected-0651da5/selection-375-duration-selected.png)、[通常幅の不合格画像](ios-selection-controls-2026-10-11/rejected-0651da5/selection-440-duration-selected.png)）。画面レビューを不合格とし、プリセットをregularサイズ・1行の文字へ修正した。Dateの短縮はユーザーにこの証拠を説明し、小型画面のみの短縮で合意した。通常幅と詳細見出しの全文を維持する。これらの途中画像は最新ギャラリーの完成画像として使用しない。
+同runの実画像では曜日の丸・チェックなしは戻っていた。一方、標準プリセットのlargeサイズによる余白で分数が2行に割れ、SEのDate & Timeは「Date & Ti…」と省略された（[SEの不合格画像（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-0651da5/selection-375-duration-selected.png)、[通常幅の不合格画像（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-0651da5/selection-440-duration-selected.png)）。画面レビューを不合格とし、プリセットをregularサイズ・1行の文字へ修正した。Dateの短縮はユーザーにこの証拠を説明し、小型画面のみの短縮で合意した。通常幅と詳細見出しの全文を維持する。これらの途中画像は最新ギャラリーの完成画像として使用しない。
 
 [復元2回目](https://github.com/hiroyoshii/bearlock/actions/runs/38132142230)（`ca5dd7d`）は通常22件が失敗0・再試行0。SEの通常文字の3件も成功し、実画像で丸・チェックなし、プリセットの1行表示、Dateの短縮を確認できた。ただし最大文字サイズの英語で、日時モード選択後のStarts確認が失敗したため、全体は不合格。
 
-SEの録画とイベント記録を照合すると、Date & Timeの項目frameは`(24, 403.5, 343, 186)`、中央tapは`(195.5, 496.5)`で、2行の表示の行間付近だった。tap後もNowが選択中で[メニューが開いたまま](ios-selection-controls-2026-10-11/rejected-ca5dd7d/menu-after-center-tap.png)だった。これはxcresult内の自動録画の39秒のフレームであり、合成UIではない。[失敗ログ](ios-selection-controls-2026-10-11/rejected-ca5dd7d/xcodebuild-selection-small-iphone.log)も保存した。
+SEの録画とイベント記録を照合すると、Date & Timeの項目frameは`(24, 403.5, 343, 186)`、中央tapは`(195.5, 496.5)`で、2行の表示の行間付近だった。tap後もNowが選択中で[メニューが開いたまま（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-ca5dd7d/menu-after-center-tap.png)だった。これはxcresult内の自動録画の39秒のフレームであり、合成UIではない。[失敗ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-ca5dd7d/xcodebuild-selection-small-iphone.log)も保存した。
 
 `6e8ae44`では、標準menuの文字が見えている上側の領域を1回tapし、項目が消える（menuが閉じる）まで待つテスト操作へ変更した。製品のPicker、文字サイズ、選択処理は変えていない。入力が画面外の場合にスクロール前のexists待ちで止まらないよう、既存の「スクロール→表示・操作領域確認」に揃えた。入力表示、選択状態、保存と再表示の判定は保持し、クリックの再試行や別の製品経路は追加していない。OS内部のhit testingの原因までは断定せず、通常tapの座標と不成立の状態を根拠にした操作の修正として記録する。
 
@@ -200,11 +202,11 @@ SEの録画とイベント記録を照合すると、Date & Timeの項目frame�
 
 [復元3回目](https://github.com/hiroyoshii/bearlock/actions/runs/38136127819)（`71947c3`）は通常22件中1件、SE4件中1件が失敗。通常端末は日本語menu項目のisHittable待ち、SEは英語menu項目のtap後の閉じる待ちで止まった。通常端末の英語は日時・曜日・確認・編集保存まで成功していた。静的32画面の撮影とサイズ検証は成功したが、E2Eが失敗しているため完成の証拠にしない。
 
-録画では[日本語menu](ios-selection-controls-2026-10-11/rejected-71947c3/normal-ja-menu.png)が表示されているのに、XCTestの親Windowはframeが`{{inf, inf}, {0, 0}}`だった。SEでもtapイベントのparentWindowSizeは0×0で、[tap後の録画](ios-selection-controls-2026-10-11/rejected-71947c3/se-menu-after-tap.png)はNowが選択中のまま。[通常ログ](ios-selection-controls-2026-10-11/rejected-71947c3/xcodebuild-ui-e2e.log)と[SEログ](ios-selection-controls-2026-10-11/rejected-71947c3/xcodebuild-selection-small-iphone.log)を保存した。前回の行間を避ける座標変更だけでは解決しなかった。
+録画では[日本語menu（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-71947c3/normal-ja-menu.png)が表示されているのに、XCTestの親Windowはframeが`{{inf, inf}, {0, 0}}`だった。SEでもtapイベントのparentWindowSizeは0×0で、[tap後の録画（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-71947c3/se-menu-after-tap.png)はNowが選択中のまま。[通常ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-71947c3/xcodebuild-ui-e2e.log)と[SEログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-71947c3/xcodebuild-selection-small-iphone.log)を保存した。前回の行間を避ける座標変更だけでは解決しなかった。
 
 `7ef5da5`ではmenuのCollectionViewに項目の検索を限定し、項目の画面内frameが空でなく有限の座標であることを確認したうえで、アプリ画面を基準にジェスチャを送る。親Windowの無効なframeに依存するisHittable判定を使わず、選択後はPickerの読み上げlabelが指定した選択値になったことを待つ。製品のUI・選択処理は変更せず、後続の入力表示・曜日変更・確認・保存と再表示の検証も保持する。OS内部の原因を特定済みとはせず、AX階層と送信イベントの座標を根拠にしたテスト操作の修正として再検証する。
 
-[次のrun](https://github.com/hiroyoshii/bearlock/actions/runs/38138747130)（`7ef5da5`）は、別ジョブのStoreKitで10件中1件が失敗した。購入コードの変更はなく、未完了購入の起動時復旧のテストが10秒待った後に失敗し、同じ取引は約13秒でfinishされていた（[ログ抜粋](ios-selection-controls-2026-10-11/rejected-7ef5da5/storekit-recovery-timeout.txt)）。`d6e4619`で、このケースの成功message待ちだけを30秒へ変更した。他の待機上限10秒、成功messageと未完了取引がなくなる判定、購入処理は維持する。リトライで失敗を隠す変更ではない。通常UI E2Eの途中だった前runは後続pushでキャンセルされたため、menu操作修正の合格にも使用しない。
+[次のrun](https://github.com/hiroyoshii/bearlock/actions/runs/38138747130)（`7ef5da5`）は、別ジョブのStoreKitで10件中1件が失敗した。購入コードの変更はなく、未完了購入の起動時復旧のテストが10秒待った後に失敗し、同じ取引は約13秒でfinishされていた（[ログ抜粋（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/ios-selection-controls-2026-10-11/rejected-7ef5da5/storekit-recovery-timeout.txt)）。`d6e4619`で、このケースの成功message待ちだけを30秒へ変更した。他の待機上限10秒、成功messageと未完了取引がなくなる判定、購入処理は維持する。リトライで失敗を隠す変更ではない。通常UI E2Eの途中だった前runは後続pushでキャンセルされたため、menu操作修正の合格にも使用しない。
 
 静的32画像の目視確認では、`71947c3`のwakeOptionsが「終了済み」で、diagnosticsはアプリではなくSpringBoardだった。画像サイズだけでは、この二つの誤った撮影を検出できていなかった。起床メニューは撮影用の親Viewがmodel.refresh完了後に開くようまとめ、表示開始が早すぎた専用wrapperを削除する。診断画面はApp Group不在の情報を「利用不可」と表示し、保存処理が必須としているApp Groupの条件は変えない。撮影ループには起動したプロセスの生存確認も追加する。これらは実画面による再検証が必要であり、先行画像は最新ギャラリーへ採用しない。
 

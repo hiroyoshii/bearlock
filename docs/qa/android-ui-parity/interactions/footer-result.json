@@ -1,8 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "Empty selection disables save",
-    "Nonempty selection enables save",
-    "Fixed footer count updates"
-  ]
-}

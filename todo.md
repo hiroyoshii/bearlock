@@ -1,5 +1,7 @@
 # Bear Lock TODO
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 2026-09-04時点の残タスク。TestFlight経由の実機インストール、Family Controls Distribution承認、CIでのbuild / mock e2e / screenshot取得までは完了済み。Version 1.0はIAPなしで提出し、課金対応は次版以降へ延期する。
 
 ## リリースまでの実行順チェックリスト
@@ -316,7 +318,7 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 実装・検証の詳細は [Android 実装TODO](docs/android-implementation-todo.md)。iOS の現在の機能を対応目標にし、実装済みと公開前検証を区別する。
 
 - [x] Android UI を iOS の構成・素材・入力操作に揃え、日英5画面のスクショ diff と実ロック回帰結果を repo に掲載する。
-  - [比較](ANDROID_SCREENSHOTS.md) / [実装と差分](docs/android-ui-parity.md) / [検証サマリー](docs/qa/android-ui-parity/summary.json)
+  - [比較](ANDROID_SCREENSHOTS.md) / [実装と差分](docs/android-ui-parity.md) / [検証サマリー（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-ui-parity/summary.json)
 
 ### Android の残作業
 

@@ -1,6 +1,0 @@
-{
-  "passed": true,
-  "checks": [
-    "Intro -> home without permission -> target selection -> cancel permission gate -> decline disclosure -> OS settings -> confirmation retains 30 minutes -> relaunch skips intro"
-  ]
-}

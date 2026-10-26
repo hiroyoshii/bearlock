@@ -85,6 +85,6 @@ From the repository root, the current scripts are:
 - `BEARLOCK_DISPOSABLE_QA=1 ANDROID_SERIAL=<dedicated-emulator> python3 android-lab/scripts/product_parity_capture.py --output artifacts/android-product/full-capture --apk android-lab/product/build/outputs/apk/debug/product-debug.apk` — Installed-APK-verified Japanese/English capture of 16 screen states plus ordered save/cancel/edit/delete/wake/settings checkpoints. Seeds and clears test state **only on the explicitly selected disposable emulator**, retaining the initial state in the output directory. Uses 428×926dp/100% text; it does not replace narrow/large-font acceptance. `--languages` and `--flows` select capture work; completed evidence is retained.
 - `python3 android-lab/scripts/product_verify.py` — bounded one-minute Probe input test.
 - `python3 android-lab/scripts/product_parity_web_verify.py` — bounded one-minute example.com test in Chrome.
-- `python3 android-lab/scripts/android_screenshot_diff.py` — regenerate committed side-by-side and pixel-diff images with Pillow.
+- [Current captures and provenance](../ANDROID_SCREENSHOTS.md). Capture new frames with `product_parity_capture.py` into `artifacts/`.
 
 The device scripts use the Windows ADB path/serial configured in `scripts/product_qa.py`. Save and restore emulator display/font/accessibility settings when reproducing. Product release builds contain neither the screenshot fixture activity nor the bounded QA lock activity.

@@ -7,3 +7,7 @@ DerivedData/
 *.xcodeproj/xcuserdata/
 *.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcuserstate
+
+# Local test/build logs belong under artifacts/, not in source directories.
+*.log
+*.log.gz

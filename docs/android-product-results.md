@@ -1,5 +1,7 @@
 # Android製品実装と画面確認
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 > 過去の調査・実装・比較の記録。現行の製品仕様・OS別方針・構造は [設計正本](design-doc.md) に集約済み。本書の当時の目標や案を、現行の仕様・未採用案の実行指示として扱わない。
 
 > 初期実装時点の検証記録。現在の UI・入力範囲・追加検証は [iOS UI 整合](android-ui-parity.md) と [新スクショ比較](../ANDROID_SCREENSHOTS.md) を参照。通常の即時／遅延／日時指定 UI は 15〜720 分、繰り返しは最大24時間。
@@ -39,7 +41,7 @@ Pixel_9a / Android15 API35、Chrome 152.0.7977.75。ADBで製品用のユーザ�
 
 ブロックの測定中はUIAutomatorの画面ツリー取得を使わず、screencapと対象側ログで判定した。ツリー取得が他のAccessibilityサービスを中断・再接続させるため。UIの操作・構造確認には測定外でUIAutomatorを使用した。
 
-[スクリーンショット一覧](qa/android-product/README.md)、[ビルドとSHA-256](qa/android-product/summary.json)、[アプリ遮断の入力ログ](qa/android-product/probe-verification.json)、[Chromeの確認記録](qa/android-product/web-verification.json)。
+[スクリーンショット一覧](qa/android-product/README.md)、[ビルドとSHA-256（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-product/summary.json)、[アプリ遮断の入力ログ（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-product/probe-verification.json)、[Chromeの確認記録（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/docs/qa/android-product/web-verification.json)。
 
 ## 公開前に残る検証
 

@@ -1,5 +1,7 @@
 # 仕様・責務・コード・テストの対応表
 
+> 2026-10-26整理: 本文は当時の検証記録です。旧画像・途中ログは作業ツリーから削除し、Git管理されていた証跡は固定コミットの履歴へリンクしています。整理済みのローカル出力は同梱していません。
+
 初回調査: 2026-10-25。基準と対応の再整理: 2026-10-26。対象は現在の作業ツリーであり、配布済みAPK/iOS版の適合宣言ではない。
 
 iOS全体のSDK/シミュレーター検証は第14節、main側の統合記録は第15節、StoreKit追跡は第16節、購入失敗表示の統一と検証は第17節。今回のmain取込み後の確認は第18節。第8〜12節の「未実行」は各記録時点の状態であり、実機・Android固有の未確認は引き続き未確認とする。
@@ -256,7 +258,7 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 
 ### 最終確認記録
 
-- Android Debug/Releaseビルド、69件の単体テスト、lint成功（エラー0、警告41）。ログは `artifacts/schedule-structure-2026-10-26/android-build.log`、SwiftCore 77件のログは同ディレクトリの `swift-test.log`。
+- Android Debug/Releaseビルド、69件の単体テスト、lint成功（エラー0、警告41）。ログは `artifacts/schedule-structure-2026-10-26/android-build.log`（旧ローカル出力・整理済み）、SwiftCore 77件のログは同ディレクトリの `swift-test.log`。
 - 最終Debug APKのSHA-256は `5a5cd57cb2007fa4094d6f3d591d9351c1f7a84398fa87b48f90ab764518e27a`。所有するAPI 26 emulatorへ再インストールし、Recovery/Editor/LockInstrumentationを一連で再実行した。3本ともPASSおよび `INSTRUMENTATION_CODE: -1` を確認。rawログは同ディレクトリの `Recovery.log`、`Editor.log`、`Lock.log`。故障画面6枚も最終APKから取得し直した。
 - 40仕様ID/6責務IDの対応表が各1行あり、共有fixtureの14ケースの仕様IDが正本に存在することを機械確認。置換範囲に画面からの予定保存/削除経路が残らず、共有試験もAndroidの本番更新入口を経由することを確認。差分の空白検査成功。
 - 未確認はiOS SDKビルド・AppModel 21件の実行・iOS UI/StoreKit、全画面比較、実機/OEM、GitHub上のCI実行。Androidの作成確認/権限全体や、オン状態の全編集モードの故障UIを今回網羅したわけではない。意図した境界の実装と、この環境で可能な検証を完了した記録であり、全アプリの全検証完了ではない。
@@ -291,7 +293,7 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 
 ### 最終確認記録
 
-- SwiftCore 79件、Android単体73件が成功（失敗/エラー/skipなし）。共有の16ケース45ステップ、40仕様/6責務の対応が各1行であること、参照先とanchor、差分の空白検査も確認した。ログはローカルの `artifacts/history-structure-2026-10-26/swift-test.log`、`android-unit-test.log`。
+- SwiftCore 79件、Android単体73件が成功（失敗/エラー/skipなし）。共有の16ケース45ステップ、40仕様/6責務の対応が各1行であること、参照先とanchor、差分の空白検査も確認した。ログはローカルの `artifacts/history-structure-2026-10-26/swift-test.log`（旧ローカル出力・整理済み）、`android-unit-test.log`。
 - Android Debug/Releaseビルドとlint成功（エラー0、警告41）。初回のビルド記録は同ディレクトリの `android-build.log`、native試験補助修正後の最終Debug/lintは `android-native-build.log`。テストdata/sourceの変更は既存のSwiftPM/JUnit/CI接続で実行し、CI設定の新規変更はしていない。
 - 初回native試験は履歴の保存処理に到達する前に、PopupMenuの文字ノードへの直接ACTION_CLICKが拒否された。文字に対応する最寄りのクリック可能な項目を操作するよう既存clickヘルパーを修正。保存故障・再試行・不変条件を省略せず再実行し成功した。初回失敗ログは `Recovery.log`、最終成功ログは `Recovery-final.log` として区別する。
 - 最終Debug APKのSHA-256は `6ec7626289d2f7d18494e124f65da2d49050c6de195f0608579350fde6a8c5e6`。所有するAPI 26 emulatorへインストールし、Recovery/Editor/LockInstrumentationすべてでPASSおよび `INSTRUMENTATION_CODE: -1` を確認した。rawログは `Recovery-final.log`、`Editor.log`、`Lock.log`。履歴の故障/保存/上限画面7枚は同ディレクトリの `screenshots/` に取得し、保存失敗とpin成功の画面を目視確認した。
@@ -396,7 +398,7 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 
 #### StoreKitのruntime差と限界
 
-- iOS 27.0のCLI初回は商品取得後にApple Accountサインイン画面へ進み停止したため中断。その[画面](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/storekit-ios27-signin.png)を保持し、成功/skipとは数えない。同じ既存schemeをXcodeから実行してローカルStoreKit設定を適用した後は、CLIでも10件実行され、6成功・4失敗・skip 0だった。
+- iOS 27.0のCLI初回は商品取得後にApple Accountサインイン画面へ進み停止したため中断。その[画面（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-f29448b/screenshots/storekit-ios27-signin.png)を保持し、成功/skipとは数えない。同じ既存schemeをXcodeから実行してローカルStoreKit設定を適用した後は、CLIでも10件実行され、6成功・4失敗・skip 0だった。
 - 27.0の失敗は、同一商品連続購入で最後に同じ取引IDが返り6件でなく5件となるもの、`.generic(.userCancelled)` の注入が `ASDServerErrorDomain 907` → `StoreKitError` の別エラーとして返る応援/起床の2件、無関係な取引がunfinished列挙に現れない1件。これを未公開エラー番号の特別扱い・テスト削除・skip・期待値緩和で通していない。
 - Appleの公開download機能でiOS 26.2 runtimeを追加し、同じコード・StoreKitファイル・既存10件をiPhone 16でCLI実行すると10成功・失敗0・skip 0。26.2の成功を27.0の失敗解消とは扱わない。runtimeをまたぐ比較結果であり、27.0のStoreKit再検証は残る。
 - Simulatorのmock認可・対象名・NoopのShield/監視は、実Family Controls認可、実Screen Time遮断/解除、署名/entitlement付きDeviceActivity callbackの実機成功ではない。実機・実App Store/Sandbox課金・全OS版/全端末の保証は含まない。Android 14のRecovery/権限/無料起床/遮断/自然終了の未完了項目も、そのまま未完了とする。
@@ -404,14 +406,14 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 #### 証拠の対応と最終確認
 
 - [結果要約](../../ci-results/ios-review/2026-10-26-f29448b/verification-results.json)、[環境](../../ci-results/ios-review/2026-10-26-f29448b/environment.json)、[ソース指紋](../../ci-results/ios-review/2026-10-26-f29448b/source-sha256.json)、[Debugアプリ指紋](../../ci-results/ios-review/2026-10-26-f29448b/debug-app-sha256.json)を保存した。生成済みアプリの指紋と最終ソースの一致を回収時にも再確認した。
-- 画像は138枚（最終ビルドの添付画像135枚、修正前2枚、StoreKit比較の停止画面1枚）。[画像index](../../ci-results/ios-review/2026-10-26-f29448b/screenshots-index.json)にテスト名・操作段階を表す添付名・端末・時刻・結果bundle・SHA-256を対応付けた。日英の大文字比較は、同じ端末/画面幅・同じ操作段階の `accessibility-en-*` と `accessibility-ja-*` を使う。確認/取消へスクロールした画像を、sheet初期表示の画像と混ぜない。
+- 当時の画像は138枚（最終ビルドの添付画像135枚、修正前2枚、StoreKit比較の停止画面1枚）。整理後は現在の比較元である最終ビルドの135枚を保持し、修正前・StoreKit停止画像はGit履歴を参照する。[画像index](../../ci-results/ios-review/2026-10-26-f29448b/screenshots-index.json)にテスト名・操作段階を表す添付名・端末・時刻・結果bundle・SHA-256を対応付けた。日英の大文字比較は、同じ端末/画面幅・同じ操作段階の `accessibility-en-*` と `accessibility-ja-*` を使う。確認/取消へスクロールした画像を、sheet初期表示の画像と混ぜない。
 - 小型7件と追加の故障UI 2件は、通常端末の28件に含まれるテストの再実行を含む。独立した35件/37件のテストへ水増ししない。StoreKit 27.0のrawログにある6 failuresはassertion数であり、失敗test caseは結果要約どおり4件。
 - 最終ログは同ディレクトリ `logs/` の `ui-complete.log.gz`、`selection-small-complete.log.gz`、`failure-ui-verified.log.gz`、`logic-verified.log.gz`、`purchases-ios26.log.gz`、`debug-verified.log.gz`、`release-verified.log.gz`。初回失敗のログ/結果要約も別名で保持し、上書きしていない。
 
 | 操作段階 | 修正前 | 修正後 | 比較条件 |
 |---|---|---|---|
-| 対象1件を選んで保存、書込拒否後 | [before](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/before/target-save-rejected.png) | [after](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/target-save-rejected.png) | 同じSE 3rd generation、375pt。取消後の3件保持もassert |
-| 遅延30分/継続30分の確認で保存、書込拒否後 | [before](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/before/schedule-create-rejected.png) | [after](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/schedule-create-rejected.png) | beforeは18 Pro Max、afterは17 Pro Max、両方440pt・1320×2868。同一端末のpixel比較とはしない |
+| 対象1件を選んで保存、書込拒否後 | [before（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-f29448b/screenshots/before/target-save-rejected.png) | [after](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/target-save-rejected.png) | 同じSE 3rd generation、375pt。取消後の3件保持もassert |
+| 遅延30分/継続30分の確認で保存、書込拒否後 | [before（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-f29448b/screenshots/before/schedule-create-rejected.png) | [after](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/schedule-create-rejected.png) | beforeは18 Pro Max、afterは17 Pro Max、両方440pt・1320×2868。同一端末のpixel比較とはしない |
 | 繰り返し編集の有効化を保存、書込拒否後 | — | [下書きとエラー](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/after/schedule-edit-rejected.png) | SE、375pt。取消/再オープンで原本の無効値もassert |
 | 大文字の繰り返し確認、確認/取消ボタン到達後 | [English](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-en-confirmation.png) | [日本語](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-ja-confirmation.png) | 同じSE、最大アクセシビリティ文字サイズ、同じ曜日/時刻設定と操作段階 |
 
@@ -484,7 +486,7 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 
 初回の再現ではキャッシュ状態により、既存4件に加え起動時回収/finish確認も失敗し4成功・6失敗だった。同期後はこれらも3回ずつ成功した。反復回数を独立した30種類のテストへ数えず、診断用testのPassedも製品の合格件数に加算しない。
 
-[最終集計](../../ci-results/ios-review/2026-10-26-storekit-ios27/verification-results.json)、[27.0の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios27-final-summary.json)、[26.2の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios26-final-summary.json)を参照する。今回Core/AppModel/全UIを再実行したわけではなく、それらの結果は第14節のcommit/実行記録のまま。実機・実課金・Androidの未確認項目も変更しない。
+[最終集計（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-storekit-ios27/verification-results.json)、[27.0の結果要約（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-storekit-ios27/ios27-final-summary.json)、[26.2の結果要約（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-storekit-ios27/ios26-final-summary.json)を参照する。今回Core/AppModel/全UIを再実行したわけではなく、それらの結果は第14節のcommit/実行記録のまま。実機・実課金・Androidの未確認項目も変更しない。
 
 ## 17. 2026-10-26 購入未完了時の表示統一
 
@@ -499,7 +501,7 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 
 ### 途中経過も含めた証拠
 
-[今回の証拠](../../ci-results/ios-review/2026-10-26-purchase-failure-message/)に結果要約、rawログ、環境とソース指紋を保存する。途中の失敗を最終成功で上書きしない。
+[今回の証拠](../../ci-results/ios-review/2026-10-26-purchase-failure-message/)に結果要約、rawログ、環境とソース指紋を保存する。途中の失敗の経緯は以下とGit履歴に残し、整理後の同梱ログ・結果要約は最終のlifecycle実行に限定する。
 
 - 最初の27.0反復では取消2件は各3回成功したが、応援の承認後通知待ちが1反復失敗。承認直後の同期を追加した次の試行では、起動時回収の通知待ちが1反復失敗した（`ios27.log.gz` / `ios27-final.log.gz`）。
 - 通知待ちでも毎回同期する試行は27.0で10件×3回成功したが、26.2では承認待ち2件が失敗。この広範な同期を撤去し、通知待ちは元の条件、unfinished情報確認は同期済みsnapshotという分担に戻した（`ios27-verified` / `ios26-verified`）。
@@ -535,11 +537,11 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 ## 19. 2026-10-26 CIの大文字メニュー操作失敗の追跡
 
 - [run 201](https://github.com/hiroyoshii/bearlock/actions/runs/40281488393)の通常UIは27成功・1失敗・skip 0。ソースは `d901649`、Xcode 26.6、iPhone 17 Pro Max / iOS 26.5 (23F77)。小型試験とApp Store画像撮影は、後続main更新によるキャンセルのため完了していない。テスト添付を商品ページ用の撮影成果物と混同しない。
-- 失敗は `SelectionControlsUITests.testSelectionAtAccessibilityTextSizeInEnglishAndJapanese`。英語の最大文字サイズでDate & TimeからRepeatへ切り替える操作後、メニューが残り、選択はDate & Timeのままだった。[画面録画の操作後フレーム](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before.png)、[AX情報](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before-ax.txt)、[結果要約](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before-summary.json)を保持した。押下座標(217,528)はRepeatのAX範囲(17,465,400,126)の中心に一致する。表示だけで成功としていない。
+- 失敗は `SelectionControlsUITests.testSelectionAtAccessibilityTextSizeInEnglishAndJapanese`。英語の最大文字サイズでDate & TimeからRepeatへ切り替える操作後、メニューが残り、選択はDate & Timeのままだった。[画面録画の操作後フレーム（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-ci-ui-menu/before.png)、[AX情報（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-ci-ui-menu/before-ax.txt)、[結果要約（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-ci-ui-menu/before-summary.json)を保持した。押下座標(217,528)はRepeatのAX範囲(17,465,400,126)の中心に一致する。表示だけで成功としていない。
 - 既存helperの「主ウインドウを明示して座標を押す」経路を、Application基準の単回tapへ置換する修正候補を作成した。ネイティブメニューの別ウインドウを主ウインドウへ固定しないための変更である。旧ウインドウ探索とguardを削除し、選択成功の期待値・5秒の待機条件・既存全件を維持。操作の再送・タイムアウト延長・skipは追加していない。
 - Application基準の候補を最終mainへ統合した `e3af31e` / CI run 206では、元の英語Repeat切替は通過したが、日本語通常サイズと日英最大文字サイズの2テストが失敗した。座標の参照先変更だけで解消したとはしない。既存CIの撮影成果物を回収し、公開用画像とテスト失敗の証拠を分けて保持する。
 - 次の候補では、モード切替とメニュー項目選択を既存要素への単回のネイティブ `tap()` に統一し、200msのpressとApplication基準の座標回避処理を削除した。表示範囲/有限座標の検査、切替成功の期待値、5秒の待機は維持し、操作の再送はしない。
-- [事前確認](../../ci-results/ios-review/2026-10-26-ci-ui-menu/native-tap-local/summary.json)はXcode 27.1 / iOS 27.0 / iPhone 17 Pro Maxで、CIで失敗した既存2件を対象に2成功・失敗0・skip 0。日本語通常サイズと日英最大文字サイズの実操作を含む。これはCIのiOS 26.5成功ではなく、ネイティブtapの事前検証に限る。最終CIの全通常/小型試験とafter画像の確認は未完了。
+- [事前確認（履歴）](https://github.com/hiroyoshii/bearlock/blob/44465600fe304f1ab53b97de3a9f79180650063d/ci-results/ios-review/2026-10-26-ci-ui-menu/native-tap-local/summary.json)はXcode 27.1 / iOS 27.0 / iPhone 17 Pro Maxで、CIで失敗した既存2件を対象に2成功・失敗0・skip 0。日本語通常サイズと日英最大文字サイズの実操作を含む。これはCIのiOS 26.5成功ではなく、ネイティブtapの事前検証に限る。最終CIの全通常/小型試験とafter画像の確認は未完了。
 
 ### run 207の結果と残る制約
 
