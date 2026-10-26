@@ -96,7 +96,13 @@ class TargetPicker(private val a: MainActivity) {
                 val domain=Domain.normalize(input.text.toString())
                 if(domain==null) a.error("invalid_domain") else { a.editor.targets=a.editor.targets.copy(domains=a.editor.targets.domains+domain); update(); web() }
             },16)
-            for(domain in a.editor.targets.domains) u.add(content,u.button("×  $domain") { a.editor.targets=a.editor.targets.copy(domains=a.editor.targets.domains-domain); update(); web() },8)
+            for(domain in a.editor.targets.domains) u.add(content,u.button(domain) {
+                a.editor.targets=a.editor.targets.copy(domains=a.editor.targets.domains-domain); update(); web()
+            }.apply {
+                contentDescription=t("$domain を削除","Remove $domain")
+                setCompoundDrawables(u.icon("close").apply { setBounds(0,0,u.dp(20),u.dp(20)) },null,null,null)
+                compoundDrawablePadding=u.dp(8)
+            },8)
             u.add(content,u.label(t("ChromeとFirefoxの通常タブに対応しています。シークレットタブ、カスタムタブ、その他のブラウザには対応していません。","Supports regular tabs in Chrome and Firefox. Private tabs, custom tabs, and other browsers are not supported."),14f,muted=true),0)
         }
         fun categories() {

@@ -58,6 +58,8 @@ jobs:
             adb shell am instrument -w com.hiyozoo.bearlock/.RecoveryInstrumentation > artifacts/android14/recovery-test.log
             cat artifacts/android14/recovery-test.log
             grep -q 'PASS: monitoring recovery UI' artifacts/android14/recovery-test.log
+            ADB=adb ANDROID_SERIAL=emulator-5554 BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_wake_verify.py
+            ADB=adb ANDROID_SERIAL=emulator-5554 BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_wake_verify.py --without-exact-alarm --output artifacts/android-product/free-wake-without-exact
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_recurring_delete_verify.py
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/product_recurring_verify.py
             BEARLOCK_DISPOSABLE_QA=1 python3 android-lab/scripts/onboarding_verify.py > artifacts/android14/onboarding-run.log 2>&1
@@ -71,4 +73,6 @@ jobs:
           name: bearlock-android14-acceptance
           path: |
             artifacts/android14/
+            artifacts/android-product/free-wake/
+            artifacts/android-product/free-wake-without-exact/
             android-lab/product/build/test-results/

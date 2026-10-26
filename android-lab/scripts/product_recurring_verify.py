@@ -37,7 +37,7 @@ rules = [dict(id=f'repeat-{i}', title=f'Repeat {i}', targets=dict(apps=[probe],d
                             endMinute=(minute+i+2)%1440,zone='UTC'),enabled=True) for i in range(2)]
 fixture = dict(schema=3, rules=rules, recent=[])
 q.sh('run-as',q.APP,'mkdir','-p','files')
-subprocess.run([q.ADB,'-s',q.SERIAL,'shell','run-as',q.APP,'sh','-c',"'cat > files/locks-v1.json'"],
+subprocess.run([*q.ADB_COMMAND,'-s',q.SERIAL,'shell','run-as',q.APP,'sh','-c',"'cat > files/locks-v1.json'"],
                input=json.dumps(fixture).encode(),check=True)
 q.page('schedules',language='en')
 nodes = list(q.tree().iter('node'))

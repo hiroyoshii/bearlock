@@ -12,6 +12,7 @@ import java.time.*
 open class MainActivity : Activity() {
     val ui by lazy { Ui(this) }
     val store by lazy { Store(this) }
+    private val operations by lazy { LockOperations(store::change, ::updateMonitoring) }
     val catalog by lazy { Catalog(this) }
     var route: Route = Route.Home
     val page get() = route.page
@@ -20,6 +21,8 @@ open class MainActivity : Activity() {
     var expandedTargets = false
     var visualPreview = false
     var state = State()
+    private var selectionReadFailed = false
+    val savedDataAvailable get() = store.error == null && !selectionReadFailed
     private lateinit var body: LinearLayout
     private var renderedPage: String? = null
     private var contentScroll: ScrollView? = null
@@ -30,30 +33,43 @@ open class MainActivity : Activity() {
     private var countdownEnd = 0L
     private var lastStatus = ""
     private var renderedActiveKeys = emptyList<String>()
+    private var renderedScheduleIDs = emptyList<String>()
     private var renderedEditable = true
+    private var wakeDialog: AlertDialog? = null
     private fun editingAllowed(): Boolean {
+        if(!savedDataAvailable) return false
         val id = editor.originalID ?: return true
         val saved = state.rules.find { it.id == id } ?: return false
         val now = System.currentTimeMillis()
-        return Planner.editable(saved, now) && (saved.recurring || saved.single!!.start > now)
+        return Planner.scheduleEditable(state, saved, now)
     }
-    private fun statusKey() = "${GuardService.instance != null}:${Scheduling.permitted(this)}:${store.error}:${Scheduling.updateFailed}"
+    private fun statusKey() = "${GuardService.instance != null}:${Scheduling.permitted(this)}:${store.error}:$selectionReadFailed:${Scheduling.updateFailed}"
+    private fun activePresentationKeys(now: Long)=state.activeLocks(now).map { "${it.key}:${it.end}:${Planner.canScheduleFreeWake(it,now)}" }
     private val heartbeat = object : Runnable {
         override fun run() {
             if (page in listOf("home", "schedules")) {
                 load()
-                if (renderedActiveKeys != state.activeLocks(System.currentTimeMillis()).map { it.key }) render()
+                val now=System.currentTimeMillis()
+                if (renderedActiveKeys != activePresentationKeys(now) ||
+                    renderedScheduleIDs != state.scheduledRules(now).map { it.id }) render()
                 else countdown?.text = remaining(countdownEnd)
+                if(page=="home") updateEditorActions()
             }
             if (page == "compose") {
                 load()
                 if (renderedEditable != editingAllowed()) render()
+                updateEditorActions()
             }
             if(page in listOf("home","setup","settings","schedules") && lastStatus != statusKey()) render()
             handler.postDelayed(this,1000)
         }
     }
     fun t(ja: String,en: String) = tr(this,ja,en)
+    fun updateEditorActions() {
+        val valid=editor.canSubmit(System.currentTimeMillis())
+        findViewById<View>(android.R.id.content)?.findViewWithTag<Button>("editor-save")?.apply { isEnabled=editingAllowed() && valid; alpha=if(isEnabled) 1f else .5f }
+        findViewById<View>(android.R.id.content)?.findViewWithTag<Button>("composer-primary")?.apply { isEnabled=savedDataAvailable && valid; alpha=if(isEnabled) 1f else .5f }
+    }
     override fun attachBaseContext(base: android.content.Context) {
         configureLanguage(base)
         val language=if(BuildConfig.DEBUG) base.getSharedPreferences("appearance",0).getString("language","").orEmpty() else ""
@@ -66,7 +82,7 @@ open class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= 33) onBackInvokedDispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { goBack() }
-        editor.targets=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(Targets())
+        restoreSelection()
         if (savedInstanceState != null) restore(savedInstanceState)
         else if (!getPreferences(0).getBoolean("onboarded",false)) route=Route.Setup
         if(savedInstanceState == null && BuildConfig.DEBUG && intent.hasExtra("qaPage")) {
@@ -75,8 +91,22 @@ open class MainActivity : Activity() {
         }
         render()
     }
-    override fun onResume() { super.onResume(); GuardService.instance?.appForeground(); load(); render(); syncSchedules(); handler.post(heartbeat) }
-    override fun onPause() { handler.removeCallbacks(heartbeat); super.onPause() }
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent) }
+    override fun onResume() {
+        super.onResume(); GuardService.instance?.appForeground(); load()
+        val wakeRuleId=intent.getStringExtra("wakeRuleId")
+        val wakeStart=intent.getLongExtra("wakeOccurrenceStart",Long.MIN_VALUE)
+        intent.removeExtra("wakeRuleId"); intent.removeExtra("wakeOccurrenceStart")
+        if(wakeRuleId != null) route=Route.Home
+        render(); syncSchedules(); handler.post(heartbeat)
+        if(wakeRuleId != null) {
+            val lock=state.activeLocks(System.currentTimeMillis()).find { it.ruleId==wakeRuleId && it.start==wakeStart }
+            if(!savedDataAvailable) error("storage_error")
+            else if(lock==null) error("wake_ended")
+            else showWakeOptions(lock)
+        }
+    }
+    override fun onPause() { handler.removeCallbacks(heartbeat); wakeDialog?.dismiss(); wakeDialog=null; super.onPause() }
     override fun onSaveInstanceState(out: Bundle) {
         out.putSerializable("route",route)
         out.putSerializable("editor",editor)
@@ -99,23 +129,47 @@ open class MainActivity : Activity() {
         when(val current=route) {
             is Route.Permissions -> navigate(current.returnTo)
             is Route.Picker -> { editor.targets=current.original; navigate(current.returnTo) }
-            Route.Support -> navigate(Route.Settings)
+            Route.Support, Route.Diagnostics -> navigate(Route.Settings)
             Route.Home -> finish()
             Route.Editor -> { editor=EditorDraft(); restoreSelection(); navigate(Route.Home) }
             else -> navigate(Route.Home)
         }
     }
-    fun restoreSelection() { editor.targets=runCatching { Codec.targets(org.json.JSONObject(getPreferences(0).getString("selection","")!!)) }.getOrDefault(Targets()) }
-    fun persistSelection() { getPreferences(0).edit().putString("selection",Codec.targets(editor.targets).toString()).apply() }
+    fun restoreSelection() {
+        runCatching {
+            val saved=store.read()
+            val legacy=if(saved.selection==null) getPreferences(0).getString("selection",null) else null
+            state=if(saved.selection==null && legacy!=null) {
+                val targets=Codec.targets(org.json.JSONObject(legacy))
+                // Restore an already-saved legacy value, not a user edit during an active lock.
+                store.change { it.copy(selection=targets) }
+            } else saved
+            // Once the AtomicFile owns selection, never read a stale legacy value again.
+            if(state.selection!=null && getPreferences(0).contains("selection")) getPreferences(0).edit().remove("selection").apply()
+            state.selection ?: Targets()
+        }.onSuccess { editor.targets=it; selectionReadFailed=false }
+            .onFailure { selectionReadFailed=true }
+    }
+    fun selectTargets(targets: Targets): Boolean {
+        if(selectionReadFailed) { error("storage_error"); return false }
+        val outcome=operations.selectTargets(targets)
+        if(outcome is OperationOutcome.Rejected) {
+            error(if(outcome.cause.message in listOf("active_immutable","empty_targets","storage_error")) outcome.cause.message else "selection_save")
+            return false
+        }
+        state=(outcome as OperationOutcome.Saved).state
+        editor.targets=targets
+        if(outcome.reflection.isFailure) showReflectionFailure()
+        return true
+    }
     fun pickTargets() {
+        load()
+        if(!savedDataAvailable) { error("storage_error"); return }
         if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { error("active_immutable"); return }
         navigate(Route.Picker(route,editor.targets))
     }
     fun saveSelection() {
-        load()
-        if(state.activeLocks(System.currentTimeMillis()).isNotEmpty()) { error("active_immutable"); return }
-        if(editor.targets.empty) { error("empty_targets"); return }
-        persistSelection()
+        if(!selectTargets(editor.targets)) return
         getPreferences(0).edit().putBoolean("onboarded",true).apply()
         val destination=(route as? Route.Picker)?.returnTo ?: Route.Home
         navigate(if(destination == Route.Setup) Route.Home else destination)
@@ -128,47 +182,69 @@ open class MainActivity : Activity() {
     // String entry points are limited to existing QA page names and simple navigation links.
     fun routeForPage(name: String): Route = when(name) {
         "setup" -> Route.Setup; "compose" -> Route.Editor; "settings" -> Route.Settings
-        "support" -> Route.Support; "schedules" -> Route.Schedules; "fixture" -> Route.Fixture
+        "support" -> Route.Support; "diagnostics" -> Route.Diagnostics; "schedules" -> Route.Schedules; "fixture" -> Route.Fixture
         "targets" -> Route.Picker(route,editor.targets)
         else -> Route.Home
     }
     fun navigate(next: String) = navigate(routeForPage(next))
     fun edit(rule: Rule) {
         load()
-        if (!Planner.editable(rule, System.currentTimeMillis())) { error("active_immutable"); return }
-        editor=EditorDraft.editing(rule)
+        if(!savedDataAvailable) { error("storage_error"); return }
+        val saved=state.rules.find { it.id==rule.id } ?: run { error("rule_not_found"); return }
+        if (!Planner.scheduleEditable(state, saved, System.currentTimeMillis())) { error("active_immutable"); return }
+        editor=EditorDraft.editing(saved)
         navigate(Route.Editor)
     }
     open fun render() {
         val previousY=if(renderedPage==page) contentScroll?.scrollY ?: 0 else 0
         renderedPage=page
         countdown=null; pickerCount=null; pickerSave=null; load(); lastStatus=statusKey()
-        renderedActiveKeys=state.activeLocks(System.currentTimeMillis()).map { it.key }
+        renderedActiveKeys=activePresentationKeys(System.currentTimeMillis())
+        renderedScheduleIDs=state.scheduledRules(System.currentTimeMillis()).map { it.id }
         renderedEditable=editingAllowed()
-        val root=ui.column().apply { setBackgroundColor(Palette.background) }
+        val grouped=page in listOf("compose","settings","diagnostics")
+        val pageBackground=if(grouped) Palette.grouped else Palette.background
+        val root=ui.column().apply { setBackgroundColor(pageBackground) }
         root.setOnApplyWindowInsetsListener { v,ins -> v.setPadding(ins.systemWindowInsetLeft,ins.systemWindowInsetTop,ins.systemWindowInsetRight,ins.systemWindowInsetBottom); ins }
         if(page!="setup") {
-            val bar=ui.row().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(12)) }
+            val bar=ui.row().apply {
+                setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(12))
+                setBackgroundColor(pageBackground)
+                elevation=ui.dp(1).toFloat(); outlineProvider=null // Keep scrolled content behind the fixed header, without a shadow.
+            }
             if(page=="home") {
-                bar.addView(ui.asset(R.drawable.brand_header,50).apply { background=null; scaleType=ImageView.ScaleType.FIT_START },LinearLayout.LayoutParams(ui.dp(142),ui.dp(50)))
+                bar.addView(ui.asset(R.drawable.brand_header,44).apply {
+                    background=ui.bg(Palette.white,100); scaleType=ImageView.ScaleType.CENTER_CROP
+                    elevation=ui.dp(2).toFloat()
+                    setPadding(ui.dp(6),0,ui.dp(6),0)
+                },LinearLayout.LayoutParams(ui.dp(150),ui.dp(44)))
                 bar.addView(View(this),LinearLayout.LayoutParams(0,1,1f))
-                bar.addView(ui.iconButton("⚙",t("設定","Settings")) { navigate("settings") })
+                bar.addView(ui.iconButton("gear",t("設定","Settings")) { navigate("settings") }.apply {
+                    background=ui.touchBackground(Palette.white,radius=100)
+                    setCompoundDrawables(ui.icon("gear",Palette.navy).apply { setBounds(0,0,ui.dp(24),ui.dp(24)) },null,null,null)
+                    setPadding(ui.dp(10),ui.dp(10),ui.dp(10),ui.dp(10)); elevation=ui.dp(2).toFloat()
+                    layoutParams=LinearLayout.LayoutParams(ui.dp(44),ui.dp(44))
+                })
             } else {
                 val toolbar=android.widget.RelativeLayout(this)
                 val isEditingPage=page=="targets" || page=="compose"
                 val cancel=ui.textButton(if(isEditingPage) t("キャンセル","Cancel") else t("戻る","Back")) { goBack() }.apply { id=View.generateViewId(); textSize=14f }
-                val save=ui.textButton(if(page=="compose") t("保存","Save") else "") { if(page=="compose") Composer(this).saveEdit() }.apply { id=View.generateViewId(); textSize=14f; visibility=if(page=="compose") View.VISIBLE else View.INVISIBLE; isEnabled=renderedEditable }
+                val save=ui.textButton(if(page=="compose") t("保存","Save") else "") { if(page=="compose") Composer(this).saveEdit() }.apply { id=View.generateViewId(); tag="editor-save"; textSize=14f; visibility=if(page=="compose") View.VISIBLE else View.INVISIBLE; isEnabled=renderedEditable && editor.canSubmit(System.currentTimeMillis()) }
+                if(grouped) for(control in listOf(cancel,save)) control.apply {
+                    background=ui.touchBackground(Palette.white,radius=100); setTextColor(Palette.textPrimary); minHeight=ui.dp(44)
+                }
                 val side=ui.dp(if(ui.compact) 132 else 96)
                 toolbar.addView(cancel,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_START) })
                 toolbar.addView(save,android.widget.RelativeLayout.LayoutParams(side,-2).apply { addRule(android.widget.RelativeLayout.ALIGN_PARENT_END) })
-                val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロックを編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); "support"->t("Bear Lockを応援","Support Bear Lock"); else->t("設定","Settings") }
-                toolbar.addView(ui.label(name,17f,true).apply { gravity=Gravity.CENTER; minHeight=ui.dp(50) },android.widget.RelativeLayout.LayoutParams(-1,-2).apply { if(ui.compact) addRule(android.widget.RelativeLayout.BELOW,cancel.id) else { addRule(android.widget.RelativeLayout.END_OF,cancel.id); addRule(android.widget.RelativeLayout.START_OF,save.id) } })
+                val name=when(page) { "targets"->t("ロック対象","Lock targets"); "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロックを編集","Edit Lock"); "permissions"->t("アクセス許可","Permissions"); "support"->t("Bear Lockを応援","Support Bear Lock"); "diagnostics"->t("診断","Diagnostics"); else->t("設定","Settings") }
+                if(!grouped) toolbar.addView(ui.label(name,17f,true).apply { gravity=Gravity.CENTER; minHeight=ui.dp(50) },android.widget.RelativeLayout.LayoutParams(-1,-2).apply { if(ui.compact) addRule(android.widget.RelativeLayout.BELOW,cancel.id) else { addRule(android.widget.RelativeLayout.END_OF,cancel.id); addRule(android.widget.RelativeLayout.START_OF,save.id) } })
                 bar.addView(toolbar,LinearLayout.LayoutParams(-1,-2))
             }
             root.addView(bar)
         }
         val scroll=ScrollView(this).apply { isFillViewport=true; clipToPadding=false }; contentScroll=scroll
         body=ui.column().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(24)) }
+        if(grouped) ui.add(body,ui.label(when(page) { "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロック予定を編集","Edit Lock"); "diagnostics"->t("診断","Diagnostics"); else->t("設定","Settings") },32f,true).apply { setTextColor(Palette.textPrimary); if(android.os.Build.VERSION.SDK_INT>=28) isAccessibilityHeading=true },24)
         if(page=="targets") {
             // The picker owns its scrolling viewport; nesting a list in ScrollView defeats recycling.
             contentScroll=null
@@ -176,16 +252,11 @@ open class MainActivity : Activity() {
         } else {
             scroll.addView(body); root.addView(scroll,LinearLayout.LayoutParams(-1,0,1f))
         }
-        if (page in listOf("home", "schedules", "settings") && Scheduling.updateFailed) {
-            val warning = ui.card()
-            ui.add(warning, ui.label(t("ロックの監視を更新できません", "Monitoring could not be updated"), 17f, true), 12)
-            ui.add(warning, ui.label(t("監視を更新するまで、予定時刻にロックが動作しない可能性があります。保存された予定は変更していません。", "Scheduled blocking may not work until monitoring is updated. Your saved schedules have not been changed."), 15f), 12)
-            ui.add(warning, ui.button(t("再試行", "Retry")) { syncSchedules() }.apply { tag="monitoring-retry" }, 0)
-            ui.add(body, warning, 20)
-        }
+        if (page in listOf("home", "schedules", "settings")) statusWarnings(body)
         when(page) {
             "setup" -> setup(body); "home" -> home(body); "compose" -> { Composer(this).showEditor(body); if (!renderedEditable) disableEditor(body) }
             "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body); "support" -> SupportScreen(this).show(body)
+            "diagnostics" -> SettingsScreen(this).diagnostics(body)
             "permissions" -> permissions(body)
         }
         if(page=="targets") {
@@ -195,6 +266,7 @@ open class MainActivity : Activity() {
             pickerSave=ui.button(t("保存","Save"),true) { saveSelection() }.apply { isEnabled=!editor.targets.empty; alpha=if(isEnabled) 1f else .5f }
             ui.add(footer,pickerSave!!,0); root.addView(footer)
         }
+        window.statusBarColor=pageBackground
         setContentView(root); root.requestApplyInsets()
         scroll.post { scroll.scrollTo(0,previousY) }
         if(Build.VERSION.SDK_INT>=30) window.insetsController?.setSystemBarsAppearance(
@@ -202,8 +274,28 @@ open class MainActivity : Activity() {
             android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)
         else window.decorView.systemUiVisibility=View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
     }
-    fun mutate(block: (State)->State) {
-        try { state=store.change(block); render(); syncSchedules() } catch(e: Exception) { error(e.message) }
+    fun setRecentPinned(recent: Recent, pinned: Boolean) = finishHistoryOperation(operations.setRecentPinned(recent.targets,pinned))
+    fun deleteRecentTarget(recent: Recent) = finishHistoryOperation(operations.deleteRecentTarget(recent.targets))
+    private fun finishHistoryOperation(outcome: OperationOutcome) {
+        when(outcome) {
+            is OperationOutcome.Rejected -> error(if(outcome.cause.message in listOf("pin_limit","storage_error")) outcome.cause.message else "history_storage")
+            is OperationOutcome.Saved -> { state=outcome.state; render() }
+        }
+    }
+    fun createSchedule(make: (Long)->Rule, onSaved: ()->Unit) = finishScheduleOperation(operations.createSchedule(make),onSaved)
+    fun updateSchedule(make: (Long)->Rule, onSaved: ()->Unit) = finishScheduleOperation(operations.updateSchedule(make),onSaved)
+    fun deleteSchedule(id: String) = finishScheduleOperation(operations.deleteSchedule(id)) { render() }
+    private fun finishScheduleOperation(outcome: OperationOutcome, onSaved: ()->Unit) {
+        when(outcome) {
+            is OperationOutcome.Rejected -> error(if(outcome.cause.message in listOf(
+                "empty_targets","invalid_time","invalid_domain","active_immutable","past_time","overlap","rule_not_found","storage_error"
+            )) outcome.cause.message else "schedule_storage")
+            is OperationOutcome.Saved -> {
+                state=outcome.state
+                onSaved()
+                if(outcome.reflection.isFailure) showReflectionFailure()
+            }
+        }
     }
     private fun disableEditor(view: View) {
         view.isEnabled=false
@@ -211,11 +303,14 @@ open class MainActivity : Activity() {
     }
     open fun updateMonitoring(): Result<Unit> = Scheduling.sync(this)
     fun syncSchedules() {
-        updateMonitoring()
+        operations.retryReflection()
         render()
     }
     fun error(key: String?) {
-        val message=when(key) {
+        var message=when(key) {
+            "selection_save" -> t("対象を保存できませんでした。選択内容はこの画面に保持しています。再試行してください。","Could not save the selection. Your draft is kept on this screen. Please retry.")
+            "schedule_storage" -> t("予定の変更を保存できませんでした。元の状態を保持しています。再試行してください。","Could not save the schedule change. The previous state is preserved. Please retry.")
+            "history_storage" -> t("履歴の変更を保存できませんでした。元の状態を保持しています。再試行してください。","Could not save the history change. The previous state is preserved. Please retry.")
             "pin_limit" -> t("ピン留めできる対象は3件までです。","You can pin up to three targets.")
             "empty_targets" -> t("対象を1つ以上選んでください。","Choose at least one target.")
             "overlap" -> t("予約時間と重なっています。重ならない時間を選んでください。","This overlaps another lock. Choose a different time.")
@@ -223,36 +318,63 @@ open class MainActivity : Activity() {
             "active_immutable" -> t("開始したロックは変更・削除できません。","An active lock cannot be changed or deleted.")
             "storage_error" -> t("保存データを読み込めません。上書きせず保持しています。設定の診断をご確認ください。","Saved data cannot be read. It has been preserved. Check diagnostics in Settings.")
             "invalid_domain" -> t("有効なドメインを入力してください。","Enter a valid domain.")
+            "wake_ended" -> t("このロックはすでに終了しています。","This lock has already ended.")
+            "wake_missing" -> t("起床予約はすでに取り消されています。","The wake-up request is no longer active.")
+            "wake_unavailable" -> t("残り30分以下です。予定の起床時刻までお待ちください。","30 minutes or less remain. Wait for the scheduled wake time.")
+            "wake_storage" -> t("起床予約の変更を保存できません。元の状態を保持しています。再試行してください。","Could not save the wake-up change. The previous state is preserved. Please retry.")
+            "browser_unavailable" -> t("Webサイトを開くブラウザが見つかりませんでした。","No browser is available to open the website.")
             else -> t("日時・曜日とロック時間を確認してください。","Check the date, weekdays and lock duration.")
         }
-        AlertDialog.Builder(this).setTitle(t("保存できません","Cannot save")).setMessage(message).setPositiveButton("OK",null).show()
+        if(key=="overlap") {
+            val now=System.currentTimeMillis()
+            val conflicts=runCatching { Planner.overlappingRules(state,Composer(this).make(now),now) }.getOrDefault(emptyList())
+            message += conflicts.joinToString("",prefix="") { rule ->
+                val interval=rule.nextOccurrence(now)?.let { state.effective(it) }
+                "\n\n"+catalog.summary(rule.targets)+(interval?.let { "\n"+dateText(it.start,this)+" → "+dateText(it.end,this) } ?: "")
+            }
+        }
+        AlertDialog.Builder(this).setTitle(if(key=="browser_unavailable") t("Webサイトを開けません","Cannot open website") else t("保存できません","Cannot save")).setMessage(message).setPositiveButton("OK",null).show()
+    }
+    private fun statusWarnings(parent: LinearLayout) {
+        val now=System.currentTimeMillis()
+        val readFailed=!visualPreview && !savedDataAvailable
+        val needsMonitoring=state.activeLocks(now).isNotEmpty() || Planner.needsScheduledAlarm(state,now)
+        val missingAccess=!visualPreview && needsMonitoring && GuardService.instance==null
+        val missingAlarm=!visualPreview && Planner.needsScheduledAlarm(state,now) && !Scheduling.permitted(this)
+        if(!readFailed && !Scheduling.updateFailed && !missingAccess && !missingAlarm) return
+        val warning=ui.card().apply { tag="home-status-warning" }
+        if(readFailed) {
+            ui.add(warning,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
+            ui.add(warning,ui.button(t("再読み込み","Reload saved data")) { restoreSelection(); load(); syncSchedules() }.apply { tag="storage-retry" },12)
+            ui.add(warning,ui.textButton(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },12)
+        }
+        if(Scheduling.updateFailed) {
+            ui.add(warning,ui.label(t("ロックの監視を更新できません", "Monitoring could not be updated"),17f,true).apply {
+                setCompoundDrawables(ui.icon("warning",Palette.navy).apply { setBounds(0,0,ui.dp(20),ui.dp(20)) },null,null,null); compoundDrawablePadding=ui.dp(8)
+            },12)
+            ui.add(warning,ui.label(t("監視を更新するまで、予定時刻にロックが動作しない可能性があります。保存された予定は変更していません。", "Scheduled blocking may not work until monitoring is updated. Your saved schedules have not been changed."),15f),12)
+            if(!readFailed) ui.add(warning,ui.textButton(t("再試行","Retry")) { syncSchedules() }.apply {
+                tag="monitoring-retry"; setTextColor(Palette.link); layoutParams=LinearLayout.LayoutParams(-2,-2); setPadding(0,ui.dp(4),ui.dp(8),ui.dp(4))
+            },0)
+        }
+        if(missingAccess) ui.add(warning,ui.label(t("アプリの制限は停止中です。ユーザー補助を接続してください。","App blocking is unavailable. Connect the accessibility service."),17f,true),12)
+        if(missingAlarm) ui.add(warning,ui.label(t("予約時刻の動作に必要な権限がありません。設定を確認してください。","Scheduled timing permission is missing. Review permissions."),17f,true),12)
+        if(missingAccess || missingAlarm) ui.add(warning,ui.button(t("動作に必要な設定を確認","Review required permissions")) { requestPermissions() },0)
+        ui.add(parent,warning,20)
     }
     fun home(parent: LinearLayout) {
         val now=System.currentTimeMillis()
         val active=state.activeLocks(now)
-        val hasLocksToMonitor=state.rules.any { it.enabled && (it.recurring || it.single!!.end>now) }
-        val missingScheduledAlarm = Planner.needsScheduledAlarm(state, System.currentTimeMillis()) && !Scheduling.permitted(this)
+        if(!savedDataAvailable) return // Kept data is not a verified current selection or lock state.
         SelectionSummary(this).show(parent,active.isNotEmpty())
-        if(!visualPreview && store.error != null) {
-            ui.add(parent,ui.label(t("保存データを読み込めません。予定の状態を確認できません。","Cannot read saved data. Schedule status is unknown."),17f,true),12)
-            ui.add(parent,ui.button(t("再読み込み","Retry")) { load(); render() },12)
-            ui.add(parent,ui.button(t("診断と問い合わせ","Diagnostics and support")) { navigate("settings") },16)
-        } else if(!visualPreview && hasLocksToMonitor && GuardService.instance==null) {
-            ui.add(parent,ui.label(t("アプリの制限は停止中です。ユーザー補助を接続してください。","App blocking is unavailable. Connect the accessibility service."),17f,true),16)
-        } else if(!visualPreview && missingScheduledAlarm) {
-            ui.add(parent,ui.label(t("予約時刻の動作に必要な権限がありません。設定を確認してください。","Scheduled timing permission is missing. Review permissions."),17f,true),16)
-        }
         if(active.isNotEmpty() && (visualPreview || (store.error == null && GuardService.instance != null))) {
-            countdownEnd=active.maxOf { it.end }
-            countdown=ActiveCard(ui).show(parent,remaining(countdownEnd),timeText(countdownEnd))
-            ui.add(parent,ui.label(t("単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。","One-time locks cannot be ended early. Delete a repeating schedule to end its lock."),13f,muted=true),20)
+            val lock=active.maxBy { it.end }
+            countdownEnd=lock.end
+            countdown=ActiveCard(ui).show(parent,remaining(countdownEnd),timeText(countdownEnd,this),state.wakeRequest(lock),Planner.canScheduleFreeWake(lock,now)) { showWakeOptions(lock) }
             if(mode==0) editor.chooseMode(ComposerMode.LATER,System.currentTimeMillis())
         }
         if(active.isNotEmpty() && mode==0) editor.chooseMode(ComposerMode.LATER,System.currentTimeMillis())
-        if(!visualPreview && hasLocksToMonitor && (GuardService.instance==null || missingScheduledAlarm || store.error!=null)) {
-            ui.add(parent,ui.textButton(t("動作に必要な設定を確認","Review required permissions")) { requestPermissions() },16)
-        }
-        if(store.error == null) {
+        if(savedDataAvailable) {
             Composer(this).show(parent)
             schedules(parent)
         }
@@ -261,13 +383,53 @@ open class MainActivity : Activity() {
         val seconds=((end-System.currentTimeMillis()).coerceAtLeast(0)/1000)
         return if(seconds>=3600) "%d:%02d:%02d".format(seconds/3600,seconds/60%60,seconds%60) else "%02d:%02d".format(seconds/60,seconds%60)
     }
-    fun schedules(parent: LinearLayout) = ScheduleList(this).show(parent)
+    private fun showWakeOptions(lock: ActiveLock) {
+        load()
+        if(store.error != null) { error("storage_error"); return }
+        val now=System.currentTimeMillis()
+        val active=state.activeLocks(now).firstOrNull { it.key==lock.key }
+        if(active==null) { error("wake_ended"); return }
+        val request=state.wakeRequest(active)
+        val content=ui.column().apply { setPadding(ui.dp(24),ui.dp(12),ui.dp(24),ui.dp(12)) }
+        ui.add(content,ui.label(if(request!=null) t("${dateText(request.wakesAt,this)}に起床します。","Wakes at ${dateText(request.wakesAt,this)}.")
+            else t("このロックを30分後に終了します。","This lock will end in 30 minutes."),16f),12)
+        TargetRows(this).details(content,active.targets)
+        if(state.activeLocks(now).size>1) ui.add(content,ui.label(t("他のロックは続きます。同じ対象が別のロック中なら、制限は続きます。","Other locks continue. Targets blocked by another lock will stay blocked."),14f,muted=true),12)
+        if(!Scheduling.permitted(this)) ui.add(content,ui.label(t("正確なアラームが許可されていません。起床の反映が遅れる可能性があります。","Exact alarms are not allowed. Wake-up may be delayed."),14f,muted=true),12)
+        if(GuardService.instance==null) ui.add(content,ui.label(t("アプリの制限は停止中です。設定からユーザー補助を再接続してください。","App blocking is stopped. Reconnect accessibility in Settings."),14f,muted=true),12)
+        val builder=AlertDialog.Builder(this).setTitle(t("熊を起こす","Wake the bear"))
+            .setView(ScrollView(this).apply { addView(content) }).setNegativeButton(t("キャンセル","Cancel"),null)
+        if(request!=null) builder.setPositiveButton(t("起床予約を取り消す","Cancel wake-up")) { _,_-> changeWake(active,true) }
+        else if(Planner.canScheduleFreeWake(active,now)) builder.setPositiveButton(t("無料で30分後に起こす","Wake in 30 minutes for free")) { _,_-> changeWake(active,false) }
+        else ui.add(content,ui.label(t("残り30分以下です。予定の起床時刻までお待ちください。","30 minutes or less remain. Wait for the scheduled wake time."),14f,muted=true),0)
+        wakeDialog?.dismiss()
+        wakeDialog=builder.show().apply { getButton(AlertDialog.BUTTON_POSITIVE)?.tag=if(request!=null) "cancel-free-wake" else "schedule-free-wake" }
+    }
+    private fun changeWake(lock: ActiveLock, cancel: Boolean) {
+        when(val outcome=if(cancel) operations.cancelWake(lock) else operations.scheduleWake(lock)) {
+            is OperationOutcome.Rejected -> {
+                error(if(outcome.cause.message in listOf("wake_ended","wake_missing","wake_unavailable","storage_error")) outcome.cause.message else "wake_storage")
+                render()
+            }
+            is OperationOutcome.Saved -> {
+                state=outcome.state
+                render()
+                if(outcome.reflection.isFailure) showReflectionFailure()
+            }
+        }
+    }
+    private fun showReflectionFailure() {
+        AlertDialog.Builder(this).setTitle(t("監視を更新できません","Monitoring could not be updated"))
+            .setMessage(t("変更は保存されています。設定を確認し、再試行してください。","Your change is saved. Review settings and retry."))
+            .setNegativeButton(t("閉じる","Close"),null).setPositiveButton(t("再試行","Retry")) { _,_-> syncSchedules() }.show()
+    }
+    fun schedules(parent: LinearLayout) { if(savedDataAvailable) ScheduleList(this).show(parent) }
     private fun setup(parent: LinearLayout) {
         parent.gravity=Gravity.CENTER
         val group=ui.column().apply { setPadding(ui.dp(4),0,ui.dp(4),0) }
         ui.add(group,ui.asset(R.drawable.brand_hero,175).apply { layoutParams=LinearLayout.LayoutParams(minOf(ui.dp(310),resources.displayMetrics.widthPixels-ui.dp(48)),ui.dp(175)).apply { gravity=Gravity.CENTER_HORIZONTAL } },18)
         ui.add(group,ui.label(t("アプリを選び、時間を\n決めて、ロックします。","Choose apps, set a time,\nand lock them."),20f,true).apply { gravity=Gravity.CENTER; setTextColor(Palette.steel) },28)
-        ui.add(group,ui.label(t("指定時刻になると自動で解除します。単発ロックは途中で解除できません。繰り返しは予定を削除すると終了します。","Locks end automatically at the chosen time. One-time locks cannot be ended early. Repeating locks can be ended by deleting the schedule."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
+        ui.add(group,ui.label(t("指定時刻に自動で解除します。無料で30分後の起床も予約できます。繰り返しは予定を削除すると終了します。","Locks end automatically at the chosen time. You can also schedule a free wake-up in 30 minutes. Repeating locks end when you delete the schedule."),15f,muted=true).apply { gravity=Gravity.CENTER },24)
         ui.add(group,ui.button(t("はじめる","Get started"),true) {
             getPreferences(0).edit().putBoolean("onboarded",true).apply(); navigate("home")
         },0)

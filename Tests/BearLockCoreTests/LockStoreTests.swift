@@ -2,6 +2,54 @@ import XCTest
 @testable import BearLockCore
 
 final class LockStoreTests: XCTestCase {
+    func testHistoryPinClockIsSampledInsideFreshRead() async throws {
+        let target = LockTargetSelectionRef(displayName: "A")
+        let recent = RecentLockTarget(targetSelectionID: target.id, lastUsedAt: Date())
+        let repository = InMemoryLockRepository(state: LockState(targetSelections: [target], recentLockTargets: [recent]))
+        let store = LockStore(repository: repository)
+        var readFinished = Date.distantPast
+        repository.beforeLoad = { _ in
+            Thread.sleep(forTimeInterval: 0.1)
+            readFinished = Date()
+        }
+        try await store.setRecentLockTargetPinned(id: recent.id, pinned: true)
+        let state = try await store.snapshot()
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(state.recentLockTargets.first?.pinnedAt), readFinished)
+    }
+    func testRelativeCreateSamplesTimeAfterFreshRead() async throws {
+        let repository = InMemoryLockRepository()
+        let store = LockStore(repository: repository)
+        var readFinished = Date.distantPast
+        repository.beforeLoad = { _ in
+            Thread.sleep(forTimeInterval: 0.1)
+            readFinished = Date()
+        }
+        let rule = try await store.createRule(.delayed(delay: 3600, duration: 300, targetSelectionID: UUID()))
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(rule.single).startsAt, readFinished.addingTimeInterval(3600))
+    }
+
+    func testEditAndDeleteRevalidateTimeAfterFreshReadCrossesStart() async throws {
+        for deleting in [false, true] {
+            let rule = LockRule(kind: .fixedDateTime, startsAt: Date().addingTimeInterval(3600),
+                duration: 300, targetSelectionID: UUID())
+            let repository = InMemoryLockRepository(state: LockState(rules: [rule]))
+            let store = LockStore(repository: repository)
+            repository.beforeLoad = { state in
+                state.rules[0].schedule = .single(SingleLockSchedule(kind: .fixedDateTime,
+                    startsAt: Date().addingTimeInterval(0.05), duration: 300))
+                Thread.sleep(forTimeInterval: 0.1)
+            }
+            do {
+                if deleting { try await store.deleteRule(id: rule.id) }
+                else { try await store.replaceRule(rule) }
+                XCTFail("A schedule started during read must be immutable")
+            } catch { XCTAssertEqual(error as? LockValidationError, .activeLockIsImmutable) }
+            let state = try await store.snapshot()
+            XCTAssertEqual(state.rules.count, 1)
+            XCTAssertLessThan(try XCTUnwrap(state.rules.first?.single).startsAt, Date())
+        }
+    }
+
     func testRecordingRecentTargetAddsItToHistory() async throws {
         let repository = InMemoryLockRepository()
         let store = LockStore(repository: repository)
@@ -281,11 +329,16 @@ final class LockStoreTests: XCTestCase {
 }
 
 private final class InMemoryLockRepository: LockRepository, @unchecked Sendable {
-    private var state = LockState()
-
+    private var state: LockState
+    var beforeLoad: ((inout LockState) -> Void)?
+    init(state: LockState = LockState()) { self.state = state }
 
     func load() throws -> LockState {
-        state
+        if let beforeLoad {
+            self.beforeLoad = nil
+            beforeLoad(&state)
+        }
+        return state
     }
 
     func save(_ state: LockState) throws {

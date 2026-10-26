@@ -305,7 +305,7 @@ TestFlight済みの現在地から、App Store提出までを上から順に潰�
 ## 参考リンク
 
 - 実機QA: `docs/qa/manual-device-checklist.md`
-- 実装計画: `docs/implementation-plan.md`
+- 現行仕様・構造: [設計正本](docs/design-doc.md)。初期実装の履歴: [旧MVPの実装記録](docs/implementation-plan.md)。
 - CI: `.github/workflows/ios-ci.yml`
 - Visual Snapshot CI: `.github/workflows/ios-visual-snapshot.yml`
 - Launch docs: `docs/launch/README.md`

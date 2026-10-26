@@ -2,6 +2,59 @@ import XCTest
 @testable import BearLockCore
 
 final class WakePolicyTests: XCTestCase {
+    func testProductionWakeClockIsSampledAfterFreshRepositoryRead() async throws {
+        for cancel in [false, true] {
+            let start = Date().addingTimeInterval(-60)
+            let rule = LockRule(kind: .immediate, startsAt: start, duration: 7200, targetSelectionID: UUID())
+            let lock = ActiveLock(id: rule.id, startedAt: start, endsAt: rule.single!.endsAt,
+                                  targetSelectionID: rule.targetSelectionID)
+            let repository = WakeMemoryRepository(state: LockState(rules: [rule]))
+            repository.beforeLoad = {
+                repository.beforeLoad = nil
+                let boundary = Date().addingTimeInterval(0.05)
+                if cancel {
+                    repository.state.wakeState.requests = [WakeRequest(ruleID: rule.id,
+                        occurrenceStartedAt: start, requestedAt: start, wakesAt: boundary, source: .delayed)]
+                } else {
+                    repository.state.rules[0].schedule = .single(SingleLockSchedule(kind: .immediate,
+                        startsAt: start, duration: boundary.addingTimeInterval(WakePolicy.freeDelay).timeIntervalSince(start)))
+                }
+                // Force a deadline crossing during load, independently of actor/task scheduling before load.
+                Thread.sleep(forTimeInterval: 0.1)
+            }
+            let store = LockStore(repository: repository)
+            do {
+                if cancel { try await store.cancelFreeWake(for: lock) }
+                else { _ = try await store.scheduleFreeWake(for: lock) }
+                XCTFail("Must revalidate using time after the repository read")
+            } catch {
+                XCTAssertEqual(error as? WakeError, cancel ? .activeLockNotFound : .freeWakeUnavailable)
+            }
+            XCTAssertEqual(repository.state.wakeState.requests.isEmpty, !cancel)
+        }
+    }
+
+    func testFreeWakeRevalidatesDisabledOrDeletedRuleWithoutTouchingOtherLocks() async throws {
+        let now = date("2026-09-20T01:00:00Z")
+        let rule = LockRule(kind: .immediate, startsAt: now, duration: 7200, targetSelectionID: UUID())
+        let confirmed = ActiveLock(id: rule.id, startedAt: now, endsAt: now.addingTimeInterval(7200),
+                                   targetSelectionID: rule.targetSelectionID)
+        for deletion in [false, true] {
+            var changed = rule
+            if deletion { changed.scheduledDeletionAt = now } else { changed.status = .disabled }
+            let request = WakeRequest(ruleID: rule.id, occurrenceStartedAt: now, requestedAt: now,
+                                      wakesAt: now.addingTimeInterval(1800), source: .delayed)
+            let original = LockState(rules: [changed], wakeState: WakeState(requests: [request]))
+            let repository = WakeMemoryRepository(state: original)
+            let store = LockStore(repository: repository)
+            do { _ = try await store.scheduleFreeWake(for: confirmed, at: now); XCTFail("Expected stale occurrence rejection") }
+            catch { XCTAssertEqual(error as? WakeError, .activeLockNotFound) }
+            do { try await store.cancelFreeWake(for: confirmed, at: now); XCTFail("Expected stale occurrence rejection") }
+            catch { XCTAssertEqual(error as? WakeError, .activeLockNotFound) }
+            XCTAssertEqual(repository.state, original)
+        }
+    }
+
     func testFreeWakeKeepsLockUntilThirtyMinuteDeadline() async throws {
         let now = date("2026-09-20T01:00:00Z")
         let rule = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-60), duration: 7200,
@@ -73,6 +126,33 @@ final class WakePolicyTests: XCTestCase {
         XCTAssertEqual(repository.state.rules.first, recurring)
         XCTAssertEqual(repository.state.activeLockForDisplay(at: wake.wakesAt)?.id, relock.id)
         XCTAssertEqual(repository.state.activeLockForDisplay(at: now.addingTimeInterval(24 * 60 * 60))?.id, recurring.id)
+    }
+
+    func testRecurringEditingUsesWakeDeadlineAndCancellationRestoresOriginalEnd() async throws {
+        let now = date("2026-09-20T01:00:00Z")
+        let recurring = LockRule(recurrence: RecurrenceRule(
+            weekdays: Set(Weekday.allCases),
+            startsAt: TimeOfDay(hour: 1, minute: 0),
+            endsAt: TimeOfDay(hour: 3, minute: 0),
+            timeZoneIdentifier: "UTC"
+        ), targetSelectionID: UUID())
+        let repository = WakeMemoryRepository(state: LockState(rules: [recurring]))
+        let store = LockStore(repository: repository)
+        let active = try XCTUnwrap(repository.state.activeLockForDisplay(at: now))
+        let wake = try await store.scheduleFreeWake(for: active, at: now)
+
+        XCTAssertThrowsError(try repository.state.validateEditable(recurring, at: wake.wakesAt.addingTimeInterval(-1))) {
+            XCTAssertEqual($0 as? LockValidationError, .activeLockIsImmutable)
+        }
+        // The original occurrence still exists, but must not disable the editor after wake.
+        XCTAssertNotNil(recurring.occurrence(containing: wake.wakesAt))
+        XCTAssertNoThrow(try repository.state.validateEditable(recurring, at: wake.wakesAt))
+        XCTAssertNoThrow(try repository.state.validateEditable(recurring, at: active.endsAt.addingTimeInterval(-1)))
+        XCTAssertThrowsError(try repository.state.validateEditable(recurring, at: now.addingTimeInterval(24 * 60 * 60)))
+
+        try await store.cancelFreeWake(for: active, at: wake.wakesAt.addingTimeInterval(-1))
+        XCTAssertThrowsError(try repository.state.validateEditable(recurring, at: wake.wakesAt))
+        XCTAssertNoThrow(try repository.state.validateEditable(recurring, at: active.endsAt))
     }
 
     func testWakeDoesNotCancelScheduledRecurringDeletion() async throws {
@@ -160,7 +240,8 @@ final class WakePolicyTests: XCTestCase {
 
 private final class WakeMemoryRepository: LockRepository, @unchecked Sendable {
     var state: LockState
+    var beforeLoad: (() -> Void)?
     init(state: LockState) { self.state = state }
-    func load() throws -> LockState { state }
+    func load() throws -> LockState { beforeLoad?(); return state }
     func save(_ state: LockState) throws { self.state = state }
 }

@@ -22,11 +22,13 @@ struct ScheduleDatePicker: View {
             }
         } else {
             DatePicker(LocalizedStringKey(title), selection: $selection, displayedComponents: displayedComponents)
+                .datePickerStyle(.compact)
         }
     }
 
     private func input(_ components: DatePickerComponents, unit: String) -> some View {
         DatePicker(LocalizedStringKey(title), selection: $selection, displayedComponents: components)
+            .datePickerStyle(.compact)
             .labelsHidden()
             .accessibilityLabel(Text(LocalizedStringKey(title)) + Text(", ") + Text(LocalizedStringKey(unit)))
     }

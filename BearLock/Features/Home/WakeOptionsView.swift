@@ -7,22 +7,21 @@ struct WakeOptionsDialog: ViewModifier {
     @Environment(\.purchase) private var purchase
     @EnvironmentObject private var model: BearLockAppModel
     @EnvironmentObject private var purchaseStore: WakePurchaseStore
-    @Binding var isPresented: Bool
+    @Binding var target: ActiveLock?
 
     func body(content: Content) -> some View {
         content.confirmationDialog(
             "Wake the bear",
-            isPresented: $isPresented,
-            titleVisibility: .visible
-        ) {
-            if let activeLock = model.activeLock {
-                wakeActions(for: activeLock)
-            }
+            isPresented: Binding(get: { target != nil }, set: { if !$0 { target = nil } }),
+            titleVisibility: .visible,
+            presenting: target
+        ) { activeLock in
+            wakeActions(for: activeLock)
             Button("Cancel", role: .cancel) {
-                isPresented = false
+                target = nil
             }
-        } message: {
-            Text(dialogMessage)
+        } message: { activeLock in
+            Text(dialogMessage(for: activeLock))
         }
     }
 
@@ -78,8 +77,10 @@ struct WakeOptionsDialog: ViewModifier {
         return L10n.format("Wake now for %@", price)
     }
 
-    private var dialogMessage: String {
-        guard let activeLock = model.activeLock else {
+    private func dialogMessage(for activeLock: ActiveLock) -> String {
+        guard model.lockState.activeLocks(at: Date()).contains(where: {
+            $0.id == activeLock.id && $0.startedAt == activeLock.startedAt
+        }) else {
             return L10n.string("This lock has already ended.")
         }
         if let request = model.freeWakeRequest(for: activeLock) {
@@ -93,8 +94,8 @@ struct WakeOptionsDialog: ViewModifier {
 }
 
 extension View {
-    func wakeOptionsDialog(isPresented: Binding<Bool>) -> some View {
-        modifier(WakeOptionsDialog(isPresented: isPresented))
+    func wakeOptionsDialog(target: Binding<ActiveLock?>) -> some View {
+        modifier(WakeOptionsDialog(target: target))
     }
 }
 

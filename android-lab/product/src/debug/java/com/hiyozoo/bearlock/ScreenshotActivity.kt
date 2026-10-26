@@ -38,12 +38,11 @@ class ScreenshotActivity: MainActivity() {
         when(screen) {
             "confirmation" -> {
                 root.setBackgroundColor(Palette.white); body.setPadding(0,0,0,0); body.gravity=Gravity.CENTER
-                ui.add(body,ConfirmationContent(ui).build(t("3件の対象","3 targets"),dateText(fixtureNow+30*60_000),dateText(fixtureNow+150*60_000),false,false,{},{}),0)
+                ui.add(body,ConfirmationContent(ui).build(editor.targets,dateText(fixtureNow+30*60_000,this),dateText(fixtureNow+150*60_000,this),false,false,{},{}),0)
             }
             "activeLock" -> {
                 ui.add(body,ui.label(t("熊は眠っています","Bear is sleeping"),34f,true),24)
-                ActiveCard(ui).show(body,"1:33:57",timeText(fixtureNow+94*60_000))
-                ui.add(body,ui.label(t("ロック中は短縮、削除、対象アプリの削減はできません。","During a lock, you cannot shorten it, delete it, or reduce blocked apps."),13f,muted=true).apply { gravity=Gravity.CENTER },0)
+                ActiveCard(ui).show(body,"1:33:57",timeText(fixtureNow+94*60_000,this),null,onWake={})
             }
             else -> {
                 val name=when(screen) { "composeRepeat"->t("繰り返し","Repeat");"composeDelayed"->t("あとで開始","Start later");"composeDate"->t("日時指定","Date & Time");else->t("今すぐ開始","Start now") }

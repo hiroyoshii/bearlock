@@ -9,14 +9,6 @@ enum LockComposerMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var iconName: String {
-        switch self {
-        case .now: return "bolt.fill"
-        case .delayed: return "timer"
-        case .fixedDateTime: return "calendar"
-        case .recurring: return "repeat"
-        }
-    }
 }
 
 struct LockComposerView: View {
@@ -98,7 +90,7 @@ struct LockComposerView: View {
                 onConfirm: {
                     Task {
                         let didCreate = await model.createLock(makeRequest())
-                        if didCreate {
+                        if didCreate.isSaved {
                             confirmationDetails = nil
                         }
                     }
@@ -165,38 +157,9 @@ struct LockComposerView: View {
                 .pickerStyle(.menu)
                 .frame(minHeight: 44)
         } else {
-            HStack(spacing: 8) {
-                ForEach(availableModes) { tabMode in
-                    Button {
-                        mode = tabMode
-                    } label: {
-                        ViewThatFits(in: .horizontal) {
-                            Label(LocalizedStringKey(tabMode.rawValue), systemImage: tabMode.iconName)
-                                .fixedSize(horizontal: true, vertical: false)
-                            if tabMode == .fixedDateTime {
-                                Label("Date", systemImage: tabMode.iconName)
-                                    .fixedSize(horizontal: true, vertical: false)
-                            }
-                        }
-                        .font(.caption.weight(.bold))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .foregroundStyle(mode == tabMode ? AppTheme.snow : AppTheme.navy)
-                        .background(mode == tabMode ? AppTheme.navy : AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(mode == tabMode ? AppTheme.navy : AppTheme.steel.opacity(0.35), lineWidth: 1)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(Text(LocalizedStringKey(tabMode.rawValue)))
-                    .accessibilityAddTraits(mode == tabMode ? .isSelected : [])
-                    .accessibilityIdentifier("lock-composer-mode-\(tabMode.id)")
-                }
-            }
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel("Start")
-            .accessibilityIdentifier("lock-composer-mode-picker")
+            startModePicker
+                .pickerStyle(.segmented)
+                .frame(minHeight: 44)
         }
     }
 

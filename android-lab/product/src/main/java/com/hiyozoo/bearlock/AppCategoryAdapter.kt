@@ -28,7 +28,8 @@ internal class AppCategoryAdapter(
             background=u.touchBackground(Palette.white)
             addView(CheckBox(a).apply { minHeight=u.dp(48) })
             addView(u.label("",16f,true),LinearLayout.LayoutParams(0,-2,1f))
-            addView(u.label("",18f).apply { importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO })
+            addView(ImageView(a).apply { importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO },
+                LinearLayout.LayoutParams(u.dp(24),u.dp(24)))
         }
         row.setOnClickListener {
             (parent as? ExpandableListView)?.let { list ->
@@ -46,7 +47,7 @@ internal class AppCategoryAdapter(
             onSelectionChanged(); notifyDataSetChanged()
         }
         (row.getChildAt(1) as TextView).text="${a.catalog.categoryName(id)} (${groups[position].size})"
-        (row.getChildAt(2) as TextView).text=if(expanded) "⌄" else "›"
+        (row.getChildAt(2) as ImageView).setImageDrawable(u.icon(if(expanded) "down" else "right"))
         return row
     }
     override fun getChildView(groupPosition: Int,childPosition: Int,isLast: Boolean,convertView: View?,parent: ViewGroup): View =

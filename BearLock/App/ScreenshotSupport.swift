@@ -37,7 +37,7 @@ enum ScreenshotScreen: String, CaseIterable {
 struct ScreenshotHostView: View {
     let screen: ScreenshotScreen
     @StateObject private var model: BearLockAppModel
-    @State private var isWakeOptionsPresented = false
+    @State private var wakeTarget: ActiveLock?
 
     init(screen: ScreenshotScreen) {
         self.screen = screen
@@ -53,7 +53,7 @@ struct ScreenshotHostView: View {
         .task {
             await model.refresh()
             if screen == .wakeOptions {
-                isWakeOptionsPresented = true
+                wakeTarget = model.activeLock
             }
         }
     }
@@ -64,7 +64,7 @@ struct ScreenshotHostView: View {
         case .setup:
             SetupView()
         case .home:
-            HomeView(onWake: {})
+            HomeView(onWake: { _ in })
         case .composeNow:
             ScrollView {
                 screenshotStack(title: "Start now") {
@@ -109,10 +109,10 @@ struct ScreenshotHostView: View {
             }
             .navigationTitle("Schedules")
         case .activeLock:
-            HomeView(onWake: {})
+            HomeView(onWake: { _ in })
         case .wakeOptions:
             Color.clear
-                .wakeOptionsDialog(isPresented: $isWakeOptionsPresented)
+                .wakeOptionsDialog(target: $wakeTarget)
         case .wakeResult:
             WakeResultView()
         case .scheduledEditor:

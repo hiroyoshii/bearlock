@@ -1,7 +1,7 @@
 # Bear Lock for Android
 
 Native Kotlin/Android Views product module. The comparison lab is preserved in `../app`.
-Package: `com.hiyozoo.bearlock`; min API 26, target/compile API 36. Dependencies are limited to the Android platform and JUnit for domain tests. iOS artwork is reused from this repository.
+Package: `com.hiyozoo.bearlock`; min API 26, target/compile API 36. Runtime uses Android Views and Material Components; tests use JUnit and JVM org.json to exercise the persisted codec. iOS artwork is reused from this repository.
 
 ## Build
 
@@ -12,17 +12,9 @@ cd android-lab
 
 Debug APK: `product/build/outputs/apk/debug/product-debug.apk`. Release APK is unsigned unless the signing environment below is supplied. No publishing occurs during builds. The GitHub workflow `.github/workflows/android-ci.yml` builds/tests the module; a remote run is not implied by local verification.
 
-## Product behavior
+## Product specification
 
-- Multiple app/domain/category targets; immediate, delayed, dated and weekly repeating schedules.
-- One lock lasts 1 minute to 24 hours. New dated schedules may start up to one year ahead. Repeating schedules continue indefinitely in their saved timezone. A DST gap moves to the next valid local time; duration is elapsed minutes, matching the iOS rule model.
-- Overlapping locks are rejected, including future repeating occurrences. An active session is persisted independently from its parent. Deleting/editing a recurring parent changes future sessions, while the active snapshot retains its targets/end.
-- Upcoming one-time schedules can be edited/deleted. Active one-time locks cannot. Completed sessions do not replay on wall-clock rollback. Device clock changes otherwise re-evaluate absolute timestamps; this is not a tamper-proof clock.
-- Versioned JSON is written through AtomicFile; unreadable or unsupported data is retained, not overwritten. Cloud backup and device transfer are excluded. There is no account, network permission, analytics or remote collection. The last three unpinned selections and all pinned selections are retained.
-- Categories use ApplicationInfo.category, including newly installed apps. Classification is incomplete and device-dependent; users can add apps individually. Settings, home and dialers are excluded from matching and selection. The app does not support cross-profile enumeration.
-- Accessibility restores current foreground window metadata off the main thread and ignores stale callbacks. A local overlay intercepts screen input; it does not stop processes, traffic, notifications or OS-level force stop/revocation.
-- Website adapters inspect only known address-bar view IDs in Chrome and Firefox, and only while website sessions are active. No page-tree traversal or URL/history logging. Unknown/hidden address bars and focused editing fields yield no domain. Private tabs/custom tabs/other browsers are not guaranteed. Browser-version validation is separate from adapter implementation.
-- Ja/en copy and a per-app language choice are included. Native controls, scrollable screens, system insets, and API 33+ back callback are used.
+The single current specification is [the product design](../../docs/design-doc.md), including [shared behavior](../../docs/design-doc.md#common), [Android-specific policy and limits](../../docs/design-doc.md#android), [UI](../../docs/design-doc.md#ui), and [current structure](../../docs/design-doc.md#structure). This README owns build, signing and QA instructions only; it does not maintain a second behavior specification.
 
 ## Release signing
 
@@ -38,4 +30,10 @@ adb shell am start -n com.hiyozoo.bearlock/.QAHarnessActivity --es action lock
 
 `../scripts/product_qa.py` provides UI dump/tap/screenshot helpers for the Windows-hosted emulator used in this workspace. Adapt ADB path and serial for another machine. Always inspect screenshots alongside target-side input logs. Do not classify missing input as a successful block without a positive post-expiry control.
 
-Release-only validation remains in `../../docs/android-implementation-todo.md`: actual device/OEM longevity, Android 17 protection modes, real browser compatibility, accessibility review, Play permission declarations and store signing/distribution.
+`../scripts/product_wake_verify.py` checks booking/cancellation/restart and background expiry on a **disposable emulator only** (`BEARLOCK_DISPOSABLE_QA=1`, explicit `ANDROID_SERIAL`; optional `ADB` / `BEARLOCK_ADB_PORT`). It clears Bear Lock data and keeps the test emulator screen awake. The default shortens only the final expiry fixture; `--real-time` waits for the unchanged 30-minute deadline. `--without-exact-alarm` checks the warning and inexact fallback. Both timing modes require a positive target-input control, block before expiry and restored input afterward without reopening Bear Lock. Losing the foreground target invalidates the run. Results/screenshots are saved under `artifacts/android-product/free-wake[-real-time]`; `--output` selects a separate evidence directory for layout/permission runs.
+
+`RecoveryInstrumentation` uses isolated cache storage and the existing preview display to test actual free-wake dialogs: AtomicFile write failure on booking/cancellation, successful save followed by alarm registration failure, retry without replacing the deadline, stale dialog target, the 30-minute cutoff and weekly editing after wake-up. It also checks started/woken one-shot immutability, immediate-list exclusion, weekly preview changes and touch targets, warning order, corrupt-data preservation and reload. Selection checks cover legacy migration, write failure/retry/cancel, stale legacy preferences and hiding unverified summaries after read failure. Filesystem write refusal works with both older and current AtomicFile implementations. Blocking itself is verified by the probe run, not by this isolated fixture. `LockInstrumentation` remains the native storage/alarm/overlay failure test, including Shield navigation failure/success without writes. Both restore real alarm registration from the original app storage afterward.
+
+The 2026-10-11 evidence is recorded in `../../docs/android-ios-execution-plan.md` and `artifacts/android-product/storage-recovery-fix/`: Android 8/14/15 native recovery tests, Android 14 real UI transactions and regular-tab Chrome 113 / Firefox 153 blocking controls. Browser checks use a tall viewport to keep the address bar and external-page link visible; they do not establish visual parity or private/custom-tab coverage. Quick wake expiry is accelerated, not a 30-minute longevity test.
+
+Remaining release validation is tracked in `../../docs/android-implementation-todo.md`: actual device/OEM longevity, Android 17 protection modes, remaining browser-state compatibility, accessibility review, Play permission declarations and store signing/distribution.

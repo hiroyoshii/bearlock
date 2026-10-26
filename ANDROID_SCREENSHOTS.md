@@ -1,5 +1,47 @@
 # Android / iOS スクショ比較
 
+## 2026-10-25 両OSセグメント式・日時ボタン共通化
+
+[比較ギャラリー](artifacts/screenshot-diff-2026-10-17/index.html) · [今回の実装/検証](docs/android-ios-execution-plan.md#2026-10-25-両osのセグメント式と日時ボタン共通化)
+
+iOSは標準segmented Picker、Androidは既成MaterialButtonToggleGroupへ変更。Androidの日時指定/繰り返し/各編集の時刻ボタンは共通部品へ統一した。旧実装には15sp/17sp・余白の差があり、古いスクショだけが原因ではなかった。iOSは共有DatePickerでcompactを明示した。
+
+**iOS側は変更前の公開画像4e9e377のまま。** Xcodeがないため今回のiOSアプリビルド・UIテスト・変更後撮影は未実施。ギャラリーにも旧画像と明記し、変更後の両OSが視覚的に一致したという扱いにしない。Androidの再撮影先は `artifacts/android-product/segments-time-2026-10-25/`。Beforeは直前の11c2e351。以下の前回撮影記録とは区別する。
+
+今回のAndroid Debug APKは `93c882fea3179ba6644fac2d0127bed5303815be212102a4239cd9602055b507`。日英各16状態・操作前後128枚・16フローを同じAPKで撮影済み。詳細・検証範囲・失敗した中間試行は上記実行計画へ記録。iOSのコアテストや構文解析の成功を、iOS UIの検証完了とはしない。
+
+## 前回：2026-10-25 公式アイコンへの置換と比較（11c2e351）
+
+[比較ギャラリー](artifacts/screenshot-diff-2026-10-17/index.html) · [画像対応・レビューの正本](docs/qa/screenshot-review-2026-10-17.json) · [実装と検証記録](docs/android-ios-execution-plan.md#2026-10-25-自作アイコンの撤去) · [現在のiOS画像の出典](ci-screenshots/app-store-source.json)
+
+基準は現在のiOS **4e9e377 / run 39049336403**。アイコン付きモードと灰色の未選択曜日へ復元済みの版であり、10/18レビュー時のdd83005とは違う。「セグメントに変える」「未選択曜日を白にする」という旧課題は撤回した。現在のiOSとの共通部分は維持し、不要な差分をAndroidで修正した。
+
+| 対象 | 今回の変更 |
+|---|---|
+| アイコン（今回の追記） | 自作LineIcon、ピン留め/Web削除/カテゴリ開閉の記号文字を廃止。Google公式Material Icons Outlined全21種類へ置換。形状無変更、出典・固定commit・上流SHA256・ライセンス同梱。以下の配置修正は置換前から維持 |
+| 作成・単発編集 | プリセットの選択を濃紺＋白文字へ。カプセル高さを調整。日付/時刻は別カプセル・別確定/取消へ |
+| 繰り返し | 開始/終了をカプセルへ。曜日の7個一列/チェックなし/灰色の未選択は現行iOSと共通。次回日時/タイムゾーンは保持 |
+| 編集 | 灰系背景と大見出し、予定/確認または状態/曜日/時刻/注意文のグループ、取消/保存のカプセルへ |
+| 設定 | 大見出し、画像/データ/情報/診断のグループ、青いリンクと区切り線へ。Androidの権限/制限グループは保持 |
+| 実行中 | 起床入口と予約済み表示を睡眠カード内へ移動。独立した起床領域・重複見出しを撤去 |
+| 診断 | 長文dialogを廃止し、状態一覧→共有→アプリ/端末→既存ログ→消去のページへ |
+
+比較は **画面7項目・部品5項目・目的/機能3項目・非対応1項目**。診断は今回ページへ置換したため画面比較へ移した。作成4モードと予定一覧は同じ部品だけ切り出し、撮影専用見出しやホーム内の別領域は除外する。開始確認/起床操作/応援は操作条件や機能の違いを明記。蜂蜜による即時起床結果と自然終了ホームは別操作のため、ペアにしない。iOSとの同条件の操作連写がないので、操作フローはAndroid単独の証跡とする。
+
+今回のDebug APK: `11c2e35147929156734fe6d7d32ee206101b4dcfc497240916dbabe197979094`。撮影・インストール済みAPK照合・画像ハッシュの証跡は `artifacts/android-product/material-icons-final-2026-10-25/capture-result.json`。日英それぞれの16状態と保存/取消/編集/削除/無料起床/外部画面から戻る操作、計128枚・16フローの撮影が完了し、`completeLatestCapture=true` と各画像ハッシュの一致を確認した。撮影完了はUI一致や全OS受入とは区別する。
+
+AndroidはAPI26、428×926dp・文字100%。原画像は無加工で保持。表示ではAPI26の画面外の黒帯と、明示した部品領域のみ切り出し、内容の再配置や縦方向の引き伸ばしはしない。OS間のRGB差分は使用しない。Before/After18組は同じAPI26の10/25アイコン置換直前（86558651）と今回の修正後で、状態・日時差も含む。部品座標・元画像・SHA256はreview.jsonへ記録する。
+
+検証はDebug/Releaseビルド、単体57件、Lint 0 errors（21 warnings）、API26通常幅のnative4系統、320dp/文字200%のEditor/Recoveryが成功。無料30分のみ・予約取消・OS標準picker/スイッチ等は維持した。実機、TalkBack音声、全画面の大文字視覚受入、全OS、実30分待機は未実施。
+
+再生成（Python/Pillow）:
+
+```sh
+python3 android-lab/scripts/android_screenshot_diff.py --review-manifest docs/qa/screenshot-review-2026-10-17.json --directory artifacts/screenshot-diff-2026-10-17
+```
+
+## 以下は過去の比較記録
+
 **最新: Android 0.2.0** — [iOSとの整合・日英スクショ比較・残作業](docs/android-ios-parity-2026-09-10.md)。応援購入はPlay側の設定待ちです。
 
 **過去の修正版:** [0.1.2の対象選択ボタン・読み込み・履歴修正](docs/android-picker-fix-2026-09-08.md)。[0.1.1のスクショ・17項目への対応](docs/android-ui-refresh-2026-09-08.md)も参照できます。以下は修正前の比較を履歴として残しています。

@@ -1,0 +1,627 @@
+{
+  "date": "2026-10-25",
+  "iosMetadata": "ci-screenshots/app-store-source.json",
+  "iosReferenceNote": "iOSはセグメント変更前の公開画像（4e9e377）です。今回のコードは標準セグメントと明示compact DatePickerへ変更済みですが、変更後のiOSビルド・UI検証・撮影はMac環境待ち。変更後の両OS一致を示す比較ではありません。",
+  "androidProof": "artifacts/android-product/segments-time-2026-10-25/capture-result.json",
+  "sources": {
+    "full": {
+      "root": "artifacts/android-product/segments-time-2026-10-25",
+      "status": "current",
+      "label": "セグメント・日時部品統一APK・API26・10/25",
+      "proof": "artifacts/android-product/segments-time-2026-10-25/capture-result.json"
+    },
+    "previous": {
+      "root": "artifacts/android-product/material-icons-final-2026-10-25",
+      "status": "historical",
+      "label": "セグメント・日時部品統一前 11c2e351・API26・10/25",
+      "proof": "artifacts/android-product/material-icons-final-2026-10-25/capture-result.json"
+    }
+  },
+  "screens": [
+    {
+      "id": "setup",
+      "title": "初回説明",
+      "group": "初回・対象",
+      "iosScreen": "setup",
+      "android": {
+        "ja": "full/ja/setup.png",
+        "en": "full/en/setup.png"
+      },
+      "note": "初回説明という同じ役割。初期権限状態・課金方針は未統一。",
+      "review": {
+        "kind": "screen",
+        "conditions": "初回説明という同じ役割。初期権限状態・課金方針は未統一。",
+        "finding": "初回説明。無料30分と権限の説明はAndroid版の方針を維持。",
+        "judgment": "今回の修正対象外。OS標準フォント・本文の方針差と、未調整の配置差を混同しない。"
+      }
+    },
+    {
+      "id": "home",
+      "title": "ホーム",
+      "group": "初回・対象",
+      "iosScreen": "home",
+      "android": {
+        "ja": "full/ja/home.png",
+        "en": "full/en/home.png"
+      },
+      "note": "対象なし／予定3件／今すぐ120分。開始・終了日時は別。",
+      "review": {
+        "kind": "screen",
+        "conditions": "対象なし／予定3件／今すぐ120分。開始・終了日時は別。",
+        "finding": "両OSのコードをセグメント式へ変更。AndroidはMaterialButtonToggleGroup、iOSは標準segmented Picker。左のiOS画像は変更前であり、新UIの対比ではない。",
+        "judgment": "対象なしの主操作はAndroidでは無効。iOS撮影fixtureの濃紺表示を実操作の有効性と断定しない。日時・対象情報は別条件。"
+      }
+    },
+    {
+      "id": "composeNow",
+      "title": "今すぐ作成",
+      "group": "作成・予約",
+      "iosScreen": "composeNow",
+      "android": {
+        "ja": "full/ja/composeNow.png",
+        "en": "full/en/composeNow.png"
+      },
+      "note": "120分の作成部品。iOSの専用見出し・Androidの対象/予定・OSバーを比較から除外。",
+      "review": {
+        "kind": "component",
+        "conditions": "120分の作成部品。iOSの専用見出し・Androidの対象/予定・OSバーを比較から除外。",
+        "finding": "アイコン付き独立ボタンを撤去し、Androidは既成Materialの単一選択セグメントへ置換。iOSコードも標準セグメントへ変更。",
+        "judgment": "今回の明示依頼でセグメント式を採用。左のiOSは変更前の公開画像で、変更後UIの検証・撮影は未実施。",
+        "regions": {
+          "ja": {
+            "ios": [
+              15,
+              156,
+              305,
+              384
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              478.5
+            ]
+          },
+          "en": {
+            "ios": [
+              15,
+              156,
+              305,
+              384
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              478.5
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "composeDelayed",
+      "title": "あとで作成",
+      "group": "作成・予約",
+      "iosScreen": "composeDelayed",
+      "android": {
+        "ja": "full/ja/composeDelayed.png",
+        "en": "full/en/composeDelayed.png"
+      },
+      "note": "30分後開始／120分。表示日時は揃っていない。",
+      "review": {
+        "kind": "component",
+        "conditions": "30分後開始／120分。表示日時は揃っていない。",
+        "finding": "30分後／120分。Androidのモードを単一選択セグメントへ置換。左のiOSモードは旧画像。プリセットと遅延の計算は維持。",
+        "judgment": "日時は別条件。標準文字・増減ボタンのOS描画差は残す。",
+        "regions": {
+          "ja": {
+            "ios": [
+              15,
+              156,
+              305,
+              507
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              595.39
+            ]
+          },
+          "en": {
+            "ios": [
+              15,
+              156,
+              305,
+              507
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              595.39
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "composeDate",
+      "title": "日時指定",
+      "group": "作成・予約",
+      "iosScreen": "composeDate",
+      "android": {
+        "ja": "full/ja/composeDate.png",
+        "en": "full/en/composeDate.png"
+      },
+      "note": "日時指定／120分。指定する日時は別。",
+      "review": {
+        "kind": "component",
+        "conditions": "日時指定／120分。指定する日時は別。",
+        "finding": "Androidの開始日・開始時刻を繰り返し/編集と同じ共通日時ボタンへ統一（17sp・最小44dp・共通余白/角丸）。iOSコードは共有DatePickerでcompactを明示。日付と時刻の独立確定は維持。",
+        "judgment": "OS標準pickerは維持。表示日時・ロケール書式は別条件。大きな文字では縦配置。",
+        "regions": {
+          "ja": {
+            "ios": [
+              15,
+              156,
+              305,
+              497
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              589.41
+            ]
+          },
+          "en": {
+            "ios": [
+              15,
+              156,
+              305,
+              497
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              589.41
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "composeRepeat",
+      "title": "繰り返し作成",
+      "group": "作成・予約",
+      "iosScreen": "composeRepeat",
+      "android": {
+        "ja": "full/ja/composeRepeat.png",
+        "en": "full/en/composeRepeat.png"
+      },
+      "note": "月〜金／23:00→7:00。最新iOS 4e9e377。",
+      "review": {
+        "kind": "component",
+        "conditions": "月〜金／23:00→7:00。最新iOS 4e9e377。",
+        "finding": "Androidの開始/終了時刻を日時指定/編集と同じ日時ボタンへ統一。曜日は変更なし。両OSコードはセグメント式だが、左のiOSは変更前画像。",
+        "judgment": "Androidの次回日時/タイムゾーン表示は有用な追加情報として残す。旧『未選択は白』という課題は撤回。",
+        "regions": {
+          "ja": {
+            "ios": [
+              15,
+              156,
+              305,
+              414
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              557.01
+            ]
+          },
+          "en": {
+            "ios": [
+              15,
+              156,
+              305,
+              414
+            ],
+            "android": [
+              14.95,
+              252.96,
+              305.05,
+              557.01
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "confirmation",
+      "title": "開始/予約の確認",
+      "group": "作成・予約",
+      "iosScreen": "confirmation",
+      "android": {
+        "ja": "full/ja/confirmation.png",
+        "en": "full/en/confirmation.png"
+      },
+      "note": "iOSは予約確認／対象3件、Androidは即時開始確認／対象1件。",
+      "review": {
+        "kind": "semantic",
+        "conditions": "iOSは予約確認／対象3件、Androidは即時開始確認／対象1件。",
+        "finding": "同じ熊画像→説明→対象/時刻→主操作→取消の役割。",
+        "judgment": "iOSの予約fixtureとAndroidの即時開始では状態が違うため、全画面の配置一致は判定しない。"
+      }
+    },
+    {
+      "id": "scheduledList",
+      "title": "予定一覧",
+      "group": "編集・削除",
+      "iosScreen": "scheduledList",
+      "android": {
+        "ja": "full/ja/scheduledList.png",
+        "en": "full/en/scheduledList.png"
+      },
+      "note": "単発2件＋繰り返し有効/無効各1件。日時は別。",
+      "review": {
+        "kind": "component",
+        "conditions": "単発2件＋繰り返し有効/無効各1件。日時は別。",
+        "finding": "4行、編集・削除・無効表示は共通。編集・削除・繰り返し等の自作線画をGoogle公式Material Icons Outlinedへ置換。",
+        "judgment": "iOSのSF SymbolsとAndroidのMaterial Iconsは別の既成アイコン。日時・折り返し・行内余白の差は引き続き確認対象。ホーム外の撮影用見出しは除外。",
+        "regions": {
+          "ja": {
+            "ios": [
+              15,
+              156,
+              305,
+              462
+            ],
+            "android": [
+              14.95,
+              330.97,
+              305.05,
+              629.53
+            ]
+          },
+          "en": {
+            "ios": [
+              15,
+              156,
+              305,
+              462
+            ],
+            "android": [
+              14.95,
+              330.97,
+              305.05,
+              629.53
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "activeLock",
+      "title": "実行中",
+      "group": "実行・起床",
+      "iosScreen": "activeLock",
+      "android": {
+        "ja": "full/ja/activeLock.png",
+        "en": "full/en/activeLock.png"
+      },
+      "note": "両方とも実行中ホーム。ただしiOS対象なし、Android対象1件、残り時間も別。",
+      "review": {
+        "kind": "screen",
+        "conditions": "両方とも実行中ホーム。ただしiOS対象なし、Android対象1件、残り時間も別。",
+        "finding": "起床入口と予約済み表示を睡眠カード内へ移し、独立した起床領域・重複見出しを撤去。",
+        "judgment": "無料30分の確認・取消・予約不可条件は維持。対象数と残り時間は別条件。"
+      }
+    },
+    {
+      "id": "wakeOptions",
+      "title": "起床操作・確認",
+      "group": "実行・起床",
+      "iosScreen": "wakeOptions",
+      "android": {
+        "ja": "full/ja/wakeOptions.png",
+        "en": "full/en/wakeOptions.png"
+      },
+      "note": "同じ起床入口だが、iOSは即時課金＋無料、Androidは無料確認のみ。",
+      "review": {
+        "kind": "semantic",
+        "conditions": "同じ起床入口だが、iOSは即時課金＋無料、Androidは無料確認のみ。",
+        "finding": "無料30分予約の確認dialogを維持。入口のみカード内へ統一。",
+        "judgment": "Androidは無料30分のみ。iOSの課金・チケットは維持するOS別仕様。OS標準dialogの外観は維持。"
+      }
+    },
+    {
+      "id": "wakeResult",
+      "title": "起床予約の結果",
+      "group": "実行・起床",
+      "iosScreen": "wakeResult",
+      "android": {
+        "ja": "full/ja/wakeResult.png",
+        "en": "full/en/wakeResult.png"
+      },
+      "note": "iOSは蜂蜜による即時起床結果。Android画像は8秒fixtureの自然終了後ホーム。",
+      "review": {
+        "kind": "unpaired",
+        "conditions": "iOSは蜂蜜による即時起床結果。Android画像は8秒fixtureの自然終了後ホーム。",
+        "finding": "蜂蜜の即時起床結果と自然終了ホームは別操作。対応ペアなしを維持。",
+        "judgment": "削除対象の課金結果をAndroidに追加しない。"
+      }
+    },
+    {
+      "id": "scheduledEditor",
+      "title": "単発予定の編集",
+      "group": "編集・削除",
+      "iosScreen": "scheduledEditor",
+      "android": {
+        "ja": "full/ja/scheduledEditor.png",
+        "en": "full/en/scheduledEditor.png"
+      },
+      "note": "単発の開始前編集。iOS120分、Android15分で値は別。",
+      "review": {
+        "kind": "screen",
+        "conditions": "単発の開始前編集。iOS120分、Android15分で値は別。",
+        "finding": "Androidの編集用日付/時刻も作成と同じ共通日時ボタンへ統一。iOSコードは共有DatePickerでcompactを明示。灰系背景と既存グループは維持。",
+        "judgment": "編集条件、取消による破棄、起床の計算は既存ロジックを維持。値・日時は別条件。"
+      }
+    },
+    {
+      "id": "recurringEditor",
+      "title": "繰り返し予定の編集",
+      "group": "編集・削除",
+      "iosScreen": "recurringEditor",
+      "android": {
+        "ja": "full/ja/recurringEditor.png",
+        "en": "full/en/recurringEditor.png"
+      },
+      "note": "有効／月〜金／23:00→7:00の編集。次回日は同じ。",
+      "review": {
+        "kind": "screen",
+        "conditions": "有効／月〜金／23:00→7:00の編集。次回日は同じ。",
+        "finding": "Androidの編集用開始/終了時刻も共通日時ボタンへ統一。iOSコードも作成と同じcompact DatePicker。左のiOSは変更前の公開画像で、変更後の視覚受入は未実施。",
+        "judgment": "有効変更・曜日・取消/保存のロジックは維持。スイッチはOS標準、タイムゾーンはAndroid追加情報。"
+      }
+    },
+    {
+      "id": "settings",
+      "title": "設定",
+      "group": "設定・復旧",
+      "iosScreen": "settings",
+      "android": {
+        "ja": "full/ja/settings.png",
+        "en": "full/en/settings.png"
+      },
+      "note": "同じ設定ページ上端。下部はAndroid操作フローに別撮影。",
+      "review": {
+        "kind": "screen",
+        "conditions": "同じ設定ページ上端。下部はAndroid操作フローに別撮影。",
+        "finding": "灰系背景・大見出し、画像/データ/情報/診断のグループと区切り線、青いリンクへ統一。診断をAndroid固有設定より先に配置。",
+        "judgment": "Android権限/対応制限のグループは維持。版番号・OS固有アイコンの完全な描画一致は要求しない。"
+      }
+    },
+    {
+      "id": "support",
+      "title": "応援・サポート",
+      "group": "設定・復旧",
+      "iosScreen": "support",
+      "android": {
+        "ja": "full/ja/support.png",
+        "en": "full/en/support.png"
+      },
+      "note": "iOSは応援購入、Androidは公式サイトへの外部リンク。",
+      "review": {
+        "kind": "semantic",
+        "conditions": "iOSは応援購入、Androidは公式サイトへの外部リンク。",
+        "finding": "応援購入対外部公式サイトという方針差は今回変更しない。",
+        "judgment": "無料起床の課金削除とは別の応援方針。購入導線を無断で追加しない。"
+      }
+    },
+    {
+      "id": "diagnostics",
+      "title": "診断",
+      "group": "設定・復旧",
+      "iosScreen": "diagnostics",
+      "android": {
+        "ja": "full/ja/diagnostics.png",
+        "en": "full/en/diagnostics.png"
+      },
+      "note": "同じ診断ページの上端。診断値とOS固有項目は別条件。",
+      "review": {
+        "kind": "screen",
+        "conditions": "同じ診断ページの上端。診断値とOS固有項目は別条件。",
+        "finding": "長文ログdialogを廃止し、状態・共有・アプリ/端末・ログのページへ置換。状態は項目別に先に表示。",
+        "judgment": "既存ログ/共有/消去を維持。OS固有の診断項目はiOSと同一文字列にしない。"
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "targetsApps",
+      "title": "対象選択：アプリ",
+      "group": "初回・対象",
+      "android": {
+        "ja": "full/ja/targets-apps.png",
+        "en": "full/en/targets-apps.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "targetsWeb",
+      "title": "対象選択：Web",
+      "group": "初回・対象",
+      "android": {
+        "ja": "full/ja/targets-web.png",
+        "en": "full/en/targets-web.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "targetsCategories",
+      "title": "対象選択：カテゴリ",
+      "group": "初回・対象",
+      "android": {
+        "ja": "full/ja/targets-categories.png",
+        "en": "full/en/targets-categories.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "recent",
+      "title": "履歴・対象一覧",
+      "group": "初回・対象",
+      "android": {
+        "ja": "full/ja/recent.png",
+        "en": "full/en/recent.png"
+      },
+      "note": "最新APKの予約作成後、履歴メニューを開いてピン留めした結果。iOS E2Eは別対象・別言語・別セッション。"
+    },
+    {
+      "id": "permissions",
+      "title": "権限・動作状態",
+      "group": "設定・復旧",
+      "android": {
+        "ja": "full/ja/permissions.png",
+        "en": "full/en/permissions.png"
+      },
+      "note": "最新APK・API26の権限/動作状態。API31以降のアラーム権限ダイアログの比較ではない。"
+    },
+    {
+      "id": "repeatConfirmation",
+      "title": "繰り返しの確認",
+      "group": "作成・予約",
+      "android": {
+        "ja": "full/ja/repeatConfirmation.png",
+        "en": "full/en/repeatConfirmation.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "cancelledHome",
+      "title": "確認を取消→ホーム",
+      "group": "作成・予約",
+      "android": {
+        "ja": "full/ja/cancelledHome.png",
+        "en": "full/en/cancelledHome.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "savedHome",
+      "title": "予約保存→ホーム",
+      "group": "作成・予約",
+      "android": {
+        "ja": "full/ja/savedHome.png",
+        "en": "full/en/savedHome.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "editedHome",
+      "title": "予定編集保存→一覧",
+      "group": "編集・削除",
+      "android": {
+        "ja": "full/ja/editedHome.png",
+        "en": "full/en/editedHome.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "deleteConfirmation",
+      "title": "削除確認",
+      "group": "編集・削除",
+      "android": {
+        "ja": "full/ja/deleteConfirmation.png",
+        "en": "full/en/deleteConfirmation.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "deletedHome",
+      "title": "削除後の一覧",
+      "group": "編集・削除",
+      "android": {
+        "ja": "full/ja/deletedHome.png",
+        "en": "full/en/deletedHome.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "wakeCancelled",
+      "title": "起床予約の取消確認・結果",
+      "group": "実行・起床",
+      "android": {
+        "ja": "full/ja/wakeCancelled.png",
+        "en": "full/en/wakeCancelled.png"
+      },
+      "note": "最新APKで実際に操作した前後のチェックポイント。元画像・APKハッシュ・保存状態はcapture-result.jsonに記録。"
+    },
+    {
+      "id": "expired",
+      "title": "期限到達・入力復帰",
+      "group": "実行・起床",
+      "android": {
+        "ja": "full/ja/wakeResult.png",
+        "en": "full/en/wakeResult.png"
+      },
+      "note": "最新APKの短縮期限8秒fixtureの終了後。Androidはホームに戻る。30分実待機・iOSの蜂蜜画面を再現したものではない。"
+    },
+    {
+      "id": "monitoringFailure",
+      "title": "監視更新失敗→再試行",
+      "group": "設定・復旧",
+      "android": {},
+      "note": "最終APKのnative回帰は成功。最終画像なし。旧ANR/旧回帰画像を現行画面として代用しない。"
+    },
+    {
+      "id": "storageFailure",
+      "title": "保存読込失敗→再読込",
+      "group": "設定・復旧",
+      "android": {},
+      "note": "最終APKのnative回帰は成功。最終画像なし。"
+    },
+    {
+      "id": "externalReturn",
+      "title": "外部サイト/共有/OS設定から戻る",
+      "group": "設定・復旧",
+      "android": {
+        "ja": "full/ja/permissions-returned.png",
+        "en": "full/en/permissions-returned.png"
+      },
+      "note": "最新APKでOSユーザー補助設定から戻った状態。公式サイト/全外部リンクの往復をこの1枚で実証したとはしない。"
+    }
+  ],
+  "latestCaptureProof": "artifacts/android-product/segments-time-2026-10-25/capture-result.json",
+  "reviewDate": "2026-10-25",
+  "reviewMethod": "画面/部品/目的/非対応を分離。OS間のRGB差分なし。部品切り出しは表示幅320換算の明示座標、内容の再配置なし。",
+  "beforeAfter": {
+    "beforeSource": "previous",
+    "afterSource": "full",
+    "images": [
+      "ja/composeNow.png",
+      "ja/composeDelayed.png",
+      "ja/composeDate.png",
+      "ja/composeRepeat.png",
+      "ja/scheduledEditor.png",
+      "ja/recurringEditor.png",
+      "ja/settings.png",
+      "ja/activeLock.png",
+      "ja/diagnostics.png",
+      "en/composeNow.png",
+      "en/composeDelayed.png",
+      "en/composeDate.png",
+      "en/composeRepeat.png",
+      "en/scheduledEditor.png",
+      "en/recurringEditor.png",
+      "en/settings.png",
+      "en/activeLock.png",
+      "en/diagnostics.png"
+    ]
+  }
+}

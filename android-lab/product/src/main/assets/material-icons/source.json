@@ -1,0 +1,123 @@
+{
+  "repository": "https://github.com/google/material-design-icons",
+  "revision": "10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7",
+  "style": "Material Icons Outlined / 24dp",
+  "license": "Apache-2.0",
+  "note": "Official Android VectorDrawable XML. Only tint attribute is qualified as ?android:attr/colorControlNormal for the native Android theme; geometry unchanged. SHA256 values refer to upstream originals. Runtime tint and bounds only; no hand-drawn paths.",
+  "icons": [
+    {
+      "alias": "pin",
+      "resource": "outline_push_pin_24",
+      "path": "android/content/push_pin/materialiconsoutlined/black/res/drawable/outline_push_pin_24.xml",
+      "sha256": "0956db2cc7a026db8578b64db06bd50ea0a263b30d1c9c42d8e9a2cd8ad0e40a"
+    },
+    {
+      "alias": "close",
+      "resource": "outline_close_24",
+      "path": "android/navigation/close/materialiconsoutlined/black/res/drawable/outline_close_24.xml",
+      "sha256": "58ea193d0ea2433ae9efe2a15077381a69200d8725d6d5ab38be966d90854855"
+    },
+    {
+      "alias": "warning",
+      "resource": "outline_warning_24",
+      "path": "android/alert/warning/materialiconsoutlined/black/res/drawable/outline_warning_24.xml",
+      "sha256": "3e33b1ed909248589cac4e30bc2c8595b2ebb1d6c843beaae06f306f8ead67c3"
+    },
+    {
+      "alias": "apps",
+      "resource": "outline_apps_24",
+      "path": "android/navigation/apps/materialiconsoutlined/black/res/drawable/outline_apps_24.xml",
+      "sha256": "ae24a3d2b6f58abd9b9759c69d4a5715d7762683c51f1c051c968d95599dffb4"
+    },
+    {
+      "alias": "select",
+      "resource": "outline_filter_none_24",
+      "path": "android/image/filter_none/materialiconsoutlined/black/res/drawable/outline_filter_none_24.xml",
+      "sha256": "639c5e87144673c25c8c9ccc98d12b6082745c2d663a3194715e70a7b1be22db"
+    },
+    {
+      "alias": "category",
+      "resource": "outline_list_24",
+      "path": "android/action/list/materialiconsoutlined/black/res/drawable/outline_list_24.xml",
+      "sha256": "9153f3c1159b16dee34958c5291336c7aeea4b3f1914e7e3e2f74071a5271d32"
+    },
+    {
+      "alias": "web",
+      "resource": "outline_language_24",
+      "path": "android/action/language/materialiconsoutlined/black/res/drawable/outline_language_24.xml",
+      "sha256": "e354c174602b6072e58a2b9c3e5420d21e1a2498b3dce1f43ed8e982471b503e"
+    },
+    {
+      "alias": "heart",
+      "resource": "outline_favorite_border_24",
+      "path": "android/action/favorite_border/materialiconsoutlined/black/res/drawable/outline_favorite_border_24.xml",
+      "sha256": "89702e4b1f1d4b55b941f288bfff1d8b103a0466cf9d73863ad454c07ab3e3cf"
+    },
+    {
+      "alias": "info",
+      "resource": "outline_info_24",
+      "path": "android/action/info/materialiconsoutlined/black/res/drawable/outline_info_24.xml",
+      "sha256": "e218f92e9429370a5d11a745da88c4b371c14824f1fe42d01cf801960bc3cf10"
+    },
+    {
+      "alias": "trash",
+      "resource": "outline_delete_24",
+      "path": "android/action/delete/materialiconsoutlined/black/res/drawable/outline_delete_24.xml",
+      "sha256": "1b07652cf2a531272552359e442cd9829d89e6f788d98377029fc58976298449"
+    },
+    {
+      "alias": "edit",
+      "resource": "outline_edit_24",
+      "path": "android/image/edit/materialiconsoutlined/black/res/drawable/outline_edit_24.xml",
+      "sha256": "e937f4854c06e93d8125781ffd18e7d5ab5c758996a76e68ef0419d74a5b7221"
+    },
+    {
+      "alias": "down",
+      "resource": "outline_expand_more_24",
+      "path": "android/navigation/expand_more/materialiconsoutlined/black/res/drawable/outline_expand_more_24.xml",
+      "sha256": "8dff6784331800225d06b9de852251299c87aede5364b14c21e24440a593a8f8"
+    },
+    {
+      "alias": "up",
+      "resource": "outline_expand_less_24",
+      "path": "android/navigation/expand_less/materialiconsoutlined/black/res/drawable/outline_expand_less_24.xml",
+      "sha256": "96e360df2ae355b1d5f11628cccae07fe1625b229fa7c14060980ba2eb849ba0"
+    },
+    {
+      "alias": "right",
+      "resource": "outline_chevron_right_24",
+      "path": "android/navigation/chevron_right/materialiconsoutlined/black/res/drawable/outline_chevron_right_24.xml",
+      "sha256": "5ae3026583021a43a7d22af53596b1eddf10dd4d2547b6443d5e57fbc791d8fe"
+    },
+    {
+      "alias": "gear",
+      "resource": "outline_settings_24",
+      "path": "android/action/settings/materialiconsoutlined/black/res/drawable/outline_settings_24.xml",
+      "sha256": "d2c6d91404a1d37df525da5a5099b79d22f7cffc0baf39940e3b5d2b34738ded"
+    },
+    {
+      "alias": "calendar",
+      "resource": "outline_event_24",
+      "path": "android/action/event/materialiconsoutlined/black/res/drawable/outline_event_24.xml",
+      "sha256": "468a3ec6880eec8be4a930e94764a0b22aeea964c4b4653e61752249bcbe3678"
+    },
+    {
+      "alias": "repeat",
+      "resource": "outline_repeat_24",
+      "path": "android/av/repeat/materialiconsoutlined/black/res/drawable/outline_repeat_24.xml",
+      "sha256": "8a0f433ba62bacb8402365bd44772801fbe2d5606c96246336f33df6fc885a68"
+    },
+    {
+      "alias": "lock",
+      "resource": "outline_lock_24",
+      "path": "android/action/lock/materialiconsoutlined/black/res/drawable/outline_lock_24.xml",
+      "sha256": "21bd56879a2f2c502a6a2e60af4e650900bf2a489e34b4f5bdd31e80f07934ca"
+    },
+    {
+      "alias": "more",
+      "resource": "outline_more_horiz_24",
+      "path": "android/navigation/more_horiz/materialiconsoutlined/black/res/drawable/outline_more_horiz_24.xml",
+      "sha256": "c8e566f00ea93bb76e3d4d2c0f39253dd5ce811dcd3a8bcb30f81c2a5b323022"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ class SupportScreen(private val a: MainActivity) {
             try {
                 a.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(url)))
             } catch (_: ActivityNotFoundException) {
-                a.error(a.t("Webサイトを開くブラウザが見つかりませんでした。","No browser is available to open the website."))
+                a.error("browser_unavailable")
             }
         },12)
         u.add(parent,u.label(a.t("ブラウザで開きます。アプリ内での購入はありません。","Opens in your browser. There are no in-app purchases."),14f,muted=true),0)

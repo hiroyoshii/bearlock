@@ -6,7 +6,6 @@ on:
       - main
     paths-ignore:
       - "ci-screenshots/**"
-      - "docs/**"
       - "site/**"
       - "todo.md"
       - "wrangler.toml"
@@ -14,7 +13,6 @@ on:
   pull_request:
     paths-ignore:
       - "ci-screenshots/**"
-      - "docs/**"
       - "site/**"
       - "todo.md"
       - "wrangler.toml"

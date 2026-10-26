@@ -1,0 +1,16 @@
+# Seconds relative to occurrence start; natural end is 7200. One saved wake request per case.
+# case now wake-rule wake-occurrence-start wakes-at expected-effective-end expected-active
+no-request -1 - 0 0 7200 false
+natural-start 0 - 0 0 7200 true
+natural-end 7200 - 0 0 7200 false
+before-wake 1799 current 0 1800 1800 true
+at-wake 1800 current 0 1800 1800 false
+after-wake 3600 current 0 1800 1800 false
+clock-rollback 900 current 0 1800 1800 true
+wake-at-start 0 current 0 0 0 false
+wake-before-start 100 current 0 -1 7200 true
+wake-at-natural-end 100 current 0 7200 7200 true
+wake-after-natural-end 100 current 0 7201 7200 true
+different-rule 1800 other 0 1800 7200 true
+previous-occurrence 1800 current -86400 1800 7200 true
+next-occurrence 1800 current 86400 1800 7200 true

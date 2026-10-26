@@ -1,5 +1,7 @@
 # App Store Connect Draft
 
+> Publication draft derived from [the current product specification](../design-doc.md), not a second source of product policy. Copy options and submission snapshots do not change the specification.
+
 ## App Name
 
 Bear Lock

@@ -32,7 +32,7 @@ rules = [dict(id=f'all-day-{i}', title=f'All day {i}', targets=dict(apps=[probe]
               schedule=dict(type='weekly',days=list(range(1,8)),startMinute=540,endMinute=540,zone='UTC'),enabled=True) for i in range(2)]
 fixture = dict(schema=3, rules=rules, recent=[])
 q.sh('run-as',q.APP,'mkdir','-p','files')
-subprocess.run([q.ADB,'-s',q.SERIAL,'shell','run-as',q.APP,'sh','-c',"'cat > files/locks-v1.json'"], input=json.dumps(fixture).encode(),check=True)
+subprocess.run([*q.ADB_COMMAND,'-s',q.SERIAL,'shell','run-as',q.APP,'sh','-c',"'cat > files/locks-v1.json'"], input=json.dumps(fixture).encode(),check=True)
 def state(): return json.loads(q.adb('exec-out','run-as',q.APP,'cat','files/locks-v1.json'))
 def probe_tap(blocked=True):
     q.sh('am','start','-W','-n',probe+'/.ProbeActivity'); time.sleep(2)
@@ -40,7 +40,7 @@ def probe_tap(blocked=True):
     # A service callback alone does not mean Android has presented its surface.
     for _ in range(10):
         windows = re.split(r'\n  Window #', q.sh('dumpsys','window','windows'))
-        visible = any('package='+q.APP+' ' in w and 'ty=2032' in w and
+        visible = any('package='+q.APP+' ' in w and 'type=2032' in w and
                       'mDrawState=HAS_DRAWN' in w and 'isVisible=true' in w for w in windows)
         if visible == blocked:
             break

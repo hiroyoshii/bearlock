@@ -7,6 +7,42 @@ import java.io.*
 class EditorStateTest {
     private val now = 1_800_000_000_000L
     private val targets = Targets(apps=setOf("fixture.app"))
+    @Test fun fixedDefaultsToThirtyMinutesAndRemembersChangedValue() {
+        val draft=EditorDraft(targets=targets)
+        assertTrue(draft.makeRule(now,"Now").single!!.immediate)
+        draft.chooseMode(ComposerMode.FIXED,now)
+        assertEquals(now+30*60_000L,draft.at)
+        assertFalse(draft.makeRule(now,"Date").single!!.immediate)
+        draft.at=now+2*Planner.DAY
+        draft.chooseMode(ComposerMode.LATER,now)
+        draft.chooseMode(ComposerMode.FIXED,now+1_000)
+        assertEquals(now+2*Planner.DAY,draft.at)
+        assertEquals(draft.at,restored(draft).at)
+    }
+    @Test fun recurringPreviewUsesSavedZoneAcrossMidnightAndDst() {
+        val draft=EditorDraft(targets=targets,timing=DraftTiming.Weekly(setOf(7),23*60,2*60+30,"America/New_York"))
+        val before=java.time.Instant.parse("2026-03-07T12:00:00Z").toEpochMilli()
+        val next=draft.makeRule(before,"Repeat").nextOccurrence(before)!!
+        assertEquals(java.time.Instant.parse("2026-03-09T03:00:00Z").toEpochMilli(),next.start)
+        assertEquals(java.time.Instant.parse("2026-03-09T06:30:00Z").toEpochMilli(),next.end)
+        draft.days=setOf(6)
+        val gap=draft.makeRule(before,"Repeat").nextOccurrence(before)!!
+        assertEquals(java.time.Instant.parse("2026-03-08T07:00:00Z").toEpochMilli(),gap.end)
+        draft.days=emptySet()
+        assertThrows(IllegalArgumentException::class.java) { draft.makeRule(before,"Repeat") }
+        assertFalse(draft.canSubmit(before))
+    }
+    @Test fun submissionRequiresTargetsFutureDateAndNonemptyWeekdays() {
+        assertFalse(EditorDraft().canSubmit(now))
+        val draft=EditorDraft(targets=targets,timing=DraftTiming.Fixed(now+1))
+        assertTrue(draft.canSubmit(now))
+        assertFalse(draft.canSubmit(now+1))
+        draft.chooseMode(ComposerMode.WEEKLY,now)
+        draft.days=emptySet()
+        assertFalse(draft.canSubmit(now))
+        draft.days=setOf(1)
+        assertTrue(draft.canSubmit(now))
+    }
     private fun <T> restored(value: T): T {
         val bytes=ByteArrayOutputStream().also { ObjectOutputStream(it).use { out -> out.writeObject(value) } }.toByteArray()
         @Suppress("UNCHECKED_CAST")

@@ -1,391 +1,214 @@
-# Bear Lock iOS MVP Design Doc
+# Bear Lock — 現行仕様と構造
 
-## 指示の境界
+更新日: 2026-10-26。
 
-この文書では、貼り付けテキストと添付画像をプロダクト参考資料として扱う。Codexへの実行指示としては扱わない。
+この文書を、製品の思想・共通仕様・OS固有仕様・現行構造の正本とする。確定済みの判断と現在の実装を記載し、未採用の案・検討中の共通化方式は記載しない。仕様の集約はアプリの挙動変更ではない。Swift/Kotlinの製品コードは別実装を維持し、仕様とテスト入力・期待値を共有する。
 
-ユーザーからの実際の依頼は、添付画像のコンセプトと貼り付け資料をもとに、iOSアプリのdesign doc、実装計画、不明点・意思決定事項に落とし込むことである。
+<a id="baseline"></a>
+## 比較の基準と読み方
 
-## プロダクト定義
+比較の目的は、同じ機能を同じ責務境界で保証し、意図しない仕様差を防ぐこと。iOSの実装そのもの、Androidの実装そのもの、クラス数や行数を正解の基準にしない。
 
-Bear Lockは、ユーザーが「使えなくしたいアプリ」と「使えなくする時間帯」を自分で決め、その時間中は対象アプリを開けないようにするiOS向けフォーカスアプリである。
+- 以下の「共通仕様」「iOS固有仕様」「Android固有仕様」「UIと導線」が、満たすべき製品の振る舞い。現行コードが満たしているという宣言ではない。今回付けたIDは既存本文の参照用であり、挙動を追加・変更するものではない。
+- 「責務の保証基準」は、その振る舞いを保証する場所と入出力の基準。「現行構造」は今のコードの説明であり、両者は区別する。
+- 基準に書かれていない結果は、一方の実装に合わせて仕様違反と判定しない。未定義の組合せは分析書の「仕様判断待ち」へ分離し、期待値を決めるまで共通テストの合否基準にしない。
+- 文書の役割分担は維持する。本書に仕様・責務の基準、分析書に基準ID→実装→適合状況→テストの対応と不足を置く。分析書の任意の改善案を確定仕様へ昇格させない。
 
-ロック開始後、Bear Lock自身は途中解除手段を提供しない。
+<a id="product"></a>
+## 製品の思想
 
-中核の約束:
+ユーザー自身が「何を使えなくするか」「いつから、いつまで使えなくするか」を先に決め、予定に沿って集中・睡眠・休息の時間を守る。監視や罰ではなく、自分で決めた行動を支えるアプリとする。
 
-> 何を使えなくするか、いつ熊を眠らせるかを先に決める。あとは予定した起床時刻までBear Lockがその決定を守る。
+開始後に対象を減らす、時刻を自由に短縮する、といった通常編集は提供しない。ただし「途中解除を一切提供しない」は初期MVPの方針であり、現行仕様ではない。早期起床と繰り返し削除の例外は、以下のOS別仕様に従う。
 
-MVPで検証する仮説:
+iOSはScreen Timeの権限・非公開の対象トークンとOSのShieldを使う。AndroidはAccessibilityによる検知とローカルオーバーレイを使い、対応範囲と権限・省電力の制約を明示する。両OSの技術的な制限能力が同一だとは説明しない。
 
-ユーザーは「今すぐやめる」だけでなく、「未来のある時点から、自分の意思では解除できない状態を予約する」ことに価値を感じる。
+ブランドは眠る熊・氷の巣穴、雪白・淡いアイスブルー・スチールブルー・濃紺を共通とし、穏やかで保護的な表現にする。アカウント・クラウド同期・広告・解析SDKを製品機能として追加しない。診断は端末内に保持し、共有はユーザーの明示操作で行う。
 
-例:
+<a id="common"></a>
+## 共通仕様
 
-> 30分後から2時間、SNSを開けないようにする。
+### 対象と履歴
 
-## コンセプトとブランド方針
+- TGT-00: アプリ・カテゴリ・Webを選択する。実際に制限できる対象と取得方法はOS別仕様に従う。
+- TGT-01: 選択内容、予定、対象の再利用履歴をローカルに保持する。再利用履歴はロックの実行履歴ではない。
+- TGT-03: 履歴はピン留め、選択、削除が可能。表示は最大3件、ピン留めを先に表示し、ピン留め上限も3件とする。表示上限を理由に保存済み履歴を切り捨てない。履歴のピン留め・解除・削除では、選択済み対象・予定・発生回別の起床要求を変更しない。
+- TGT-02: 実行中は通常の対象変更を禁止する。未保存の選択・編集下書きと、保存済みの対象・予定は分離する。取消・Backで未確定の変更を保存しない。
 
-参考画像: 初期ブランドコンセプト画像
+### 作成と編集
 
-ビジュアル方針:
+- SCH-01: 今すぐ、遅延開始、日時指定、曜日繰り返しの4モードを扱う。
+- SCH-04: 通常UIの継続時間は初期120分、15/30/60/120分のプリセットと15〜720分のスライダーを使う。
+- 遅延開始は初期30分、5〜240分。日時指定の初期開始は30分後。
+- 繰り返しの初期値は月〜金、23:00〜翌7:00。曜日は1件以上を必要とし、日またぎを扱う。
+- SCH-05: 確定前に対象・開始・終了・操作の影響を確認できる。権限・対象・入力が不足する状態を保存成功として扱わない。
+- SCH-02: 開始前の単発は編集・削除できる。実行中は時刻・曜日の編集と無効化を禁止する。繰り返し削除はOS別仕様。
+- SCH-06: 入力表示と日時pickerは端末の12/24時間設定を使う。繰り返し編集の次回表示には、保存したタイムゾーンと本番の発生回計算を使う。
 
-- 雪白、淡いアイスブルー、くすんだスチールブルー、濃紺を中心にした北極系のミニマルパレット。
-- モチーフは、鍵のかかった氷の巣穴で静かに眠る熊。
-- トーンは、穏やか、保護的、頑固、やさしい。罰するアプリではなく、静かだが譲らないアプリにする。
-- 主要コピーは `Do not wake the bear`、`Bear is sleeping`、`Distractions stay outside`、`Wakes at ...` 方向。
-- Shield画面はブランド価値の中心。ここはMVPでもBear Lockらしく作り込む。
+### 時刻とロック判定
 
-コンセプト画像との重要な衝突:
+- TIM-01: 保存の正本は予定・有効/無効・対象・発生回別の起床要求。独立した実行中スナップショットや完了履歴を永続化しない。
+- 単発は絶対日時の期間、繰り返しは曜日・開始/終了時刻・タイムゾーンを持つ排他的な型で表す。
+- TIM-02: 実行中は `開始 <= 現在時刻 < 実効終了`。起床要求はルールIDと発生回開始日時の両方で照合し、別の回へ流用しない。
+- 実効終了は元の終了を、該当する有効な起床要求で早めた値。開始前や元の終了以降を指す要求で期間を広げない。
+- TIM-03: 繰り返し同士の重複を許可する。対象の和集合を制限し、同じ対象に複数の予定が有効なら最後の実効終了まで制限を続ける。
+- SCH-03: 単発同士・単発と繰り返しの時間重複は対象が異なっていても拒否する。起床で終了した回は、実効終了を使って競合を判定する。
+- TIM-04: 繰り返しは保存した地域の時刻を使う。夏時間で存在しない開始時刻は差分だけ繰り下げ、存在しない終了時刻は次の有効時刻、重複時刻は最初の時刻とする。経過時間が常に一定とは限らない。
+- TIM-05: 単発の終了後も予定を保持し、時計を期間内へ戻した場合の再ロックを許容する。時計変更に耐える実経過時間の保証はしない。タイムゾーン変更だけで保存済み起床日時をずらさない。
+- TIM-06: 遅延したcallbackでも開始・終了の予定時刻を動かさない。判定・解除のために完了状態を書き込むことを前提にしない。
 
-- 画像のActive Lock画面には `End Lock` ボタンがある。
-- MVP要件では、開始後にBear Lockから途中解除できてはいけない。
-- MVP判断: `End Lock` は置かない。将来的に「延長のみ」は検討可能。延長はコミットメントを弱めないため、途中解除とは性質が違う。
+### 無料起床と失敗時の扱い
 
-## MVPスコープ
+- WAK-01: 無料起床は確認時刻から30分後。新規予約は元の終了まで30分より長く残る場合だけ可能。ちょうど30分以下なら自然終了を待つ。既存予約の再操作で期限を延長しない。
+- WAK-03: 取消は期限前のみ可能で、元の終了へ戻す。取消後の再予約は新しい確認時刻から30分。
+- WAK-02: 起こすのは選択した発生回だけ。他のロックと、次回以降の繰り返しは残す。起床済み記録を期限到達だけで消して現在回を再ロックしない。
+- WAK-04: 確認を開いたルールIDと発生回を操作確定時に再検証する。削除済み・終了済みの要求を別の代表ロックへ転送しない。Shieldから起床画面へ移るだけで保存・解除しない。
+- ERR-01: 読込失敗を空の予定・対象と扱わず、原本を保持する。未確認のサマリーや作成の成功を表示しない。
+- ERR-02: 保存失敗は変更前の状態を保持する。保存成功後のOS登録失敗は保存を取り消さず、反映失敗と再試行を表示する。監視登録失敗と期限の再評価は分離する。
+- ERR-03: 予約済み・OSへ登録済み・実際に制限解除された、を同一視しない。ログのAPI呼出し記録や単体テストだけで実機の解除を保証しない。
 
-対象:
+<a id="ios"></a>
+## iOS固有仕様
 
-- Screen Time / Family Controls権限取得。
-- `FamilyActivityPicker` によるブロック対象アプリ選択。
-- 今すぐN時間ロック。
-- N分後からN時間ロック。
-- 指定日時からN時間ロック。
-- 曜日と時刻による繰り返しロック。
-- 開始前の予定編集・削除。
-- ロック開始後、Bear Lockから途中解除不可。
-- ブロック対象アプリに対するブランド付きShield表示。
-- 終了時刻で自動解除。
-- アプリ再起動後の状態復元。
+### 起床と課金
 
-対象外:
+- IOS-01: 無料30分後起床に加え、消耗型IAPの有料即時起床と起床チケットを提供する。Androidとの意図的な仕様差であり、削除対象ではない。
+- 即時起床の商品IDは `com.hiyozoo.bearlock.wake.now`。価格はStoreKitから取得する。購入導線は残り10分より長い場合など、既存の購入状態・資格条件で制御する。
+- StoreKitで検証済みの対象商品の取引だけを配送する。承認時に購入対象の同じ発生回が有効なら、その回の終了を早める。
+- 元の発生回が終了済みなど、その回へ配送できない購入は起床チケットとして保持する。後で選択した実行中の回へ使用する。別のロックを無断で即時解除しない。
+- 購入状態・取引ID・起床要求を保存し、同じ取引の重複配送を処理する。購入と無料起床は、最終的には発生回別の起床要求と実効終了の判定につながる。
+- IOS-02: Coffee/Lunch/Dinnerの任意の応援IAPは、早期起床の商品・解除条件とは別の機能として維持する。
 
-- Webサイトブロック。
-- 利用時間制限。
-- History、統計、Streak。
-- Unlock Delay。
-- Skip Today。
-- Reminder。
-- 複数プロファイル。
-- AI。
-- アカウント、クラウド同期。
+### 削除・対象・OS連携
 
-## ユーザーストーリー
+- IOS-03: 実行中の繰り返し削除は、現在回の終了時刻を削除予約として保存する。現在回は維持し、次回以降を停止する。終了前は削除予約を取り消せるが、別予定と競合する場合は拒否する。
+- 削除予約と起床が重なっても、次回を停止する条件を起床処理で取り消さない。
+- IOS-04: FamilyControlsで権限を取得し、FamilyActivityPickerのopaque tokenを扱う。Androidのパッケージ名や分類を流用しない。
+- DeviceActivityで監視を登録し、ManagedSettingsの名前付きShieldへ適用する。本体と各拡張はApp Groupの保存済み予定を読み、該当する最新予定から再評価する。古い終了callbackだけで他の有効な制限を消さない。
+- IOS-05: 保存は本体のLockStore actorで直列化し、App GroupのJSONを原子的に置換する。拡張は読み取り側であり、独立した実行状態の保存先を作らない。
+- Debugの通常利用には安全用の短時間上限がある。UIテスト・スクショ用の指定とReleaseを、通常Debugの上限と混同しない。
+- Screen Time権限の取消、アプリ削除などのOS側の回避を完全には防げない。Simulatorの結果を、署名・entitlement付き実機でのShieldやcallbackの保証にしない。
 
-### US-00 初回セットアップ
+<a id="android"></a>
+## Android固有仕様
 
-スマホを使いすぎてしまうユーザーとして、必要な権限とブロック対象アプリを簡単に設定したい。すぐに最初のロックを始められるようにするため。
+### 起床・応援・削除
 
-Acceptance Criteria:
+- AND-01: 早期起床は無料30分後だけ。有料即時起床・起床チケット・Google Play Billingを追加しない。
+- 応援は設定から外部の公式サイトへ案内する。iOSの応援IAPをAndroidへ移植しない。
+- AND-02: 実行中の繰り返しも確認後に即時削除でき、その予定に対応する起床記録も除去する。他の予定の制限は残す。iOSの終了待ち削除とは異なる。
+- 遅延/日時指定の単発は開始後も元の終了まで予約一覧に残し、開始後の編集・削除は許可しない。即時ロックは予約一覧に追加しない。
 
-- Family Controls権限を要求できる。
-- 権限が拒否された場合、必要性と再試行方法が分かる。
-- `FamilyActivityPicker` で対象アプリを選択できる。
-- 選択内容がローカルに保持される。
-- 権限が失われた状態を検出し、セットアップまたは復旧UIへ戻せる。
-
-### US-01 今すぐロック
-
-今から集中したいユーザーとして、選んだアプリを一定時間すぐに使えなくしたい。意志力に頼らず集中できるようにするため。
-
-Acceptance Criteria:
-
-- 時間を選択できる。
-- 確認画面で対象アプリ、開始時刻、終了時刻、途中解除不可の警告を確認できる。
-- 確定直後にShieldが有効になる。
-- Bear Lock上から途中終了できない。
-- 終了時刻になるとShieldが自動解除される。
-
-### US-02 N分後からロック
-
-すぐにはスマホをやめたくないユーザーとして、N分後から自動的にアプリをロックしてほしい。「あとで始める」という意思決定を未来の自分に強制するため。
-
-Acceptance Criteria:
-
-- 開始までの時間とロック継続時間を指定できる。
-- 実際の開始日時と終了日時を確認できる。
-- Bear Lockがforegroundでなくてもロックが開始される。
-- 開始前なら予定を編集・削除できる。
-- 開始後は予定がActiveLock化され、短縮・解除・対象削減できない。
-
-### US-03 指定日時ロック
-
-寝る前など特定の時間帯にスマホを見続けてしまうユーザーとして、指定した日時に自動でロックを開始したい。その時間になってから自制する必要をなくすため。
-
-Acceptance Criteria:
-
-- 日付と開始時刻を指定できる。
-- durationまたは終了時刻を指定できる。
-- 日跨ぎを扱える。
-- Bear Lockがforegroundでなくても開始される。
-- 終了日時になると自動解除される。
-
-### US-04 繰り返しロック
-
-毎日同じ時間帯にスマホを使いすぎてしまうユーザーとして、曜日と時間を一度設定して自動的にロックしたい。毎日ロック開始操作をしなくて済むようにするため。
-
-Acceptance Criteria:
-
-- 1から7曜日を選択できる。
-- 開始時刻と終了時刻を指定できる。
-- 翌日終了を扱える。
-- 次回開始日時が分かる。
-- スケジュールをOFF、編集、削除できる。
-- 変更は次回以降の生成ロックにのみ反映される。
-- すでに実行中のロックは編集できず、親スケジュールの削除は現在回の終了時に反映される。
-
-### US-05 ブロック対象アプリを開こうとする
-
-ロック中についSNSを開こうとしてしまったユーザーとして、その場でアクセスを拒否してほしい。自分で決めた集中時間を守れるようにするため。
-
-Acceptance Criteria:
-
-- 対象アプリを開くとShieldが表示される。
-- Shieldから対象アプリへ進めない。
-- 技術的に可能であれば、残り時間または終了時刻が分かる。
-- Bear Lockのブランド表現がある。
-- Unlockボタンは存在しない。
-
-### US-06 ロック中にBear Lockを開く
-
-ロック中のユーザーとして、あとどれくらいで終わるか確認したい。解除しようと迷わず予定を把握するため。
-
-Acceptance Criteria:
-
-- 残り時間を確認できる。
-- 終了時刻を確認できる。
-- 対象アプリを確認できる。
-- 時間短縮できない。
-- 対象アプリを減らせない。
-- ロック終了できない。
-
-### US-07 ロック終了
-
-ロックを設定したユーザーとして、約束した時間が終了したら自動的にアプリを使えるようにしてほしい。解除操作を意識しなくて済むようにするため。
-
-Acceptance Criteria:
-
-- 指定時刻でShieldが解除される。
-- 対象アプリが再び利用可能になる。
-- Bear Lockを起動しなくても解除される。
-- 次回のRecurring Scheduleには影響しない。
-- 任意で `Bear is awake` の完了表示を出せる。
-
-### US-08 開始前の予定変更
-
-まだ開始していない予定を持つユーザーとして、生活予定の変更に合わせて編集・削除したい。Bear Lockを現実の予定に合わせられるようにするため。
-
-Acceptance Criteria:
-
-- 開始前は、時刻、duration、対象アプリを編集できる。
-- 開始前は、予定を削除できる。
-- 開始後は、削除不可、時間短縮不可、対象アプリ削除不可。
-- `Scheduled` と `Active` の状態境界がUIとモデルの両方で明確である。
-
-## コアドメインモデル
-
-```swift
-struct LockTargetSelection: Codable {
-    // Encoded FamilyActivitySelection, stored in app group storage.
-}
-
-struct LockRule: Identifiable, Codable {
-    var id: UUID
-    var kind: LockRuleKind
-    var startsAt: Date
-    var duration: TimeInterval
-    var recurrence: RecurrenceRule?
-    var targetSelectionID: UUID
-    var status: LockRuleStatus
-}
-
-enum LockRuleKind: Codable {
-    case immediate
-    case delayed
-    case fixedDateTime
-    case recurring
-}
-
-struct ActiveLock: Identifiable, Codable {
-    var id: UUID
-    var sourceRuleID: UUID?
-    var startedAt: Date
-    var endsAt: Date
-    var targetSelectionID: UUID
-}
-```
-
-状態モデル:
-
-```text
-Scheduled
-  -> Active / Hibernating
-  -> Completed
-```
-
-Recurring scheduleの実行中判定は保存ルールと現在時刻から生成する。実行中に削除した場合はルールへ現在回の終了時刻を保存し、その時刻までは同じルールからロックを算出し、次回以降を生成しない。終了前は削除予約を取り消せるが、取り消しで別の予定と競合する場合は予約を維持する。独立した `ActiveLock` のスナップショットは保存しない。
-
-## iOSアーキテクチャ
-
-推奨スタック:
-
-- Host appはSwiftUI。
-- 権限取得とアプリ/カテゴリ選択はFamilyControls。
-- Shieldの適用・解除はManagedSettings。
-- 予定時刻のbackground callbackはDeviceActivity。
-- ブランド付きShield UIはManagedSettingsUIのShield extension。
-- Host appとextension間の状態共有はApp Group storage。
-
-主要ターゲット:
-
-- `BearLockApp`: SwiftUI host app。
-- `BearLockMonitorExtension`: `DeviceActivityMonitor` extension。interval開始時にShieldを適用し、interval終了時に解除する。
-- `BearLockShieldConfigurationExtension`: custom Shield表示。
-- `BearLockShieldActionExtension`: Shield上のactionを扱う。解除経路は提供しない。
-- Shared module/package: domain model、persistence、schedule naming、date calculation。
-
-Apple参照:
-
-- [Meet the Screen Time API](https://developer.apple.com/videos/play/wwdc2021/10123/)
-- [DeviceActivityMonitor](https://developer.apple.com/documentation/deviceactivity/deviceactivitymonitor)
-
-Apple資料からの関連制約:
-
-- Screen Time APIはManaged Settings、Family Controls、Device Activityで構成される。
-- Device Activity scheduleは、host appが起動していなくてもinterval開始/終了時にextension codeを呼び出せる。
-- `FamilyActivityPicker` はapp、website、categoryのopaque tokenを返す。
-- Managed Settingsは対象アプリにShieldを適用でき、Shield UIはカスタマイズできる。
-
-## スケジューリング方針
-
-Immediate lock:
-
-1. `ActiveLock` を作成する。
-2. Host appから `ManagedSettingsStore.shield.applications` を即時適用する。
-3. `endsAt` でShieldを解除できるよう、one-shotのDeviceActivity scheduleを登録する。
-
-Delayed / fixed lock:
-
-1. `LockRule` をScheduled状態で作成する。
-2. `startsAt` から `endsAt` までのDeviceActivity scheduleを登録する。
-3. interval開始時、monitor extensionが `ActiveLock` を作成またはActive化し、Shieldを適用する。
-4. interval終了時、monitor extensionがShieldを解除し、lockをCompleted化する。
-
-Recurring lock:
-
-1. Recurrence ruleを保存する。
-2. APIで曜日パターンを素直に表現できる場合はrepeating DeviceActivity scheduleを登録する。
-3. per-weekday scheduleの方が単純で信頼できる場合は、選択曜日ごとにactivityを登録する。
-4. 各interval開始時に、その時点のschedule設定から独立した `ActiveLock` snapshotを作成する。
-5. interval終了時は、そのactive lockに対応するShieldだけを解除する。
-
-## 永続化
-
-MVPはローカルのみ:
-
-- App Group `UserDefaults` または小さなfile-backed JSON storeで、rule、active lock、現在のselectionを保持する。
-- `FamilyActivitySelection` は、対象iOSバージョンでサポートされる方法に従ってencodeする。
-- extensionから参照できるようにschedule IDは安定した形で管理する。
-- Shield適用前にactive lock snapshotを保存し、アプリ再起動後に状態復元できるようにする。
-
-将来の移行候補:
-
-- History、Analytics、複数プロファイル、Syncが必要になった時点でSQLiteまたはSwiftDataを検討する。
-
-## 主要画面
-
-### Setup
-
-- 短い説明。
-- 権限要求ボタン。
-- アプリ選択画面への導線。
-- 権限拒否または取り消し時の復旧状態。
-
-### Home
-
-状態:
-
-- 対象未選択: アプリ選択を促す。
-- Ready: 選択済みアプリとquick lock controlsを表示。
-- Scheduled: 次回冬眠予定を表示。
-- Active: 眠っている熊、countdown、wake time、対象アプリを表示。
-- Completed: 任意で `Bear is awake` 表示。
-
-主要コントロール:
-
-- 開始モードsegmented control: Now / In / Date & Time / Repeat。
-- Duration選択。
-- 確定前の確認画面。
-
-Home上部には `データの扱いを見る` のようなprivacy導線を常駐させない。Family Controls権限への透明性は必要だが、通常利用時のHomeではlock設定と状態確認を優先する。privacy導線はSetup、権限拒否/失効時、Settingsに置く。
-
-### Schedule Management
-
-- 未来のscheduled lockとrecurring ruleの一覧。
-- 現在activeでないものだけ編集・削除可能。
-- Recurring ruleには次回実行日時とenabled/disabled状態を表示する。
-
-### Shield
-
-- 眠る熊 / 氷の巣穴のビジュアル。
-- タイトル: `Bear is sleeping.`
-- サブタイトル: `Do not wake the bear.`
-- extension内で取得可能なら残り時間またはwake time。
-- Primary actionは閉じる/戻すだけにし、unlockは提供しない。
-
-## 途中解除不可の定義
-
-MVPにおける「途中解除不可」は次を意味する:
-
-- `ActiveLock.startedAt` 以降、Bear Lock appとextensionは早期解除経路を提供しない。
-- Active lockの時間を短縮できない。
-- Active lockの対象アプリを減らせない。
-- 親scheduleの編集・削除はactive lock snapshotを変更しない。
-
-既知の限界:
-
-- iOSのScreen Time権限自体の取り消し、システム設定変更、アプリ削除など、OS/account levelの回避経路を完全に防げるとは限らない。MVPのプロダクト/法務コピーでは、この点を正直に扱うべき。
-
-## 不明点・意思決定事項
-
-### Product
-
-- Bear Lockはself-control専用か、guardian/child Family Sharingも対象にするか。
-- 最初のMVPはTestFlight、App Store配布、個人利用のどれを目標にするか。
-- Active lock画面で `Extend Lock` をMVPに含めるか、P1へ送るか。
-- 完了表示はmodal、home state、local notificationのどれにするか。
-- MVPで個別アプリだけでなくカテゴリも扱うか。
-
-### UX / Brand
-
-- 最終コピーは `Hibernate`、`Lock`、`Sleep` のどれを主語にするか。
-- Shieldにはcountdown、wake time、両方のどれを出すか。
-- MVPでどこまでイラストを使うか。SF Symbols中心で始めるか、初期から専用アセットを用意するか。
-- Tab barを使うか。コンセプト画像にはHome/History/Settingsがあるが、HistoryはMVP対象外。
-
-### Technical
-
-- minimum iOS version。
-- Apple Developer accountでFamily Controls配布entitlementが利用可能か。
-- 選定iOSバージョンにおける `DeviceActivitySchedule` のone-shot、overnight、weekday recurrenceの実挙動。
-- Shield extensionがApp Group storageからactive lock end timeを安定して読めるか。
-- 複数lockが重なった場合の扱い: 禁止、target merge、priority rule。
-- interval開始/終了callbackが遅延した場合の復旧方針。
-- Active lock中に権限が取り消された場合の扱い。
-
-## リスク
-
-- Family Controls配布entitlementとApp Reviewが最長リードタイムになり得る。
-- background scheduleの挙動は実機検証が必須。Simulatorだけでは不十分。
-- Shield UIのカスタマイズ範囲はAppleのextension APIに制約される。
-- 「途中解除不可」は、あらゆる端末操作に対する絶対的な不可ではない。
-- Recurrenceとovernightのedge caseはdate handlingを慎重に実装する必要がある。
-
-## MVP成功条件
-
-- ユーザーがアプリをinstallし、権限を許可し、対象アプリを選んで、2時間のimmediate lockを実行できる。
-- ユーザーが「30分後から2時間」を予約し、Bear Lockを開かなくても自動開始される。
-- 平日23:00から翌朝07:00のrecurring lockを作成できる。
-- ブロック対象アプリを開くと、unlock経路のないBear Lock Shieldが表示される。
-- 終了時刻にShieldが確実に解除される。
-- アプリ再起動後もscheduled / active / completed状態が正しく復元される。
+### 対象・制限・保存
+
+- AND-03: アプリはパッケージ名、Webは正規化したドメイン、カテゴリはApplicationInfo.categoryで扱う。カテゴリは端末依存・不完全であり、個別アプリの追加も可能にする。
+- 設定・ホーム・電話アプリ等は対象から除外する。別プロファイルの列挙は提供しない。
+- AccessibilityServiceで前面アプリと、Webロックがある場合の対応ブラウザーの既知のアドレス欄を検知する。WebはChrome/Firefoxの通常タブを対象とし、非表示/編集中のアドレス欄からドメインを推測しない。private/custom tab・他ブラウザー・全バージョンの対応を保証しない。
+- ページ本文・入力内容・閲覧履歴を収集/保存しない。未知のURL表示をページ全体の探索で補わない。
+- ローカルオーバーレイで画面操作を制限する。アプリのプロセス・通信・通知を停止する方式ではない。
+- AND-04: AlarmManagerの次の境界とサービスの現在時刻評価を使う。正確なアラーム権限なしではinexact登録と制約表示を使い、サービス停止・強制停止・Doze・OEM省電力を越える常時動作を保証しない。
+- AND-05: 同一プロセスの共有ガードとAtomicFileでJSONを更新する。現在の形式はschema 4、schema 3の予定と履歴を保持して読み込む。読めない形式を無断初期化しない。
+- 選択も同じJSONに保存し、旧選択設定は保存成功後だけ移行する。選択保存失敗時は下書きを保持して再試行でき、取消は保存済み対象へ戻す。
+- アプリのINTERNET権限・広告・解析・アカウントはなく、クラウドバックアップ/端末移行を除外する。外部サイトはユーザーの明示操作でブラウザーへ渡す。
+
+<a id="ui"></a>
+## UIと導線
+
+- UI-01: 初回説明 → 対象・権限設定 → ホーム → 作成/確認 → 保存 → 実行中/予定、を基本とする。編集・削除・起床は対象の予定/発生回から操作する。
+- UI-02: ホームは警告/復旧 → 対象 → 実行中 → 作成 → 予約の情報階層。設定、診断、応援への入口を分ける。
+- UI-03: モード切替は両OSとも標準/既成ライブラリのセグメント式。iOSのアクセシビリティ文字サイズでは標準メニュー、Androidの狭幅/大文字では横スクロールを使う。
+- UI-04: 日時指定/繰り返し/各編集で日時入力の形状指定を共通化する。iOSは共有ScheduleDatePickerのcompact、AndroidはUi.dateTimeButton。日時指定の日付と時刻は独立して開き、確定/取消する。
+- UI-05: 通常の曜日は日曜始まりの丸ボタンでチェックを付けず、選択/未選択を区別する。狭幅・大文字では読みやすさと正式名称の読み上げを保つ。
+- UI-06: 日英に対応し、作成・確認・取消・保存・失敗・再試行の意味を揃える。OS標準picker、dialog、権限画面、フォント、戻る操作の描画を独自に再現しない。
+- UI-07: UIアイコンはSF Symbols、Google公式Material Icons等の既成品を使用し、自作のパス描画・記号文字による代用をしない。熊・ロゴ・インストール済みアプリ本来のアイコンは維持する。
+
+<a id="responsibilities"></a>
+## 責務の保証基準
+
+これは共通仕様を保証するための論理的な責務。新しい階層・class・interfaceの追加や、両OSの同じファイル配置を要求しない。同じclassが複数の責務を担っても、入力・結果・検証の担当が明確で以下を満たせば適合する。iOSの現在の分割をAndroidの正解にはしない。
+
+| 基準ID | 担うべき責務・入出力 | 保証すること | 担わないこと |
+|---|---|---|---|
+| R01 | 下書き・操作対象：ユーザー入力/戻り先/確認対象 → 操作意図 | 保存済み状態と下書きを区別。取消で保存せず、確定対象のルール/発生回を保つ（TGT-02、SCH-05、WAK-04） | 編集中の値を保存済みと見せること、代表ロックへの無断転送 |
+| R02 | 業務判定：予定/起床要求/対象/評価時刻 → 発生回/実効終了/可否/次状態 | TIM・SCH・WAK・履歴の同じ判断を使う。UIやcallbackが独立した判定を持たず、計算結果はSDKなしで検証可能 | 権限dialog、課金SDK、OS登録、ファイルI/O |
+| R03 | 更新調停：操作意図 → 最新状態の読込・操作時の再検証・保存結果 | 画面を開いた時の状態だけに依存しない。保存の直列化区間で、対象回・実行中の変更禁止・競合等の該当条件を保証。拒否で変更を保存しない（TGT-02、SCH-02/03、WAK-04、ERR-02） | 保存後のOS登録成功を、保存成功の前提にすること。すべての操作を一つの汎用関数にすること |
+| R04 | 保存：状態 ↔ 永続データ | 原子的な更新、読込故障時の原本保持、旧形式の明示した扱い。成功/失敗を呼び出し側に返す（TIM-01、ERR-01/02、IOS-05、AND-05） | 「実行中」「完了」の別正本、故障時の無断初期化 |
+| R05 | OS適用：保存済み状態/現在時刻 → 監視登録・制限反映・反映結果 | 遅延/重複callbackでも現在状態から評価。登録失敗で保存を巻き戻さず、期限再評価を止めない（TIM-06、ERR-02/03） | iOS/AndroidのOS能力を同一視すること、SDK呼出し成功を実解除の証明にすること |
+| R06 | 表示・復旧：確認できた状態/操作結果 → native UI・再試行 | 下書き/未確認/保存済み/反映失敗を区別。確認・取消・エラー・再試行の意味を揃える（SCH-05、ERR-01/02、UI） | Boolかenumか等の型の指定、pixel一致、SDK標準画面の独自再現 |
+
+OSごとに、R01〜R06の担当と、その境界をまたぐ一連の操作を追えることを構造の比較基準とする。配置が異なるだけでは構造上の不適合としない。例えば「Activityが長い」「StateとRepositoryが同じファイル」は、それだけでは修正事項ではない。
+
+共通UIの代表ロック選択・終了表示の詳細、取消と競合の優先順位など、本書に結果が定義されていない点はこの責務表から新しい製品仕様として導出しない。判断が残る論点は分析書へ分離する。
+
+<a id="structure"></a>
+## 現行構造
+
+両OSはネイティブの別実装。Kotlin/Swiftの製品コードを共通ランタイムで動かしている状態ではない。以下は現在の責務対応であり、新しい共通化案ではない。
+
+共通仕様（同じ判断基準）、責務の対応（同じ役割）、コード共有（同じ実装を両OSが実行）は区別する。同じ名前のクラスや同じ期待値のテストがあっても、製品コードを共有したことにはならない。UI・課金・OS連携の意図的な差を消すことも、共通化の意味に含めない。
+
+| 責務 | iOS | Android |
+|---|---|---|
+| 画面 | `BearLock/Features/` のSwiftUI View | `HomeComponents`、`Composer`、各ScreenがAndroid Viewsを生成 |
+| 状態・操作・画面遷移 | `BearLockAppModel`、各ViewのState/Binding、RootView | `MainActivity`、`EditorDraft`、`Route`。対象選択/予定/無料起床/履歴の調停は `LockOperations` |
+| 予定・発生回・競合・実効終了 | `Sources/BearLockCore/` のLockPlanner/LockState/RecurrenceRule/WakeState | `Planner.kt` のPlanner/Rule/State/LockSchedule |
+| 更新の直列化・保存 | `LockStore` actor → `LockRepository` → `JSONFileLockRepository` | `Store.change` の共有ガード → Codec/AtomicFile |
+| 対象選択・予定作成/編集/削除・無料起床の更新 | AppModelの `performSavedOperation` → LockStoreで操作時刻/対象を再検証・保存 → Serviceで反映 → OperationOutcome。削除予約の取消も同じ入口 | `LockOperations` → Store.change内で時計取得/Planner検証・保存 → Schedulingで反映 → OperationOutcome |
+| 履歴のピン留め/解除/削除 | 同じperformSavedOperationで保存後にreloadStateのみを行う。保存後読込失敗はsavedNeedsReload/readStatus.failed | 同じLockOperationsで保存済みStateを返す。MainActivityは表示を更新。汎用mutate経路は除去 |
+| 対象の表現 | 選択ID参照＋FamilyActivitySelectionの符号化tokenData | Rule/Recent/選択にTargetsの集合値 |
+| OS監視 | `ScheduleController` → DeviceActivity | `BoundaryReceiver.kt` のScheduling → AlarmManager |
+| 制限の反映 | ShieldController、Monitor/Shield Configuration/Shield Action拡張 | GuardService、SnapshotGate、Shield |
+| 購入配送 | WakePurchaseStore → AppModel → LockStore、別のSupportStore | 該当処理なし。SupportScreenから外部ブラウザー |
+| 再評価の入口 | 本体の操作/再表示、各拡張のcallback・構成要求 | 本体の操作/再表示、Accessibilityイベント、サービス評価、各Receiver |
+| 共通のテスト期待値 | `Tests/ContractFixtures/` の時刻・起床・操作列をSwiftのLockContractTestsで検証 | 同じファイルをKotlinのLockContractTestで検証 |
+
+対象選択（履歴からの再選択を含む）、予定作成/編集/削除、無料起床の予約/取消は、画面→更新入口→保存区間の再検証→保存→OS反映→結果表示に責務を対応させた。iOSは既存AppModel、AndroidはLockOperationsが更新調停を担い、画面は下書きと操作結果に応じた遷移を担う。履歴のピン留め/解除/削除も同じ更新入口で処理するが、OS監視登録・制限反映は呼ばず、既存の監視エラーを消さない。Androidの成功結果は保存区間が返したState、iOSは保存後の再読込に基づく。クラス名・保存形式・日時単位・UI状態機構を同一にしたわけではない。購入配送はiOS固有の別経路を維持する。
+
+この対象範囲では、未保存/拒否と、保存済み/反映失敗を操作結果で区別する。反映失敗でも保存成功を取り消さず、picker/作成確認/編集は保存済みとして閉じ、警告/再試行を表示する。再試行は保存済み状態の再反映であり、選択保存・予定の作成/編集/削除・起床予約を再実行しない。iOSの保存後再読込失敗は読込復旧画面で扱う。起床の確認は開いたActiveLockのID/発生回開始を保持し、確定時に保存側で再検証する。
+
+履歴操作の保存後再読込失敗も保存拒否と区別する。iOSはsavedNeedsReloadで保存済みを返し、最後のsnapshotを保持しつつ既存の読込復旧画面を表示する。復旧ボタンは通常の全状態refresh（OS再評価を含む）であり、履歴の再保存は行わない。履歴操作そのものがOS反映を必要とする、という意味ではない。
+
+旧選択設定の移行は既に保存されていた選択の復元であり、ユーザーによる対象変更とは区別する。Androidの作成確認からの重複したselection書込は除去し、ユーザーの選択保存はLockOperationsを経由する。作成確認前の画面チェックは事前案内であり、保存の権限ではない。今すぐ/遅延の開始は保存区間内の時刻から構築し、固定日時/曜日・時間帯は下書きの入力を保持して最新状態で再検証する。iOSの作成と履歴記録の別保存、OS別の繰り返し削除方式は維持している。
+
+<a id="verification"></a>
+### 共通仕様を検証する仕組み
+
+共通仕様のIDは上記本文に置く。期待値の正本は `Tests/ContractFixtures/` に置き、Swift/Kotlinのテストへ別々に複写しない。既存のSwiftPM/JUnitテストと各OSのCIから実行し、共通仕様の文書変更でも両OSのCIを起動する。iOS CIは文書全体を除外しないため、分析・QA文書の変更も起動対象になる。
+
+- `lock-contract.tsv`: 絶対日時・タイムゾーン・曜日・対象から、発生回、実行中、編集可否、対象別の終了を検証する。
+- `wake-contract.tsv`: 保存済み要求1件について、発生回照合、期間外の要求、実効終了、期限の境界を検証する。
+- `lock-operations.json`: `version` と一意なIDの `cases` を持つ。各ケースは単発の初期 `start`（省略時0秒）・`duration` と、順に実行する `steps`。日時は固定epochからの秒であり、端末時計を使わない。
+- 同じファイルの `historyCases` は、対象ラベル・使用/ピン時刻の `recent` と、`pin/unpin/delete/evaluate` の `steps` を持つ。保存されている履歴/ピン集合と表示順を同じ期待値で検証し、選択・予定・起床要求の不変も確認する。OS別のID表現はアダプターで変換する。
+- 操作は `select/wake/cancel/evaluate/create/replace/delete`。各stepの `at` 時点で実際の `LockStore` / `LockOperations→Planner` を呼び、結果コード、初期ルールの起床期限・実行中、保存ルール数と、指定時はselectionを検証する。拒否時は状態不変も検証する。作成は別の対象を使い、対象差で競合判定を回避できないことを確認する。共有試験のrepository/OS反映はメモリー/成功stubであり、保存故障・反映故障は各OSの操作試験で別に確認する。
+- アダプターが行うのはモデル・日時単位・エラー名の変換だけ。実効終了や競合をテスト側で再実装しない。SwiftはDate、Kotlinはepochミリ秒へ変換する。
+- 対応済み操作の新ケースは共有データへの追加で両OSが実行する。操作列のケースIDは `契約ID.ケース名` とし、Swiftテストはその契約IDがこの文書に存在することも確認する。新しい操作種別は双方のアダプターへ追加し、未対応の操作や未知のエラーを成功扱いしない。
+- この共通テストは純粋な計算と操作結果の一部を検証するもので、履歴の全例外・保存I/O・OS反映・UI全体の網羅を意味しない。保存故障、購入、OS固有の削除、callback、UIの操作は各OSの既存テストを使う。SDK型や保存形式を無理に共通fixtureへ押し込まない。
+
+対応表では「テストが存在する」「今回実行した」「SDK/実機で実動を確認した」を別々に記録する。基準の実装確認とテスト範囲不足も別の判定とし、未定義の挙動をテスト側で仕様として決めない。
+
+<a id="documents"></a>
+## 文書の役割
+
+| 文書 | 役割 |
+|---|---|
+| この文書 | 現行の思想・共通/OS別仕様・構造の正本 |
+| README、各モジュールREADME | 入口、ビルド/署名/実行手順。製品仕様はこの文書を参照 |
+| `docs/android-ios-execution-plan.md`、`docs/qa/` | 日付・ビルド・端末・結果・限界を残す実装/検証記録。過去の結果は現在の動作保証ではない |
+| `docs/android-implementation-todo.md`、`todo.md` | 実装/公開作業の進捗。製品仕様そのものを別に定義しない |
+| `docs/launch/`、公開サイト/ストア向け原稿 | この仕様から作る派生文面。公開済みの版・審査用条件と、現行開発版を区別する |
+| 初期調査・過去の比較文書 | 日付時点の参考記録。現行仕様の上書き元にしない |
+
+[仕様・責務・コード・テストの対応表](qa/android-ios-structure-audit-2026-10-25.md) は、本書の基準IDに対する各OSの担当と適合状況を記録する。仕様判断待ち、検証不足、任意の改善は、確定仕様に対する不適合から分離する。
+
+初期MVPの「途中解除一切なし」「ActiveLockを永続化」「Web対象外」と、後続計画に混入した「両OSの起床課金廃止」は現行仕様ではない。重複した仕様本文は本書への参照へ置き換える。実装・検証記録と公開用原稿は用途が異なるため残すが、製品仕様の別の正本にはしない。
+
+<a id="decisions"></a>
+## 確定した判断
+
+| 確認日 | 判断 |
+|---|---|
+| 2026-10-25 | iOSの課金・チケットは意図的な設計として維持。Androidの無料起床と同一仕様にはしない |
+| 2026-10-25 | 両OSのモードをセグメント式にし、日時ボタンの指定を共通化。既成の部品・アイコンを使う |
+| 2026-10-25 | 仕様の分散を解消し、本書に現行の確定事項と構造を集約。検討中の案は掲載しない |
+| 2026-10-25 | 製品コード自体は共有せず、共通仕様・テスト入力/期待値を共有する。あるべき構造と差分の分析は現行仕様から分離する |
+| 2026-10-26 | 比較基準を製品の振る舞いと責務の保証に分離。実装との対応は基準IDで追い、未定義の結果や任意のファイル分割を仕様違反と扱わない |

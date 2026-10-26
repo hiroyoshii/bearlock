@@ -1,4 +1,5 @@
 import SwiftUI
+import BearLockCore
 
 struct RootView: View {
     @AppStorage("hasSeenIntroduction") private var hasSeenIntroduction = false
@@ -6,7 +7,7 @@ struct RootView: View {
     @EnvironmentObject private var wakePurchaseStore: WakePurchaseStore
     @Environment(\.scenePhase) private var scenePhase
     @State private var navigationPath = NavigationPath()
-    @State private var showsWakeOptions = false
+    @State private var wakeTarget: ActiveLock?
     @State private var showsWakeResult = false
 
     var body: some View {
@@ -32,7 +33,7 @@ struct RootView: View {
                     if !hasSeenIntroduction && model.authorizationStatus == .unknown && model.lockState.targetSelections.isEmpty && model.lockState.rules.isEmpty {
                         SetupView()
                     } else {
-                        HomeView { showsWakeOptions = true }
+                        HomeView { wakeTarget = $0 }
                     }
                 } else {
                     ProgressView()
@@ -60,7 +61,7 @@ struct RootView: View {
         .onChange(of: model.wakeCompletionID) { _, completionID in
             if completionID != nil { showsWakeResult = true }
         }
-        .wakeOptionsDialog(isPresented: $showsWakeOptions)
+        .wakeOptionsDialog(target: $wakeTarget)
         .alert("Bear Lock", isPresented: wakePurchaseMessageBinding) {
             Button("OK", role: .cancel) {
                 wakePurchaseStore.clearResult()
@@ -100,7 +101,7 @@ struct RootView: View {
             }
         }
         if opensWakeOptions, model.activeLock != nil {
-            showsWakeOptions = true
+            wakeTarget = model.activeLock
         }
     }
 }

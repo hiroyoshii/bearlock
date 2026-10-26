@@ -526,7 +526,7 @@ extension XCTestCase {
         // Use one 200ms press and wait for the selection to change.
         // Do not retry a missed touch or change the product's controls.
         let pressDuration: TimeInterval = 0.2
-        let buttons = app.otherElements["lock-composer-mode-picker"]
+        let buttons = app.segmentedControls["lock-composer-mode-picker"]
         if buttons.exists {
             let button = buttons.buttons[title]
             scrollToButton(button, in: app)

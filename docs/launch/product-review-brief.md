@@ -1,10 +1,12 @@
 # Bear Lock Product And Review Brief
 
+> Publication/review copy derived from [the current product specification](../design-doc.md). This document is not a separate source of product policy.
+
 ## Short Product Summary
 
 Bear Lock is a self-control Screen Time app for people who want to protect focused time, sleep, study, or recovery periods from distracting apps. The user chooses apps or categories, chooses when the lock starts and ends, and Bear Lock applies a Screen Time shield during that window.
 
-The core behavior is intentional commitment: once a lock starts, Bear Lock does not provide an in-app early unlock path.
+The core behavior is intentional commitment with explicit wake-up options. On iOS, the user can schedule a free wake-up after 30 minutes or use the consumable immediate wake-up purchase/ticket for the selected occurrence; future repeats and other locks remain.
 
 ## What The App Does
 
@@ -26,7 +28,7 @@ The app cannot deliver its core value with notifications, reminders, or ordinary
 - Let the user privately select apps without Bear Lock learning app identities directly.
 - Apply an iOS Screen Time shield to selected apps.
 - Schedule start and end windows that can run even when Bear Lock is not foregrounded.
-- Provide a custom shield experience without an unlock action.
+- Provide a custom shield experience, with wake-up handled through the app's confirmation flow rather than unrestricted editing of an active lock.
 
 ## Safety And User Agency
 
@@ -36,7 +38,7 @@ Bear Lock is designed for self-control, not surveillance.
 - The user chooses the apps or categories to block.
 - The user chooses the lock window before it starts.
 - Bear Lock does not hide the lock status or wake time.
-- Bear Lock does not offer an in-app early unlock button after lock start.
+- Active-lock time and target edits are restricted; early wake-up follows the explicit options described above.
 - Debug builds include a short maximum duration for safer pre-device testing.
 
 Known system-level limitations are documented for review and QA: users may still change iOS Settings, revoke permissions, delete the app, or use account-level controls outside Bear Lock.
@@ -67,7 +69,7 @@ To test the primary flow:
 6. Return to Bear Lock and confirm the active lock screen shows the wake time.
 7. Wait until the lock ends and confirm the selected app opens normally.
 
-The app intentionally has no in-app early unlock button once a lock starts. This is the central self-control commitment feature. Users can still use iOS-level settings and account controls outside the app.
+Early wake-up follows the options above and affects only the selected occurrence. Users can still use iOS-level settings and account controls outside the app.
 
 Diagnostics are available at `Settings > Diagnostics` inside the app. Diagnostics are local-only and help confirm authorization status, selected target count, active lock status, safety policy, and recent app events.
 

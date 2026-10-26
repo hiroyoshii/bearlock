@@ -20,7 +20,7 @@ class QAHarnessActivity : Activity() {
                 check(GuardService.instance!=null && (action != "reserve" || Scheduling.permitted(this)))
                 val delay=if(action=="reserve") 120 else 0
                 val start=now+delay*1000
-                val r=Rule(title=if(action=="lock") "集中時間" else "読書の時間",targets=if(action=="webLock") Targets(domains=setOf("example.com")) else Targets(apps=setOf("com.hiyozoo.bearlock.probe")),schedule=LockSchedule.Single(start,start+60_000))
+                val r=Rule(title=if(action=="lock") "集中時間" else "読書の時間",targets=if(action=="webLock") Targets(domains=setOf("example.com")) else Targets(apps=setOf("com.hiyozoo.bearlock.probe")),schedule=LockSchedule.Single(start,start+60_000,immediate=action!="reserve"))
                 store.change { Planner.save(it,r,now) }; store.event("qa_created:$start:${r.single!!.end}"); Scheduling.sync(this)
             }
             startActivity(Intent(this,MainActivity::class.java).putExtra("qaPage",intent.getStringExtra("page") ?: "home").putExtra("qaDraft",intent.getBooleanExtra("draft",false)))

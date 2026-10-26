@@ -164,7 +164,7 @@ public actor LockStore {
         }
     }
 
-    public func setRecentLockTargetPinned(id: UUID, pinned: Bool, at date: Date) throws {
+    public func setRecentLockTargetPinned(id: UUID, pinned: Bool, at date: Date? = nil) throws {
         try update { state in
             guard let index = state.recentLockTargets.firstIndex(where: { $0.id == id }) else {
                 throw RecentLockTargetError.recentTargetNotFound
@@ -176,7 +176,7 @@ public actor LockStore {
                 throw RecentLockTargetError.pinnedTargetLimitReached
             }
 
-            state.recentLockTargets[index].pinnedAt = pinned ? date : nil
+            state.recentLockTargets[index].pinnedAt = pinned ? (date ?? Date()) : nil
         }
     }
 
@@ -259,8 +259,9 @@ public actor LockStore {
     }
 
     @discardableResult
-    public func scheduleFreeWake(for lock: ActiveLock, at now: Date) throws -> WakeRequest {
+    public func scheduleFreeWake(for lock: ActiveLock, at now: Date? = nil) throws -> WakeRequest {
         try update { state in
+            let now = now ?? Date()
             let active = try activeOccurrence(matching: lock, in: state, at: now)
             guard active.endsAt.timeIntervalSince(now) > WakePolicy.freeDelay else {
                 throw WakeError.freeWakeUnavailable
@@ -281,8 +282,9 @@ public actor LockStore {
         }
     }
 
-    public func cancelFreeWake(for lock: ActiveLock, at now: Date) throws {
+    public func cancelFreeWake(for lock: ActiveLock, at now: Date? = nil) throws {
         try update { state in
+            let now = now ?? Date()
             _ = try activeOccurrence(matching: lock, in: state, at: now)
             let originalCount = state.wakeState.requests.count
             state.wakeState.requests.removeAll { $0.matches(lock) && $0.source == .delayed && $0.wakesAt > now }
@@ -356,6 +358,7 @@ public actor LockStore {
 
     private func activeOccurrence(matching lock: ActiveLock, in state: LockState, at now: Date) throws -> ActiveLock {
         guard let rule = state.rules.first(where: { $0.id == lock.id }),
+              rule.isScheduled(at: now),
               let active = rule.occurrence(containing: now),
               active.startedAt == lock.startedAt,
               now < state.wakeState.effectiveEnd(of: active)

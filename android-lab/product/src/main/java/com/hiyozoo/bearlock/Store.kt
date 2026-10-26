@@ -46,25 +46,35 @@ object Codec {
     fun targets(t: Targets) = JSONObject().put("apps", JSONArray(t.apps.toList())).put("domains", JSONArray(t.domains.toList())).put("categories", JSONArray(t.categories.toList()))
     fun targets(j: JSONObject) = Targets(j.getJSONArray("apps").strings(), j.getJSONArray("domains").strings(), j.getJSONArray("categories").ints())
     fun schedule(value: LockSchedule): JSONObject = when(value) {
-        is LockSchedule.Single -> JSONObject().put("type", "single").put("start",value.start).put("end",value.end)
+        is LockSchedule.Single -> JSONObject().put("type", "single").put("start",value.start).put("end",value.end).put("immediate",value.immediate)
         is LockSchedule.Weekly -> JSONObject().put("type", "weekly").put("days",JSONArray(value.days.toList()))
             .put("startMinute",value.startMinute).put("endMinute",value.endMinute).put("zone",value.zone)
     }
     fun schedule(value: JSONObject): LockSchedule = when(value.getString("type")) {
-        "single" -> LockSchedule.Single(value.getLong("start"),value.getLong("end"))
+        "single" -> LockSchedule.Single(value.getLong("start"),value.getLong("end"),value.optBoolean("immediate",false))
         "weekly" -> LockSchedule.Weekly(value.getJSONArray("days").ints(),value.getInt("startMinute"),value.getInt("endMinute"),value.getString("zone"))
         else -> error("invalid_schedule")
     }
-    fun encode(s: State): String = JSONObject().put("schema", 3).put("rules", JSONArray(s.rules.map {
+    fun encode(s: State): String = JSONObject().put("schema", 4).put("rules", JSONArray(s.rules.map {
         JSONObject().put("id", it.id).put("title", it.title).put("targets", targets(it.targets))
             .put("schedule", schedule(it.schedule)).put("enabled", it.enabled)
     }))
-        .put("recent", JSONArray(s.recent.map { JSONObject().put("targets", targets(it.targets)).put("used", it.usedAt).put("pinned", it.pinned).put("pinnedAt", it.pinnedAt ?: JSONObject.NULL) })).toString()
+        .put("recent", JSONArray(s.recent.map { JSONObject().put("targets", targets(it.targets)).put("used", it.usedAt).put("pinned", it.pinned).put("pinnedAt", it.pinnedAt ?: JSONObject.NULL) }))
+        .put("wakes", JSONArray(s.wakes.map { JSONObject().put("ruleId", it.ruleId).put("start", it.occurrenceStart).put("wakesAt", it.wakesAt) }))
+        .put("selection",s.selection?.let(::targets) ?: JSONObject.NULL).toString()
     fun decode(text: String): State {
-        val j = JSONObject(text); require(j.getInt("schema") == 3)
+        val j = JSONObject(text); val schema = j.getInt("schema"); require(schema in 3..4)
         return State(j.getJSONArray("rules").mapObjects {
+            val savedSchedule=it.getJSONObject("schedule")
+            val decoded=schedule(savedSchedule)
+            // Older files did not store the creation mode. Recognize only shipped immediate titles;
+            // ambiguous custom titles stay visible rather than hiding a possibly scheduled lock.
+            val migrated=if(decoded is LockSchedule.Single && !savedSchedule.has("immediate"))
+                decoded.copy(immediate=it.getString("title") in setOf("今すぐ","Now")) else decoded
             Rule(it.getString("id"), it.getString("title"), targets(it.getJSONObject("targets")),
-                schedule(it.getJSONObject("schedule")), it.getBoolean("enabled"))
-        }, Planner.trimRecent(j.getJSONArray("recent").mapObjects { Recent(targets(it.getJSONObject("targets")), it.getLong("used"), it.getBoolean("pinned"), if(it.isNull("pinnedAt")) null else it.getLong("pinnedAt")) }))
+                migrated, it.getBoolean("enabled"))
+        }, Planner.trimRecent(j.getJSONArray("recent").mapObjects { Recent(targets(it.getJSONObject("targets")), it.getLong("used"), it.getBoolean("pinned"), if(it.isNull("pinnedAt")) null else it.getLong("pinnedAt")) }),
+            if (schema == 3) emptyList() else j.getJSONArray("wakes").mapObjects { WakeRequest(it.getString("ruleId"), it.getLong("start"), it.getLong("wakesAt")) },
+            if(!j.has("selection") || j.isNull("selection")) null else targets(j.getJSONObject("selection")))
     }
 }

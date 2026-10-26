@@ -39,7 +39,7 @@ data class EditorDraft(val originalID: String? = null, var targets: Targets = Ta
         timing = inactiveTimings.remove(mode) ?: when(mode) {
             ComposerMode.NOW -> DraftTiming.Now(minutes)
             ComposerMode.LATER -> DraftTiming.Later(duration=minutes)
-            ComposerMode.FIXED -> DraftTiming.Fixed(now+3_600_000,minutes)
+            ComposerMode.FIXED -> DraftTiming.Fixed(now+30*60_000L,minutes)
             ComposerMode.WEEKLY -> DraftTiming.Weekly()
         }
         if(timing !is DraftTiming.Weekly) duration = minutes
@@ -73,15 +73,19 @@ data class EditorDraft(val originalID: String? = null, var targets: Targets = Ta
         get() = (timing as DraftTiming.Weekly).end
         set(value) { timing=(timing as DraftTiming.Weekly).copy(end=value) }
 
+    fun canSubmit(now: Long) = !targets.empty && runCatching { makeRule(now,"") }.isSuccess
     fun makeRule(now: Long, title: String): Rule {
         val schedule = when(val t=timing) {
-            is DraftTiming.Now -> LockSchedule.Single(now,now+t.duration*60_000L)
+            is DraftTiming.Now -> LockSchedule.Single(now,now+t.duration*60_000L,immediate=true)
             is DraftTiming.Later -> {
                 require(t.delay in 5..240) { "invalid_time" }
                 val start=now+t.delay*60_000L
                 LockSchedule.Single(start,start+t.duration*60_000L)
             }
-            is DraftTiming.Fixed -> LockSchedule.Single(t.start,t.start+t.duration*60_000L)
+            is DraftTiming.Fixed -> {
+                require(t.start>now) { "past_time" }
+                LockSchedule.Single(t.start,t.start+t.duration*60_000L)
+            }
             is DraftTiming.Weekly -> LockSchedule.Weekly(t.days,t.start,t.end,t.zone)
         }
         require(if(schedule is LockSchedule.Single) duration in 15..720 else days.isNotEmpty()) { "invalid_time" }
@@ -101,6 +105,7 @@ sealed class Route : Serializable {
     data object Setup : Route()
     data object Editor : Route()
     data object Settings : Route()
+    data object Diagnostics : Route()
     data object Support : Route()
     data object Schedules : Route()
     data object Fixture : Route()
@@ -108,7 +113,7 @@ sealed class Route : Serializable {
     data class Permissions(val returnTo: Route, val action: PermissionReturn) : Route()
     val page: String get() = when(this) {
         Home -> "home"; Setup -> "setup"; Editor -> "compose"; Settings -> "settings"
-        Support -> "support"; Schedules -> "schedules"; Fixture -> "fixture"
+        Support -> "support"; Diagnostics -> "diagnostics"; Schedules -> "schedules"; Fixture -> "fixture"
         is Picker -> "targets"; is Permissions -> "permissions"
     }
 }

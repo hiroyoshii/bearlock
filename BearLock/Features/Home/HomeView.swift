@@ -4,7 +4,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var model: BearLockAppModel
     @State private var composerMode: LockComposerMode = .now
-    let onWake: () -> Void
+    let onWake: (ActiveLock) -> Void
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { _ in
@@ -38,7 +38,7 @@ struct HomeView: View {
                     }
 
                     if model.authorizationStatus == .approved, let activeLock = model.activeLock, activeLock.isActive(at: Date()) {
-                        ActiveLockView(activeLock: activeLock, onWake: onWake)
+                        ActiveLockView(activeLock: activeLock, onWake: { onWake(activeLock) })
                     }
 
                     LockComposerView(mode: $composerMode, allowsImmediateLock: !hasActiveLock)

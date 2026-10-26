@@ -4,12 +4,21 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import java.io.File
 import java.lang.reflect.Proxy
+
+/** Real write refusal for both older and current AtomicFile implementations. */
+internal fun refuseStoreWrites(context: Context): () -> Unit {
+    val directory=context.filesDir
+    val file=File(directory,"locks-v1.json")
+    check(file.setWritable(false)); check(directory.setWritable(false))
+    return { check(directory.setWritable(true)); check(file.setWritable(true)) }
+}
 
 /** Native AtomicFile and view-removal failure tests, without touching the user's saved rules. */
 class LockInstrumentation : Instrumentation() {
@@ -40,12 +49,11 @@ class LockInstrumentation : Instrumentation() {
             file.writeText(original)
             check(store.read() == saved && store.error == null)
 
-            // AtomicFile cannot create its output when .new is a nonempty directory.
-            val blockedWrite = File(directory, "locks-v1.json.new").apply { mkdirs() }
-            File(blockedWrite, "blocker").writeText("fixture")
-            check(runCatching { store.change { it.copy(rules=emptyList()) } }.isFailure)
-            check(file.readText() == original) { "Failed write lost the old rules" }
-            blockedWrite.deleteRecursively()
+            val unblock=refuseStoreWrites(context)
+            try {
+                check(runCatching { store.change { it.copy(rules=emptyList()) } }.isFailure)
+                check(file.readText() == original) { "Failed write lost the old rules" }
+            } finally { unblock() }
             check(store.change { it.copy(rules=emptyList()) }.rules.isEmpty())
 
             File(directory,"diagnostics.log").mkdirs() // Logging fails; save/expiry must continue.
@@ -92,6 +100,28 @@ class LockInstrumentation : Instrumentation() {
                     rejectRemoval=false
                     check(shield.hide() && host.childCount==0)
                     check(shield.hide())
+                    var rejectNavigation=true
+                    var opened: Intent?=null
+                    val navigationContext=object : ContextWrapper(context) {
+                        override fun startActivity(intent: Intent) {
+                            if(rejectNavigation) throw android.content.ActivityNotFoundException("fixture")
+                            opened=intent
+                        }
+                    }
+                    val navigable=Shield(navigationContext,manager)
+                    navigable.show(active,"Fixture")
+                    val wakeButtons=arrayListOf<View>()
+                    host.findViewsWithText(wakeButtons,tr(context,"熊を起こす","Wake the bear"),View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+                    wakeButtons.single().performClick()
+                    check(host.childCount==1 && opened==null)
+                    val errors=arrayListOf<View>()
+                    host.findViewsWithText(errors,tr(context,"Bear Lockを開けません。ホームに戻ってアプリを開いてください。","Could not open Bear Lock. Return home and open the app."),View.FIND_VIEWS_WITH_TEXT)
+                    check(errors.single().visibility==View.VISIBLE)
+                    rejectNavigation=false
+                    wakeButtons.single().performClick()
+                    check(opened!!.getStringExtra("wakeRuleId")==active.ruleId)
+                    check(opened!!.getLongExtra("wakeOccurrenceStart",-1)==active.start)
+                    check(host.childCount==0 && store.read()==saved)
                 } catch(t: Throwable) { failure=t }
             }
             failure?.let { throw it }
@@ -100,6 +130,9 @@ class LockInstrumentation : Instrumentation() {
             })
         } catch(t: Throwable) {
             finish(Activity.RESULT_CANCELED,Bundle().apply { putString("stream",android.util.Log.getStackTraceString(t)) })
-        } finally { directory.deleteRecursively() }
+        } finally {
+            directory.deleteRecursively()
+            Scheduling.sync(targetContext) // The isolated fixture shares the OS PendingIntent.
+        }
     }
 }

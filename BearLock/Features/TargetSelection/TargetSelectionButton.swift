@@ -90,7 +90,7 @@ struct TargetSelectionButton: View {
                 Task {
                     let saved = await model.saveSelection(selection)
                     isSaving = false
-                    if saved { isPickerPresented = false }
+                    if saved.isSaved { isPickerPresented = false }
                     else {
                         saveError = model.lastErrorMessage
                         model.lastErrorMessage = nil

@@ -2,6 +2,11 @@ import Foundation
 import BearLockCore
 import FamilyControls
 
+enum OperationOutcome: Equatable {
+    case rejected, saved, savedNeedsReflection, savedNeedsReload
+    var isSaved: Bool { self != .rejected }
+}
+
 @MainActor
 final class BearLockAppModel: ObservableObject {
     @Published private(set) var authorizationStatus: AuthorizationState = .unknown
@@ -141,7 +146,8 @@ final class BearLockAppModel: ObservableObject {
                 )]
             )
         } else if arguments.contains("--ui-testing-active-recurring") {
-            let start = now.addingTimeInterval(-300)
+            let hasWoken = arguments.contains("--ui-testing-woken-recurring")
+            let start = now.addingTimeInterval(hasWoken ? -35 * 60 : -300)
             let end = arguments.contains("--ui-testing-all-day-recurring") ? start : now.addingTimeInterval(3600)
             let calendar = Calendar.current
             let recurrence = RecurrenceRule(weekdays: Set(Weekday.allCases),
@@ -150,6 +156,13 @@ final class BearLockAppModel: ObservableObject {
             state = LockState(targetSelections: targetSelections, recentLockTargets: recentLockTargets,
                 rules: [LockRule(
                     recurrence: recurrence, targetSelectionID: target.id)])
+            if hasWoken, let active = state.activeLockForDisplay(at: now) {
+                let wakesAt = now.addingTimeInterval(-60)
+                state.wakeState.requests = [WakeRequest(
+                    ruleID: active.id, occurrenceStartedAt: active.startedAt,
+                    requestedAt: wakesAt.addingTimeInterval(-WakePolicy.freeDelay),
+                    wakesAt: wakesAt, source: .delayed)]
+            }
         } else if arguments.contains("--ui-testing-disabled-recurring") {
             let recurrence = RecurrenceRule(
                 weekdays: [.monday, .tuesday, .wednesday, .thursday, .friday],
@@ -181,6 +194,7 @@ final class BearLockAppModel: ObservableObject {
                 existingState.targetSelections = state.targetSelections
                 existingState.recentLockTargets = state.recentLockTargets
                 existingState.rules = state.rules
+                existingState.wakeState = state.wakeState
                 existingState.selectedTargetID = state.selectedTargetID
                 try repository.save(existingState)
             }
@@ -198,18 +212,25 @@ final class BearLockAppModel: ObservableObject {
         await synchronizeAndReconcile(isRefresh: true)
     }
 
-    /// Persisted rules are the desired state. Failed OS registration is retried on
-    /// the next refresh or rule operation; it must not prevent expiry reconciliation.
-    private func synchronizeAndReconcile(isRefresh: Bool = false) async {
+    private func reloadState() async -> Bool {
         do {
             lockState = try await lockStore.snapshot()
             readStatus = .loaded
         } catch {
             readStatus = .failed
             recordError("Lock.load.failed", error, presentAlert: false)
-            return
+            return false
         }
-        if isRefresh && (isCreatingLock || isUpdatingLock || isHandlingWake) { return }
+        return true
+    }
+
+    /// Persisted rules are the desired state. Failed OS registration is retried on
+    /// the next refresh or rule operation; it must not prevent expiry reconciliation.
+    @discardableResult
+    private func synchronizeAndReconcile(isRefresh: Bool = false) async -> Bool {
+        guard await reloadState() else { return false }
+        if isRefresh && (isCreatingLock || isUpdatingLock || isHandlingWake) { return false }
+        var reflected = authorizationStatus == .approved
         do {
             if authorizationStatus == .approved {
                 let schedule = scheduleController
@@ -217,6 +238,7 @@ final class BearLockAppModel: ObservableObject {
                 monitoringUpdateFailed = false
             }
         } catch {
+            reflected = false
             monitoringUpdateFailed = true
             recordError("Schedule.synchronize.failed", error, presentAlert: false)
         }
@@ -225,8 +247,41 @@ final class BearLockAppModel: ObservableObject {
             try shieldController.reconcile(state: lockState, at: now)
             diagnostics.record("Lock.reconcile", detail: "now=\(now.ISO8601Format()) stores=\(try lockState.shieldSlotDecisions(at: now).map(\.storeName))")
         } catch {
-            recordError("Lock.reconcile.failed", error)
+            reflected = false
+            monitoringUpdateFailed = true
+            recordError("Lock.reconcile.failed", error, presentAlert: false)
         }
+        return reflected
+    }
+
+    /// One application boundary. History only reloads; it does not change OS enforcement.
+    private func performSavedOperation(_ name: String, creating: Bool = false, wake: Bool = false,
+                                      updateMonitoring: Bool = true,
+                                      operation: () async throws -> Void) async -> OperationOutcome {
+        guard !isCreatingLock, !isUpdatingLock, !isHandlingWake else { return .rejected }
+        isUpdatingLock = true
+        if creating { isCreatingLock = true }
+        if wake { isHandlingWake = true }
+        defer {
+            isUpdatingLock = false
+            if creating { isCreatingLock = false }
+            if wake { isHandlingWake = false }
+            refreshDiagnostics()
+        }
+        do { try await operation() }
+        catch {
+            recordError("\(name).failed", error)
+            return .rejected
+        }
+        // After commit, a reload or OS failure must never become a failed save/replayed command.
+        if !updateMonitoring {
+            let reloaded = await reloadState()
+            diagnostics.record("\(name).succeeded")
+            return reloaded ? .saved : .savedNeedsReload
+        }
+        let reflected = await synchronizeAndReconcile()
+        diagnostics.record("\(name).succeeded")
+        return reflected ? .saved : .savedNeedsReflection
     }
 
     func requestAuthorization() async {
@@ -244,20 +299,11 @@ final class BearLockAppModel: ObservableObject {
     }
 
     @discardableResult
-    func saveSelection(_ selection: FamilyActivitySelection) async -> Bool {
-        diagnostics.record("Selection.save.started")
-        do {
+    func saveSelection(_ selection: FamilyActivitySelection) async -> OperationOutcome {
+        await performSavedOperation("Selection.save") {
             let ref = try targetSelectionCodec.reference(for: selection)
-            let savedRef = try await lockStore.saveTargetSelection(ref)
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("Selection.save.succeeded", detail: "\(savedRef.displayName) id=\(savedRef.id.uuidString)")
-            refreshDiagnostics()
-            return true
-        } catch {
-            recordError("Selection.save.failed", error)
+            _ = try await lockStore.saveTargetSelection(ref)
         }
-        refreshDiagnostics()
-        return false
     }
 
     func selectedActivitySelection() throws -> FamilyActivitySelection {
@@ -270,24 +316,16 @@ final class BearLockAppModel: ObservableObject {
             return
         }
 
-        do {
+        _ = await performSavedOperation("Selection.uiTestingSave") {
             let ref = LockTargetSelectionRef(displayName: L10n.format("%d targets", count))
             _ = try await lockStore.saveTargetSelection(ref)
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("Selection.uiTestingSave.succeeded", detail: "count=\(count)")
-        } catch {
-            recordError("Selection.uiTestingSave.failed", error)
         }
-        refreshDiagnostics()
     }
     #endif
 
     @discardableResult
-    func createLock(_ request: LockCreationRequest) async -> Bool {
-        guard !isCreatingLock, !isUpdatingLock else { return false }
-        isCreatingLock = true
-        defer { isCreatingLock = false; refreshDiagnostics() }
-        do {
+    func createLock(_ request: LockCreationRequest) async -> OperationOutcome {
+        await performSavedOperation("Lock.create", creating: true) {
             try BearLockSafetyPolicy.validate(request)
             let rule = try await lockStore.createRule(request)
             do {
@@ -295,38 +333,21 @@ final class BearLockAppModel: ObservableObject {
             } catch {
                 diagnostics.record("RecentTarget.record.failed", level: .warning, detail: error.localizedDescription)
             }
-            await synchronizeAndReconcile()
             diagnostics.record("Lock.create.saved", detail: lockDetail(for: rule))
-            // The rule is saved even if OS registration failed. Close the editor
-            // so retrying registration cannot accidentally create another rule.
-            return true
-        } catch {
-            recordError("Lock.create.failed", error)
-            return false
         }
     }
 
-    func deleteScheduledRule(_ rule: LockRule) async {
-        guard !isCreatingLock, !isUpdatingLock else { return }
-        isUpdatingLock = true
-        defer { isUpdatingLock = false; refreshDiagnostics() }
-        do {
+    @discardableResult
+    func deleteScheduledRule(_ rule: LockRule) async -> OperationOutcome {
+        await performSavedOperation("Schedule.delete") {
             try await lockStore.deleteRule(id: rule.id)
-            await synchronizeAndReconcile()
-        } catch {
-            recordError("Schedule.delete.failed", error)
         }
     }
 
-    func cancelScheduledDeletion(_ rule: LockRule) async {
-        guard !isCreatingLock, !isUpdatingLock else { return }
-        isUpdatingLock = true
-        defer { isUpdatingLock = false; refreshDiagnostics() }
-        do {
+    @discardableResult
+    func cancelScheduledDeletion(_ rule: LockRule) async -> OperationOutcome {
+        await performSavedOperation("Schedule.delete.cancel") {
             try await lockStore.cancelScheduledDeletion(id: rule.id)
-            await synchronizeAndReconcile()
-        } catch {
-            recordError("Schedule.delete.cancel.failed", error)
         }
     }
 
@@ -340,36 +361,21 @@ final class BearLockAppModel: ObservableObject {
         !lockState.wakeState.creditTransactionIDs.isEmpty
     }
 
-    func scheduleFreeWake(for lock: ActiveLock) async -> Bool {
-        guard !isHandlingWake else { return false }
-        isHandlingWake = true
-        defer { isHandlingWake = false; refreshDiagnostics() }
-        do {
-            _ = try await lockStore.scheduleFreeWake(for: lock, at: Date())
-            await synchronizeAndReconcile()
-            diagnostics.record("Wake.delayed.scheduled", detail: lock.id.uuidString)
-            return true
-        } catch {
-            recordError("Wake.delayed.failed", error)
-            return false
+    func scheduleFreeWake(for lock: ActiveLock) async -> OperationOutcome {
+        await performSavedOperation("Wake.delayed.schedule", wake: true) {
+            _ = try await lockStore.scheduleFreeWake(for: lock)
         }
     }
 
-    func cancelFreeWake(for lock: ActiveLock) async {
-        guard !isHandlingWake else { return }
-        isHandlingWake = true
-        defer { isHandlingWake = false; refreshDiagnostics() }
-        do {
-            try await lockStore.cancelFreeWake(for: lock, at: Date())
-            await synchronizeAndReconcile()
-            diagnostics.record("Wake.delayed.cancelled", detail: lock.id.uuidString)
-        } catch {
-            recordError("Wake.delayed.cancel.failed", error)
+    @discardableResult
+    func cancelFreeWake(for lock: ActiveLock) async -> OperationOutcome {
+        await performSavedOperation("Wake.delayed.cancel", wake: true) {
+            try await lockStore.cancelFreeWake(for: lock)
         }
     }
 
     func beginWakePurchase(for lock: ActiveLock) async -> Bool {
-        guard !isHandlingWake else { return false }
+        guard !isHandlingWake, !isUpdatingLock, !isCreatingLock else { return false }
         isHandlingWake = true
         defer { isHandlingWake = false; refreshDiagnostics() }
         do {
@@ -406,7 +412,7 @@ final class BearLockAppModel: ObservableObject {
     }
 
     func useWakeCredit(for lock: ActiveLock) async -> Bool {
-        guard !isHandlingWake else { return false }
+        guard !isHandlingWake, !isUpdatingLock, !isCreatingLock else { return false }
         isHandlingWake = true
         defer { isHandlingWake = false; refreshDiagnostics() }
         do {
@@ -422,9 +428,8 @@ final class BearLockAppModel: ObservableObject {
     }
 
     @discardableResult
-    func selectRecentLockTarget(_ recentTarget: RecentLockTarget) async -> Bool {
-        diagnostics.record("RecentTarget.select.started", detail: recentTarget.id.uuidString)
-        do {
+    func selectRecentLockTarget(_ recentTarget: RecentLockTarget) async -> OperationOutcome {
+        await performSavedOperation("RecentTarget.select") {
             let state = try await lockStore.snapshot()
             guard let selection = state.targetSelections.last(where: { $0.id == recentTarget.targetSelectionID }) else {
                 throw RecentLockTargetError.targetSelectionNotFound
@@ -432,44 +437,26 @@ final class BearLockAppModel: ObservableObject {
 
             _ = try targetSelectionCodec.selection(from: selection)
             try await lockStore.selectTarget(id: selection.id)
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("RecentTarget.select.succeeded", detail: recentTarget.id.uuidString)
-            refreshDiagnostics()
-            return true
-        } catch {
-            recordError("RecentTarget.select.failed", error)
-            refreshDiagnostics()
-            return false
         }
-    }
-
-    func setRecentLockTargetPinned(_ recentTarget: RecentLockTarget, pinned: Bool) async {
-        diagnostics.record("RecentTarget.pin.started", detail: recentTarget.id.uuidString)
-        do {
-            try await lockStore.setRecentLockTargetPinned(id: recentTarget.id, pinned: pinned, at: Date())
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("RecentTarget.pin.succeeded", detail: pinned ? "pinned" : "unpinned")
-        } catch {
-            recordError("RecentTarget.pin.failed", error)
-        }
-        refreshDiagnostics()
-    }
-
-    func deleteRecentLockTarget(_ recentTarget: RecentLockTarget) async {
-        diagnostics.record("RecentTarget.delete.started", detail: recentTarget.id.uuidString)
-        do {
-            try await lockStore.deleteRecentLockTarget(id: recentTarget.id)
-            lockState = try await lockStore.snapshot()
-            diagnostics.record("RecentTarget.delete.succeeded", detail: recentTarget.id.uuidString)
-        } catch {
-            recordError("RecentTarget.delete.failed", error)
-        }
-        refreshDiagnostics()
     }
 
     @discardableResult
-    func updateScheduledRule(_ original: LockRule, startsAt: Date, duration: TimeInterval) async -> Bool {
-        guard var single = original.single else { return false }
+    func setRecentLockTargetPinned(_ recentTarget: RecentLockTarget, pinned: Bool) async -> OperationOutcome {
+        await performSavedOperation("RecentTarget.pin", updateMonitoring: false) {
+            try await lockStore.setRecentLockTargetPinned(id: recentTarget.id, pinned: pinned)
+        }
+    }
+
+    @discardableResult
+    func deleteRecentLockTarget(_ recentTarget: RecentLockTarget) async -> OperationOutcome {
+        await performSavedOperation("RecentTarget.delete", updateMonitoring: false) {
+            try await lockStore.deleteRecentLockTarget(id: recentTarget.id)
+        }
+    }
+
+    @discardableResult
+    func updateScheduledRule(_ original: LockRule, startsAt: Date, duration: TimeInterval) async -> OperationOutcome {
+        guard var single = original.single else { return .rejected }
         single.startsAt = startsAt
         single.duration = duration
         var replacement = original
@@ -478,25 +465,17 @@ final class BearLockAppModel: ObservableObject {
     }
 
     @discardableResult
-    func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule, enabled: Bool) async -> Bool {
+    func updateRecurringRule(_ original: LockRule, recurrence: RecurrenceRule, enabled: Bool) async -> OperationOutcome {
         var replacement = original
         replacement.schedule = .recurring(recurrence)
         replacement.status = enabled ? .scheduled : .disabled
         return await saveRule(replacement)
     }
 
-    private func saveRule(_ replacement: LockRule) async -> Bool {
-        guard !isCreatingLock, !isUpdatingLock else { return false }
-        isUpdatingLock = true
-        defer { isUpdatingLock = false; refreshDiagnostics() }
-        do {
+    private func saveRule(_ replacement: LockRule) async -> OperationOutcome {
+        await performSavedOperation("Schedule.update") {
             try BearLockSafetyPolicy.validateDuration(replacement.single?.duration ?? replacement.recurrence!.duration)
             try await lockStore.replaceRule(replacement)
-            await synchronizeAndReconcile()
-            return true
-        } catch {
-            recordError("Schedule.update.failed", error)
-            return false
         }
     }
 

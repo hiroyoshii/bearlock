@@ -1,6 +1,12 @@
 # Bear Lock
 
-Bear Lock is an iOS Screen Time app for scheduling app hibernation windows. An active lock can be woken after a 30-minute delay for free or immediately with a consumable in-app purchase.
+Bear Lock provides native iOS and Android apps for scheduled app hibernation.
+
+## Product specification
+
+[現行仕様と構造の正本](docs/design-doc.md) — 製品の思想、共通契約、iOS固有仕様、Android固有仕様、UI、現行の責務対応をここに集約しています。READMEはビルド・実行・検証への入口です。
+
+[仕様・責務・コード・テストの対応表（2026-10-26更新）](docs/qa/android-ios-structure-audit-2026-10-25.md) — 正本の基準IDごとに各OSの担当・適合状況・テストを対応付けています。仕様判断待ち・検証不足・任意の改善は不適合から分離しています。
 
 ## Current State
 
@@ -47,7 +53,7 @@ swift test
 Current WSL validation:
 
 - Swift 6.3.3 installed with Swiftly.
-- `swift test` passes for `BearLockCore` with 65 tests.
+- `swift test` passes for `BearLockCore` with 79 tests (2026-10-26).
 
 Real Screen Time behavior must be verified on a physical iOS device. Simulator-only validation is not enough for this app.
 
@@ -71,6 +77,8 @@ The mock e2e tests currently cover setup launch, immediate lock creation, delaye
 Pushes to the repository are expected to start this workflow automatically.
 
 ## Remaining Work
+
+製品方針は [現行仕様](docs/design-doc.md) を参照してください。[Android / iOS整合の実装・検証記録](docs/android-ios-execution-plan.md) は過去の結果であり、仕様変更の計画書ではありません。
 
 Active pre-release tasks are tracked in `todo.md`.
 

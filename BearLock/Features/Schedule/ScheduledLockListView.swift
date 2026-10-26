@@ -75,7 +75,7 @@ struct ScheduledLockListView: View {
                     onSave: { startsAt, duration in
                         Task {
                             let didUpdate = await model.updateScheduledRule(rule, startsAt: startsAt, duration: duration)
-                            if didUpdate {
+                            if didUpdate.isSaved {
                                 editingSheet = nil
                             }
                         }
@@ -91,7 +91,7 @@ struct ScheduledLockListView: View {
                     onSave: { recurrence, enabled in
                         Task {
                             let didUpdate = await model.updateRecurringRule(rule, recurrence: recurrence, enabled: enabled)
-                            if didUpdate {
+                            if didUpdate.isSaved {
                                 editingSheet = nil
                             }
                         }

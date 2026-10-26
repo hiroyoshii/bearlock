@@ -2,6 +2,7 @@ import BearLockCore
 import SwiftUI
 
 struct RecurringRuleEditorView: View {
+    @EnvironmentObject private var model: BearLockAppModel
     let rule: LockRule
     let isSaving: Bool
     let onCancel: () -> Void
@@ -36,7 +37,7 @@ struct RecurringRuleEditorView: View {
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
-            let isActive = rule.status == .scheduled && rule.occurrence(containing: context.date) != nil
+            let isActive = (try? model.lockState.validateEditable(rule, at: context.date)) == nil
             NavigationStack {
                 Form {
                     Section("Status") {

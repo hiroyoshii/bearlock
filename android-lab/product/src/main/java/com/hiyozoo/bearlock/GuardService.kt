@@ -37,7 +37,7 @@ class GuardService : AccessibilityService() {
     fun refresh() { load(); request(); reconcile() }
     private fun load() {
         runCatching { store.read() }.onSuccess {
-            val changed = state.rules != it.rules
+            val changed = state.rules != it.rules || state.wakes != it.wakes
             state = it
             if (changed) request()
         }.onFailure { store.event("storage_unavailable") }
@@ -108,6 +108,13 @@ class GuardService : AccessibilityService() {
 object BrowserAddress {
     // Adapters are deliberately narrow. Unknown browsers/custom tabs are not advertised as covered.
     val packages = setOf("com.android.chrome", "org.mozilla.firefox")
+    // Firefox Origin.kt formats an empty-title URL as " $url. $localizedHint".
+    // Keep the whole prefix so a page title or extra sentence cannot become a domain.
+    fun describedHost(description: String): String? {
+        val separator=description.lastIndexOf(". ")
+        if(separator < 0 || description.substring(separator+2).isBlank()) return null
+        return Domain.normalize(description.substring(0,separator).trim())
+    }
     @Suppress("DEPRECATION")
     fun host(root: AccessibilityNodeInfo, pkg: String): String? {
         val ids = when (pkg) {
@@ -122,6 +129,23 @@ object BrowserAddress {
                     Domain.normalize(n.text?.toString().orEmpty())?.let { return it }
                 }
             } finally { if (Build.VERSION.SDK_INT < 33) nodes.forEach { it.recycle() } }
+        }
+        if(pkg == "org.mozilla.firefox") {
+            // Compose exposes virtual test tags, not Android view IDs. Inspect only the known
+            // toolbar container, never the page tree, and only its URL display (not edit) tag.
+            fun inToolbar(node: AccessibilityNodeInfo): String? {
+                if(!node.isVisibleToUser || node.isPassword || node.isFocused) return null
+                if(node.viewIdResourceName == "ADDRESSBAR_URL_BOX") return describedHost(node.contentDescription?.toString().orEmpty())
+                for(index in 0 until node.childCount) {
+                    val child=node.getChild(index) ?: continue
+                    try { inToolbar(child)?.let { return it } }
+                    finally { if(Build.VERSION.SDK_INT < 33) child.recycle() }
+                }
+                return null
+            }
+            val toolbars=root.findAccessibilityNodeInfosByViewId("$pkg:id/composable_toolbar")
+            try { for(toolbar in toolbars) inToolbar(toolbar)?.let { return it } }
+            finally { if(Build.VERSION.SDK_INT < 33) toolbars.forEach { it.recycle() } }
         }
         return null
     }

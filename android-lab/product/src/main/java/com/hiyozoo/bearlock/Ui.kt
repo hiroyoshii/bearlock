@@ -19,22 +19,61 @@ fun configureLanguage(c: Context) {
     val language=if(BuildConfig.DEBUG) c.getSharedPreferences("appearance",0).getString("language","").orEmpty() else ""
     java.util.Locale.setDefault(if(language.isEmpty()) c.resources.configuration.locales[0] else java.util.Locale.forLanguageTag(language))
 }
-fun timeText(ms: Long): String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(ms))
-fun dateText(ms: Long): String = if(java.util.Locale.getDefault().language=="ja") java.text.SimpleDateFormat("yyyy年M月d日 H:mm",java.util.Locale.JAPAN).format(Date(ms)) else DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(ms))
+fun timeText(ms: Long, context: Context, zone: String? = null): String = android.text.format.DateFormat.getTimeFormat(context)
+    .apply { if(zone != null) timeZone=java.util.TimeZone.getTimeZone(zone) }.format(Date(ms))
+fun dateText(ms: Long, context: Context, zone: String? = null): String {
+    val date=if(java.util.Locale.getDefault().language=="ja") java.text.SimpleDateFormat("yyyy年M月d日",java.util.Locale.JAPAN)
+        else DateFormat.getDateInstance(DateFormat.MEDIUM)
+    if(zone != null) date.timeZone=java.util.TimeZone.getTimeZone(zone)
+    return date.format(Date(ms))+" "+timeText(ms,context,zone)
+}
 object Palette {
+    val grouped = Color.rgb(242,242,247)
+    val control = Color.rgb(238,238,240)
+    val textPrimary = Color.BLACK
     val background = Color.rgb(242,250,255); val ice = Color.rgb(212,230,247)
     val navy = Color.rgb(20,46,79); val muted = Color.rgb(78,102,129); val line = Color.rgb(218,229,239)
-    val subtle = Color.rgb(227,236,245); val steel = Color.rgb(99,143,191); val selected = Color.rgb(214,219,225)
+    val subtle = Color.rgb(227,236,245); val steel = Color.rgb(99,143,191)
+    val link = Color.rgb(53,106,159)
+    val navigation = Color.rgb(0,122,255)
+    val disabled = Color.rgb(232,232,234)
+    val outline = Color.argb(40,Color.red(navy),Color.green(navy),Color.blue(navy))
     val warning = Color.rgb(123,65,20); val white = Color.WHITE
 }
 class Ui(val c: Context) {
     val compact get() = c.resources.configuration.screenWidthDp < 360 || c.resources.configuration.fontScale > 1.2f
     fun dp(n: Int) = (n*c.resources.displayMetrics.density).toInt()
+    /** Google Material Icons geometry; native theme tint only. See assets/material-icons/source.json. */
+    fun icon(name: String, color: Int = Palette.navy): android.graphics.drawable.Drawable {
+        val resource=when(name) {
+            "warning" -> R.drawable.outline_warning_24
+            "apps" -> R.drawable.outline_apps_24
+            "select" -> R.drawable.outline_filter_none_24
+            "category" -> R.drawable.outline_list_24
+            "web" -> R.drawable.outline_language_24
+            "heart" -> R.drawable.outline_favorite_border_24
+            "info" -> R.drawable.outline_info_24
+            "trash" -> R.drawable.outline_delete_24
+            "edit" -> R.drawable.outline_edit_24
+            "down" -> R.drawable.outline_expand_more_24
+            "up" -> R.drawable.outline_expand_less_24
+            "right" -> R.drawable.outline_chevron_right_24
+            "gear" -> R.drawable.outline_settings_24
+            "calendar" -> R.drawable.outline_event_24
+            "repeat" -> R.drawable.outline_repeat_24
+            "lock" -> R.drawable.outline_lock_24
+            "more" -> R.drawable.outline_more_horiz_24
+            "pin" -> R.drawable.outline_push_pin_24
+            "close" -> R.drawable.outline_close_24
+            else -> error("Unknown Material icon: $name")
+        }
+        return requireNotNull(c.getDrawable(resource)).mutate().apply { setTint(color) }
+    }
     fun bg(color: Int, radius: Int = 8, border: Boolean = false) = GradientDrawable().apply {
         setColor(color); cornerRadius = dp(radius).toFloat(); if (border) setStroke(dp(1),Palette.line)
     }
-    fun touchBackground(color: Int, border: Boolean = false) = android.graphics.drawable.RippleDrawable(
-        android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_focused),intArrayOf()),intArrayOf(0x33142E4F,0x22142E4F)),bg(color,8,border),bg(Palette.white))
+    fun touchBackground(color: Int, border: Boolean = false, radius: Int = 8) = android.graphics.drawable.RippleDrawable(
+        android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_focused),intArrayOf()),intArrayOf(0x33142E4F,0x22142E4F)),bg(color,radius,border),bg(Palette.white,radius))
     fun column() = LinearLayout(c).apply { orientation = LinearLayout.VERTICAL }
     fun row() = LinearLayout(c).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
     fun label(value: String, size: Float = 16f, bold: Boolean = false, muted: Boolean = false) = TextView(c).apply {
@@ -43,16 +82,22 @@ class Ui(val c: Context) {
         includeFontPadding = false
         setLineSpacing(dp(2).toFloat(),1f)
     }
-    fun button(value: String, primary: Boolean = false, action: () -> Unit) = Button(c).apply {
+    fun button(value: String, primary: Boolean = false, radius: Int = 8, action: () -> Unit) = Button(c).apply {
         contentDescription=value
-        text = if(value in listOf("ロック開始","ロックを予約","Start lock","Schedule lock")) android.text.SpannableString("  $value").apply {
-            setSpan(android.text.style.ImageSpan(LineIcon("lock",Palette.white).apply { setBounds(0,0,dp(16),dp(16)) },android.text.style.ImageSpan.ALIGN_CENTER),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        text = if(value in listOf("ロック開始","ロックを予約","Start Lock","Schedule Lock")) android.text.SpannableString("  $value").apply {
+            setSpan(android.text.style.ImageSpan(icon("lock",Palette.white).apply { setBounds(0,0,dp(16),dp(16)) },android.text.style.ImageSpan.ALIGN_CENTER),0,1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         } else value
         isAllCaps = false; textSize = 16f; minHeight = dp(50); minimumHeight=0; minimumWidth=0; includeFontPadding=false
         setPadding(dp(16),dp(8),dp(16),dp(8)); setTextColor(if (primary) Palette.white else Palette.navy)
-        background = android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(if(primary) 0x33FFFFFF else 0x22142E4F),bg(if (primary) Palette.navy else Palette.ice,8),null)
+        background = android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(if(primary) 0x33FFFFFF else 0x22142E4F),bg(if (primary) Palette.navy else Palette.ice,radius),null)
         stateListAnimator=null; elevation=0f
         setOnClickListener { action() }
+    }
+    fun dateTimeButton(value: String, description: String, action: () -> Unit) = button(value,action=action).apply {
+        contentDescription=description
+        background=touchBackground(Palette.control,radius=100)
+        textSize=17f; minWidth=dp(76); minHeight=dp(44)
+        setPadding(dp(12),dp(6),dp(12),dp(6))
     }
     fun input(hintText: String, value: String = "") = EditText(c).apply {
         hint = hintText; contentDescription = hintText; setText(value); textSize = 16f
@@ -60,6 +105,13 @@ class Ui(val c: Context) {
         setPadding(dp(12),dp(8),dp(12),dp(8)); background = bg(Palette.white,12,true)
     }
     fun card() = column().apply { setPadding(dp(16),dp(16),dp(16),dp(16)); background = bg(Palette.white,8) }
+    fun section(parent: LinearLayout, title: String? = null): LinearLayout {
+        title?.let { add(parent,label(it,13f,muted=true).apply { setPadding(dp(16),0,0,0) },8) }
+        return card().apply { background=bg(Palette.white,20); add(parent,this,24) }
+    }
+    fun divider(parent: LinearLayout) = add(parent,View(c).apply {
+        setBackgroundColor(Palette.control); layoutParams=LinearLayout.LayoutParams(-1,dp(1))
+    },0)
     fun asset(resource: Int, height: Int) = ImageView(c).apply {
         setImageResource(resource); scaleType=ImageView.ScaleType.FIT_CENTER
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -68,13 +120,12 @@ class Ui(val c: Context) {
         layoutParams=LinearLayout.LayoutParams(width,(width/ratio).toInt()).apply { gravity=Gravity.CENTER_HORIZONTAL }
         background=bg(Palette.background,8); clipToOutline=true
     }
-    fun textButton(value: String, action: () -> Unit) = button(value,false,action).apply {
+    fun textButton(value: String, action: () -> Unit) = button(value,action=action).apply {
         background=touchBackground(android.graphics.Color.TRANSPARENT); setPadding(dp(8),dp(4),dp(8),dp(4)); minWidth=0
     }
-    fun iconButton(symbol: String, description: String, action: () -> Unit) = textButton(symbol,action).apply {
+    fun iconButton(name: String, description: String, action: () -> Unit) = textButton("",action).apply {
         contentDescription=description
-        val name=when(symbol) { "⚙"->"gear"; "✎"->"edit"; "♜"->"trash"; else->"more" }
-        text=""; setCompoundDrawables(LineIcon(name,if(name=="trash") 0xFFFF3B30.toInt() else Palette.steel).apply { setBounds(0,0,dp(20),dp(20)) },null,null,null)
+        text=""; setCompoundDrawables(icon(name,if(name=="trash") 0xFFFF3B30.toInt() else Palette.steel).apply { setBounds(0,0,dp(20),dp(20)) },null,null,null)
         setPadding(dp(12),dp(14),dp(12),dp(14)); layoutParams=LinearLayout.LayoutParams(dp(44),dp(48))
     }
     fun pair(parent: LinearLayout, name: String, value: String, gap: Int = 12, emphasized: Boolean = false) {

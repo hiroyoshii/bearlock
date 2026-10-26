@@ -7,14 +7,16 @@ final class SelectionControlsUITests: XCTestCase {
 
     func testDurationPresetsAndModeReflectCurrentValue() throws {
         let app = launchApprovedSeededApp()
-        let picker = app.otherElements["lock-composer-mode-picker"]
+        let picker = app.segmentedControls["lock-composer-mode-picker"]
         XCTAssertTrue(picker.waitForExistence(timeout: 10))
         XCTAssertTrue(picker.buttons["Now"].isSelected)
         XCTAssertFalse(picker.buttons["In"].isSelected)
-        XCTAssertTrue(picker.buttons["Date & Time"].exists, "The accessible name stays complete even when the visible title is Date")
+        XCTAssertTrue(picker.buttons["Date & Time"].exists)
         for title in ["Now", "In", "Date & Time", "Repeat"] {
             let button = picker.buttons[title]
-            assertUsable(button, in: app)
+            XCTAssertTrue(button.isHittable)
+            XCTAssertGreaterThanOrEqual(button.frame.width, 44)
+            XCTAssertGreaterThanOrEqual(button.frame.height, 28, "Keep the native segmented control sizing")
             XCTAssertEqual(button.frame.midY, picker.buttons["Now"].frame.midY, accuracy: 1)
         }
         XCTAssertTrue(app.buttons["duration-preset-120"].isSelected)
@@ -89,6 +91,29 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertFalse(editorApp.buttons["weekday-2"].isSelected)
         assertWeekdaysShareOneRow(in: editorApp)
         selectionScreenshot(editorApp, "weekday-editor-saved")
+    }
+
+    func testWokenRecurringEditorAllowsChangesBeforeOriginalEnd() throws {
+        let app = launchApprovedSeededApp(extraArguments: [
+            "--ui-testing-active-recurring", "--ui-testing-woken-recurring"
+        ])
+        let edit = app.buttons.matching(identifier: "scheduled-lock-edit-button").firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 10))
+        scrollToButton(edit, in: app)
+        XCTAssertTrue(edit.isEnabled)
+        edit.tap()
+        XCTAssertTrue(app.navigationBars["Repeat"].waitForExistence(timeout: 5))
+        let enabled = app.switches["recurring-rule-enabled-toggle"]
+        XCTAssertTrue(enabled.isEnabled)
+        XCTAssertTrue(app.buttons["weekday-1"].isEnabled)
+        XCTAssertTrue(app.buttons["Save"].isEnabled)
+        enabled.tap()
+        app.buttons["Save"].tap()
+        XCTAssertTrue(edit.waitForExistence(timeout: 5))
+        scrollToButton(edit, in: app)
+        edit.tap()
+        XCTAssertTrue(enabled.waitForExistence(timeout: 5))
+        XCTAssertEqual(enabled.value as? String, "0")
     }
 
     func testSelectionAtAccessibilityTextSizeInEnglishAndJapanese() throws {
@@ -176,7 +201,7 @@ final class SelectionControlsUITests: XCTestCase {
         let locked = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-recurring", "--ui-testing-all-day-recurring"])
         XCTAssertTrue(locked.staticTexts["locked-target-explanation"].waitForExistence(timeout: 10))
         XCTAssertFalse(locked.buttons["Select targets"].exists)
-        let modes = locked.otherElements["lock-composer-mode-picker"]
+        let modes = locked.segmentedControls["lock-composer-mode-picker"]
         XCTAssertTrue(modes.exists)
         XCTAssertTrue(modes.buttons["In"].exists)
         XCTAssertFalse(modes.buttons["Now"].exists)

@@ -1,9 +1,9 @@
 name: Android CI
 on:
   pull_request:
-    paths: ['android-lab/**', 'Tests/ContractFixtures/**', '.github/workflows/android-ci.yml']
+    paths: ['android-lab/**', 'Tests/ContractFixtures/**', 'docs/design-doc.md', '.github/workflows/android-ci.yml']
   push:
-    paths: ['android-lab/**', 'Tests/ContractFixtures/**', '.github/workflows/android-ci.yml']
+    paths: ['android-lab/**', 'Tests/ContractFixtures/**', 'docs/design-doc.md', '.github/workflows/android-ci.yml']
   workflow_dispatch:
 permissions:
   contents: read
