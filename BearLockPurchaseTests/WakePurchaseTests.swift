@@ -87,6 +87,4 @@ final class WakePurchaseTests: XCTestCase {
     private func performPurchase(_ product: Product) async throws -> Product.PurchaseResult {
         try await product.purchase()
     }
-
-
 }

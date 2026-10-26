@@ -132,8 +132,6 @@ final class SupportPurchaseTests: XCTestCase {
     private func performPurchase(_ product: Product) async throws -> Product.PurchaseResult {
         try await product.purchase()
     }
-
-
 }
 
 // SKTestSession changes the test server outside StoreKit's purchase flow.
@@ -148,13 +146,12 @@ func synchronizedUnfinishedTransactionIDs() async throws -> Set<UInt64> {
     return result
 }
 
-// StoreKitTest mutates the server out of band; refresh while waiting for the real store's callbacks.
+// Wait for the real store callbacks; unfinished-state checks synchronize their own snapshot.
 @MainActor
 func awaitStoreKitState(timeout: TimeInterval = 10, _ condition: () async throws -> Bool,
                        file: StaticString = #filePath, line: UInt = #line) async throws {
     let deadline = Date().addingTimeInterval(timeout)
     while Date() < deadline {
-        try await AppStore.sync()
         if try await condition() { return }
         try await Task.sleep(for: .milliseconds(100))
     }
