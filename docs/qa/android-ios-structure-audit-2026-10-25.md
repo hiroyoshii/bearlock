@@ -526,6 +526,8 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 
 - 取込み前のiOSブランチは `10b6cb4bf667318de7f58de6b7123ca3c9b44f08`、取り込んだ `origin/main` は `3e433c9937f75e991e94c0c400c9a3b7fdf9c488`。mainへのマージではなく、`codex/ios-structure-verification` にmainを取り込む。
 - コード/仕様正本は自動merge。対応表の導入文と末尾追記の競合は、重複禁止・Androidフィードバック・iOS SDK・StoreKit追跡・購入表示変更の記録をすべて残して解消した。main側の第13〜15節を維持し、iOS側の追記を第16〜17節へ整理した。購入失敗表示の統一とmain側の重複禁止の両方を保持する。
-- 統合後にXcodeGen生成・メタデータ検証、Core 82件、別プロセス保存整合性（writer 200更新・reader 4プロセス）、AppModel 26件を実行し成功。テスト失敗0・skip 0。本体と3extensionのDebug/Release simulator buildも成功。Xcode 27.1 (27A9275)、SDK 27.1、AppModelはiPhone 16／iOS 27.0 (24A434)を使用。
+- 統合後に既存生成済みprojectのメタデータ検証、Core 82件、別プロセス保存整合性（writer 200更新・reader 4プロセス）、AppModel 26件を実行し成功。テスト失敗0・skip 0。本体と3extensionのDebug/Release simulator buildも成功。Xcode 27.1 (27A9275)、SDK 27.1、AppModelはiPhone 16／iOS 27.0 (24A434)を使用。
 - [今回の集計](../../ci-results/ios-review/2026-10-26-main-integration/verification-results.json)と同ディレクトリの圧縮ログ・AppModel結果要約を保持した。通常/小型UI、StoreKit、Android試験は今回のmerge後には再実行していない。第14〜17節の履歴を統合後の新しい実行結果へ読み替えない。実機と実課金の未確認も維持する。
 - 元のmain作業ツリーの未コミット変更と、iOS作業ツリーの未追跡生成プロジェクトは保持した。テスト削除・skip・期待値緩和、CIや別runnerの追加はない。
+
+第18節のXcodeGen再生成について訂正: `main-integration/xcodegen.log.gz` はPATH上のコマンド未検出を記録しており、この時点では再生成できていなかった。メタデータ検証・テスト・ビルドは既存projectで成功した結果である（取込みでproject.ymlの変更はなかった）。1.3準備では既存XcodeGen実体の絶対パスで再生成し、アーカイブ内の本体と3extensionのversion一致まで検証する。旧ログは削除・改変しない。

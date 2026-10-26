@@ -4,6 +4,8 @@
 
 ## Files
 
+- `ios-1.3-release.md`: 1.3の更新説明、審査メモ、検証結果、配布への引継ぎ。
+
 - `product-review-brief.md`: App Review / entitlement申請向けのプロダクト説明。
 - `app-store-connect-draft.md`: App Store Connect登録文言の下書き。
 - `app-store-connect-ja-draft.md`: App Store Connect登録文言の日本語下書き。
