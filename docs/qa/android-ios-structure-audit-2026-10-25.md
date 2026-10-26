@@ -531,3 +531,10 @@ D02は2026-10-26のユーザー判断「重複を許容しない」により解�
 - 元のmain作業ツリーの未コミット変更と、iOS作業ツリーの未追跡生成プロジェクトは保持した。テスト削除・skip・期待値緩和、CIや別runnerの追加はない。
 
 第18節のXcodeGen再生成について訂正: `main-integration/xcodegen.log.gz` はPATH上のコマンド未検出を記録しており、この時点では再生成できていなかった。メタデータ検証・テスト・ビルドは既存projectで成功した結果である（取込みでproject.ymlの変更はなかった）。1.3準備では既存XcodeGen実体の絶対パスで再生成し、アーカイブ内の本体と3extensionのversion一致まで検証する。旧ログは削除・改変しない。
+
+## 19. 2026-10-26 CIの大文字メニュー操作失敗の追跡
+
+- [run 201](https://github.com/hiroyoshii/bearlock/actions/runs/40281488393)の通常UIは27成功・1失敗・skip 0。ソースは `d901649`、Xcode 26.6、iPhone 17 Pro Max / iOS 26.5 (23F77)。小型試験とApp Store画像撮影は、後続main更新によるキャンセルのため完了していない。テスト添付を商品ページ用の撮影成果物と混同しない。
+- 失敗は `SelectionControlsUITests.testSelectionAtAccessibilityTextSizeInEnglishAndJapanese`。英語の最大文字サイズでDate & TimeからRepeatへ切り替える操作後、メニューが残り、選択はDate & Timeのままだった。[画面録画の操作後フレーム](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before.png)、[AX情報](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before-ax.txt)、[結果要約](../../ci-results/ios-review/2026-10-26-ci-ui-menu/before-summary.json)を保持した。押下座標(217,528)はRepeatのAX範囲(17,465,400,126)の中心に一致する。表示だけで成功としていない。
+- 既存helperの「主ウインドウを明示して座標を押す」経路を、Application基準の単回tapへ置換する修正候補を作成した。ネイティブメニューの別ウインドウを主ウインドウへ固定しないための変更である。旧ウインドウ探索とguardを削除し、選択成功の期待値・5秒の待機条件・既存全件を維持。操作の再送・タイムアウト延長・skipは追加していない。
+- この候補は構文解析のみ確認済み。修正後のCI・操作成功・after画像は未確認であり、解消済みとはしない。利用者がmainへ追加修正中のため、最終対象へ統合した後に既存CIで検証する。

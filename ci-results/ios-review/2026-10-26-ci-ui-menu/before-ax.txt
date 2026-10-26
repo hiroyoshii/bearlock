@@ -1,0 +1,45 @@
+Attributes: Button, 0x10ac8ae40, {{36.0, 81.0}, {361.7, 77.3}}, identifier: 'lock-composer-mode-picker', label: 'Start, Date & Time'
+Element subtree:
+ →Button, 0x10ac8ae40, {{36.0, 81.0}, {361.7, 77.3}}, identifier: 'lock-composer-mode-picker', label: 'Start, Date & Time'
+Path to element:
+ →Application, 0x10ac8a580, pid: 42754, label: 'Bear Lock'
+  ↳Window (Main), 0x10ac8a800, {{0.0, 0.0}, {440.0, 956.0}}
+   ↳Other, 0x10ac8a940, {{0.0, 0.0}, {440.0, 956.0}}
+    ↳Other, 0x10ac8aa80, {{0.0, 0.0}, {440.0, 956.0}}
+     ↳Other, 0x10ac8abc0, {{0.0, 0.0}, {440.0, 956.0}}
+      ↳Other, 0x10ac8ad00, {{0.0, 0.0}, {440.0, 956.0}}
+       ↳Other, 0x10ac8b700, {{0.0, 0.0}, {440.0, 956.0}}
+        ↳Other, 0x10ac8b840, {{0.0, 0.0}, {440.0, 956.0}}
+         ↳Other, 0x10ac8b980, {{0.0, 0.0}, {440.0, 956.0}}
+          ↳Other, 0x10ac8bac0, {{0.0, 0.0}, {440.0, 956.0}}
+           ↳Other, 0x10ac8bc00, {{0.0, 0.0}, {440.0, 956.0}}
+            ↳ScrollView, 0x10ac8bd40, {{0.0, 0.0}, {440.0, 956.0}}
+             ↳Other, 0x10ac8be80, {{0.0, -601.7}, {440.0, 2461.3}}
+              ↳Button, 0x10ac8ae40, {{36.0, 81.0}, {361.7, 77.3}}, identifier: 'lock-composer-mode-picker', label: 'Start, Date & Time'
+Query chain:
+ →Find: Target Application 'com.hiyozoo.bearlock'
+  Output: {
+    Application, 0x10ac88c80, pid: 42754, label: 'Bear Lock'
+  }
+  ↪︎Find: Descendants matching type Button
+    Output: {
+      Button, 0x11995d540, {{17.0, 87.0}, {400.0, 126.0}}, label: 'Now'
+      Button, 0x11995c780, {{17.0, 213.0}, {400.0, 126.0}}, label: 'In'
+      Button, 0x11995c500, {{17.0, 339.0}, {400.0, 126.0}}, label: 'Date & Time', Selected
+      Button, 0x11995c000, {{17.0, 465.0}, {400.0, 126.0}}, label: 'Repeat'
+      Button, 0x10ad43700, {{370.3, 66.0}, {45.7, 36.0}}, identifier: 'gearshape', label: 'Settings'
+      Button, 0x10ad40640, {{36.0, -181.0}, {368.0, 58.7}}, identifier: 'target-list-disclosure', label: 'Show target list'
+      Button, 0x10ad40500, {{36.0, -110.3}, {368.0, 139.3}}, label: 'Select targets'
+      Button, 0x10ad41180, {{36.0, 81.0}, {361.7, 77.3}}, identifier: 'lock-composer-mode-picker', label: 'Start, Date & Time'
+      Button, 0x10acb1680, {{36.0, 691.3}, {368.0, 65.3}}, identifier: 'duration-preset-15', label: '15 min'
+      Button, 0x10acb17c0, {{36.0, 764.7}, {368.0, 65.3}}, identifier: 'duration-preset-30', label: '30 min', Selected
+      Button, 0x10acb1900, {{36.0, 838.0}, {368.0, 65.3}}, identifier: 'duration-preset-60', label: '60 min'
+      Button, 0x10acb1e00, {{36.0, 911.3}, {368.0, 65.3}}, identifier: 'duration-preset-120', label: '120 min'
+      Button, 0x10acb1cc0, {{36.0, 1362.3}, {368.0, 155.3}}, identifier: 'lock-composer-primary-button', label: 'Schedule Lock'
+      Button, 0x10ad40f00, {{36.0, 329.0}, {326.7, 77.3}}, label: 'Date Picker', value: Oct 26, 2026
+      Button, 0x10ad41a40, {{36.0, 414.3}, {217.0, 77.3}}, label: 'Time Picker', value: 7:36 AM
+    }
+    ↪︎Find: Elements matching predicate '"lock-composer-mode-picker" IN identifiers'
+      Output: {
+        Button, 0x117ef0280, {{36.0, 81.0}, {361.7, 77.3}}, identifier: 'lock-composer-mode-picker', label: 'Start, Date & Time'
+      }

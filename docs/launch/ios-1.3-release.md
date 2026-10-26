@@ -57,3 +57,4 @@ Settings also offers optional consumable support products: com.hiyozoo.bearlock.
 - 通常iOS CI run 200のStoreKitは、macos-15/Xcode 16.4で対象シミュレーターが存在せず未実行。既存ジョブを本体CIと同じmacos-26/iPhone 17 Pro Maxへ変更し、テスト・期待値・ジョブ数は維持した。通常UIステップも失敗しているため、新しいCI全体の結果確認が必要。CI合格の確認前に審査提出しない。
 - run 201では、iOS 26.5の最初のStoreKitテストで `SKInternalErrorDomain Code=3` が発生し、設定保存や取引リセットに失敗したまま20分でタイムアウトした。Appleの[既知のCLI問題の報告](https://developer.apple.com/forums/thread/826971)と一致する。既存runnerには26.2/26.4/26.5があるため、StoreKitジョブだけ26.2の新規端末を明示して実行する。非公開APIや製品側の回避処理、テストのskipは追加しない。修正後のCI成功は未確認。
 - 公開済み1.2はApp Store Connectでbuild 35と確認（TestFlight元commit `150b970`）。それ以降の差分で更新説明を具体化して保存し直した。旧画像をそのまま保持した前回の準備報告は不十分であり、1.3のCI撮影成果物での差し替えは未完了。審査提出前に完了する。
+- 後続のUI変更を含むmain `95ea8eb` はTestFlight run 38でアップロード成功。ただし、さらにmainへ修正が追加されているため、このbuildを最終提出物と確定していない。通常UIの修正候補と未確認範囲は[対応表第19節](../qa/android-ios-structure-audit-2026-10-25.md#19-2026-10-26-ciの大文字メニュー操作失敗の追跡)を参照する。最終mainが揃うまで撮影・提出ビルドの作り直しを繰り返さない。

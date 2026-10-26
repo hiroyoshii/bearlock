@@ -605,7 +605,7 @@ extension XCTestCase {
     }
 
     func selectComposerMode(_ title: String, in app: XCUIApplication) {
-        // Use one 200ms press and wait for the selection to change.
+        // Use one 200ms press to open/change the picker and one tap for a menu item.
         // Do not retry a missed touch or change the product's controls.
         let pressDuration: TimeInterval = 0.2
         let buttons = app.segmentedControls["lock-composer-mode-picker"]
@@ -627,18 +627,11 @@ extension XCTestCase {
             let visibleFrame = choice.frame.intersection(app.frame)
             XCTAssertFalse(visibleFrame.isEmpty)
             XCTAssertTrue(visibleFrame.midX.isFinite && visibleFrame.midY.isFinite)
-            // Avoid the menu's zero-size AX window by using the main window.
-            guard let window = app.windows.allElementsBoundByIndex.first(where: {
-                let frame = $0.frame
-                return !frame.isEmpty && frame.minX.isFinite && frame.minY.isFinite
-                    && frame.contains(CGPoint(x: visibleFrame.midX, y: visibleFrame.midY))
-            }) else {
-                XCTFail("A finite main window must contain the visible menu item")
-                return
-            }
-            window.coordinate(withNormalizedOffset: .zero)
-                .withOffset(CGVector(dx: visibleFrame.midX - window.frame.minX, dy: visibleFrame.midY - window.frame.minY))
-                .press(forDuration: pressDuration)
+            // A native menu can live in a separate window. Route the single tap
+            // through the application instead of binding it to the main window.
+            app.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: visibleFrame.midX - app.frame.minX, dy: visibleFrame.midY - app.frame.minY))
+                .tap()
             let selected = XCTNSPredicateExpectation(
                 predicate: NSPredicate { _, _ in menu.exists && menu.label.hasSuffix(title) },
                 object: menu
