@@ -1,0 +1,22 @@
+{
+  "baselineCommit": "083e4e6d79b257fd7145a6e972c3ce7ab498c29f",
+  "verifiedSourceCommit": "a8124042c1d95a5e5b962220af0029d66c029c0b",
+  "xcode": "27.1 (27A9275)",
+  "sdk": "iPhoneSimulator 27.1",
+  "ios27": "27.0 (24A434)",
+  "ios26": "26.2 (23C54)",
+  "deviceType": "iPhone 16",
+  "ios27DeviceID": "830534AF-208F-4222-852A-41E141717CEA",
+  "ios26DeviceID": "23952DB7-B48D-45F0-9318-B3F1986B7CC9",
+  "isolationProbeDeviceID": "2A7B8CE7-AF85-4F83-8687-E4CC5D7B6212",
+  "storefront": "JPN",
+  "testScheme": "BearLockPurchases",
+  "finalRunOptions": [
+    "-parallel-testing-enabled NO",
+    "-test-iterations 3",
+    "CODE_SIGNING_ALLOWED=NO"
+  ],
+  "allOriginalTestsRetained": true,
+  "skippedTests": 0,
+  "allFourFailuresResolved": false
+}

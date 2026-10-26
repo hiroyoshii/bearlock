@@ -2,7 +2,7 @@
 
 初回調査: 2026-10-25。基準と対応の再整理: 2026-10-26。対象は現在の作業ツリーであり、配布済みAPK/iOS版の適合宣言ではない。
 
-iOSの最新SDK/シミュレーター検証は第13節。第8〜12節の「未実行」は各記録時点の状態であり、実機・Android固有の未確認は引き続き未確認とする。
+iOS全体のSDK/シミュレーター検証は第13節、StoreKitの最新追跡は第14節（27.0は8成功・取消2件未解消）。第8〜12節の「未実行」は各記録時点の状態であり、実機・Android固有の未確認は引き続き未確認とする。
 
 ## 1. 何を基準に、何を判定するか
 
@@ -386,3 +386,46 @@ UIの担当は主にR01/R06、保存時の意味はR03も担う。以下のコ�
 | 大文字の繰り返し確認、確認/取消ボタン到達後 | [English](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-en-confirmation.png) | [日本語](../../ci-results/ios-review/2026-10-26-f29448b/screenshots/small/selection-375-accessibility-ja-confirmation.png) | 同じSE、最大アクセシビリティ文字サイズ、同じ曜日/時刻設定と操作段階 |
 
 テストの削除・skip・期待値緩和、CI/別runnerの追加、Kotlin製品コード/共有fixture/保存形式の変更はない。置換したmock pickerのonDismiss保存経路と余分なcount状態を削除し、スイッチ操作helperも既存の一か所へ統一した。元の作業ツリーの未コミット変更は保持した。GitHub上でのCI実行成功を今回のローカル結果へ追加してはいない。
+
+## 14. 2026-10-26 iOS 27.0 StoreKit失敗の追跡
+
+**4件のうち取引状態に関する2件を解消。取消の2件はこの環境のStoreKitTest経路で再現が残り、全4件の解消完了とはしない。** 製品の課金コード、商品、期待する取消表示を変更して通したものではない。
+
+### 環境と変更範囲
+
+- 基準は前節の記録commit `083e4e6d79b257fd7145a6e972c3ce7ab498c29f`。修正ソースは `a8124042c1d95a5e5b962220af0029d66c029c0b`。元のmainの未コミット変更は引き続き保護した。
+- Xcode 27.1 (27A9275)、iPhoneSimulator SDK 27.1、iPhone 16／iOS 27.0 (24A434)、比較はiPhone 16／iOS 26.2 (23C54)。StoreKit設定は同じJPN storefront。既存 `BearLockPurchases` schemeを、既存CIと同じ `CODE_SIGNING_ALLOWED=NO`、並列実行なしで使用した。最終試験は各runtimeで直列に実行し、`-test-iterations 3` で全10件を各3回検証した。
+- 変更は `BearLockPurchaseTests` の2ファイルのみ。テスト名/10件をすべて維持。テスト削除・skip・期待値緩和・タイムアウト延長・製品用fallback・CI/別runnerの追加はない。診断用の一時test/printは最終ソースから削除した。
+- [今回の証拠](../../ci-results/ios-review/2026-10-26-storekit-ios27/) に環境、ソース指紋、rawログ、xcresulttoolの要約とtestごとの反復結果を保存。元のxcresultは `artifacts/storekit-ios27-followup/` に保持する。
+
+### 原因と処置
+
+| 対象 | 切り分けた原因 | 処置・結果 |
+|---|---|---|
+| 同じ消耗品を2回ずつ購入、合計6件 | StoreKitTestのサーバー状態とStoreKit 2クライアントの取引情報が揃う前に次の購入へ進み、直前の取引IDが再返却される。finish済みでもクライアントのunfinishedに古い取引が残る例があった | テストの取引状態確認に `AppStore.sync()` を入れ、finishの反映確認後に次の購入へ進む。6件の最終assertに加え、各購入で件数と一意なID数が1件ずつ増えることもassert。27.0で3回とも成功 |
+| 無関係な取引をSupportStoreが終了しないこと | `SKTestSession.buyProduct` で作った取引がクライアントのunfinishedに反映されていない/古い一覧を読む。製品を呼ばない直接APIの診断でも、サーバーの2件に対してクライアントは1件しか返さず、同期後は同じ2件を返した | 作成した商品IDと処理前のunfinishedへの存在を追加assert。アプリ処理後も同期済みの同じIDの保持をassert。27.0で3回とも成功。アプリのfinish対象判定は変更していない |
+| 応援購入の取消 | `setSimulatedError(.generic(.userCancelled), forAPI: .purchase)` は設定の読戻しも正しいが、`Product.purchase()` が返すのは `.userCancelled` でも `.userCancelled` resultでもなく `StoreKitError.unknown`。NSErrorのuserInfoも空 | 同じ注入・取消メッセージ・cancelled診断のassertを維持。27.0は3回とも失敗。26.2は同じテストが3回とも成功 |
+| 有料起床購入の取消 | 同じStoreKitTestの取消注入で判別情報が失われ、WakePurchaseStoreも通常の失敗として受け取る | pending意図破棄、配送なし、lastDeliveryなしは合格。取消表示とcancelled診断のassertが27.0で3回とも失敗。期待値は変更せず残した |
+
+共通の `synchronizedUnfinishedTransactionIDs` が同期と状態読込を担当し、2つあった旧 `unfinishedIDs` を置換した。リセット直後に空であることも確認する。同期エラーを握りつぶさずテスト失敗へ伝える。[Appleのsync仕様](https://developer.apple.com/documentation/storekit/appstore/sync%28%29)に基づくテスト環境の取引情報更新であり、製品の通常購入処理へ自動syncを追加してはいない。
+
+今回の変更は、6件を4件で許す、無関係な取引の保持assertを外す、といった緩和ではない。テストserver操作とクライアント観測を同期し、元の期待値に加えて生成/finishの前後条件を強めたもの。
+
+### 残る取消2件のSDK境界の証拠
+
+- アプリのStoreを経由しない `Product.purchase(confirmIn:)` でも取消注入後に `StoreKitError.unknown [:]` を返した（`transport-sync-diagnostic.log.gz`）。正しいBundle IDでアドホック署名した比較でも4件の失敗は解消せず、署名識別子は解決策ではなかった（`adhoc-signed-summary.json`）。製品へ署名用設定変更は残していない。
+- `synchronization.log.gz` では、取消設定の読戻しが `Optional(...generic(StoreKit.StoreKitError.userCancelled))` なのに、API返却は `StoreKit.StoreKitError.unknown [:]`。ネットワーク故障の注入でも同じunknown/空userInfoを返すため、このAPIの公開情報だけから両者を区別できない。
+- `ASDServerErrorDomain 907` はシステムログに現れるが、返されたErrorの情報ではない。非公開番号やOSログの推測でunknown全体を取消に変換しない。元の取消testをstub resultに差し替えて成功させてもいない。[StoreKitError.userCancelled](https://developer.apple.com/documentation/storekit/storekiterror/usercancelled)と[購入resultのuserCancelled](https://developer.apple.com/documentation/storekit/product/purchaseresult/usercancelled)という公開された意味を保つ。
+- 注入を使わず通常の購入UIで取り消す追加診断も試したが、CLI起動では購入処理が待機したまま確認dialogを取得できなかった。[待機画面](../../ci-results/ios-review/2026-10-26-storekit-ios27/native-cancel-no-dialog.png)を残して中断し、この試行を成功/skipには数えない。認証情報入力・実支払は行っていない。これは通常の取消UIが成功した証拠ではない。
+- 公開download機能では既存27.0はdownload済み、27.0.1 simulatorはdownload不可だった（`runtime-check.log.gz`、`runtime-patch-check.log.gz`）。別runtimeの成功を27.0の解消とせず、取消を識別できるSDK/runtimeまたは正しい返却経路での再検証を残す。
+
+### 最終結果
+
+| 実行 | test case数 | 成功/失敗/skip | 反復結果 |
+|---|---:|---|---|
+| iOS 27.0、最終コード | 10 | 8 / 2 / 0 | 各test 3回。成功24実行、失敗6実行。同じ取消2件だけが各3回失敗 |
+| iOS 26.2、最終コード | 10 | 10 / 0 / 0 | 各test 3回。30実行すべて成功 |
+
+初回の再現ではキャッシュ状態により、既存4件に加え起動時回収/finish確認も失敗し4成功・6失敗だった。同期後はこれらも3回ずつ成功した。反復回数を独立した30種類のテストへ数えず、診断用testのPassedも製品の合格件数に加算しない。
+
+[最終集計](../../ci-results/ios-review/2026-10-26-storekit-ios27/verification-results.json)、[27.0の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios27-final-summary.json)、[26.2の結果要約](../../ci-results/ios-review/2026-10-26-storekit-ios27/ios26-final-summary.json)を参照する。今回Core/AppModel/全UIを再実行したわけではなく、それらの結果は前節のcommit/実行記録のまま。実機・実課金・Androidの未確認項目も変更しない。

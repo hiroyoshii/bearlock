@@ -1,0 +1,9 @@
+{
+  "BearLockPurchaseTests/SupportPurchaseTests.swift": "916c3f97fb5f5335d3725f312b095c416e936f8d0507a45efac930a9892132ef",
+  "BearLockPurchaseTests/WakePurchaseTests.swift": "adedd1c8089f952329d298f8ea287e98c2abd14defaea47fbac330624afe73d7",
+  "BearLockPurchaseTests/SupportProducts.storekit": "431cdcf30006d4b17bd5253ab18c6357f8137375c799534a0b701c95c8a67dd6",
+  "BearLock/Features/Home/SupportStore.swift": "99825ad25572b109f309fd050eee62b89384ebaa7be1ba6de989ecfffacd180c",
+  "BearLock/Features/Home/WakePurchaseStore.swift": "470be63c99fdb4606e017a4a740b2ffb83822968322e9a9ae11b5f212fd3020d",
+  "project.yml": "f46e1dd150578b326c6a8c30809a51a0076dd06dbfcba6a43e209b83a0fc7c05",
+  ".github/workflows/ios-ci.yml": "000d7783e92923fd31335ef2eec1884f19d9dad4ffc76b174729fe13c5c69988"
+}
