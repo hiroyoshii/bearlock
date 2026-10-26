@@ -330,10 +330,15 @@ jobs:
         run: xcodegen generate
       - name: Run StoreKit tests
         run: |
-          set -o pipefail
+          set -euo pipefail
           mkdir -p artifacts
+          # iOS 26.4/26.5 fail to initialize StoreKitTest from the CLI.
+          # The runner includes iOS 26.2, which supports the same test suite.
+          storekit_udid="$(xcrun simctl create 'BearLock StoreKit' com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro-Max com.apple.CoreSimulator.SimRuntime.iOS-26-2)"
+          xcrun simctl boot "$storekit_udid"
+          xcrun simctl bootstatus "$storekit_udid" -b
           xcodebuild -project BearLock.xcodeproj -scheme BearLockPurchases \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=latest' -parallel-testing-enabled NO \
+            -destination "platform=iOS Simulator,id=$storekit_udid" -parallel-testing-enabled NO \
             -resultBundlePath artifacts/purchases.xcresult \
             CODE_SIGNING_ALLOWED=NO test 2>&1 | tee artifacts/purchases.log
       - uses: actions/upload-artifact@v4

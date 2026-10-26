@@ -9,21 +9,19 @@
 
 ## 更新説明（日本語、App Store Connect用）
 
-予定作成や編集時の操作性と安定性を改善しました。
-
-・予定が重複する場合に、保存前にお知らせするようにしました。
-・保存できなかった場合に、選択内容や編集中の内容を保持するよう改善しました。
-・曜日や時刻の選択、大きな文字サイズでの表示を改善しました。
-・繰り返し予定の削除予約、起床操作、購入時の案内を改善しました。
+・実行中の繰り返し予定を削除した場合、現在の回の終了後に削除するようにしました。削除予約の取消にも対応しています。
+・予定が重複する作成・編集を防止するようにしました。無料の解除予約を取り消すことで他の予定と重なる場合も、予約を保持して取消を止めます。
+・保存できなかった場合に、選択内容や編集中の予定を保持する処理を改善しました。
+・ロック方法、曜日、日付・時刻の選択と、大きな文字サイズでの表示を改善しました。
+・購入が完了しなかった場合の案内を統一しました。
 
 ## What's New（English、App Store Connect用）
 
-Improved the usability and reliability of creating and editing schedules.
-
-• Overlapping schedules are now detected before saving.
-• Your selections and edits are preserved when a save cannot be completed.
-• Improved weekday and time controls, including support for larger text sizes.
-• Improved recurring schedule deletion, wake-up actions, and purchase messages.
+• Deleting an active recurring schedule now takes effect after the current occurrence ends. Pending deletion can also be cancelled.
+• Creating or editing overlapping schedules is now prevented. Cancelling a free wake-up is also prevented, preserving the request, if it would conflict with another schedule.
+• Improved preservation of your selections and schedule edits when saving fails.
+• Improved lock mode, weekday, date and time controls, including larger text sizes.
+• Unified the message shown when a purchase is not completed.
 
 ## App Review用メモ（English）
 
@@ -57,3 +55,5 @@ Settings also offers optional consumable support products: com.hiyozoo.bearlock.
 - 日本語の更新説明と概要、App Reviewメモを保存。旧「途中解除できない」の説明を現在の無料/有料起床へ修正。ストアの既存ローカライズは日本語のみで、英語ローカライズの追加はしていない。既存画像は保持した。
 - 1.3 (37) を提出下書きに追加し、「審査準備完了」を確認。「審査へ提出」は未操作。公開方法は従来の「承認後自動リリース」のまま。
 - 通常iOS CI run 200のStoreKitは、macos-15/Xcode 16.4で対象シミュレーターが存在せず未実行。既存ジョブを本体CIと同じmacos-26/iPhone 17 Pro Maxへ変更し、テスト・期待値・ジョブ数は維持した。通常UIステップも失敗しているため、新しいCI全体の結果確認が必要。CI合格の確認前に審査提出しない。
+- run 201では、iOS 26.5の最初のStoreKitテストで `SKInternalErrorDomain Code=3` が発生し、設定保存や取引リセットに失敗したまま20分でタイムアウトした。Appleの[既知のCLI問題の報告](https://developer.apple.com/forums/thread/826971)と一致する。既存runnerには26.2/26.4/26.5があるため、StoreKitジョブだけ26.2の新規端末を明示して実行する。非公開APIや製品側の回避処理、テストのskipは追加しない。修正後のCI成功は未確認。
+- 公開済み1.2はApp Store Connectでbuild 35と確認（TestFlight元commit `150b970`）。それ以降の差分で更新説明を具体化して保存し直した。旧画像をそのまま保持した前回の準備報告は不十分であり、1.3のCI撮影成果物での差し替えは未完了。審査提出前に完了する。
