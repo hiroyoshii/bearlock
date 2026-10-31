@@ -105,6 +105,7 @@ sealed class Route : Serializable {
     data object Setup : Route()
     data object Editor : Route()
     data object Settings : Route()
+    data class Licenses(val entry: Int? = null) : Route()
     data object Diagnostics : Route()
     data object Support : Route()
     data object Schedules : Route()
@@ -115,6 +116,7 @@ sealed class Route : Serializable {
         Home -> "home"; Setup -> "setup"; Editor -> "compose"; Settings -> "settings"
         Support -> "support"; Diagnostics -> "diagnostics"; Schedules -> "schedules"; Fixture -> "fixture"
         is Picker -> "targets"; is Permissions -> "permissions"
+        is Licenses -> "licenses"
     }
 }
 enum class PermissionReturn { BACK, CONFIRM }

@@ -20,6 +20,18 @@ The single current specification is [the product design](../../docs/design-doc.m
 
 Supply `BEARLOCK_KEYSTORE`, `BEARLOCK_STORE_PASSWORD`, `BEARLOCK_KEY_ALIAS`, and `BEARLOCK_KEY_PASSWORD` in the build environment. Keep the key and passwords outside git. These are not needed to build an unsigned release for inspection. Configure Play App Signing and upload-key custody before publishing. No key has been generated or uploaded by this implementation.
 
+## Open source notices
+
+Settings → Information → Open source licenses displays bundled notices offline in Debug and Release. The reviewed inventory is `src/main/assets/open-source/libraries.json`; it contains the exact runtime module versions, upstream links, copyright notices and references to shared license texts. Material Icons keeps its revision and modification record in `assets/material-icons/source.json`, which points to the same Apache license text.
+
+Every build runs `verifyOpenSourceLicenses` before `preBuild`. It compares the inventory with both resolved runtime classpaths and fails on missing, changed, removed or duplicate module entries, or missing/empty license texts. Dependency updates require an upstream license/NOTICE review and catalog update; the build check does not infer licensing from a dependency name. Test-only libraries, build tools and BOMs without runtime artifacts are excluded.
+
+The 2026-10-31 review covered 54 distinct runtime modules plus Material Icons, using the resolved AAR/JARs, their published source JARs and POMs, and upstream license records. AndroidX, Material Components, annotations, ListenableFuture and coroutines use Apache 2.0. The [Kotlin standard library license inventory](https://github.com/JetBrains/kotlin/blob/v2.2.21/license/README.md) also identifies GWT/Guava-derived code (Apache 2.0), [ThreeTen-derived time code](https://github.com/JetBrains/kotlin/blob/v2.2.21/license/third_party/threetenbp_license.txt) (BSD 3-Clause) and [Boost-derived math code](https://github.com/JetBrains/kotlin/blob/v2.2.21/license/third_party/boost_LICENSE.txt) (Boost 1.0); these attributions and texts are included. The [coroutines NOTICE](https://github.com/Kotlin/kotlinx.coroutines/blob/1.6.4/license/NOTICE.txt) is preserved verbatim. Copyright lines collected from the published sources retain upstream spelling, including the AndroidX `20188` typo. Kotlin compiler-only and JavaScript-only notices are outside the Android runtime inventory. Local audit inputs and validation output are under ignored `artifacts/oss-audit/`.
+
+The iOS package and Xcode configuration currently reference only the local BearLockCore package and Apple frameworks; no external OSS package was found in those dependency declarations.
+
+Validation on 2026-10-31: Debug/Release APK builds, 74 unit tests and lint completed (no lint errors; warnings remain in existing code). Both APKs contain the catalog and referenced texts byte-for-byte. A temporary Gradle init script adding a test-only library to the runtime classpath correctly failed the inventory check; the unchanged production configuration passed again. The Japanese license list rendered on API 35, but recurring emulator OS/System UI ANRs, including after reboot, prevented completing detail-navigation and 320dp/200% font checks. Those UI checks remain unverified; the emulator failure is not recorded as a pass.
+
 ## QA
 
 `QAHarnessActivity` exists only in `src/debug`. It can add a one-minute lock targeting the bundled probe, or a one-minute reservation two minutes ahead, through the production planner. It cannot reset data or terminate active locks. Debug navigation extras open real product screens and may preselect the probe; they do not provide production unlock paths.

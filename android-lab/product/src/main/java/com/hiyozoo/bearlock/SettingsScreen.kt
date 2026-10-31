@@ -31,6 +31,7 @@ class SettingsScreen(private val a: MainActivity) {
         val info=u.section(parent,t("情報","Information"))
         row(info,t("プライバシーポリシー","Privacy Policy")) { link("privacy") }
         row(info,t("サポート・よくある質問","Support and FAQ")) { link("support") }
+        row(info,t("オープンソースライセンス","Open source licenses"),navigation=true) { a.navigate(Route.Licenses()) }
         u.divider(info); u.pair(info,t("バージョン","Version"),BuildConfig.VERSION_NAME,12)
         row(info,t("サポート","Support"),"heart",true) { a.navigate("support") }
         if(BuildConfig.DEBUG) {

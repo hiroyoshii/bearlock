@@ -4,12 +4,13 @@
 
 ## 内部テスト版のリリースノート
 
-0.2.3候補用。一般公開の告知ではなく、内部テスター向けの説明。
+0.2.4候補用。一般公開の告知ではなく、内部テスター向けの説明。
 
 日本語:
 
 ```text
 Android版Bear Lockの内部テスト版です。
+・設定からオープンソースライセンスをオフラインで確認できるようになりました。
 ・アプリやWebサイトを、今すぐ・あとで・日時指定・曜日繰り返しで制限できます。
 ・実行中カードと予定の作成・確認画面を改善しました。
 ・無料で30分後の起床を予約・取消できます。
@@ -21,6 +22,7 @@ English:
 
 ```text
 Internal test build of Bear Lock for Android.
+• View open source licenses offline from Settings.
 • Block apps and websites now, after a delay, at a set date, or on repeating weekdays.
 • Improved active lock cards and schedule creation and confirmation screens.
 • Request a free wake-up after 30 minutes, or cancel the request.

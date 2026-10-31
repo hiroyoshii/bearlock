@@ -119,5 +119,6 @@
       "path": "android/navigation/more_horiz/materialiconsoutlined/black/res/drawable/outline_more_horiz_24.xml",
       "sha256": "c8e566f00ea93bb76e3d4d2c0f39253dd5ce811dcd3a8bcb30f81c2a5b323022"
     }
-  ]
+  ],
+  "licenseFile": "open-source/Apache-2.0.txt"
 }

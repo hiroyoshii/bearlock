@@ -131,6 +131,7 @@ open class MainActivity : Activity() {
             is Route.Permissions -> navigate(current.returnTo)
             is Route.Picker -> { editor.targets=current.original; navigate(current.returnTo) }
             Route.Support, Route.Diagnostics -> navigate(Route.Settings)
+            is Route.Licenses -> navigate(if(current.entry==null) Route.Settings else Route.Licenses())
             Route.Home -> finish()
             Route.Editor -> { editor=EditorDraft(); restoreSelection(); navigate(Route.Home) }
             else -> navigate(Route.Home)
@@ -183,6 +184,7 @@ open class MainActivity : Activity() {
     // String entry points are limited to existing QA page names and simple navigation links.
     fun routeForPage(name: String): Route = when(name) {
         "setup" -> Route.Setup; "compose" -> Route.Editor; "settings" -> Route.Settings
+        "licenses" -> Route.Licenses()
         "support" -> Route.Support; "diagnostics" -> Route.Diagnostics; "schedules" -> Route.Schedules; "fixture" -> Route.Fixture
         "targets" -> Route.Picker(route,editor.targets)
         else -> Route.Home
@@ -201,13 +203,14 @@ open class MainActivity : Activity() {
     }
     open fun render() {
         if(!BuildConfig.DEBUG && route==Route.Diagnostics) route=Route.Settings
-        val previousY=if(renderedPage==page) contentScroll?.scrollY ?: 0 else 0
-        renderedPage=page
+        val scrollPage=when(val current=route) { is Route.Licenses -> "$page:${current.entry}"; else -> page }
+        val previousY=if(renderedPage==scrollPage) contentScroll?.scrollY ?: 0 else 0
+        renderedPage=scrollPage
         countdown=null; pickerCount=null; pickerSave=null; load(); lastStatus=statusKey()
         renderedActiveKeys=activePresentationKeys(System.currentTimeMillis())
         renderedScheduleIDs=state.scheduledRules(System.currentTimeMillis()).map { it.id }
         renderedEditable=editingAllowed()
-        val grouped=page in listOf("compose","settings","diagnostics")
+        val grouped=page in listOf("compose","settings","diagnostics","licenses")
         val pageBackground=if(grouped) Palette.grouped else Palette.background
         val root=ui.column().apply { setBackgroundColor(pageBackground) }
         root.setOnApplyWindowInsetsListener { v,ins -> v.setPadding(ins.systemWindowInsetLeft,ins.systemWindowInsetTop,ins.systemWindowInsetRight,ins.systemWindowInsetBottom); ins }
@@ -249,7 +252,7 @@ open class MainActivity : Activity() {
         }
         val scroll=ScrollView(this).apply { isFillViewport=true; clipToPadding=false }; contentScroll=scroll
         body=ui.column().apply { setPadding(ui.dp(20),ui.dp(12),ui.dp(20),ui.dp(24)) }
-        if(grouped) ui.add(body,ui.label(when(page) { "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロック予定を編集","Edit Lock"); "diagnostics"->t("診断","Diagnostics"); else->t("設定","Settings") },32f,true).apply { setTextColor(Palette.textPrimary); if(android.os.Build.VERSION.SDK_INT>=28) isAccessibilityHeading=true },24)
+        if(grouped) ui.add(body,ui.label(when(page) { "compose"->if(mode==3) t("繰り返し","Repeat") else t("ロック予定を編集","Edit Lock"); "diagnostics"->t("診断","Diagnostics"); "licenses"->t("オープンソースライセンス","Open source licenses"); else->t("設定","Settings") },32f,true).apply { setTextColor(Palette.textPrimary); if(android.os.Build.VERSION.SDK_INT>=28) isAccessibilityHeading=true },24)
         if(page=="targets") {
             // The picker owns its scrolling viewport; nesting a list in ScrollView defeats recycling.
             contentScroll=null
@@ -262,6 +265,7 @@ open class MainActivity : Activity() {
             "setup" -> setup(body); "home" -> home(body); "compose" -> { Composer(this).showEditor(body); if (!renderedEditable) disableEditor(body) }
             "targets" -> TargetPicker(this).show(body); "schedules" -> schedules(body); "settings" -> settings(body); "support" -> SupportScreen(this).show(body)
             "diagnostics" -> SettingsScreen(this).diagnostics(body)
+            "licenses" -> LicensesScreen(this).show(body,(route as Route.Licenses).entry)
             "permissions" -> permissions(body)
         }
         if(page=="targets") {
