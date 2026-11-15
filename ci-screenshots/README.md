@@ -1,18 +1,17 @@
 # Current iOS screenshots
 
-The current English and Japanese simulator captures are in `app-store-en` and `app-store-ja` (16 screens per locale). [Source metadata](app-store-source.json) identifies the exact source commit, GitHub Actions run, and files.
+The current Japanese and English screenshot galleries are in `app-store-ja` and `app-store-en`: 25 screen states per locale, captured on 2026-11-15 from the current 1.4 source using an iPhone 17 Simulator. All prior gallery images in these folders were replaced, so old UI captures are not mixed into the current gallery. Dimensions, selected App Store slots, source commit, and per-file hashes are recorded in [app-store-source.json](app-store-source.json).
 
-The gallery also includes daily allowance flow previews. The five App Store screen types per locale (`setup`, `home`, `composeAlways`, `confirmation`, and `activeLock`) were re-captured locally on iPhone 17 Simulator at 1206x2622 on 2026-11-15. Their provenance and hashes are recorded in `app-store-source.json`. Other daily allowance previews remain earlier captures; the manual iOS Screenshots workflow can regenerate them at the configured App Store device size.
+The five App Store listing candidates per locale are `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png`. The other captured states cover regular scheduling, recurring schedules, and daily allowance states. The timed-unlock IAP review image is stored separately at `docs/launch/ios-1.4-timed-unlock/app-review-screenshot-ja.png`.
 
-These use the screenshot app's fixtures. They show the current UI, not evidence of actual Screen Time blocking. Interactive E2E evidence and the before/after review are recorded in [the selection-controls review](../docs/qa/ios-selection-controls-2026-10-11.md). Superseded QA and Android comparison images are available through fixed Git history links in the review notes.
+These images use screenshot-app fixtures. They show the UI, not evidence of actual Screen Time blocking. The local captures have not been uploaded to App Store Connect; compare them with the final TestFlight build and existing Connect gallery before replacing listing images.
 
-The remaining 2026-10-26 gallery files contain captures from [iOS Screenshots run 3](https://github.com/hiroyoshii/bearlock/actions/runs/40323886294), source `8567e31`, plus the English `composeDelayed.png` from [run 2](https://github.com/hiroyoshii/bearlock/actions/runs/40315675972), source `c642aac`. Run 3 captured the iPhone home screen for that one file; it was rejected. Per-file source exceptions and source archive hashes are recorded in the metadata.
-
-All 32 selected images were visually reviewed and are 1206x2622 RGB PNGs for the Dynamic Island medium display slot. Their fully opaque alpha channels were removed without changing the decoded RGB pixels. Home and active-lock captures now show three selected apps, and the Japanese schedule heading is translated. The manual workflow succeeded, but it does not run UI tests or verify real Screen Time blocking. App Store Connect upload is not confirmed by this gallery update.
+Interactive E2E evidence and the before/after review are recorded in [the selection-controls review](../docs/qa/ios-selection-controls-2026-10-11.md). Historical captures remain available through Git history.
 
 | Screen | Japanese | English |
 |---|---|---|
 | Home | ![Home JA](app-store-ja/home.png) | ![Home EN](app-store-en/home.png) |
-| Repeat | ![Repeat JA](app-store-ja/composeRepeat.png) | ![Repeat EN](app-store-en/composeRepeat.png) |
-| Starts later | ![Starts later JA](app-store-ja/composeDelayed.png) | ![Starts later EN](app-store-en/composeDelayed.png) |
-| Scheduled locks | ![Scheduled locks JA](app-store-ja/scheduledList.png) | ![Scheduled locks EN](app-store-en/scheduledList.png) |
+| Always Lock setup | ![Always JA](app-store-ja/composeAlways.png) | ![Always EN](app-store-en/composeAlways.png) |
+| Allowance available | ![Allowance JA](app-store-ja/allowanceLocked.png) | ![Allowance EN](app-store-en/allowanceLocked.png) |
+| Temporary unlock | ![Temporary JA](app-store-ja/allowanceTemporary.png) | ![Temporary EN](app-store-en/allowanceTemporary.png) |
+| Recurring schedule | ![Repeat JA](app-store-ja/composeRepeat.png) | ![Repeat EN](app-store-en/composeRepeat.png) |

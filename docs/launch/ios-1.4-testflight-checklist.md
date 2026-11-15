@@ -62,7 +62,7 @@ Use short durations for expiry checks where practical, then test one duration ov
 
 ## App Store listing materials
 
-- [x] Prepare five refreshed screenshot candidates in Japanese and English from the current 1.4 screenshot app: `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png`. They replace the previous five image files in [Japanese](../../ci-screenshots/app-store-ja/) and [English](../../ci-screenshots/app-store-en/). They are not uploaded to App Store Connect.
+- [x] Re-capture all 25 tracked screenshot states in Japanese and English from the current 1.4 screenshot app. This replaces the old gallery images in [Japanese](../../ci-screenshots/app-store-ja/) and [English](../../ci-screenshots/app-store-en/) so old UI captures are not mixed in. The five App Store candidates are `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png` per locale. They are not uploaded to App Store Connect.
 - [ ] Compare these candidates with the final TestFlight build and existing App Store Connect gallery, then replace the corresponding image slots. Do not append a duplicate gallery; the current Connect gallery has not been verified from this workspace.
 - [x] Prepare Japanese release notes: [ios-1.4-whats-new-ja.txt](ios-1.4-whats-new-ja.txt).
 - [ ] Confirm the listing's Japanese localization and upload the finalized release notes with the 1.4 version.

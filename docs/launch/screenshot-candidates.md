@@ -1,10 +1,10 @@
 # Screenshot Candidates
 
-Generate new App Store captures with the manual `iOS Screenshots` workflow described in the [README](../../README.md#github-actions-ios-ci). Current repository screenshots are in `ci-screenshots/app-store-en` and `ci-screenshots/app-store-ja`; their source commit, run, dimensions and per-file source exceptions are recorded in [app-store-source.json](../../ci-screenshots/app-store-source.json). The gallery contains reviewed 1206 × 2622 RGB PNGs. Artifact folders are `screenshots/iphone-app-store-en` and `screenshots/iphone-app-store-ja`. Historical QA comparisons are not the current gallery.
+The current repository gallery is in `ci-screenshots/app-store-en` and `ci-screenshots/app-store-ja`. The 25 states per locale were re-captured from the current 1.4 screenshot app at 1206 × 2622; source, device and hashes are in [app-store-source.json](../../ci-screenshots/app-store-source.json). All prior gallery images in these folders were replaced. The candidates have not been uploaded to App Store Connect. Historical QA comparisons are not the current gallery.
 
 ## iOS 1.4 App Store / LP Candidates
 
-The previous App Store gallery used the same five screen types in Japanese and English. The 1.4 candidates below replace those existing image files in Git at 1206 × 2622; they have not been uploaded to App Store Connect.
+The previous App Store gallery used five screen types in Japanese and English. The 1.4 selection keeps the same five slots but uses the Always Lock setup instead of the recurring-schedule setup. These images replace the previous candidates in Git; they have not been uploaded to App Store Connect.
 
 1. Setup: `setup.png`
 2. Home: `home.png`
