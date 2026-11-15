@@ -10,6 +10,15 @@ enum ScreenshotScreen: String, CaseIterable {
     case composeDelayed
     case composeDate
     case composeRepeat
+    case composeAlways
+    case allowanceTargetSelection
+    case allowanceLocked
+    case allowanceTemporary
+    case allowanceReturned
+    case allowanceExhausted
+    case allowanceNextDay
+    case allowancePending
+    case allowanceStopped
     case confirmation
     case scheduledList
     case activeLock
@@ -88,11 +97,22 @@ struct ScreenshotHostView: View {
             .navigationTitle("Date & Time")
         case .composeRepeat:
             ScrollView {
-                screenshotStack(title: "Repeat") {
-                    LockComposerView(mode: .constant(.recurring))
+                screenshotStack(title: "Date & Time") {
+                    LockComposerView(mode: .constant(.fixedDateTime), startsWithWeekdays: true)
                 }
             }
-            .navigationTitle("Repeat")
+            .navigationTitle("Date & Time")
+        case .composeAlways:
+            HomeView(initialComposerMode: .always, onWake: { _ in })
+        case .allowanceTargetSelection:
+            HomeView(initialComposerMode: .always, onWake: { _ in })
+        case .allowanceLocked, .allowanceTemporary, .allowanceReturned, .allowanceExhausted, .allowanceNextDay, .allowancePending, .allowanceStopped:
+            ScrollView {
+                ScheduledLockListView()
+                    .padding(20)
+            }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
         case .confirmation:
             LockConfirmationSheet(
                 details: ScreenshotFixtures.confirmationDetails,
@@ -165,7 +185,8 @@ private enum ScreenshotFixtures {
 
     static let target = LockTargetSelectionRef(
         id: targetID,
-        displayName: L10n.format("%d targets", 3)
+        displayName: L10n.format("%d targets", 3),
+        tokenData: Data([1])
     )
 
     static let workTarget = LockTargetSelectionRef(
@@ -257,6 +278,28 @@ private enum ScreenshotFixtures {
         )
     }
 
+    static func allowanceState(
+        consumedMinutes: Int,
+        usageDayStart: Date,
+        grant: DailyAllowanceGrant? = nil,
+        isEnabled: Bool = true,
+        pendingPolicy: ScheduledDailyAllowancePolicy? = nil
+    ) -> LockState {
+        var state = LockState(targetSelections: [target], selectedTargetID: targetID)
+        state.dailyAllowance = DailyAllowanceState(
+            currentPolicy: DailyAllowancePolicy(
+                isEnabled: isEnabled,
+                targetSelection: target,
+                dailyLimitMinutes: 60
+            ),
+            pendingPolicy: pendingPolicy,
+            usageDayStart: usageDayStart,
+            consumedMinutes: consumedMinutes,
+            grant: grant
+        )
+        return state
+    }
+
     static var activeState: LockState {
         LockState(
             targetSelections: [workTarget, sleepTarget, target],
@@ -296,8 +339,51 @@ private extension BearLockAppModel {
         case .setup:
             state = LockState()
             status = .unknown
+        case .allowanceTargetSelection:
+            state = LockState()
+            status = .approved
         case .activeLock, .wakeOptions:
             state = ScreenshotFixtures.activeState
+            status = .approved
+        case .allowanceLocked:
+            let now = Date()
+            state = ScreenshotFixtures.allowanceState(consumedMinutes: 20, usageDayStart: Calendar.current.startOfDay(for: now))
+            status = .approved
+        case .allowanceTemporary:
+            let now = Date()
+            let grant = DailyAllowanceGrant(id: UUID(), durationMinutes: 5, expiresAt: now.addingTimeInterval(4 * 60))
+            state = ScreenshotFixtures.allowanceState(consumedMinutes: 5, usageDayStart: Calendar.current.startOfDay(for: now), grant: grant)
+            status = .approved
+        case .allowanceReturned:
+            let now = Date()
+            state = ScreenshotFixtures.allowanceState(consumedMinutes: 3, usageDayStart: Calendar.current.startOfDay(for: now))
+            status = .approved
+        case .allowanceExhausted:
+            let now = Date()
+            state = ScreenshotFixtures.allowanceState(consumedMinutes: 60, usageDayStart: Calendar.current.startOfDay(for: now))
+            status = .approved
+        case .allowanceNextDay:
+            let now = Date()
+            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Calendar.current.startOfDay(for: now)) ?? now
+            state = ScreenshotFixtures.allowanceState(consumedMinutes: 60, usageDayStart: yesterday)
+            status = .approved
+        case .allowancePending:
+            let now = Date()
+            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: now)) ?? now
+            let pending = DailyAllowancePolicy(isEnabled: true, targetSelection: ScreenshotFixtures.target, dailyLimitMinutes: 30)
+            state = ScreenshotFixtures.allowanceState(
+                consumedMinutes: 20,
+                usageDayStart: Calendar.current.startOfDay(for: now),
+                pendingPolicy: ScheduledDailyAllowancePolicy(policy: pending, effectiveAt: tomorrow)
+            )
+            status = .approved
+        case .allowanceStopped:
+            let now = Date()
+            state = ScreenshotFixtures.allowanceState(
+                consumedMinutes: 20,
+                usageDayStart: Calendar.current.startOfDay(for: now),
+                isEnabled: false
+            )
             status = .approved
         default:
             state = ScreenshotFixtures.state
@@ -308,7 +394,7 @@ private extension BearLockAppModel {
 
         return BearLockAppModel(
             authorizationService: PreviewAuthorizationService(status: status),
-            targetSelectionCodec: PreviewTargetSelectionCodec(),
+            targetSelectionCodec: PreviewTargetSelectionCodec(usesSummaryFixtures: true),
             shieldController: NoopShieldController(),
             scheduleController: NoopScheduleController(),
             lockStore: lockStore

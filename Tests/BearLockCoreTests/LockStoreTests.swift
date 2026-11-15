@@ -2,6 +2,93 @@ import XCTest
 @testable import BearLockCore
 
 final class LockStoreTests: XCTestCase {
+    func testEndingDailyAllowanceGrantPersistsReturnedBalanceAndExpiryTogether() async throws {
+        let now = date("2026-08-27T12:00:00Z")
+        let target = LockTargetSelectionRef(displayName: "Social", tokenData: Data([1]))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        var allowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60))
+        let grant = try allowance.beginGrant(minutes: 10, at: now, calendar: calendar)
+        let repository = InMemoryLockRepository(state: LockState(targetSelections: [target], dailyAllowance: allowance))
+        let store = LockStore(repository: repository)
+        let endAt = now.addingTimeInterval(140)
+
+        try await store.endDailyAllowanceGrant(id: grant.id, at: endAt, calendar: calendar)
+
+        let saved = try await store.snapshot(at: endAt)
+        XCTAssertEqual(saved.dailyAllowance.consumedMinutes, 3)
+        XCTAssertEqual(saved.dailyAllowance.grant?.expiresAt, endAt)
+        XCTAssertEqual(saved.dailyAllowance.remainingMinutes(at: endAt, calendar: calendar), 57)
+    }
+
+    func testPaidDailyAllowancePurchaseUsesIndependentTemporaryGrantAndDeduplicates() async throws {
+        let now = date("2026-08-27T12:00:00Z")
+        let target = LockTargetSelectionRef(displayName: "Social", tokenData: Data([1]))
+        var allowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60))
+        allowance.usageDayStart = Calendar.current.startOfDay(for: now)
+        allowance.consumedMinutes = 20
+        let repository = InMemoryLockRepository(state: LockState(targetSelections: [target], dailyAllowance: allowance))
+        let store = LockStore(repository: repository)
+        try await store.beginDailyAllowancePurchase(minutes: 45, at: now)
+
+        let preparation = try await store.prepareDailyAllowancePurchaseDelivery(transactionID: 77, at: now)
+        guard case let .grant(grant) = preparation else { return XCTFail("Expected a prepared unlock") }
+        XCTAssertEqual(grant.expiresAt, now.addingTimeInterval(45 * 60))
+        let committed = try await store.commitDailyAllowancePurchase(grant, transactionID: 77, at: now)
+        XCTAssertTrue(committed)
+
+        let state = try await store.snapshot(at: now)
+        XCTAssertEqual(state.dailyAllowance.consumedMinutes, 20)
+        XCTAssertEqual(state.dailyAllowance.remainingMinutes(at: now), 40)
+        XCTAssertEqual(state.dailyAllowance.activeGrant(at: now), grant)
+        XCTAssertFalse(try state.shieldSlotDecisions(at: now).contains { $0.storeName == DailyAllowanceState.shieldStoreName })
+        XCTAssertTrue(try state.shieldSlotDecisions(at: grant.expiresAt).contains { $0.storeName == DailyAllowanceState.shieldStoreName })
+        let duplicate = try await store.prepareDailyAllowancePurchaseDelivery(transactionID: 77, at: now)
+        XCTAssertEqual(duplicate, .alreadyHandled)
+    }
+
+    func testPaidDailyAllowancePurchaseCannotBypassMatchingNormalLock() async throws {
+        let now = date("2026-08-27T12:00:00Z")
+        let target = LockTargetSelectionRef(displayName: "Social", tokenData: Data([1]))
+        let allowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60))
+        let activeRule = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-60), duration: 3600,
+            targetSelectionID: target.id)
+        let repository = InMemoryLockRepository(state: LockState(targetSelections: [target], rules: [activeRule], dailyAllowance: allowance))
+        let store = LockStore(repository: repository)
+
+        do {
+            try await store.beginDailyAllowancePurchase(minutes: 45, at: now)
+            XCTFail("Purchase must not be offered while the same target remains normally locked")
+        } catch {
+            XCTAssertEqual(error as? DailyAllowanceError, .blockedByNormalLock)
+        }
+        let state = try repository.load()
+        XCTAssertNil(state.wakeState.pendingPurchase)
+        XCTAssertEqual(state.dailyAllowance, allowance)
+    }
+
+    func testPrepareGrantRejectsFullNormalLockOverlapWithoutConsumingBudget() async throws {
+        let now = date("2026-08-27T12:00:00Z")
+        let target = LockTargetSelectionRef(displayName: "Social", tokenData: Data([1]))
+        let allowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60))
+        let activeRule = LockRule(kind: .immediate, startsAt: now.addingTimeInterval(-60), duration: 3600,
+            targetSelectionID: target.id)
+        let repository = InMemoryLockRepository(state: LockState(targetSelections: [target], rules: [activeRule], dailyAllowance: allowance))
+        let store = LockStore(repository: repository)
+
+        do {
+            _ = try await store.prepareDailyAllowanceGrant(minutes: 5, at: now)
+            XCTFail("Grant should be rejected while the same target is fully blocked")
+        } catch {
+            XCTAssertEqual(error as? DailyAllowanceError, .blockedByNormalLock)
+        }
+        XCTAssertEqual(try repository.load().dailyAllowance, allowance)
+    }
+
     func testHistoryPinClockIsSampledInsideFreshRead() async throws {
         let target = LockTargetSelectionRef(displayName: "A")
         let recent = RecentLockTarget(targetSelectionID: target.id, lastUsedAt: Date())

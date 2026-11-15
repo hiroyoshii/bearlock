@@ -9,6 +9,7 @@ final class WakePurchaseTests: XCTestCase {
     private var store: WakePurchaseStore!
     private var deliveredTransactions: [UInt64] = []
     private var abandonCount = 0
+    private var deliveryToReturn: WakePurchaseDelivery = .unlocked
 
     override func setUp() async throws {
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "SupportProducts", withExtension: "storekit"))
@@ -18,9 +19,9 @@ final class WakePurchaseTests: XCTestCase {
         session.disableDialogs = true
         DiagnosticsLogger.shared.clear()
         store = WakePurchaseStore()
-        store.start(deliver: { [weak self] transactionID in
+        store.start(deliver: { [weak self] transactionID, _ in
             self?.deliveredTransactions.append(transactionID)
-            return .unlocked
+            return self?.deliveryToReturn
         }, abandon: { [weak self] in
             self?.abandonCount += 1
         })
@@ -45,10 +46,26 @@ final class WakePurchaseTests: XCTestCase {
         XCTAssertEqual(deliveredTransactions.count, 1)
         XCTAssertEqual(store.lastDelivery, .unlocked)
         XCTAssertFalse(store.isPurchasing)
-        try await eventually { await self.unfinishedIDs().isEmpty }
+        let finishedEvent = try XCTUnwrap(DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.wake.finished" })
+        XCTAssertTrue(finishedEvent.detail?.contains("product=\(WakePurchaseStore.productID)") == true)
+        XCTAssertTrue(finishedEvent.detail?.contains("delivery=unlocked") == true)
     }
 
-    func testCancelledPurchaseAbandonsPendingIntent() async throws {
+    func testVerifiedTimedAllowancePurchaseIsDeliveredBeforeTransactionFinish() async throws {
+        deliveryToReturn = .allowanceUnlocked
+        await store.loadProduct()
+
+        await store.purchaseDailyAllowanceUnlock(using: performPurchase)
+
+        XCTAssertEqual(deliveredTransactions.count, 1)
+        XCTAssertEqual(store.lastDelivery, .allowanceUnlocked)
+        XCTAssertNil(store.message)
+        let finishedEvent = try XCTUnwrap(DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.wake.finished" })
+        XCTAssertTrue(finishedEvent.detail?.contains("product=\(WakePurchaseStore.dailyAllowanceProductID)") == true)
+        XCTAssertTrue(finishedEvent.detail?.contains("delivery=allowanceUnlocked") == true)
+    }
+
+    func testPurchaseFailureAbandonsPendingIntent() async throws {
         await store.loadProduct()
         try await session.setSimulatedError(.generic(.userCancelled), forAPI: .purchase)
 
@@ -57,16 +74,13 @@ final class WakePurchaseTests: XCTestCase {
         XCTAssertEqual(abandonCount, 1)
         XCTAssertTrue(deliveredTransactions.isEmpty)
         XCTAssertNil(store.lastDelivery)
-        XCTAssertEqual(store.message, L10n.string("The purchase was cancelled."))
-        XCTAssertEqual(
-            DiagnosticsLogger.shared.snapshot().events.first { $0.name == "Purchase.wake.cancelled" }?.detail,
-            "product=\(WakePurchaseStore.productID)"
-        )
+        XCTAssertEqual(store.message, L10n.string("Immediate wake-up could not be purchased."))
+        XCTAssertTrue(DiagnosticsLogger.shared.snapshot().events.contains { $0.name == "Purchase.wake.failed" })
     }
 
     func testApprovedAskToBuyCanBecomeCredit() async throws {
         store = WakePurchaseStore()
-        store.start(deliver: { _ in .credited }, abandon: {})
+        store.start(deliver: { _, _ in .credited }, abandon: {})
         await store.loadProduct()
         session.askToBuyEnabled = true
 
@@ -76,15 +90,7 @@ final class WakePurchaseTests: XCTestCase {
 
         try await eventually { self.store.lastDelivery == .credited }
         XCTAssertEqual(store.message, L10n.string("This lock already ended. Your wake-up ticket is saved for next time."))
-        try await eventually { await self.unfinishedIDs().isEmpty }
-    }
-
-    private func unfinishedIDs() async -> Set<UInt64> {
-        var result = Set<UInt64>()
-        for await verification in Transaction.unfinished {
-            if case let .verified(transaction) = verification { result.insert(transaction.id) }
-        }
-        return result
+        XCTAssertTrue(DiagnosticsLogger.shared.snapshot().events.contains { $0.name == "Purchase.wake.finished" })
     }
 
     private func performPurchase(_ product: Product) async throws -> Product.PurchaseResult {

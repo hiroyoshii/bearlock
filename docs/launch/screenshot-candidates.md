@@ -1,6 +1,6 @@
 # Screenshot Candidates
 
-Source: iOS CI artifacts. Current repository screenshots are in `ci-screenshots/app-store-en` and `ci-screenshots/app-store-ja`; their source commit and run are recorded in [app-store-source.json](../../ci-screenshots/app-store-source.json). CI artifact folders are `screenshots/iphone-app-store-en` and `screenshots/iphone-app-store-ja`. Historical QA comparisons are not the current gallery.
+Source: the screenshot app's simulator captures. Current repository screenshots are in `ci-screenshots/app-store-en` and `ci-screenshots/app-store-ja`; their source commit, capture time, and environment are recorded in [app-store-source.json](../../ci-screenshots/app-store-source.json). The 2026-11-15 refresh includes always-lock and daily allowance states. CI artifact folders remain `screenshots/iphone-app-store-en` and `screenshots/iphone-app-store-ja`. Historical QA comparisons are not the current gallery.
 
 ## Primary App Store / LP Candidates
 

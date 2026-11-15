@@ -20,8 +20,11 @@ final class BearLockMonitorExtension: DeviceActivityMonitor {
         do {
             let state = try JSONFileLockRepository(fileURL: AppGroup.lockStateURL).load()
             let controller = ManagedSettingsShieldController()
-            if activity.rawValue.hasPrefix("bearlock.wake.") {
+            if activity.rawValue.hasPrefix("bearlock.wake.") || activity.rawValue == "bearlock.daily.boundary" {
                 try controller.reconcile(state: state, at: Date())
+            } else if activity.rawValue.hasPrefix("bearlock.daily.grant.") {
+                try controller.reconcile(storeName: DailyAllowanceState.shieldStoreName, state: state, at: Date())
+                DeviceActivityCenter().stopMonitoring([activity])
             } else {
                 try controller.reconcile(storeName: activity.rawValue, state: state, at: Date())
             }

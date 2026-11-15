@@ -98,7 +98,7 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         try repository.save(state)
         XCTAssertEqual(try repository.load(), state)
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-        XCTAssertEqual(Set(json.keys), ["targetSelections", "recentLockTargets", "rules", "wakeState"])
+        XCTAssertEqual(Set(json.keys), ["targetSelections", "recentLockTargets", "rules", "wakeState", "dailyAllowance"])
         XCTAssertTrue(try repository.load().activeLocks(at: end).isEmpty)
     }
 
@@ -110,9 +110,11 @@ final class JSONFileLockRepositoryTests: XCTestCase {
         try repository.save(LockState())
         var json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
         json.removeValue(forKey: "wakeState")
+        json.removeValue(forKey: "dailyAllowance")
         try JSONSerialization.data(withJSONObject: json).write(to: url)
 
         XCTAssertEqual(try repository.load().wakeState, WakeState())
+        XCTAssertEqual(try repository.load().dailyAllowance, DailyAllowanceState())
     }
 
     func testScheduledDeletionPersistsUntilItsDeadlineThenIsRemoved() async throws {

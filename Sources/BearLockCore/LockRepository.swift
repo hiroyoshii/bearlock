@@ -6,23 +6,26 @@ public struct LockState: Codable, Equatable, Sendable {
     public var rules: [LockRule]
     public var selectedTargetID: UUID?
     public var wakeState: WakeState
+    public var dailyAllowance: DailyAllowanceState
 
     public init(
         targetSelections: [LockTargetSelectionRef] = [],
         recentLockTargets: [RecentLockTarget] = [],
         rules: [LockRule] = [],
         selectedTargetID: UUID? = nil,
-        wakeState: WakeState = WakeState()
+        wakeState: WakeState = WakeState(),
+        dailyAllowance: DailyAllowanceState = DailyAllowanceState()
     ) {
         self.targetSelections = targetSelections
         self.recentLockTargets = recentLockTargets
         self.rules = rules
         self.selectedTargetID = selectedTargetID
         self.wakeState = wakeState
+        self.dailyAllowance = dailyAllowance
     }
 
     private enum CodingKeys: String, CodingKey {
-        case targetSelections, recentLockTargets, rules, selectedTargetID, wakeState
+        case targetSelections, recentLockTargets, rules, selectedTargetID, wakeState, dailyAllowance
     }
 
     public init(from decoder: Decoder) throws {
@@ -32,6 +35,7 @@ public struct LockState: Codable, Equatable, Sendable {
         rules = try container.decode([LockRule].self, forKey: .rules)
         selectedTargetID = try container.decodeIfPresent(UUID.self, forKey: .selectedTargetID)
         wakeState = try container.decodeIfPresent(WakeState.self, forKey: .wakeState) ?? WakeState()
+        dailyAllowance = try container.decodeIfPresent(DailyAllowanceState.self, forKey: .dailyAllowance) ?? DailyAllowanceState()
     }
 
     public var selectedTarget: LockTargetSelectionRef? {
@@ -92,6 +96,140 @@ public actor LockStore {
     public func synchronizeMonitoring(_ synchronize: @Sendable (LockState, Date) throws -> Void) throws {
         let state = try repository.load()
         try synchronize(state, Date())
+    }
+
+    public func prepareDailyAllowanceGrant(minutes: Int, at now: Date? = nil, calendar: Calendar = .current) throws -> (state: LockState, grant: DailyAllowanceGrant, preparedAt: Date) {
+        var candidate = try repository.load()
+        let preparedAt = now ?? Date()
+        guard candidate.activeNormalLockBlockingDailyAllowance(at: preparedAt) == nil else {
+            throw DailyAllowanceError.blockedByNormalLock
+        }
+        let grant = try candidate.dailyAllowance.beginGrant(minutes: minutes, at: preparedAt, calendar: calendar)
+        return (candidate, grant, preparedAt)
+    }
+
+    public func beginDailyAllowanceGrant(_ grant: DailyAllowanceGrant, preparedAt: Date, at now: Date = Date(), calendar: Calendar = .current) throws {
+        try update { state in
+            guard grant.expiresAt > now else { throw DailyAllowanceError.invalidGrant }
+            guard state.activeNormalLockBlockingDailyAllowance(at: now) == nil else {
+                throw DailyAllowanceError.blockedByNormalLock
+            }
+            let committed = try state.dailyAllowance.beginGrant(
+                minutes: grant.durationMinutes,
+                id: grant.id,
+                at: preparedAt,
+                calendar: calendar
+            )
+            guard committed == grant else { throw DailyAllowanceError.invalidGrant }
+        }
+    }
+
+    public func beginDailyAllowancePurchase(minutes: Int, at now: Date = Date(), calendar: Calendar = .current) throws {
+        try update { state in
+            guard state.wakeState.pendingPurchase == nil else { throw WakeError.purchaseAlreadyPending }
+            guard state.activeNormalLockBlockingDailyAllowance(at: now) == nil else {
+                throw DailyAllowanceError.blockedByNormalLock
+            }
+            var candidateAllowance = state.dailyAllowance
+            _ = try candidateAllowance.beginPaidGrant(minutes: minutes, transactionID: 0, at: now, calendar: calendar)
+            state.wakeState.pendingPurchase = WakePurchaseIntent(
+                dailyAllowanceDurationMinutes: minutes,
+                requestedAt: now
+            )
+        }
+    }
+
+    public func pendingWakePurchaseIntent() throws -> WakePurchaseIntent? {
+        try repository.load().wakeState.pendingPurchase
+    }
+
+    public func prepareDailyAllowancePurchaseDelivery(
+        transactionID: UInt64,
+        at now: Date = Date(),
+        calendar: Calendar = .current
+    ) throws -> DailyAllowancePurchasePreparation {
+        let state = try repository.load()
+        if state.wakeState.hasHandled(transactionID: transactionID) ||
+            state.dailyAllowance.lastPaidPurchaseTransactionID == transactionID {
+            return .alreadyHandled
+        }
+        guard let intent = state.wakeState.pendingPurchase,
+              let minutes = intent.dailyAllowanceDurationMinutes
+        else { throw WakeError.invalidPurchaseIntent }
+        guard state.activeNormalLockBlockingDailyAllowance(at: now) == nil,
+              state.dailyAllowance.activeGrant(at: now) == nil
+        else { return .credit }
+        var allowance = state.dailyAllowance
+        do {
+            return .grant(try allowance.beginPaidGrant(
+                minutes: minutes,
+                transactionID: transactionID,
+                at: now,
+                calendar: calendar
+            ))
+        } catch {
+            return .credit
+        }
+    }
+
+    @discardableResult
+    public func commitDailyAllowancePurchase(
+        _ grant: DailyAllowanceGrant,
+        transactionID: UInt64,
+        at now: Date = Date(),
+        calendar: Calendar = .current
+    ) throws -> Bool {
+        try update { state in
+            if state.wakeState.hasHandled(transactionID: transactionID) ||
+                state.dailyAllowance.lastPaidPurchaseTransactionID == transactionID {
+                return false
+            }
+            guard let intent = state.wakeState.pendingPurchase,
+                  intent.dailyAllowanceDurationMinutes == grant.durationMinutes,
+                  grant.purchaseTransactionID == transactionID,
+                  grant.expiresAt > now,
+                  state.activeNormalLockBlockingDailyAllowance(at: now) == nil,
+                  state.dailyAllowance.activeGrant(at: now) == nil
+            else { throw WakeError.invalidPurchaseIntent }
+            let grantStart = grant.expiresAt.addingTimeInterval(-TimeInterval(grant.durationMinutes) * 60)
+            let committed = try state.dailyAllowance.beginPaidGrant(
+                minutes: grant.durationMinutes,
+                id: grant.id,
+                transactionID: transactionID,
+                at: grantStart,
+                calendar: calendar
+            )
+            guard committed == grant else { throw DailyAllowanceError.invalidGrant }
+            state.wakeState.pendingPurchase = nil
+            return true
+        }
+    }
+
+    public func creditDailyAllowancePurchase(transactionID: UInt64) throws -> WakePurchaseDelivery {
+        try update { state in
+            if state.wakeState.hasHandled(transactionID: transactionID) ||
+                state.dailyAllowance.lastPaidPurchaseTransactionID == transactionID {
+                return .alreadyHandled
+            }
+            guard state.wakeState.pendingPurchase?.dailyAllowanceDurationMinutes != nil else {
+                throw WakeError.invalidPurchaseIntent
+            }
+            state.wakeState.creditTransactionIDs.append(transactionID)
+            state.wakeState.pendingPurchase = nil
+            return .credited
+        }
+    }
+
+    public func configureDailyAllowance(_ policy: DailyAllowancePolicy, at now: Date = Date(), calendar: Calendar = .current) throws {
+        try update { state in
+            try state.dailyAllowance.configure(policy, at: now, calendar: calendar)
+        }
+    }
+
+    public func endDailyAllowanceGrant(id: UUID, at now: Date = Date(), calendar: Calendar = .current) throws {
+        try update { state in
+            try state.dailyAllowance.endGrant(id: id, at: now, calendar: calendar)
+        }
     }
 
     @discardableResult
@@ -195,7 +333,7 @@ public actor LockStore {
             let now = now ?? Date()
             let rule = try LockPlanner().makeRule(from: request, now: now, existingState: state)
             state.rules.append(rule)
-            try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
+            try MonitoringSchedule.validateCapacity(for: state, at: now)
             return rule
         }
     }
@@ -214,7 +352,7 @@ public actor LockStore {
                     existingState: state, enabled: replacement.status == .scheduled)
                 : planner.validateScheduledReplacement(replacement, replacing: original, now: now,
                     existingState: state)
-            try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
+            try MonitoringSchedule.validateCapacity(for: state, at: now)
         }
     }
 
@@ -254,7 +392,7 @@ public actor LockStore {
                 existingState: stateWithoutRule
             )
             state.rules[index].scheduledDeletionAt = nil
-            try MonitoringSchedule.validateCapacity(for: state.rules, at: now)
+            try MonitoringSchedule.validateCapacity(for: state, at: now)
         }
     }
 
@@ -294,6 +432,7 @@ public actor LockStore {
 
     public func beginWakePurchase(for lock: ActiveLock, at now: Date) throws {
         try update { state in
+            guard state.wakeState.pendingPurchase == nil else { throw WakeError.purchaseAlreadyPending }
             let active = try activeOccurrence(matching: lock, in: state, at: now)
             state.wakeState.pendingPurchase = WakePurchaseIntent(
                 ruleID: active.id,
@@ -312,11 +451,16 @@ public actor LockStore {
     @discardableResult
     public func deliverWakePurchase(transactionID: UInt64, at now: Date) throws -> WakePurchaseDelivery {
         try update { state in
-            guard !state.wakeState.hasHandled(transactionID: transactionID) else { return .alreadyHandled }
+            guard !state.wakeState.hasHandled(transactionID: transactionID),
+                  state.dailyAllowance.lastPaidPurchaseTransactionID != transactionID
+            else { return .alreadyHandled }
             guard let intent = state.wakeState.pendingPurchase,
-                  let rule = state.rules.first(where: { $0.id == intent.ruleID }),
+                  let ruleID = intent.ruleID,
+                  intent.dailyAllowanceDurationMinutes == nil,
+                  let occurrenceStartedAt = intent.occurrenceStartedAt,
+                  let rule = state.rules.first(where: { $0.id == ruleID }),
                   let active = rule.occurrence(containing: now),
-                  active.startedAt == intent.occurrenceStartedAt,
+                  active.startedAt == occurrenceStartedAt,
                   now < state.wakeState.effectiveEnd(of: active)
             else {
                 state.wakeState.pendingPurchase = nil

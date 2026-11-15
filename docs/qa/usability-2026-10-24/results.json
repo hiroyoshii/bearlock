@@ -1,0 +1,243 @@
+{
+  "source_commit": "d27c5b631a71ee2a4088d3db62ed70c9c93ab488",
+  "evaluated_on": "2026-10-24",
+  "runtime": "iOS 27.0 (24A434)",
+  "xcode": "27.1 (27A9275)",
+  "devices": [
+    "iPhone 14 Plus",
+    "iPhone SE (3rd generation)"
+  ],
+  "method": "XCTest UI events and screen review; mock authorization, target picker, shielding and monitoring",
+  "temporary_probe": "DEBUG and --ui-testing only: immediate request and confirmation use 10 seconds; visible TEST ONLY label. Removed after evaluation.",
+  "limitations": [
+    "No actual Screen Time enforcement, real permission prompt or payment tested.",
+    "30-minute free wake reservation and cancellation tested, not a 30-minute wait.",
+    "Initial language-mismatch run excluded.",
+    "Normal run completed all 25 test cases; xcodebuild interrupted during post-test diagnostics; results taken from completed test logs.",
+    "Normal weekday geometry failed at 43.99999999999994 vs 44; followup permits 0.000001pt rounding only.",
+    "First recovery assertion checked immediately on activation and failed; final run waits up to five seconds for target-selection control and passes."
+  ],
+  "findings": {
+    "natural_expiry": "Active card disappears but locked-target-explanation still present after three seconds; reactivation refresh restores selection. Reproduced in followup and recovery runs.",
+    "completion_feedback": "No wake-result sheet after natural expiry (observed).",
+    "large_text": "All tested actions succeed in both locales, but maximum accessibility size requires extensive scrolling."
+  },
+  "runs": {
+    "normal": {
+      "tests": [
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testActiveLockHidesMutableControlsWithMockServices",
+          "result": "passed",
+          "seconds": 6.515
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testActiveRecurringDeletionIsScheduledForCurrentEnd",
+          "result": "passed",
+          "seconds": 19.068
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testApprovedHomeWithoutSelectionShowsTargetPickerEntryPoint",
+          "result": "passed",
+          "seconds": 5.304
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testCreateAndOpenRecurringEditorWithMockServices",
+          "result": "passed",
+          "seconds": 29.867
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testCreateImmediateLockWithMockServices",
+          "result": "passed",
+          "seconds": 10.146
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testDeclinedAccessKeepsHomeUsable",
+          "result": "passed",
+          "seconds": 9.001
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testDisabledRecurringDraftCancelsWithoutChangingSavedStatus",
+          "result": "passed",
+          "seconds": 18.053
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testDisabledRecurringSeedShowsOffStateWithMockServices",
+          "result": "passed",
+          "seconds": 7.754
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testFreeWakeCanBeScheduledAndCancelledWithMockServices",
+          "result": "passed",
+          "seconds": 11.336
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testIntroductionAndContextualAccessFlow",
+          "result": "passed",
+          "seconds": 22.956
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testLaunchSetupScreenAndCaptureScreenshot",
+          "result": "passed",
+          "seconds": 5.26
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testMonitoringErrorSurvivesRetryAndNavigationUntilUpdateSucceeds",
+          "result": "passed",
+          "seconds": 14.551
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testReadFailureKeepsRecoveryVisibleAndReloadRestoresSavedTargets",
+          "result": "passed",
+          "seconds": 13.002
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testRecentTargetsSelectionFeedbackAndActions",
+          "result": "passed",
+          "seconds": 31.975
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testReusingTargetRefreshesHomeCountsDetailsAndConfirmation",
+          "result": "passed",
+          "seconds": 12.785
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testScheduleEditAndDeleteDelayedLockWithMockServices",
+          "result": "passed",
+          "seconds": 23.814
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testSettingsShowsOptionalSupportScreen",
+          "result": "passed",
+          "seconds": 10.707
+        },
+        {
+          "class": "BearLockLaunchUITests",
+          "test": "testUnavailableAccessKeepsRecoveryAndSettingsReachable",
+          "result": "passed",
+          "seconds": 8.383
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testDisabledControlsRemainUnderstandable",
+          "result": "passed",
+          "seconds": 15.523
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testDurationPresetsAndModeReflectCurrentValue",
+          "result": "passed",
+          "seconds": 10.441
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testSelectionAtAccessibilityTextSizeInEnglishAndJapanese",
+          "result": "passed",
+          "seconds": 119.49
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testWeekdaySelectionAndEditorSaveAgree",
+          "result": "failed",
+          "seconds": 17.046
+        },
+        {
+          "class": "UsabilitySessionUITests",
+          "test": "testTenSecondBackgroundAndReturnWhileActive",
+          "result": "passed",
+          "seconds": 19.452
+        },
+        {
+          "class": "UsabilitySessionUITests",
+          "test": "testTenSecondExpiresInBackground",
+          "result": "passed",
+          "seconds": 22.803
+        },
+        {
+          "class": "UsabilitySessionUITests",
+          "test": "testTenSecondNaturalExpiryJapanese",
+          "result": "passed",
+          "seconds": 19.574
+        }
+      ],
+      "passed": 24,
+      "failed": 1
+    },
+    "se": {
+      "tests": [
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testDisabledControlsRemainUnderstandable",
+          "result": "passed",
+          "seconds": 19.532
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testDurationPresetsAndModeReflectCurrentValue",
+          "result": "passed",
+          "seconds": 11.762
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testSelectionAtAccessibilityTextSizeInEnglishAndJapanese",
+          "result": "passed",
+          "seconds": 131.573
+        },
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testWeekdaySelectionAndEditorSaveAgree",
+          "result": "passed",
+          "seconds": 34.284
+        }
+      ],
+      "passed": 4,
+      "failed": 0
+    },
+    "followup": {
+      "tests": [
+        {
+          "class": "SelectionControlsUITests",
+          "test": "testWeekdaySelectionAndEditorSaveAgree",
+          "result": "passed",
+          "seconds": 34.572
+        },
+        {
+          "class": "UsabilitySessionUITests",
+          "test": "testExpiredControlsRecoverAfterReactivation",
+          "result": "failed",
+          "seconds": 23.771
+        }
+      ],
+      "passed": 1,
+      "failed": 1
+    },
+    "recovery": {
+      "tests": [
+        {
+          "class": "UsabilitySessionUITests",
+          "test": "testExpiredControlsRecoverAfterReactivation",
+          "result": "passed",
+          "seconds": 24.713
+        }
+      ],
+      "passed": 1,
+      "failed": 0
+    }
+  }
+}

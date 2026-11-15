@@ -1,4 +1,5 @@
 import BearLockCore
+import StoreKit
 import SwiftUI
 
 struct ScheduledLockListView: View {
@@ -6,43 +7,53 @@ struct ScheduledLockListView: View {
     @State private var pendingDeletion: LockRule?
     @State private var showsDeleteConfirmation = false
     @State private var editingSheet: ScheduledLockEditSheet?
+    var onWake: (ActiveLock) -> Void = { _ in }
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Scheduled Locks")
-                    .font(.headline)
-                    .foregroundStyle(AppTheme.navy)
+        let now = Date()
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Configured Locks")
+                .font(.headline)
+                .foregroundStyle(AppTheme.navy)
 
-                if scheduledRules(at: context.date).isEmpty {
+            if let active = model.activeLock, active.isActive(at: now) {
+                ActiveLockView(activeLock: active, onWake: { onWake(active) })
+            }
+
+            if model.lockState.dailyAllowance.isConfigured {
+                DailyAllowanceLockRow(now: now)
+            }
+
+            if scheduledRules(at: now).isEmpty {
+                if model.activeLock == nil && !model.lockState.dailyAllowance.isConfigured {
                     Text("No scheduled locks.")
                         .font(.subheadline)
                         .foregroundStyle(AppTheme.navy.opacity(0.58))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
                         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
-                } else {
-                    ForEach(scheduledRules(at: context.date)) { rule in
-                        ScheduledLockRow(
-                            rule: rule,
-                            canEdit: canEdit(rule, at: context.date),
-                            now: context.date,
-                            onEdit: {
-                                if rule.kind == .recurring {
-                                    editingSheet = .recurring(rule)
-                                } else {
-                                    editingSheet = .oneShot(rule)
-                                }
-                            },
-                            onDelete: {
-                                pendingDeletion = rule
-                                showsDeleteConfirmation = true
-                            },
-                            onCancelDeletion: {
-                                Task { await model.cancelScheduledDeletion(rule) }
+                }
+            } else {
+                ForEach(scheduledRules(at: now)) { rule in
+                    ScheduledLockRow(
+                        rule: rule,
+                        canEdit: canEdit(rule, at: now),
+                        now: now,
+                        onEdit: {
+                            if rule.kind == .recurring {
+                                editingSheet = .recurring(rule)
+                            } else {
+                                editingSheet = .oneShot(rule)
                             }
-                        )
-                    }
+                        },
+                        onDelete: {
+                            pendingDeletion = rule
+                            showsDeleteConfirmation = true
+                        },
+                        onCancelDeletion: {
+                            Task { await model.cancelScheduledDeletion(rule) }
+                        }
+                    )
                 }
             }
         }
@@ -116,6 +127,213 @@ struct ScheduledLockListView: View {
         guard let rule = pendingDeletion, rule.kind == .recurring else { return nil }
         return model.lockState.activeLocks(at: Date()).first { $0.id == rule.id }
     }
+}
+
+private struct DailyAllowanceLockRow: View {
+    @EnvironmentObject private var model: BearLockAppModel
+    @EnvironmentObject private var wakePurchaseStore: WakePurchaseStore
+    @Environment(\.purchase) private var purchase
+    @State private var isEditing = false
+    @State private var showsPaidUnlockSheet = false
+    let now: Date
+
+    var body: some View {
+        let state = model.lockState.dailyAllowanceAccessState(at: now)
+        let policy = model.lockState.dailyAllowance.policy(at: now)
+        VStack(alignment: .leading, spacing: 10) {
+            if isEditing {
+                DailyAllowanceEditorView(
+                    policy: model.lockState.dailyAllowance.policyForEditing(at: now),
+                    currentEnabled: policy.isEnabled,
+                    onCancel: { isEditing = false },
+                    onSaved: { isEditing = false }
+                )
+            } else {
+                HStack {
+                    Text("Always Lock").font(.headline.bold()).foregroundStyle(AppTheme.navy)
+                        .accessibilityIdentifier("always-lock-row")
+                    Spacer()
+                    Text(statusText(state))
+                        .font(.caption.weight(.semibold)).foregroundStyle(AppTheme.steel)
+                }
+                HStack {
+                    Spacer()
+                    Button("Edit") { isEditing = true }
+                        .accessibilityIdentifier("always-lock-edit-button")
+                }
+                if policy.isEnabled {
+                    Text(L10n.format("Today's allowance: %d min remaining", model.dailyAllowanceRemainingMinutes))
+                        .font(.title3.bold().monospacedDigit()).foregroundStyle(AppTheme.navy)
+                        .accessibilityIdentifier("daily-allowance-balance")
+                }
+                Text(L10n.format("Daily limit: %d min", policy.dailyLimitMinutes))
+                    .font(.caption).foregroundStyle(AppTheme.steel)
+                stateActions(state)
+                pendingChange
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
+        .sheet(isPresented: $showsPaidUnlockSheet) {
+            PaidDailyAllowanceUnlockSheet(
+                price: wakePurchaseStore.dailyAllowanceDisplayPrice,
+                onPurchase: { minutes in
+                    guard await model.beginDailyAllowancePurchase(minutes: minutes) else { return }
+                    await wakePurchaseStore.purchaseDailyAllowanceUnlock { product in
+                        try await purchase(product)
+                    }
+                }
+            )
+            .environmentObject(model)
+        }
+    }
+
+    @ViewBuilder
+    private func stateActions(_ state: DailyAllowanceAccessState) -> some View {
+        switch state {
+            case let .temporarilyUnlocked(grant):
+                Text(grant.isPurchased ? "Purchased temporary unlock" : "Temporarily unlocked")
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(AppTheme.steel)
+                Text(L10n.format("Relocks at %@", dailyAllowanceExpiryDisplay(grant.expiresAt)))
+                    .font(.caption).foregroundStyle(AppTheme.steel)
+                Button("End temporary unlock") { Task { _ = await model.endDailyAllowanceGrant(id: grant.id) } }
+                    .buttonStyle(.borderedProminent).disabled(model.isUpdatingLock)
+            case .available:
+                HStack {
+                    ForEach(model.availableDailyAllowanceDurations, id: \.self) { minutes in
+                        Button(L10n.format("%d min unlock", minutes)) { Task { _ = await model.beginDailyAllowanceGrant(minutes: minutes) } }
+                            .buttonStyle(.bordered).disabled(model.isUpdatingLock)
+                            .accessibilityIdentifier("daily-allowance-grant-\(minutes)")
+                    }
+                }
+                Text("End early to return each full unused minute.")
+                    .font(.caption).foregroundStyle(AppTheme.steel)
+                paidUnlockAction
+            case .blockedByNormalLock:
+                if let grant = model.activeDailyAllowanceGrant {
+                    Text("Regular lock prevents access to these targets.")
+                        .font(.caption).foregroundStyle(AppTheme.steel)
+                    Text(L10n.format("Relocks at %@", dailyAllowanceExpiryDisplay(grant.expiresAt)))
+                        .font(.caption).foregroundStyle(AppTheme.steel)
+                    Button("End temporary unlock") { Task { _ = await model.endDailyAllowanceGrant(id: grant.id) } }
+                        .buttonStyle(.borderedProminent).disabled(model.isUpdatingLock)
+                } else {
+                    Text("Regular lock prevents access to these targets. No allowance was used.")
+                        .font(.caption).foregroundStyle(AppTheme.steel)
+                }
+            case .exhausted:
+                Text("Resets tomorrow at 12:00 AM").font(.caption).foregroundStyle(AppTheme.steel)
+                paidUnlockAction
+            case .dayBoundaryTooClose:
+                Text("Unlock requests are closed for today.").font(.caption).foregroundStyle(AppTheme.steel)
+                Text("Resets at 12:00 AM").font(.caption).foregroundStyle(AppTheme.steel)
+            case .disabled:
+                Text("Stopped")
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(AppTheme.steel)
+            case .notConfigured:
+                EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var paidUnlockAction: some View {
+        Button {
+            showsPaidUnlockSheet = true
+        } label: {
+            Label("Choose unlock time", systemImage: "creditcard")
+        }
+        .buttonStyle(.bordered)
+        .disabled(!wakePurchaseStore.isDailyAllowancePurchaseAvailable || wakePurchaseStore.isPurchasing || model.isUpdatingLock)
+        .accessibilityIdentifier("daily-allowance-paid-unlock-button")
+    }
+
+    @ViewBuilder
+    private var pendingChange: some View {
+        if let pending = model.lockState.dailyAllowance.pendingPolicy {
+            Text(pending.policy.isEnabled
+                ? L10n.format("Tomorrow: daily limit %d min", pending.policy.dailyLimitMinutes)
+                : L10n.string("Tomorrow: stopped"))
+                .font(.caption).foregroundStyle(AppTheme.steel)
+            Text(L10n.format("Tomorrow's target: %@", pending.policy.targetSelection?.displayName ?? L10n.string("No targets selected")))
+                .font(.caption).foregroundStyle(AppTheme.steel)
+        }
+    }
+
+    private func statusText(_ state: DailyAllowanceAccessState) -> String {
+        switch state {
+        case .temporarilyUnlocked: return L10n.string("Temporarily unlocked")
+        case .blockedByNormalLock: return L10n.string("Regular lock active")
+        case .exhausted, .dayBoundaryTooClose, .available: return L10n.string("Locked")
+        case .disabled: return L10n.string("Stopped")
+        case .notConfigured: return L10n.string("Not configured")
+        }
+    }
+}
+
+private struct PaidDailyAllowanceUnlockSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var model: BearLockAppModel
+    @State private var durationText = "30"
+
+    let price: String?
+    let onPurchase: (Int) async -> Void
+
+    private var durationMinutes: Int? {
+        guard let value = Int(durationText), value > 15,
+              Calendar.current.date(byAdding: .minute, value: value, to: Date()) != nil else { return nil }
+        return value
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Unlock duration") {
+                    TextField("Minutes", text: $durationText)
+                        .keyboardType(.numberPad)
+                        .accessibilityIdentifier("paid-daily-unlock-duration-minutes")
+                    if let durationMinutes,
+                       let expiry = Calendar.current.date(byAdding: .minute, value: durationMinutes, to: Date()) {
+                        Text(L10n.format("Relocks at %@", dailyAllowanceExpiryDisplay(expiry)))
+                            .font(.caption).foregroundStyle(AppTheme.steel)
+                    } else {
+                        Text("Enter 16 minutes or more")
+                            .font(.caption).foregroundStyle(AppTheme.steel)
+                    }
+                }
+                Section {
+                    Text("This purchase does not use today's allowance. Bear Lock returns when the selected time ends.")
+                        .font(.footnote).foregroundStyle(AppTheme.steel)
+                }
+                Section {
+                    Button(price.map { L10n.format("Purchase timed unlock (%@)", $0) } ?? L10n.string("Purchase timed unlock")) {
+                        guard let durationMinutes else { return }
+                        Task {
+                            await onPurchase(durationMinutes)
+                            dismiss()
+                        }
+                    }
+                    .disabled(durationMinutes == nil || price == nil || model.isUpdatingLock)
+                    .accessibilityIdentifier("paid-daily-unlock-confirm")
+                }
+            }
+            .navigationTitle("Time-limited unlock")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
+
+private func dailyAllowanceExpiryDisplay(_ date: Date) -> String {
+    if Calendar.current.isDateInToday(date) {
+        return date.formatted(date: .omitted, time: .shortened)
+    }
+    return date.formatted(date: .abbreviated, time: .shortened)
 }
 
 private enum ScheduledLockEditSheet: Identifiable {

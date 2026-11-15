@@ -5,6 +5,11 @@ public enum WakePolicy {
     public static let minimumPaidRemainingTime: TimeInterval = 10 * 60
 }
 
+public enum WakeProduct {
+    public static let immediateWakeID = "com.hiyozoo.bearlock.wake.now"
+    public static let timedAllowanceUnlockID = "com.hiyozoo.bearlock.daily.unlock.timed"
+}
+
 public enum WakeSource: String, Codable, Equatable, Sendable {
     case delayed
     case purchase
@@ -43,14 +48,23 @@ public struct WakeRequest: Codable, Equatable, Identifiable, Sendable {
 }
 
 public struct WakePurchaseIntent: Codable, Equatable, Sendable {
-    public var ruleID: UUID
-    public var occurrenceStartedAt: Date
+    public var ruleID: UUID?
+    public var occurrenceStartedAt: Date?
     public var requestedAt: Date
+    public var dailyAllowanceDurationMinutes: Int?
 
     public init(ruleID: UUID, occurrenceStartedAt: Date, requestedAt: Date) {
         self.ruleID = ruleID
         self.occurrenceStartedAt = occurrenceStartedAt
         self.requestedAt = requestedAt
+        dailyAllowanceDurationMinutes = nil
+    }
+
+    public init(dailyAllowanceDurationMinutes: Int, requestedAt: Date) {
+        ruleID = nil
+        occurrenceStartedAt = nil
+        self.requestedAt = requestedAt
+        self.dailyAllowanceDurationMinutes = dailyAllowanceDurationMinutes
     }
 }
 
@@ -92,10 +106,19 @@ public enum WakeError: Error, Equatable, Sendable {
     case freeWakeUnavailable
     case noWakeRequest
     case noWakeCredit
+    case purchaseAlreadyPending
+    case invalidPurchaseIntent
 }
 
 public enum WakePurchaseDelivery: Equatable, Sendable {
     case unlocked
+    case allowanceUnlocked
     case credited
+    case alreadyHandled
+}
+
+public enum DailyAllowancePurchasePreparation: Equatable, Sendable {
+    case grant(DailyAllowanceGrant)
+    case credit
     case alreadyHandled
 }

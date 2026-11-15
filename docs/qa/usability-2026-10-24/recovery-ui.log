@@ -1,0 +1,106 @@
+Test Suite 'Selected tests' started at 2026-10-24 17:05:17.936.
+Test Suite 'BearLockUITests.xctest' started at 2026-10-24 17:05:17.937.
+Test Suite 'UsabilitySessionUITests' started at 2026-10-24 17:05:17.937.
+Test Case '-[BearLockUITests.UsabilitySessionUITests testExpiredControlsRecoverAfterReactivation]' started.
+    t =     0.00s Start Test at 2026-10-24 17:05:17.939
+    t =     0.09s Set Up
+    t =     0.09s Open com.hiyozoo.bearlock
+    t =     0.10s     Launch com.hiyozoo.bearlock
+2026-10-24 17:05:18.077 xcodebuild[9629:142382] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-24 17:05:18.077 xcodebuild[9629:142382] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-24 17:05:18.095 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+objc[9809]: Class UIAccessibilityLoaderWebShared is implemented in both /private/var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.434.0.VKpqKc/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x10a984398) and /private/var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.434.0.VKpqKc/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x10aabc310). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     0.96s         Setting up automation session
+    t =     2.28s         Wait for com.hiyozoo.bearlock to idle
+    t =     3.78s Waiting 10.0s for "lock-composer-primary-button" Button to exist
+    t =     4.86s     Checking `Expect predicate `existsNoRetry == 1` for object "lock-composer-primary-button" Button`
+    t =     4.86s         Checking existence of `"lock-composer-primary-button" Button`
+    t =     4.90s Checking existence of `"lock-composer-primary-button" Button`
+    t =     4.92s Find the "lock-composer-primary-button" Button
+    t =     4.97s Find the "lock-composer-primary-button" Button
+    t =     5.08s Added attachment named 'usability-ja-10s-ready'
+    t =     5.08s Tap "lock-composer-primary-button" Button
+    t =     5.08s     Wait for com.hiyozoo.bearlock to idle
+    t =     5.09s     Find the "lock-composer-primary-button" Button
+    t =     5.10s     Check for interrupting elements affecting "lock-composer-primary-button" Button
+    t =     5.12s     Synthesize event
+    t =     5.62s     Wait for com.hiyozoo.bearlock to idle
+    t =     5.92s Waiting 5.0s for "TEST ONLY: 10 seconds after start" StaticText to exist
+    t =     6.97s     Checking `Expect predicate `existsNoRetry == 1` for object "TEST ONLY: 10 seconds after start" StaticText`
+    t =     6.98s         Checking existence of `"TEST ONLY: 10 seconds after start" StaticText`
+    t =     7.25s Added attachment named 'usability-ja-10s-confirmation'
+    t =     7.25s Tap "lock-confirmation-confirm-button" Button
+    t =     7.25s     Wait for com.hiyozoo.bearlock to idle
+    t =     7.26s     Find the "lock-confirmation-confirm-button" Button
+    t =     7.29s     Check for interrupting elements affecting "lock-confirmation-confirm-button" Button
+    t =     7.32s     Synthesize event
+    t =     7.62s     Wait for com.hiyozoo.bearlock to idle
+    t =     8.07s Waiting 4.0s for "open-wake-options" Button to exist
+    t =     9.09s     Checking `Expect predicate `existsNoRetry == 1` for object "open-wake-options" Button`
+    t =     9.09s         Checking existence of `"open-wake-options" Button`
+    t =    10.28s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    10.28s     Checking existence of `"open-wake-options" Button`
+    t =    10.30s     Capturing element debug description
+    t =    11.28s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    11.28s     Checking existence of `"open-wake-options" Button`
+    t =    11.31s     Capturing element debug description
+    t =    12.19s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    12.19s     Checking existence of `"open-wake-options" Button`
+    t =    12.21s     Capturing element debug description
+    t =    13.19s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    13.19s     Checking existence of `"open-wake-options" Button`
+    t =    13.23s     Capturing element debug description
+    t =    14.20s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    14.20s     Checking existence of `"open-wake-options" Button`
+    t =    14.23s     Capturing element debug description
+    t =    15.21s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    15.21s     Checking existence of `"open-wake-options" Button`
+    t =    15.23s     Capturing element debug description
+    t =    16.20s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    16.20s     Checking existence of `"open-wake-options" Button`
+    t =    16.22s     Capturing element debug description
+    t =    17.19s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    17.19s     Checking existence of `"open-wake-options" Button`
+    t =    17.22s     Capturing element debug description
+    t =    18.19s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    18.19s     Checking existence of `"open-wake-options" Button`
+    t =    18.21s     Capturing element debug description
+    t =    19.18s Checking `Expect predicate `BLOCKPREDICATE(0x10a6b1e00)` for object Target Application 'com.hiyozoo.bearlock'`
+    t =    19.19s     Checking existence of `"open-wake-options" Button`
+    t =    22.21s Checking existence of `"locked-target-explanation" StaticText`
+USABILITY stale after 3 seconds: true
+    t =    22.32s Pressing Home button
+    t =    22.79s Open com.hiyozoo.bearlock
+    t =    22.79s     Activate com.hiyozoo.bearlock
+    t =    23.29s         Wait for com.hiyozoo.bearlock to idle
+    t =    23.29s Waiting 5.0s for "ロック対象を選ぶ" Button to exist
+    t =    24.36s     Checking `Expect predicate `existsNoRetry == 1` for object "ロック対象を選ぶ" Button`
+    t =    24.36s         Checking existence of `"ロック対象を選ぶ" Button`
+    t =    24.39s Checking existence of `"locked-target-explanation" StaticText`
+USABILITY stale controls recovered after reactivation
+    t =    24.49s Tear Down
+Test Case '-[BearLockUITests.UsabilitySessionUITests testExpiredControlsRecoverAfterReactivation]' passed (24.713 seconds).
+Test Suite 'UsabilitySessionUITests' passed at 2026-10-24 17:05:42.653.
+	 Executed 1 test, with 0 failures (0 unexpected) in 24.713 (24.716) seconds
+Test Suite 'BearLockUITests.xctest' passed at 2026-10-24 17:05:42.653.
+	 Executed 1 test, with 0 failures (0 unexpected) in 24.713 (24.716) seconds
+Test Suite 'Selected tests' passed at 2026-10-24 17:05:42.653.
+	 Executed 1 test, with 0 failures (0 unexpected) in 24.713 (24.717) seconds
+2026-10-24 17:05:42.700 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-24 17:05:42.700 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-24 17:05:42.701 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-24 17:05:42.728 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-24 17:05:42.728 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-24 17:05:42.729 xcodebuild[9629:142382] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+Resolve Package Graph
+
+2026-10-24 17:05:42.994 xcodebuild[9629:142382] [MT] IDETestOperationsObserverDebug: 40.460 elapsed -- Testing started completed.
+2026-10-24 17:05:42.994 xcodebuild[9629:142382] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-24 17:05:42.994 xcodebuild[9629:142382] [MT] IDETestOperationsObserverDebug: 40.460 sec, +40.460 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/bearlock-usability-recovery.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

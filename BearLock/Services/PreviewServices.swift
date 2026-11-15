@@ -47,6 +47,8 @@ struct NoopShieldController: ShieldControlling {
 
 struct NoopScheduleController: ScheduleControlling {
     func synchronize(_ state: LockState, at now: Date) throws {}
+    func register(_ schedule: MonitoringSchedule) throws -> Bool { true }
+    func stopMonitoring(_ name: String) throws {}
 }
 
 // Used only by the existing --ui-testing launch path; no system prompt is simulated as real consent.
@@ -60,6 +62,11 @@ final class UITestingAuthorizationService: AuthorizationServicing {
 
 // Fault injection is reachable only from BearLockAppModel's --ui-testing path.
 struct UITestingScheduleController: ScheduleControlling {
+    func register(_ schedule: MonitoringSchedule) throws -> Bool {
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-monitoring-failure") { throw CocoaError(.fileReadUnknown) }
+        return true
+    }
+    func stopMonitoring(_ name: String) throws {}
     func synchronize(_ state: LockState, at now: Date) throws {
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-monitoring-failure") {
             throw CocoaError(.fileReadUnknown)

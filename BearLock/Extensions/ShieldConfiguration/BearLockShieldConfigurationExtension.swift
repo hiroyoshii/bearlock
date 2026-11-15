@@ -5,6 +5,7 @@ import UIKit
 
 final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource {
     private let activeLockReader = ShieldActiveLockReader()
+    private let allowanceMatcher = DailyAllowanceShieldMatcher()
     private let expiryRecovery = ShieldExpiryRecovery()
 
     override func configuration(shielding application: Application) -> ShieldConfiguration {
@@ -37,6 +38,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
     private func configuration(title: String, matches: (FamilyActivitySelection) -> Bool) -> ShieldConfiguration {
         let state = expiryRecovery.reconcile()
         let subtitle = activeLockReader.unlockText(state: state, matches: matches) ?? localized("Locked until the scheduled time.")
+        let showsAllowanceAction = allowanceMatcher.isDailyAllowanceOnly(state: state, matches: matches)
 
         return ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterialLight,
@@ -51,7 +53,7 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
                 color: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 0.72)
             ),
             primaryButtonLabel: ShieldConfiguration.Label(
-                text: localized(primaryButtonKey),
+                text: localized(primaryButtonKey(for: showsAllowanceAction)),
                 color: .white
             ),
             primaryButtonBackgroundColor: UIColor(red: 0.08, green: 0.18, blue: 0.31, alpha: 1.0),
@@ -59,8 +61,10 @@ final class BearLockShieldConfigurationExtension: ShieldConfigurationDataSource 
         )
     }
 
-    private var primaryButtonKey: String {
-        if #available(iOS 26.5, *) { return "Wake the bear" }
+    private func primaryButtonKey(for dailyAllowance: Bool) -> String {
+        if #available(iOS 26.5, *) {
+            return dailyAllowance ? "Temporary unlock in Bear Lock" : "Wake the bear"
+        }
         return "OK"
     }
 

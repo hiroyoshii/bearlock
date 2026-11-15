@@ -324,10 +324,11 @@ final class BearLockLaunchUITests: XCTestCase {
     }
 
     func testCreateAndOpenRecurringEditorWithMockServices() throws {
-        let app = launchApprovedSeededApp()
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
 
         XCTAssertTrue(app.buttons["lock-composer-primary-button"].waitForExistence(timeout: 10))
-        selectComposerMode("Repeat", in: app)
+        selectComposerMode("Date & Time", in: app)
+        app.segmentedControls["date-repeat-picker"].buttons["Weekdays"].tap()
         let sunday = app.buttons["weekday-1"]
         XCTAssertTrue(sunday.waitForExistence(timeout: 5))
         XCTAssertFalse(sunday.isSelected)
@@ -341,7 +342,7 @@ final class BearLockLaunchUITests: XCTestCase {
         let end = app.staticTexts["lock-confirmation-wakes"]
         XCTAssertTrue(end.exists)
         XCTAssertFalse(end.label.contains("after start"))
-        XCTAssertTrue(end.label.contains("7:00"), "Expected configured end time, got \(end.label)")
+        XCTAssertTrue(end.label.contains("1:00"), "Expected the selected two-hour duration, got \(end.label)")
         captureScreenshot(named: "e2e-recurring-confirmation")
 
         app.buttons["lock-confirmation-confirm-button"].tap()
