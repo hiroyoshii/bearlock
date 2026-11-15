@@ -8,6 +8,7 @@ struct DurationPickerControl: View {
     let stepMinutes: Double
     let title: LocalizedStringKey
     let minimumDurationHint: LocalizedStringKey?
+    let showsPresetButtons: Bool
 
     init(
         minutes: Binding<Double>,
@@ -15,7 +16,8 @@ struct DurationPickerControl: View {
         maximumMinutes: Double,
         stepMinutes: Double = 5,
         title: LocalizedStringKey = "Duration",
-        minimumDurationHint: LocalizedStringKey? = "Locks start at 15 minutes or longer."
+        minimumDurationHint: LocalizedStringKey? = "Locks start at 15 minutes or longer.",
+        showsPresetButtons: Bool = true
     ) {
         _minutes = minutes
         self.minimumMinutes = minimumMinutes
@@ -23,6 +25,7 @@ struct DurationPickerControl: View {
         self.stepMinutes = stepMinutes
         self.title = title
         self.minimumDurationHint = minimumDurationHint
+        self.showsPresetButtons = showsPresetButtons
     }
 
     private var presetMinutes: [Int] {
@@ -52,7 +55,7 @@ struct DurationPickerControl: View {
                 .accessibilityValue(Text(L10n.format("%d min", Int(minutes))))
                 .accessibilityIdentifier("duration-slider")
 
-            if !presetMinutes.isEmpty {
+            if showsPresetButtons, !presetMinutes.isEmpty {
                 if dynamicTypeSize.isAccessibilitySize {
                     VStack(spacing: 8) { presetButtons }
                 } else {

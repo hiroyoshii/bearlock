@@ -289,7 +289,8 @@ private struct PaidDailyAllowanceUnlockSheet: View {
                         maximumMinutes: 1_440,
                         stepMinutes: 15,
                         title: "Unlock duration",
-                        minimumDurationHint: "Unlocks are available for 15 minutes or longer."
+                        minimumDurationHint: "15 minutes to 24 hours in 15-minute steps.",
+                        showsPresetButtons: false
                     )
                     let expiry = Date().addingTimeInterval(TimeInterval(Int(durationMinutes) * 60))
                     Text(L10n.format("Relocks at %@", dailyAllowanceExpiryDisplay(expiry)))

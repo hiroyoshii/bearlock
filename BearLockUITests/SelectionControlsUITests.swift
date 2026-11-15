@@ -224,8 +224,11 @@ final class SelectionControlsUITests: XCTestCase {
         paidUnlock.tap()
 
         XCTAssertTrue(app.navigationBars["時間指定で解除"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.textFields["paid-daily-unlock-duration-minutes"].value as? String, "30")
-        XCTAssertTrue(app.staticTexts["購入による解除は今日の解除枠を消費せず、指定時刻に常時ロックへ戻ります。"].exists)
+        let durationSlider = app.sliders["duration-slider"]
+        XCTAssertTrue(durationSlider.waitForExistence(timeout: 5))
+        XCTAssertEqual(durationSlider.value as? String, "30分")
+        XCTAssertFalse(app.buttons["duration-preset-15"].exists)
+        XCTAssertTrue(app.staticTexts["購入による解除は今日の解除枠を消費せず、指定時刻に常にロックへ戻ります。"].exists)
         let purchase = app.buttons["paid-daily-unlock-confirm"]
         XCTAssertTrue(purchase.isEnabled)
         XCTAssertTrue(purchase.label.contains("¥500"))

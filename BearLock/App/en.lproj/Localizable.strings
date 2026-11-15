@@ -267,7 +267,6 @@
 "Daily allowance" = "Daily allowance";
 "Daily limit" = "Daily limit";
 "%d minutes" = "%d minutes";
-"%d min" = "%d min";
 "Always lock every day and temporarily unlock within your daily allowance. Changes and stopping take effect tomorrow." = "Always lock every day and temporarily unlock within your daily allowance. Changes and stopping take effect tomorrow.";
 "Saving…" = "Saving…";
 "Could not save settings." = "Could not save settings.";
@@ -276,8 +275,6 @@
 "Choose unlock time" = "Choose unlock time";
 "Purchased temporary unlock" = "Purchased temporary unlock";
 "Unlock duration" = "Unlock duration";
-"Minutes" = "Minutes";
-"Enter 16 minutes or more" = "Enter 16 minutes or more";
 "End early to return each full unused minute." = "End early to return each full unused minute.";
 "Changes take effect %@. Today's lock remains active." = "Changes take effect %@. Today's lock remains active.";
 "This purchase does not use today's allowance. Bear Lock returns when the selected time ends." = "This purchase does not use today's allowance. Bear Lock returns when the selected time ends.";
@@ -297,7 +294,7 @@
 "No targets selected" = "No targets selected";
 "Today's allowance: %d min remaining" = "Today's allowance: %d min remaining";
 "Relocks at %@" = "Relocks at %@";
-"Unlocks are available for 15 minutes or longer." = "Unlocks are available for 15 minutes or longer.";
+"15 minutes to 24 hours in 15-minute steps." = "15 minutes to 24 hours in 15-minute steps.";
 "Regular lock prevents access to these targets. No allowance was used." = "Regular lock prevents access to these targets. No allowance was used.";
 "Regular lock prevents access to these targets." = "Regular lock prevents access to these targets.";
 "Resets tomorrow at 12:00 AM" = "Resets tomorrow at 12:00 AM";
