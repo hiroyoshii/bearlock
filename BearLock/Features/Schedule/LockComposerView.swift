@@ -145,7 +145,7 @@ struct LockComposerView: View {
                     .accessibilityIdentifier("daily-allowance-selected-limit")
             }
             Picker("Daily allowance", selection: $dailyAllowanceLimitMinutes) {
-                ForEach([15, 30, 60, 90, 120], id: \.self) { minutes in
+                ForEach(DailyAllowancePolicy.allowedDailyLimits, id: \.self) { minutes in
                     Text(L10n.format("%d minutes", minutes)).tag(minutes)
                 }
             }

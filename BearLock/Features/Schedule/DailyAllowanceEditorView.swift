@@ -46,7 +46,7 @@ struct DailyAllowanceEditorView: View {
             .accessibilityIdentifier("daily-allowance-edit-target")
 
             Picker("Daily allowance", selection: $policy.dailyLimitMinutes) {
-                ForEach([15, 30, 60, 90, 120], id: \.self) { minutes in
+                ForEach(DailyAllowancePolicy.allowedDailyLimits, id: \.self) { minutes in
                     Text(L10n.format("%d minutes", minutes)).tag(minutes)
                 }
             }

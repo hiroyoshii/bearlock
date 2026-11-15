@@ -235,6 +235,17 @@ final class SelectionControlsUITests: XCTestCase {
     func testAlwaysLockEditSchedulesChangesAndStopForTomorrow() throws {
         let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
         selectComposerMode("Always", in: app)
+
+        let creationLimitPicker = app.descendants(matching: .any)["daily-allowance-limit-picker"]
+        XCTAssertTrue(creationLimitPicker.exists)
+        creationLimitPicker.tap()
+        for minutes in [15, 30, 60] {
+            XCTAssertTrue(app.buttons["\(minutes) minutes"].waitForExistence(timeout: 5))
+        }
+        XCTAssertFalse(app.buttons["90 minutes"].exists)
+        XCTAssertFalse(app.buttons["120 minutes"].exists)
+        app.buttons["60 minutes"].tap()
+
         app.buttons["Start Always Lock"].tap()
         let edit = app.buttons["always-lock-edit-button"]
         XCTAssertTrue(edit.waitForExistence(timeout: 10))

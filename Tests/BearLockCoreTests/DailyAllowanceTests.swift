@@ -8,6 +8,17 @@ final class DailyAllowanceTests: XCTestCase {
         return value
     }
 
+    func testDailyAllowanceLimitCannotExceed60Minutes() throws {
+        let now = date("2026-11-14T12:00:00Z")
+        var allowance = configuredAllowance(limit: 60, at: now)
+
+        for limit in [90, 120] {
+            XCTAssertThrowsError(try allowance.configure(policy(limit: limit, target: allowance.currentPolicy.targetSelection), at: now, calendar: calendar)) {
+                XCTAssertEqual($0 as? DailyAllowanceError, .invalidDailyLimit)
+            }
+        }
+    }
+
     func testAvailableDurationsFitRemainingBudgetAndLocalDay() throws {
         let now = date("2026-11-14T23:50:00Z")
         var allowance = configuredAllowance(limit: 60, at: now)
@@ -63,11 +74,11 @@ final class DailyAllowanceTests: XCTestCase {
 
     func testPaidCustomUnlockHasNoSixtyMinuteCap() throws {
         let now = date("2026-11-14T12:00:00Z")
-        var allowance = configuredAllowance(limit: 120, at: now)
+        var allowance = configuredAllowance(limit: 60, at: now)
 
         let grant = try allowance.beginPaidGrant(minutes: 120, transactionID: 120, at: now, calendar: calendar)
         XCTAssertEqual(grant.expiresAt, now.addingTimeInterval(120 * 60))
-        XCTAssertEqual(allowance.remainingMinutes(at: now, calendar: calendar), 120)
+        XCTAssertEqual(allowance.remainingMinutes(at: now, calendar: calendar), 60)
     }
 
     func testEndingGrantEarlyRefundsOnlyWholeUnusedMinutes() throws {

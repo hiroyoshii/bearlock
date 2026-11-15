@@ -15,6 +15,8 @@ public enum DailyAllowanceError: Error, Equatable, Sendable {
 }
 
 public struct DailyAllowancePolicy: Codable, Equatable, Sendable {
+    public static let allowedDailyLimits = [15, 30, 60]
+
     public var isEnabled: Bool
     public var targetSelection: LockTargetSelectionRef?
     public var dailyLimitMinutes: Int
@@ -30,7 +32,7 @@ public struct DailyAllowancePolicy: Codable, Equatable, Sendable {
     }
 
     fileprivate func validate() throws {
-        guard [15, 30, 60, 90, 120].contains(dailyLimitMinutes) else {
+        guard Self.allowedDailyLimits.contains(dailyLimitMinutes) else {
             throw DailyAllowanceError.invalidDailyLimit
         }
         if isEnabled {
