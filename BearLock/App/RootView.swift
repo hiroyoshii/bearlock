@@ -9,6 +9,7 @@ struct RootView: View {
     @State private var navigationPath = NavigationPath()
     @State private var wakeTarget: ActiveLock?
     @State private var showsWakeResult = false
+    @State private var launchDestination: ShieldLaunchDestination?
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -35,7 +36,7 @@ struct RootView: View {
                     if !hasSeenIntroduction && model.authorizationStatus == .unknown && model.lockState.targetSelections.isEmpty && model.lockState.rules.isEmpty {
                         SetupView()
                     } else {
-                        HomeView { wakeTarget = $0 }
+                        HomeView(launchDestination: launchDestination) { wakeTarget = $0 }
                     }
                 } else {
                     ProgressView()
@@ -94,7 +95,9 @@ struct RootView: View {
 
     @MainActor
     private func activate() async {
-        let opensWakeOptions = WakeLaunchRequest.consume()
+        let destination = ShieldLaunchRequest.consume()
+        launchDestination = destination
+        let opensWakeOptions = destination == .wake
         if opensWakeOptions { navigationPath = NavigationPath() }
         await model.refresh()
         if opensWakeOptions {

@@ -2,6 +2,8 @@
 
 The current English and Japanese simulator captures are in `app-store-en` and `app-store-ja` (16 screens per locale). [Source metadata](app-store-source.json) identifies the exact source commit, GitHub Actions run, and files.
 
+The gallery also includes nine daily allowance flow previews per locale (`composeAlways` and the eight `allowance*` screens). They were captured on iPhone 14 Plus at 1284x2778 before branch integration; metadata records them separately from the reviewed 1206x2622 App Store set. The manual iOS Screenshots workflow now captures these states at the configured App Store device size.
+
 These use the screenshot app's fixtures. They show the current UI, not evidence of actual Screen Time blocking. Interactive E2E evidence and the before/after review are recorded in [the selection-controls review](../docs/qa/ios-selection-controls-2026-10-11.md). Superseded QA and Android comparison images are available through fixed Git history links in the review notes.
 
 The 2026-10-26 gallery contains 31 captures from [iOS Screenshots run 3](https://github.com/hiroyoshii/bearlock/actions/runs/40323886294), source `8567e31`, plus the English `composeDelayed.png` from [run 2](https://github.com/hiroyoshii/bearlock/actions/runs/40315675972), source `c642aac`. Run 3 captured the iPhone home screen for that one file; it was rejected. The intervening fixture changes do not alter the delayed composer. Per-file source exceptions and source archive hashes are recorded in the metadata.

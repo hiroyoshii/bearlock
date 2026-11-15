@@ -1,14 +1,21 @@
 import BearLockCore
+import FamilyControls
 import SwiftUI
 
 enum LockComposerMode: String, CaseIterable, Identifiable {
     case now = "Now"
     case delayed = "In"
     case fixedDateTime = "Date & Time"
-    case recurring = "Repeat"
+    case always = "Always"
 
     var id: String { rawValue }
+    var displayTitle: String { self == .fixedDateTime ? "Date mode" : rawValue }
+}
 
+private enum DateRepeatMode: String, CaseIterable, Identifiable {
+    case none = "None"
+    case weekdays = "Repeat weekdays"
+    var id: String { rawValue }
 }
 
 struct LockComposerView: View {
@@ -16,15 +23,17 @@ struct LockComposerView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var mode: LockComposerMode
     var allowsImmediateLock = true
+    var startsWithWeekdays = false
 
     @State private var delayMinutes = 30.0
     @State private var durationMinutes = 120.0
     @State private var fixedStart = Date().addingTimeInterval(30 * 60)
+    @State private var repeatMode: DateRepeatMode = .none
     @State private var recurringStart = DateComponents(hour: 23, minute: 0)
-    @State private var recurringEnd = DateComponents(hour: 7, minute: 0)
     @State private var selectedWeekdays: Set<Weekday> = [.monday, .tuesday, .wednesday, .thursday, .friday]
     @State private var confirmationDetails: LockConfirmationDetails?
-    @State private var saveError: String?
+    @State private var dailyAllowanceLimitMinutes = 60
+    @State private var allowanceSaveError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -36,9 +45,17 @@ struct LockComposerView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(AppTheme.ice, in: RoundedRectangle(cornerRadius: 8))
             }
-
             modePicker
-
+            if mode == .always && !model.lockState.dailyAllowance.isConfigured {
+                Text("Always lock every day and temporarily unlock within your daily allowance. Changes and stopping take effect tomorrow.")
+                    .font(.caption).foregroundStyle(AppTheme.steel)
+                    .accessibilityIdentifier("daily-allowance-overview")
+            }
+            if mode == .now && !allowsImmediateLock {
+                Label("Cannot start now while a lock is active.", systemImage: "lock.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.steel)
+            }
             Group {
                 switch mode {
                 case .now:
@@ -48,318 +65,238 @@ struct LockComposerView: View {
                     durationControl
                     scheduleSummary
                 case .fixedDateTime:
-                    Text("Date & Time")
-                        .font(.headline)
-                    ScheduleDatePicker(title: "Starts", selection: $fixedStart, displayedComponents: [.date, .hourAndMinute])
+                    dateRepeatPicker
+                    if repeatMode == .none {
+                        ScheduleDatePicker(title: "Starts", selection: $fixedStart, displayedComponents: [.date, .hourAndMinute])
+                    } else {
+                        weekdayControl
+                        timePicker(title: "Starts", components: $recurringStart)
+                            .accessibilityIdentifier("repeat-start-time")
+                    }
                     durationControl
                     scheduleSummary
-                case .recurring:
-                    weekdayControl
-                    timePicker(title: "Starts", components: $recurringStart)
-                    timePicker(title: "Ends", components: $recurringEnd)
+                case .always:
+                    if model.lockState.dailyAllowance.isConfigured {
+                        alwaysConfigured
+                    } else {
+                        alwaysCreationSettings
+                    }
                 }
             }
-
-            Button {
-                saveError = nil
-                confirmationDetails = makeConfirmationDetails()
-            } label: {
-                Label(LocalizedStringKey(primaryButtonTitle), systemImage: "lock.fill")
-                    .frame(maxWidth: .infinity)
+            if mode == .always && !model.lockState.dailyAllowance.isConfigured {
+                Button {
+                    Task { await saveAlwaysPolicy() }
+                } label: {
+                    Label("Start Always Lock", systemImage: "lock.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(AppTheme.navy)
+                .disabled(!canSaveAlways || model.isUpdatingLock)
+                .accessibilityIdentifier("lock-composer-primary-button")
+                if let allowanceSaveError {
+                    Text(allowanceSaveError).font(.caption).foregroundStyle(.red)
+                }
+            } else if mode != .always {
+                Button {
+                    confirmationDetails = makeConfirmationDetails()
+                } label: {
+                    Label(LocalizedStringKey(primaryButtonTitle), systemImage: "lock.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(AppTheme.navy)
+                .disabled(!canSubmit)
+                .accessibilityIdentifier("lock-composer-primary-button")
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(AppTheme.navy)
-            .disabled(!canSubmit)
-            .accessibilityIdentifier("lock-composer-primary-button")
         }
         .padding(16)
         .background(AppTheme.snow, in: RoundedRectangle(cornerRadius: 8))
         .onAppear {
             applySafetyDefaults()
-            applyAllowedMode()
-        }
-        .onChange(of: allowsImmediateLock) { _, _ in
-            applyAllowedMode()
+            if startsWithWeekdays { repeatMode = .weekdays }
         }
         .sheet(item: confirmationBinding) { details in
-            LockConfirmationSheet(
-                details: details,
-                isSubmitting: model.isCreatingLock,
-                saveError: saveError,
-                onCancel: {
-                    confirmationDetails = nil
-                },
-                onConfirm: {
-                    Task {
-                        let didCreate = await model.createLock(makeRequest())
-                        if didCreate.isSaved {
-                            confirmationDetails = nil
-                        } else {
-                            saveError = model.lastErrorMessage
-                            model.lastErrorMessage = nil
-                        }
-                    }
+            LockConfirmationSheet(details: details, isSubmitting: model.isCreatingLock, onCancel: { confirmationDetails = nil }, onConfirm: {
+                Task {
+                    if (await model.createLock(makeRequest())).isSaved { confirmationDetails = nil }
                 }
-            )
+            })
+        }
+    }
+
+    private var dateRepeatPicker: some View {
+        Picker("Repeat", selection: $repeatMode) {
+            ForEach(DateRepeatMode.allCases) { option in Text(LocalizedStringKey(option.rawValue)).tag(option) }
+        }
+        .pickerStyle(.segmented)
+        .accessibilityIdentifier("date-repeat-picker")
+    }
+
+    private var alwaysCreationSettings: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Daily allowance").font(.headline).foregroundStyle(AppTheme.navy)
+                Text(L10n.format("%d minutes", dailyAllowanceLimitMinutes))
+                    .font(.largeTitle.bold().monospacedDigit())
+                    .foregroundStyle(AppTheme.navy)
+                    .accessibilityIdentifier("daily-allowance-selected-limit")
+            }
+            Picker("Daily allowance", selection: $dailyAllowanceLimitMinutes) {
+                ForEach([15, 30, 60, 90, 120], id: \.self) { minutes in
+                    Text(L10n.format("%d minutes", minutes)).tag(minutes)
+                }
+            }
+            .pickerStyle(.menu)
+            .accessibilityIdentifier("daily-allowance-limit-picker")
+        }
+    }
+
+    private var alwaysConfigured: some View {
+        HStack {
+            Label("Configured", systemImage: "checkmark.circle.fill")
+                .font(.headline).foregroundStyle(AppTheme.navy)
+            Spacer()
+            Text(L10n.format("Daily limit: %d min", model.lockState.dailyAllowance.policyForEditing(at: Date()).dailyLimitMinutes))
+                .font(.subheadline).foregroundStyle(AppTheme.steel)
         }
     }
 
     private var durationControl: some View {
-        DurationPickerControl(
-            minutes: $durationMinutes,
-            minimumMinutes: minimumDurationMinutes,
-            maximumMinutes: maximumDurationMinutes
-        )
+        DurationPickerControl(minutes: $durationMinutes, minimumMinutes: minimumDurationMinutes, maximumMinutes: maximumDurationMinutes)
     }
 
-    private var delayControl: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Starts in")
-                .font(.headline)
-                .foregroundStyle(AppTheme.navy)
-
-            HStack(spacing: 12) {
-                Button {
-                    delayMinutes = max(5, delayMinutes - 5)
-                } label: {
-                    Image(systemName: "minus")
-                        .frame(width: 44, height: 44)
-                }
-                .buttonStyle(.bordered)
-                .tint(AppTheme.steel)
-                .disabled(delayMinutes <= 5)
-                .accessibilityLabel("Decrease start delay")
-
-                VStack(spacing: 2) {
-                    Text(L10n.format("%d min", Int(delayMinutes)))
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(AppTheme.navy)
-                        .monospacedDigit()
-                    Text("Start delay")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(AppTheme.navy.opacity(0.62))
-                }
-                .frame(maxWidth: .infinity, minHeight: 54)
-
-                Button {
-                    delayMinutes = min(240, delayMinutes + 5)
-                } label: {
-                    Image(systemName: "plus")
-                        .frame(width: 44, height: 44)
-                }
-                .buttonStyle(.bordered)
-                .tint(AppTheme.steel)
-                .disabled(delayMinutes >= 240)
-                .accessibilityLabel("Increase start delay")
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var modePicker: some View {
-        if dynamicTypeSize.isAccessibilitySize {
-            startModePicker
-                .pickerStyle(.menu)
-                .frame(minHeight: 44)
-        } else {
-            startModePicker
-                .pickerStyle(.segmented)
-                .frame(minHeight: 44)
-        }
-    }
-
-    private var startModePicker: some View {
-        Picker("Start", selection: $mode) {
-            ForEach(availableModes) { tabMode in
-                Text(LocalizedStringKey(tabMode.rawValue))
-                    .tag(tabMode)
+    @ViewBuilder private var modePicker: some View {
+        let picker = Picker("Start", selection: $mode) {
+            ForEach(LockComposerMode.allCases) { option in
+                Text(LocalizedStringKey(option.displayTitle))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.65)
+                    .accessibilityLabel(Text(LocalizedStringKey(option.rawValue)))
+                    .tag(option)
             }
         }
         .tint(AppTheme.navy)
         .accessibilityIdentifier("lock-composer-mode-picker")
+        if dynamicTypeSize.isAccessibilitySize { picker.pickerStyle(.menu).frame(minHeight: 44) }
+        else { picker.pickerStyle(.segmented).frame(minHeight: 44) }
+    }
+
+    private var delayControl: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Starts in").font(.headline).foregroundStyle(AppTheme.navy)
+            HStack(spacing: 12) {
+                Button { delayMinutes = max(5, delayMinutes - 5) } label: { Image(systemName: "minus").frame(width: 44, height: 44) }
+                    .buttonStyle(.bordered).disabled(delayMinutes <= 5).accessibilityLabel("Decrease start delay")
+                Text(L10n.format("%d min", Int(delayMinutes))).font(.title2.bold()).frame(maxWidth: .infinity, minHeight: 54)
+                Button { delayMinutes = min(240, delayMinutes + 5) } label: { Image(systemName: "plus").frame(width: 44, height: 44) }
+                    .buttonStyle(.bordered).disabled(delayMinutes >= 240).accessibilityLabel("Increase start delay")
+            }
+        }
     }
 
     private var weekdayControl: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Weekdays")
-                .font(.headline)
-
-            WeekdayPicker(selection: $selectedWeekdays)
-        }
+        VStack(alignment: .leading, spacing: 8) { Text("Weekdays").font(.headline); WeekdayPicker(selection: $selectedWeekdays) }
     }
 
     private var scheduleSummary: some View {
-        let start = mode == .delayed ? Date().addingTimeInterval(delayMinutes * 60) : fixedStart
-        let end = start.addingTimeInterval(durationMinutes * 60)
-
-        return VStack(alignment: .leading, spacing: 4) {
-            Text(L10n.format("Starts %@", start.formatted(date: .abbreviated, time: .shortened)))
-            Text(L10n.format("Wakes %@", end.formatted(date: .abbreviated, time: .shortened)))
+        let interval: DateInterval
+        if mode == .fixedDateTime, repeatMode == .weekdays {
+            let recurrence = makeRecurrence()
+            interval = recurrence.nextInterval(after: Date()) ?? DateInterval(start: Date(), duration: recurrence.duration)
+        } else {
+            let start = mode == .delayed ? Date().addingTimeInterval(delayMinutes * 60) : fixedStart
+            interval = DateInterval(start: start, duration: durationMinutes * 60)
         }
-        .font(.subheadline)
-        .foregroundStyle(AppTheme.navy.opacity(0.68))
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(L10n.format("Starts %@", interval.start.formatted(date: .abbreviated, time: .shortened)))
+            Text(L10n.format("Wakes %@", interval.end.formatted(date: .abbreviated, time: .shortened)))
+        }.font(.subheadline).foregroundStyle(AppTheme.navy.opacity(0.68))
     }
 
     private func timePicker(title: String, components: Binding<DateComponents>) -> some View {
-        ScheduleDatePicker(
-            title: title,
-            selection: Binding(
-                get: { date(from: components.wrappedValue) },
-                set: { components.wrappedValue = Calendar.current.dateComponents([.hour, .minute], from: $0) }
-            ),
-            displayedComponents: [.hourAndMinute]
-        )
+        ScheduleDatePicker(title: title, selection: Binding(get: { date(from: components.wrappedValue) }, set: { components.wrappedValue = Calendar.current.dateComponents([.hour, .minute], from: $0) }), displayedComponents: [.hourAndMinute])
     }
 
-    private var primaryButtonTitle: String {
-        mode == .now ? "Start Lock" : "Schedule Lock"
-    }
-
-    private var availableModes: [LockComposerMode] {
-        allowsImmediateLock ? LockComposerMode.allCases : LockComposerMode.allCases.filter { $0 != .now }
-    }
-
+    private var primaryButtonTitle: String { mode == .now ? "Start Lock" : "Schedule Lock" }
+    private var canSaveAlways: Bool { model.authorizationStatus == .approved && model.lockState.selectedTarget?.tokenData != nil }
     private var canSubmit: Bool {
-        guard model.authorizationStatus == .approved, model.lockState.selectedTarget != nil else {
-            return false
-        }
-
-        if let maximumDuration = BearLockSafetyPolicy.maximumDuration,
-           requestDuration > maximumDuration {
-            return false
-        }
-
-        if mode == .recurring {
-            return !selectedWeekdays.isEmpty
-        }
-
+        guard model.authorizationStatus == .approved, model.lockState.selectedTarget != nil else { return false }
+        if !allowsImmediateLock && mode == .now { return false }
+        if let maximumDuration = BearLockSafetyPolicy.maximumDuration, requestDuration > maximumDuration { return false }
+        if mode == .fixedDateTime && repeatMode == .weekdays { return !selectedWeekdays.isEmpty }
         return true
+    }
+    private var minimumDurationMinutes: Double { BearLockSafetyPolicy.maximumDuration == nil ? 15 : 5 }
+    private var maximumDurationMinutes: Double { BearLockSafetyPolicy.maximumDuration.map { max(5, $0 / 60) } ?? 720 }
+    private var requestDuration: TimeInterval {
+        guard mode == .fixedDateTime, repeatMode == .weekdays else { return durationMinutes * 60 }
+        return makeRecurrence().duration
+    }
+    private var safetyLimitText: String? {
+        guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else { return nil }
+        return L10n.format("Debug safety limit: max %d min", Int(maximumDuration / 60))
     }
 
     private func makeRequest() -> LockCreationRequest {
         let targetID = model.lockState.selectedTarget?.id ?? UUID()
         switch mode {
-        case .now:
-            return .now(duration: durationMinutes * 60, targetSelectionID: targetID)
-        case .delayed:
-            return .delayed(delay: delayMinutes * 60, duration: durationMinutes * 60, targetSelectionID: targetID)
+        case .now: return .now(duration: durationMinutes * 60, targetSelectionID: targetID)
+        case .delayed: return .delayed(delay: delayMinutes * 60, duration: durationMinutes * 60, targetSelectionID: targetID)
         case .fixedDateTime:
-            return .fixed(startsAt: fixedStart, duration: durationMinutes * 60, targetSelectionID: targetID)
-        case .recurring:
-            return .recurring(
-                recurrence: RecurrenceRule(
-                    weekdays: selectedWeekdays,
-                    startsAt: TimeOfDay(hour: recurringStart.hour ?? 23, minute: recurringStart.minute ?? 0),
-                    endsAt: TimeOfDay(hour: recurringEnd.hour ?? 7, minute: recurringEnd.minute ?? 0)
-                ),
-                targetSelectionID: targetID
-            )
-        }
-    }
-
-    private var minimumDurationMinutes: Double {
-        BearLockSafetyPolicy.maximumDuration == nil ? 15 : 5
-    }
-
-    private var maximumDurationMinutes: Double {
-        if let maximumDuration = BearLockSafetyPolicy.maximumDuration {
-            return max(5, maximumDuration / 60)
-        }
-        return 720
-    }
-
-    private var requestDuration: TimeInterval {
-        switch mode {
-        case .now, .delayed, .fixedDateTime:
-            return durationMinutes * 60
-        case .recurring:
-            let recurrence = RecurrenceRule(
-                weekdays: selectedWeekdays,
-                startsAt: TimeOfDay(hour: recurringStart.hour ?? 23, minute: recurringStart.minute ?? 0),
-                endsAt: TimeOfDay(hour: recurringEnd.hour ?? 7, minute: recurringEnd.minute ?? 0)
-            )
-            return recurrence.duration
-        }
-    }
-
-    private var safetyLimitText: String? {
-        guard let maximumDuration = BearLockSafetyPolicy.maximumDuration else {
-            return nil
-        }
-        return L10n.format("Debug safety limit: max %d min", Int(maximumDuration / 60))
-    }
-
-    private func applySafetyDefaults() {
-        guard BearLockSafetyPolicy.maximumDuration != nil else {
-            return
-        }
-        durationMinutes = min(durationMinutes, maximumDurationMinutes)
-        let startDate = date(from: recurringStart)
-        let cappedEnd = startDate.addingTimeInterval(maximumDurationMinutes * 60)
-        recurringEnd = Calendar.current.dateComponents([.hour, .minute], from: cappedEnd)
-    }
-
-    private func applyAllowedMode() {
-        if !allowsImmediateLock, mode == .now {
-            mode = .delayed
+            if repeatMode == .none { return .fixed(startsAt: fixedStart, duration: durationMinutes * 60, targetSelectionID: targetID) }
+            return .recurring(recurrence: makeRecurrence(), targetSelectionID: targetID)
+        case .always: return .now(duration: 0, targetSelectionID: targetID)
         }
     }
 
     private func makeConfirmationDetails() -> LockConfirmationDetails {
-        let startsAt: Date
-        let endsAt: Date
-
-        switch mode {
-        case .now:
-            startsAt = Date()
-            endsAt = startsAt.addingTimeInterval(durationMinutes * 60)
-        case .delayed:
-            startsAt = Date().addingTimeInterval(delayMinutes * 60)
-            endsAt = startsAt.addingTimeInterval(durationMinutes * 60)
-        case .fixedDateTime:
-            startsAt = fixedStart
-            endsAt = startsAt.addingTimeInterval(durationMinutes * 60)
-        case .recurring:
-            let recurrence = RecurrenceRule(
-                weekdays: selectedWeekdays,
-                startsAt: TimeOfDay(hour: recurringStart.hour ?? 23, minute: recurringStart.minute ?? 0),
-                endsAt: TimeOfDay(hour: recurringEnd.hour ?? 7, minute: recurringEnd.minute ?? 0)
-            )
-            let interval = recurrence.nextInterval(after: Date())
-            startsAt = interval?.start ?? Date()
-            endsAt = interval?.end ?? startsAt.addingTimeInterval(recurrence.duration)
+        let isRecurring = mode == .fixedDateTime && repeatMode == .weekdays
+        let start: Date
+        let end: Date
+        if isRecurring {
+            let occurrence = makeRecurrence().nextInterval(after: Date())
+            start = occurrence?.start ?? Date()
+            end = occurrence?.end ?? start.addingTimeInterval(durationMinutes * 60)
+        } else {
+            start = mode == .now ? Date() : mode == .delayed ? Date().addingTimeInterval(delayMinutes * 60) : fixedStart
+            end = start.addingTimeInterval(durationMinutes * 60)
         }
+        let repeatSummary = isRecurring ? selectedWeekdays.sorted { $0.rawValue < $1.rawValue }.map { $0.shortName() }.joined(separator: " · ") + " " + date(from: recurringStart).formatted(date: .omitted, time: .shortened) : nil
+        let endSummary = mode == .now || mode == .delayed ? L10n.format("%d min after start", Int(durationMinutes)) : nil
+        return LockConfirmationDetails(title: mode == .now ? "Start this lock?" : "Schedule this lock?", targetSummary: model.lockState.selectedTarget?.displayName ?? "Selected apps", startsAt: start, endsAt: end, startSummary: mode == .now ? L10n.string("After confirmation") : mode == .delayed ? L10n.format("%d min after confirmation", Int(delayMinutes)) : repeatSummary, endSummary: endSummary, isImmediate: mode == .now, isRecurring: isRecurring)
+    }
 
-        return LockConfirmationDetails(
-            title: mode == .now ? "Start this lock?" : "Schedule this lock?",
-            targetSummary: model.lockState.selectedTarget?.displayName ?? "Selected apps",
-            startsAt: startsAt,
-            endsAt: endsAt,
-            startSummary: mode == .now ? L10n.string("After confirmation") : mode == .delayed ? L10n.format("%d min after confirmation", Int(delayMinutes)) : mode == .recurring ? selectedWeekdays.sorted { $0.rawValue < $1.rawValue }.map { $0.shortName() }.joined(separator: " · ") + " " + date(from: recurringStart).formatted(date: .omitted, time: .shortened) : nil,
-            endSummary: mode == .now || mode == .delayed ? L10n.format("%d min after start", Int(requestDuration / 60)) : nil,
-            isImmediate: mode == .now,
-            isRecurring: mode == .recurring
-        )
+    private func makeRecurrence() -> RecurrenceRule {
+        let startsAt = TimeOfDay(hour: recurringStart.hour ?? 23, minute: recurringStart.minute ?? 0)
+        let endDate = date(from: recurringStart).addingTimeInterval(durationMinutes * 60)
+        let end = Calendar.current.dateComponents([.hour, .minute], from: endDate)
+        return RecurrenceRule(weekdays: selectedWeekdays, startsAt: startsAt, endsAt: TimeOfDay(hour: end.hour ?? 0, minute: end.minute ?? 0))
+    }
+
+    private func applySafetyDefaults() {
+        guard BearLockSafetyPolicy.maximumDuration != nil else { return }
+        durationMinutes = min(durationMinutes, maximumDurationMinutes)
+    }
+
+    private func saveAlwaysPolicy() async {
+        allowanceSaveError = nil
+        let policy = DailyAllowancePolicy(isEnabled: true, targetSelection: model.lockState.selectedTarget, dailyLimitMinutes: dailyAllowanceLimitMinutes)
+        let result = await model.saveDailyAllowancePolicy(policy, selection: FamilyActivitySelection())
+        if !result.isSaved { allowanceSaveError = model.lastErrorMessage ?? L10n.string("Could not save settings.") }
     }
 
     private func date(from components: DateComponents) -> Date {
         var base = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-        base.hour = components.hour
-        base.minute = components.minute
+        base.hour = components.hour; base.minute = components.minute
         return Calendar.current.date(from: base) ?? Date()
     }
 
-    private var confirmationBinding: Binding<LockConfirmationDetails?> {
-        Binding(
-            get: { confirmationDetails },
-            set: { confirmationDetails = $0 }
-        )
-    }
+    private var confirmationBinding: Binding<LockConfirmationDetails?> { Binding(get: { confirmationDetails }, set: { confirmationDetails = $0 }) }
 }
 
 extension LockConfirmationDetails: Identifiable {
-    var id: String {
-        "\(startsAt.timeIntervalSince1970)-\(endsAt.timeIntervalSince1970)-\(targetSummary)"
-    }
+    var id: String { "\(startsAt.timeIntervalSince1970)-\(endsAt.timeIntervalSince1970)-\(targetSummary)" }
 }

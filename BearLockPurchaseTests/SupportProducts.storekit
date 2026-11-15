@@ -68,6 +68,26 @@
       "type": "Consumable"
     },
     {
+      "displayPrice": "500",
+      "familyShareable": false,
+      "internalID": "1005",
+      "localizations": [
+        {
+          "description": "Unlock selected targets for a chosen duration",
+          "displayName": "Timed unlock",
+          "locale": "en_US"
+        },
+        {
+          "description": "選択した時間だけ対象を一時解除します",
+          "displayName": "時間指定解除",
+          "locale": "ja"
+        }
+      ],
+      "productID": "com.hiyozoo.bearlock.daily.unlock.timed",
+      "referenceName": "Timed Unlock",
+      "type": "Consumable"
+    },
+    {
       "displayPrice": "100",
       "familyShareable": false,
       "internalID": "2001",

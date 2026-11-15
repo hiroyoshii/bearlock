@@ -116,6 +116,7 @@ targets:
       - path: BearLock/Services/DiagnosticsLogger.swift
       - path: BearLock/Services/TargetSelectionStore.swift
       - path: BearLock/Services/Localization.swift
+      - path: BearLock/Services/DailyAllowanceShieldMatcher.swift
     dependencies:
       - package: BearLockCore
         product: BearLockCore

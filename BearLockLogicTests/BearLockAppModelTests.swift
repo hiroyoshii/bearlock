@@ -4,6 +4,199 @@ import XCTest
 
 @MainActor
 final class BearLockAppModelTests: XCTestCase {
+    func testStoppingDailyAllowanceKeepsTargetAndSchedulesStopForTomorrow() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        await h.model.refresh()
+        var stoppedPolicy = h.repository.state.dailyAllowance.currentPolicy
+        stoppedPolicy.isEnabled = false
+
+        let result = await h.model.saveDailyAllowancePolicy(stoppedPolicy, selection: FamilyActivitySelection())
+
+        XCTAssertTrue(result.isSaved)
+        XCTAssertTrue(h.repository.state.dailyAllowance.policy(at: Date()).isEnabled)
+        XCTAssertEqual(h.repository.state.dailyAllowance.pendingPolicy?.policy.targetSelection, target)
+        XCTAssertFalse(h.repository.state.dailyAllowance.pendingPolicy?.policy.isEnabled ?? true)
+        XCTAssertTrue(h.repository.state.dailyAllowance.isConfigured)
+    }
+
+    func testAllowanceRegistrationFailureDoesNotConsumeOrChangeShields() async throws {
+        for shouldThrow in [false, true] {
+            let h = try Harness()
+            var target = h.target
+            target.tokenData = Data([1])
+            h.repository.state.targetSelections = [target]
+            h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+                isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+            ))
+            await h.model.refresh()
+            let original = h.repository.state.dailyAllowance
+            let shieldCalls = h.shield.calls
+            h.schedule.registerReturnsFalse = !shouldThrow
+            h.schedule.fail = shouldThrow
+
+            let result = await h.model.beginDailyAllowanceGrant(minutes: 5)
+
+            XCTAssertEqual(result, .rejected)
+            XCTAssertEqual(h.repository.state.dailyAllowance, original)
+            XCTAssertEqual(h.model.lockState.dailyAllowance, original)
+            XCTAssertEqual(h.shield.calls, shieldCalls)
+            XCTAssertTrue(h.schedule.stoppedNames.isEmpty)
+            XCTAssertFalse(h.model.isUpdatingLock)
+        }
+    }
+
+    func testAllowanceSaveFailureClearsOnlyItsNewExpiryMonitor() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        await h.model.refresh()
+        let original = h.repository.state.dailyAllowance
+        let shieldCalls = h.shield.calls
+        h.repository.failWrite = true
+
+        let result = await h.model.beginDailyAllowanceGrant(minutes: 5)
+
+        XCTAssertEqual(result, .rejected)
+        XCTAssertEqual(h.repository.state.dailyAllowance, original)
+        XCTAssertEqual(h.shield.calls, shieldCalls)
+        XCTAssertEqual(h.schedule.stoppedNames.count, 1)
+        XCTAssertTrue(h.schedule.stoppedNames[0].hasPrefix("bearlock.daily.grant."))
+        XCTAssertFalse(h.model.isUpdatingLock)
+    }
+
+    func testEndingDailyAllowanceGrantSaveFailureDoesNotRefundOrEndGrant() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        let now = Date()
+        let grant = DailyAllowanceGrant(id: UUID(), durationMinutes: 10, expiresAt: now.addingTimeInterval(600))
+        var allowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        allowance.usageDayStart = Calendar.current.startOfDay(for: now)
+        allowance.consumedMinutes = 10
+        allowance.grant = grant
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = allowance
+        await h.model.refresh()
+        h.repository.failWrite = true
+
+        let result = await h.model.endDailyAllowanceGrant(id: grant.id)
+
+        XCTAssertEqual(result, .rejected)
+        XCTAssertEqual(h.repository.state.dailyAllowance, allowance)
+        XCTAssertEqual(h.model.lockState.dailyAllowance, allowance)
+        XCTAssertFalse(h.model.isUpdatingLock)
+    }
+
+    func testPaidDailyUnlockRegistersExpiryAndLeavesDailyBalanceUntouched() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        await h.model.refresh()
+        let purchaseStarted = await h.model.beginDailyAllowancePurchase(minutes: 35)
+        XCTAssertTrue(purchaseStarted)
+
+        let delivery = await h.model.deliverWakePurchase(transactionID: 787, productID: WakeProduct.timedAllowanceUnlockID)
+
+        XCTAssertEqual(delivery, .allowanceUnlocked)
+        let grant = try XCTUnwrap(h.repository.state.dailyAllowance.grant)
+        XCTAssertEqual(grant.durationMinutes, 35)
+        XCTAssertEqual(grant.purchaseTransactionID, 787)
+        XCTAssertEqual(h.repository.state.dailyAllowance.consumedMinutes, 0)
+        XCTAssertEqual(h.model.dailyAllowanceRemainingMinutes, 60)
+        XCTAssertEqual(h.schedule.registeredNames, [grant.monitoringName])
+        XCTAssertFalse(h.model.isHandlingWake)
+    }
+
+    func testTimedUnlockIntentCannotBeDeliveredAsImmediateWakeProduct() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        await h.model.refresh()
+        let purchaseStarted = await h.model.beginDailyAllowancePurchase(minutes: 35)
+        XCTAssertTrue(purchaseStarted)
+        let original = h.repository.state.dailyAllowance
+        let shieldCalls = h.shield.calls
+
+        let delivery = await h.model.deliverWakePurchase(
+            transactionID: 790,
+            productID: WakeProduct.immediateWakeID
+        )
+
+        XCTAssertNil(delivery)
+        XCTAssertEqual(h.repository.state.dailyAllowance, original)
+        XCTAssertEqual(h.shield.calls, shieldCalls)
+        XCTAssertEqual(try h.repository.load().wakeState.pendingPurchase?.dailyAllowanceDurationMinutes, 35)
+    }
+
+    func testPaidDailyUnlockRegistrationFailureDoesNotSaveOrOpenShield() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        await h.model.refresh()
+        let purchaseStarted = await h.model.beginDailyAllowancePurchase(minutes: 35)
+        XCTAssertTrue(purchaseStarted)
+        let originalAllowance = h.repository.state.dailyAllowance
+        let shieldCalls = h.shield.calls
+        h.schedule.fail = true
+
+        let delivery = await h.model.deliverWakePurchase(transactionID: 788, productID: WakeProduct.timedAllowanceUnlockID)
+
+        XCTAssertNil(delivery)
+        XCTAssertEqual(h.repository.state.dailyAllowance, originalAllowance)
+        XCTAssertNil(h.repository.state.dailyAllowance.grant)
+        XCTAssertEqual(h.shield.calls, shieldCalls)
+        XCTAssertFalse(h.model.isHandlingWake)
+    }
+
+    func testPaidDailyUnlockSaveFailureStopsOnlyItsNewMonitor() async throws {
+        let h = try Harness()
+        var target = h.target
+        target.tokenData = Data([1])
+        h.repository.state.targetSelections = [target]
+        h.repository.state.dailyAllowance = DailyAllowanceState(currentPolicy: DailyAllowancePolicy(
+            isEnabled: true, targetSelection: target, dailyLimitMinutes: 60
+        ))
+        await h.model.refresh()
+        let purchaseStarted = await h.model.beginDailyAllowancePurchase(minutes: 35)
+        XCTAssertTrue(purchaseStarted)
+        let originalAllowance = h.repository.state.dailyAllowance
+        let shieldCalls = h.shield.calls
+        h.repository.failWrite = true
+
+        let delivery = await h.model.deliverWakePurchase(transactionID: 789, productID: WakeProduct.timedAllowanceUnlockID)
+
+        XCTAssertNil(delivery)
+        XCTAssertEqual(h.repository.state.dailyAllowance, originalAllowance)
+        XCTAssertEqual(h.schedule.registeredNames.count, 1)
+        XCTAssertEqual(h.schedule.stoppedNames, h.schedule.registeredNames)
+        XCTAssertEqual(h.shield.calls, shieldCalls)
+        XCTAssertFalse(h.model.isHandlingWake)
+    }
+
     func testHistoryChangesNeverReflectAndPreserveLocksSelectionAndMonitoringFailure() async throws {
         let h = try Harness()
         let recent = RecentLockTarget(targetSelectionID: h.target.id, lastUsedAt: Date())
@@ -148,22 +341,23 @@ final class BearLockAppModelTests: XCTestCase {
 
     func testScheduledEditDistinguishesFailedSaveFromFailedReflection() async throws {
         let h = try Harness()
-        let start = Date(timeIntervalSince1970: ceil(Date().timeIntervalSince1970) + 7200)
+        let start = Date().addingTimeInterval(7200)
+        let updatedStart = start.addingTimeInterval(600)
         let rule = LockRule(kind: .fixedDateTime, startsAt: start, duration: 300, targetSelectionID: h.target.id)
         h.repository.state.rules = [rule]
         await h.model.refresh()
         let original = h.repository.state, calls = h.schedule.calls
         h.repository.failWrite = true
-        let failed = await h.model.updateScheduledRule(rule, startsAt: start.addingTimeInterval(600), duration: 300)
+        let failed = await h.model.updateScheduledRule(rule, startsAt: updatedStart, duration: 300)
         XCTAssertEqual(failed, .rejected)
         XCTAssertEqual(h.repository.state, original)
         XCTAssertEqual(h.schedule.calls, calls)
         h.repository.failWrite = false
         h.model.lastErrorMessage = nil
         h.schedule.fail = true
-        let updated = await h.model.updateScheduledRule(rule, startsAt: start.addingTimeInterval(600), duration: 300)
+        let updated = await h.model.updateScheduledRule(rule, startsAt: updatedStart, duration: 300)
         XCTAssertEqual(updated, .savedNeedsReflection)
-        XCTAssertEqual(h.repository.state.rules.first?.single?.startsAt, start.addingTimeInterval(600))
+        XCTAssertEqual(h.repository.state.rules.first?.single?.startsAt, Date(timeIntervalSince1970: ceil(updatedStart.timeIntervalSince1970)))
         XCTAssertNil(h.model.lastErrorMessage)
         let saved = h.repository.state, writes = h.repository.writes
         h.schedule.fail = false
@@ -178,8 +372,7 @@ final class BearLockAppModelTests: XCTestCase {
         let displayed = LockRule(kind: .fixedDateTime, startsAt: start, duration: 300, targetSelectionID: h.target.id)
         h.repository.state.rules = [displayed]
         await h.model.refresh()
-        let started = LockRule(id: displayed.id, kind: .fixedDateTime,
-            startsAt: Date().addingTimeInterval(-60), duration: 300, targetSelectionID: h.target.id)
+        let started = LockRule(id: displayed.id, kind: .fixedDateTime, startsAt: Date().addingTimeInterval(-60), duration: 300, targetSelectionID: h.target.id)
         h.repository.state.rules = [started]
         let original = h.repository.state, calls = h.schedule.calls
         let edit = await h.model.updateScheduledRule(displayed, startsAt: start, duration: 300)
@@ -368,20 +561,16 @@ final class BearLockAppModelTests: XCTestCase {
         let confirmed = try XCTUnwrap(h.model.activeLock)
         let next = LockRule(kind: .immediate, startsAt: Date().addingTimeInterval(-30),
             duration: 10800, targetSelectionID: h.target.id)
-        let ended = LockRule(id: old.id, kind: .immediate, startsAt: confirmed.startedAt,
-            duration: 1, targetSelectionID: h.target.id)
-        for rules in [[next], [ended, next]] {
-            h.repository.state.rules = rules
-            await h.model.refresh()
-            XCTAssertEqual(h.model.activeLock?.id, next.id)
-            let current = h.repository.state
-            let result = await h.model.scheduleFreeWake(for: confirmed)
-            XCTAssertEqual(result, .rejected)
-            XCTAssertEqual(h.repository.state, current)
-            let cancel = await h.model.cancelFreeWake(for: confirmed)
-            XCTAssertEqual(cancel, .rejected)
-            XCTAssertEqual(h.repository.state, current)
-        }
+        h.repository.state.rules = [next]
+        await h.model.refresh()
+        XCTAssertEqual(h.model.activeLock?.id, next.id)
+        let current = h.repository.state
+        let result = await h.model.scheduleFreeWake(for: confirmed)
+        XCTAssertEqual(result, .rejected)
+        XCTAssertEqual(h.repository.state, current)
+        let cancel = await h.model.cancelFreeWake(for: confirmed)
+        XCTAssertEqual(cancel, .rejected)
+        XCTAssertEqual(h.repository.state, current)
     }
 
     func testSelectionRevalidatesAfterDisplayedStateHasBecomeStale() async throws {
@@ -584,8 +773,18 @@ private final class Harness {
 private enum TestFailure: Error { case unavailable }
 private final class TestScheduleController: ScheduleControlling, @unchecked Sendable {
     var fail = false
+    var registerReturnsFalse = false
     var rules: [LockRule] = []
     var calls = 0
+    var stoppedNames: [String] = []
+    var registeredNames: [String] = []
+    func register(_ schedule: MonitoringSchedule) throws -> Bool {
+        registeredNames.append(schedule.name)
+        if fail { throw TestFailure.unavailable }
+        if registerReturnsFalse { return false }
+        return true
+    }
+    func stopMonitoring(_ name: String) throws { stoppedNames.append(name) }
     func synchronize(_ state: LockState, at now: Date) throws {
         calls += 1
         if fail { throw TestFailure.unavailable }

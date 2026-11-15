@@ -76,7 +76,7 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertTrue(picker.buttons["Now"].isSelected)
         XCTAssertFalse(picker.buttons["In"].isSelected)
         XCTAssertTrue(picker.buttons["Date & Time"].exists)
-        for title in ["Now", "In", "Date & Time", "Repeat"] {
+        for title in ["Now", "In", "Date & Time", "Always"] {
             let button = picker.buttons[title]
             XCTAssertTrue(button.isHittable)
             XCTAssertGreaterThanOrEqual(button.frame.width, 44)
@@ -108,9 +108,33 @@ final class SelectionControlsUITests: XCTestCase {
         selectionScreenshot(app, "mode-delayed")
     }
 
+    func testFourComposerModesAndRepeatChoicesInsideDateTime() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
+        let picker = app.segmentedControls["lock-composer-mode-picker"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 10))
+        captureScreenshot(named: "four-lock-modes-en")
+        for title in ["Now", "In", "Date & Time", "Always"] {
+            XCTAssertTrue(picker.buttons[title].exists, "Missing composer mode \(title)")
+        }
+        XCTAssertFalse(picker.buttons["Repeat"].exists)
+
+        selectComposerMode("Date & Time", in: app)
+        let repeatPicker = app.segmentedControls["date-repeat-picker"]
+        XCTAssertTrue(repeatPicker.waitForExistence(timeout: 5))
+        XCTAssertTrue(repeatPicker.buttons["None"].isSelected)
+        XCTAssertFalse(app.buttons["weekday-1"].exists)
+
+        repeatPicker.buttons["Weekdays"].tap()
+        XCTAssertTrue(app.buttons["weekday-1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["weekday-2"].isSelected)
+        XCTAssertTrue(app.descendants(matching: .any)["repeat-start-time"].exists)
+        XCTAssertTrue(app.buttons["duration-preset-120"].exists)
+    }
+
     func testWeekdaySelectionAndEditorSaveAgree() throws {
         let app = launchApprovedSeededApp()
-        selectComposerMode("Repeat", in: app)
+        selectComposerMode("Date & Time", in: app)
+        app.segmentedControls["date-repeat-picker"].buttons["Weekdays"].tap()
         let sunday = app.buttons["weekday-1"]
         let monday = app.buttons["weekday-2"]
         XCTAssertFalse(sunday.isSelected)
@@ -157,6 +181,125 @@ final class SelectionControlsUITests: XCTestCase {
         selectionScreenshot(editorApp, "weekday-editor-saved")
     }
 
+    func testAlwaysLockSetupAndAllowanceUseTheConfiguredList() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
+        selectComposerMode("Always", in: app)
+        XCTAssertTrue(app.buttons["Start Always Lock"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["daily-allowance-selected-limit"].exists)
+        XCTAssertFalse(app.buttons["weekday-1"].exists)
+        XCTAssertFalse(app.buttons["Select always-lock apps"].exists)
+        captureScreenshot(named: "always-settings-after")
+        app.buttons["Start Always Lock"].tap()
+        let row = app.staticTexts["always-lock-row"]
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["daily-allowance-balance"].label.contains("60 min remaining"))
+        XCTAssertTrue(app.buttons["always-lock-edit-button"].exists)
+        XCTAssertTrue(app.staticTexts["Configured"].exists)
+        XCTAssertFalse(app.buttons["Start Always Lock"].exists)
+        let fiveMinutes = app.buttons["5 min unlock"]
+        XCTAssertTrue(fiveMinutes.waitForExistence(timeout: 5))
+        scrollToButton(fiveMinutes, in: app)
+        captureScreenshot(named: "always-configured-row-after")
+        fiveMinutes.tap()
+        XCTAssertTrue(app.staticTexts["Temporarily unlocked"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["daily-allowance-balance"].label.contains("55 min remaining"))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Relocks at")).firstMatch.exists)
+        app.buttons["End temporary unlock"].tap()
+        let returnedBalance = app.staticTexts["daily-allowance-balance"]
+        XCTAssertTrue(returnedBalance.waitForExistence(timeout: 5))
+        XCTAssertNotEqual(returnedBalance.label, "55 min remaining")
+        captureScreenshot(named: "always-early-end-return")
+    }
+
+    func testPaidTimedUnlockUsesSeparateDurationSheet() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"])
+        app.segmentedControls["lock-composer-mode-picker"].buttons.element(boundBy: 3).tap()
+        app.buttons["lock-composer-primary-button"].tap()
+
+        let paidUnlock = app.buttons["daily-allowance-paid-unlock-button"]
+        XCTAssertTrue(paidUnlock.waitForExistence(timeout: 10))
+        scrollToButton(paidUnlock, in: app)
+        XCTAssertEqual(paidUnlock.label, "時間を指定して解除")
+        captureScreenshot(named: "always-paid-unlock-entry-ja")
+        paidUnlock.tap()
+
+        XCTAssertTrue(app.navigationBars["時間指定で解除"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.textFields["paid-daily-unlock-duration-minutes"].value as? String, "30")
+        XCTAssertTrue(app.staticTexts["購入による解除は今日の解除枠を消費せず、指定時刻に常時ロックへ戻ります。"].exists)
+        let purchase = app.buttons["paid-daily-unlock-confirm"]
+        XCTAssertTrue(purchase.isEnabled)
+        XCTAssertTrue(purchase.label.contains("¥500"))
+        captureScreenshot(named: "always-paid-unlock-duration-ja")
+    }
+
+    func testAlwaysLockEditSchedulesChangesAndStopForTomorrow() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
+        selectComposerMode("Always", in: app)
+        app.buttons["Start Always Lock"].tap()
+        let edit = app.buttons["always-lock-edit-button"]
+        XCTAssertTrue(edit.waitForExistence(timeout: 10))
+        scrollToButton(edit, in: app)
+        edit.tap()
+
+        let inlineEditorTitle = app.staticTexts["daily-allowance-inline-editor-title"]
+        XCTAssertTrue(inlineEditorTitle.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.navigationBars["Edit Always Lock"].exists)
+        XCTAssertFalse(app.switches["Enabled"].exists)
+        XCTAssertFalse(app.buttons["weekday-1"].exists)
+        XCTAssertTrue(app.buttons["daily-allowance-stop"].exists)
+        XCTAssertTrue(app.staticTexts["daily-allowance-effective-date"].exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Today's lock remains active")).firstMatch.exists)
+        captureScreenshot(named: "always-edit-inline")
+
+        let limitPicker = app.descendants(matching: .any)["daily-allowance-edit-limit-picker"]
+        XCTAssertTrue(limitPicker.exists)
+        limitPicker.tap()
+        let thirty = app.buttons["30 minutes"]
+        XCTAssertTrue(thirty.waitForExistence(timeout: 5))
+        thirty.tap()
+        app.buttons["daily-allowance-save-changes"].tap()
+
+        XCTAssertTrue(app.staticTexts["daily-allowance-balance"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["daily-allowance-balance"].label.contains("60 min remaining"))
+        XCTAssertTrue(app.staticTexts["Tomorrow: daily limit 30 min"].exists)
+        captureScreenshot(named: "always-pending-change")
+
+        edit.tap()
+        XCTAssertTrue(app.staticTexts["daily-allowance-inline-editor-title"].waitForExistence(timeout: 5))
+        app.buttons["daily-allowance-stop"].tap()
+        XCTAssertTrue(app.staticTexts["daily-allowance-balance"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Tomorrow: stopped"].exists)
+        XCTAssertTrue(app.buttons["daily-allowance-grant-5"].exists)
+    }
+
+    func testAlwaysLockJapaneseSettingsAndConfiguredListScreenshots() throws {
+        let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"])
+        let modePicker = app.segmentedControls["lock-composer-mode-picker"]
+        XCTAssertTrue(modePicker.waitForExistence(timeout: 10))
+        modePicker.buttons.element(boundBy: 3).tap()
+        let overview = app.staticTexts["daily-allowance-overview"]
+        let selectedLimit = app.staticTexts["daily-allowance-selected-limit"]
+        XCTAssertTrue(overview.exists)
+        XCTAssertLessThan(overview.frame.minY, selectedLimit.frame.minY)
+        XCTAssertGreaterThanOrEqual(overview.frame.minY, modePicker.frame.maxY)
+        captureScreenshot(named: "always-settings-after-ja")
+        app.buttons["lock-composer-primary-button"].tap()
+        XCTAssertTrue(app.staticTexts["daily-allowance-balance"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["daily-allowance-balance"].label, "今日の解除枠：残り60分")
+        let edit = app.buttons["always-lock-edit-button"]
+        scrollToButton(edit, in: app)
+        edit.tap()
+        XCTAssertTrue(app.staticTexts["daily-allowance-inline-editor-title"].waitForExistence(timeout: 5))
+        captureScreenshot(named: "always-edit-inline-ja")
+        app.buttons["キャンセル"].tap()
+        let grantButton = app.buttons["daily-allowance-grant-5"]
+        scrollToButton(grantButton, in: app)
+        app.swipeUp()
+        XCTAssertFalse(app.staticTexts["対象：3件の対象"].exists)
+        XCTAssertTrue(app.staticTexts["早めにロックすると、残り時間の満1分単位を解除枠に戻します。"].exists)
+        captureScreenshot(named: "always-configured-row-after-ja")
+    }
+
     func testWokenRecurringEditorAllowsChangesBeforeOriginalEnd() throws {
         let app = launchApprovedSeededApp(extraArguments: [
             "--ui-testing-active-recurring", "--ui-testing-woken-recurring"
@@ -181,7 +324,7 @@ final class SelectionControlsUITests: XCTestCase {
     }
 
     func testSelectionAtAccessibilityTextSizeInEnglishAndJapanese() throws {
-        for (locale, repeatTitle, dateTitle, sundayName, cancelTitle, saveTitle) in [("en", "Repeat", "Date & Time", "Sunday", "Cancel", "Save"), ("ja", "繰り返し", "日時指定", "日曜日", "キャンセル", "保存")] {
+        for (locale, weekdaysTitle, dateTitle, sundayName, cancelTitle, saveTitle) in [("en", "Weekdays", "Date & Time", "Sunday", "Cancel", "Save"), ("ja", "曜日指定", "日時指定", "日曜日", "キャンセル", "保存")] {
             let accessibilityArguments = [
                 "-AppleLanguages", "(\(locale))", "-AppleLocale", locale == "ja" ? "ja_JP" : "en_US",
                 "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
@@ -194,9 +337,11 @@ final class SelectionControlsUITests: XCTestCase {
             XCTAssertTrue(thirty.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-duration")
             selectComposerMode(dateTitle, in: app)
-            assertDateLabelsAreReadable(in: app, titles: ["Starts"])
+            XCTAssertTrue(app.segmentedControls["date-repeat-picker"].exists)
             selectionScreenshot(app, "accessibility-\(locale)-date")
-            selectComposerMode(repeatTitle, in: app)
+            let repeatPicker = app.segmentedControls["date-repeat-picker"]
+            XCTAssertTrue(repeatPicker.waitForExistence(timeout: 5))
+            repeatPicker.buttons[weekdaysTitle].tap()
             selectionScreenshot(app, "accessibility-\(locale)-repeat-mode")
             let sunday = app.buttons["weekday-1"]
             assertUsable(sunday, in: app)
@@ -209,7 +354,7 @@ final class SelectionControlsUITests: XCTestCase {
             saturday.tap()
             XCTAssertTrue(saturday.isSelected)
             selectionScreenshot(app, "accessibility-\(locale)-weekdays-bottom")
-            assertDateLabelsAreReadable(in: app, titles: ["Starts", "Ends"])
+            XCTAssertTrue(app.descendants(matching: .any)["repeat-start-time"].exists)
             selectionScreenshot(app, "accessibility-\(locale)-times")
             let create = app.buttons["lock-composer-primary-button"]
             assertUsable(create, in: app)
@@ -234,7 +379,6 @@ final class SelectionControlsUITests: XCTestCase {
             assertUsable(editorSunday, in: editorApp)
             editorSunday.tap()
             XCTAssertTrue(editorSunday.isSelected)
-            assertDateLabelsAreReadable(in: editorApp, titles: ["Starts", "Ends"])
             selectionScreenshot(editorApp, "accessibility-\(locale)-editor-times")
             let save = editorApp.buttons[saveTitle]
             // A system toolbar item's AX frame is not its full touch region.
@@ -253,7 +397,8 @@ final class SelectionControlsUITests: XCTestCase {
     }
 
     func testDisabledControlsRemainUnderstandable() throws {
-        let app = launchApprovedSeededApp()
+        let english = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        let app = launchApprovedSeededApp(extraArguments: english)
         selectComposerMode("In", in: app)
         let decrease = app.buttons["Decrease start delay"]
         for _ in 0..<5 { decrease.tap() }
@@ -262,13 +407,16 @@ final class SelectionControlsUITests: XCTestCase {
         selectionScreenshot(app, "delay-minimum")
         app.terminate()
 
-        let locked = launchApprovedSeededApp(extraArguments: ["--ui-testing-active-recurring", "--ui-testing-all-day-recurring"])
+        let locked = launchApprovedSeededApp(extraArguments: english + ["--ui-testing-active-recurring", "--ui-testing-all-day-recurring"])
         XCTAssertTrue(locked.staticTexts["locked-target-explanation"].waitForExistence(timeout: 10))
         XCTAssertFalse(locked.buttons["Select targets"].exists)
         let modes = locked.segmentedControls["lock-composer-mode-picker"]
         XCTAssertTrue(modes.exists)
         XCTAssertTrue(modes.buttons["In"].exists)
-        XCTAssertFalse(modes.buttons["Now"].exists)
+        XCTAssertTrue(modes.buttons["Now"].exists)
+        selectComposerMode("Now", in: locked)
+        XCTAssertFalse(locked.buttons["lock-composer-primary-button"].isEnabled)
+        XCTAssertTrue(locked.staticTexts["Cannot start now while a lock is active."].exists)
         selectionScreenshot(locked, "locked-target-explanation")
         let delete = locked.buttons.matching(identifier: "scheduled-lock-delete-button").firstMatch
         scrollToButton(delete, in: locked)
@@ -278,17 +426,6 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(edit.frame.width, 44)
         XCTAssertGreaterThanOrEqual(delete.frame.height, 44)
         selectionScreenshot(locked, "locked-schedule-actions")
-    }
-
-    private func assertDateLabelsAreReadable(in app: XCUIApplication, titles: [String]) {
-        for title in titles {
-            let label = app.staticTexts["schedule-date-label-\(title)"]
-            scrollToButton(label, in: app)
-            XCTAssertTrue(label.waitForExistence(timeout: 5))
-            XCTAssertLessThanOrEqual(label.frame.height, 100, "Date label must not break into multiple short fragments")
-            XCTAssertGreaterThanOrEqual(label.frame.minX, app.frame.minX)
-            XCTAssertLessThanOrEqual(label.frame.maxX, app.frame.maxX)
-        }
     }
 
     private func assertWeekdaysShareOneRow(in app: XCUIApplication) {

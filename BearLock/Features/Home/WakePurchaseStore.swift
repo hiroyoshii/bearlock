@@ -5,33 +5,52 @@ import StoreKit
 
 @MainActor
 final class WakePurchaseStore: ObservableObject {
-    static let productID = "com.hiyozoo.bearlock.wake.now"
+    static let productID = WakeProduct.immediateWakeID
+    static let dailyAllowanceProductID = WakeProduct.timedAllowanceUnlockID
 
     @Published private(set) var product: Product?
+    @Published private(set) var dailyAllowanceProduct: Product?
     @Published private(set) var isLoading = false
     @Published private(set) var isPurchasing = false
     @Published private(set) var message: String?
     @Published private(set) var lastDelivery: WakePurchaseDelivery?
 
     private let diagnostics = DiagnosticsLogger.shared
-    private var deliver: (@MainActor @Sendable (UInt64) async -> WakePurchaseDelivery?)?
+    private var deliver: (@MainActor @Sendable (UInt64, String) async -> WakePurchaseDelivery?)?
     private var abandon: (@MainActor @Sendable () async -> Void)?
     private var updatesTask: Task<Void, Never>?
     private var unfinishedTask: Task<Void, Never>?
 
     var displayPrice: String? {
         #if DEBUG
-        if usesStaticProduct { return "¥500" }
+        if usesStaticProduct || usesUITesting { return "¥500" }
         #endif
         return product?.displayPrice
     }
 
     var isAvailable: Bool {
-        usesStaticProduct || product != nil
+        #if DEBUG
+        if usesStaticProduct || usesUITesting { return true }
+        #endif
+        return product != nil
+    }
+
+    var dailyAllowanceDisplayPrice: String? {
+        #if DEBUG
+        if usesStaticProduct || usesUITesting { return "¥500" }
+        #endif
+        return dailyAllowanceProduct?.displayPrice
+    }
+
+    var isDailyAllowancePurchaseAvailable: Bool {
+        #if DEBUG
+        if usesStaticProduct || usesUITesting { return true }
+        #endif
+        return dailyAllowanceProduct != nil
     }
 
     func start(
-        deliver: @escaping @MainActor @Sendable (UInt64) async -> WakePurchaseDelivery?,
+        deliver: @escaping @MainActor @Sendable (UInt64, String) async -> WakePurchaseDelivery?,
         abandon: @escaping @MainActor @Sendable () async -> Void
     ) {
         self.deliver = deliver
@@ -57,11 +76,16 @@ final class WakePurchaseStore: ObservableObject {
     }
 
     func loadProduct() async {
-        guard !usesStaticProduct, !usesUITesting, product == nil, !isLoading else { return }
+        guard !usesStaticProduct, !usesUITesting,
+              (product == nil || dailyAllowanceProduct == nil), !isLoading
+        else { return }
         isLoading = true
         defer { isLoading = false }
         do {
-            product = try await Product.products(for: [Self.productID]).first { $0.type == .consumable }
+            let loadedProducts = try await Product.products(for: [Self.productID, Self.dailyAllowanceProductID])
+                .filter { $0.type == .consumable }
+            product = loadedProducts.first { $0.id == Self.productID }
+            dailyAllowanceProduct = loadedProducts.first { $0.id == Self.dailyAllowanceProductID }
             if product == nil {
                 diagnostics.record(
                     "Purchase.wake.product.unavailable",
@@ -71,6 +95,12 @@ final class WakePurchaseStore: ObservableObject {
                 message = L10n.string("Immediate wake-up is not available yet.")
             } else {
                 diagnostics.record("Purchase.wake.product.loaded", detail: "product=\(Self.productID)")
+            }
+            if dailyAllowanceProduct == nil {
+                diagnostics.record("Purchase.dailyUnlock.product.unavailable", level: .warning,
+                    detail: "product=\(Self.dailyAllowanceProductID)")
+            } else {
+                diagnostics.record("Purchase.dailyUnlock.product.loaded", detail: "product=\(Self.dailyAllowanceProductID)")
             }
         } catch {
             diagnostics.recordError(
@@ -84,6 +114,19 @@ final class WakePurchaseStore: ObservableObject {
 
     func purchase(
         using purchase: @MainActor (Product) async throws -> Product.PurchaseResult
+    ) async {
+        await performPurchase(product, using: purchase)
+    }
+
+    func purchaseDailyAllowanceUnlock(
+        using purchase: @MainActor (Product) async throws -> Product.PurchaseResult
+    ) async {
+        await performPurchase(dailyAllowanceProduct, using: purchase)
+    }
+
+    private func performPurchase(
+        _ product: Product?,
+        using performPurchase: @MainActor (Product) async throws -> Product.PurchaseResult
     ) async {
         guard !usesStaticProduct, !usesUITesting, !isPurchasing, let product else { return }
         guard AppStore.canMakePayments else {
@@ -102,7 +145,7 @@ final class WakePurchaseStore: ObservableObject {
         isPurchasing = true
         defer { isPurchasing = false }
         do {
-            switch try await purchase(product) {
+            switch try await performPurchase(product) {
             case let .success(verification):
                 await complete(verification)
             case .userCancelled:
@@ -111,7 +154,9 @@ final class WakePurchaseStore: ObservableObject {
                 message = L10n.string("The purchase could not be completed.")
             case .pending:
                 diagnostics.record("Purchase.wake.pending", detail: "product=\(product.id)")
-                message = L10n.string("The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket.")
+                message = product.id == Self.dailyAllowanceProductID
+                    ? L10n.string("The timed unlock purchase is pending approval.")
+                    : L10n.string("The purchase is pending. If this lock ends first, the purchase becomes a wake-up ticket.")
             @unknown default:
                 diagnostics.record(
                     "Purchase.wake.failed",
@@ -140,12 +185,15 @@ final class WakePurchaseStore: ObservableObject {
     private func complete(_ result: VerificationResult<Transaction>) async {
         switch result {
         case let .verified(transaction):
-            guard transaction.productID == Self.productID, transaction.productType == .consumable else { return }
+            guard [Self.productID, Self.dailyAllowanceProductID].contains(transaction.productID),
+                  transaction.productType == .consumable else { return }
             diagnostics.record(
                 "Purchase.wake.verified",
                 detail: "product=\(transaction.productID) transaction=\(transaction.id) revoked=\(transaction.revocationDate != nil)"
             )
-            guard transaction.revocationDate == nil, let delivery = await deliver?(transaction.id) else {
+            guard transaction.revocationDate == nil,
+                  let delivery = await deliver?(transaction.id, transaction.productID)
+            else {
                 diagnostics.record(
                     "Purchase.wake.delivery.failed",
                     level: .error,
@@ -161,7 +209,7 @@ final class WakePurchaseStore: ObservableObject {
             )
             lastDelivery = delivery
             switch delivery {
-            case .unlocked, .alreadyHandled:
+            case .unlocked, .allowanceUnlocked, .alreadyHandled:
                 message = nil
             case .credited:
                 message = L10n.string("This lock already ended. Your wake-up ticket is saved for next time.")
@@ -172,7 +220,7 @@ final class WakePurchaseStore: ObservableObject {
                 error: error,
                 detail: "product=\(transaction.productID) transaction=\(transaction.id)"
             )
-            if transaction.productID == Self.productID {
+            if [Self.productID, Self.dailyAllowanceProductID].contains(transaction.productID) {
                 await abandon?()
             }
             message = L10n.string("The purchase could not be verified.")

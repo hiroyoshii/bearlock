@@ -57,13 +57,15 @@ struct WakeOptionsDialog: ViewModifier {
             .accessibilityIdentifier("use-wake-credit")
         } else if model.lockState.wakeState.pendingPurchase == nil,
                   activeLock.remainingTime(at: Date()) > WakePolicy.minimumPaidRemainingTime {
-            Button(purchaseButtonTitle) {
+            Button {
                 Task {
                     guard await model.beginWakePurchase(for: activeLock) else { return }
                     await purchaseStore.purchase { product in
                         try await purchase(product)
                     }
                 }
+            } label: {
+                Label(purchaseButtonTitle, systemImage: "creditcard")
             }
             .disabled(!purchaseStore.isAvailable || purchaseStore.isPurchasing || model.isHandlingWake)
             .accessibilityIdentifier("purchase-immediate-wake")

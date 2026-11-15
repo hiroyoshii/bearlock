@@ -30,8 +30,8 @@ struct BearLockApp: App {
             .environmentObject(model)
             .task {
                 wakePurchaseStore.start(
-                    deliver: { transactionID in
-                        await model.deliverWakePurchase(transactionID: transactionID)
+                    deliver: { transactionID, productID in
+                        await model.deliverWakePurchase(transactionID: transactionID, productID: productID)
                     },
                     abandon: {
                         await model.abandonWakePurchase()

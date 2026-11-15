@@ -31,6 +31,9 @@ final class BearLockAppModel: ObservableObject {
     @Published private(set) var isRefreshing = false
 
     var activeLock: ActiveLock? { lockState.activeLockForDisplay(at: Date()) }
+    var activeDailyAllowanceGrant: DailyAllowanceGrant? { lockState.dailyAllowance.activeGrant(at: Date()) }
+    var dailyAllowanceRemainingMinutes: Int { lockState.dailyAllowance.remainingMinutes(at: Date()) }
+    var availableDailyAllowanceDurations: [Int] { lockState.dailyAllowance.availableDurations(at: Date()) }
     private let diagnostics = DiagnosticsLogger.shared
 
     init(
@@ -103,7 +106,8 @@ final class BearLockAppModel: ObservableObject {
 
         let target = LockTargetSelectionRef(
             id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
-            displayName: L10n.format("%d targets", 3)
+            displayName: L10n.format("%d targets", 3),
+            tokenData: Data([1])
         )
         let workTarget = LockTargetSelectionRef(
             id: UUID(uuidString: "12121212-1212-1212-1212-121212121212")!,
@@ -310,6 +314,110 @@ final class BearLockAppModel: ObservableObject {
         try targetSelectionCodec.selection(from: lockState.selectedTarget)
     }
 
+    func dailyAllowanceActivitySelection() throws -> FamilyActivitySelection {
+        let policy = lockState.dailyAllowance.policyForEditing(at: Date())
+        return try targetSelectionCodec.selection(from: policy.targetSelection ?? lockState.selectedTarget)
+    }
+
+    @discardableResult
+    func configureDailyAllowance(_ policy: DailyAllowancePolicy) async -> OperationOutcome {
+        guard !isCreatingLock, !isUpdatingLock, !isHandlingWake else { return .rejected }
+        isUpdatingLock = true
+        defer { isUpdatingLock = false; refreshDiagnostics() }
+        let now = Date()
+        var candidate = lockState.dailyAllowance
+        do {
+            try candidate.configure(policy, at: now)
+            var candidateState = lockState
+            candidateState.dailyAllowance = candidate
+            try MonitoringSchedule.validateCapacity(for: candidateState, at: now)
+            var registeredBoundary = false
+            if authorizationStatus == .approved, candidate.requiresBoundaryMonitoring(at: now) {
+                registeredBoundary = try scheduleController.register(MonitoringSchedule.dailyAllowanceBoundary())
+            }
+            do {
+                try await lockStore.configureDailyAllowance(policy, at: now)
+            } catch {
+                if registeredBoundary { try? scheduleController.stopMonitoring("bearlock.daily.boundary") }
+                throw error
+            }
+        } catch {
+            recordError("DailyAllowance.configure.failed", error)
+            return .rejected
+        }
+        let reflected = await synchronizeAndReconcile()
+        diagnostics.record("DailyAllowance.configure.succeeded")
+        return reflected ? .saved : .savedNeedsReflection
+    }
+
+    @discardableResult
+    func beginDailyAllowanceGrant(minutes: Int) async -> OperationOutcome {
+        guard !isCreatingLock, !isUpdatingLock, !isHandlingWake else { return .rejected }
+        isUpdatingLock = true
+        defer { isUpdatingLock = false; refreshDiagnostics() }
+        var registeredGrant: String?
+        do {
+            guard authorizationStatus == .approved else { throw DailyAllowanceError.notAvailableToday }
+            let prepared = try await lockStore.prepareDailyAllowanceGrant(minutes: minutes)
+            let schedule = MonitoringSchedule.allowanceExpiry(for: prepared.grant)
+            guard try scheduleController.register(schedule) else { throw DailyAllowanceError.monitoringUnavailable }
+            registeredGrant = schedule.name
+            do {
+                try await lockStore.beginDailyAllowanceGrant(prepared.grant, preparedAt: prepared.preparedAt)
+            } catch {
+                if let registeredGrant { try? scheduleController.stopMonitoring(registeredGrant) }
+                throw error
+            }
+        } catch {
+            recordError("DailyAllowance.grant.failed", error)
+            return .rejected
+        }
+        let reflected = await synchronizeAndReconcile()
+        diagnostics.record("DailyAllowance.grant.succeeded", detail: "minutes=\(minutes)")
+        return reflected ? .saved : .savedNeedsReflection
+    }
+
+    @discardableResult
+    func endDailyAllowanceGrant(id: UUID) async -> OperationOutcome {
+        await performSavedOperation("DailyAllowance.end") {
+            try await lockStore.endDailyAllowanceGrant(id: id)
+        }
+    }
+
+    func beginDailyAllowancePurchase(minutes: Int) async -> Bool {
+        guard authorizationStatus == .approved,
+              !isCreatingLock, !isUpdatingLock, !isHandlingWake
+        else { return false }
+        isHandlingWake = true
+        defer { isHandlingWake = false; refreshDiagnostics() }
+        do {
+            try await lockStore.beginDailyAllowancePurchase(minutes: minutes)
+            lockState = try await lockStore.snapshot()
+            return true
+        } catch {
+            recordError("DailyAllowance.purchase.begin.failed", error)
+            return false
+        }
+    }
+
+    func saveDailyAllowancePolicy(_ policy: DailyAllowancePolicy, selection: FamilyActivitySelection) async -> OperationOutcome {
+        do {
+            var saved = policy
+            let hasTargets = !selection.applicationTokens.isEmpty || !selection.categoryTokens.isEmpty || !selection.webDomainTokens.isEmpty
+            if hasTargets {
+                saved.targetSelection = try targetSelectionCodec.reference(for: selection)
+            } else if saved.isEnabled, saved.targetSelection == nil {
+                saved.targetSelection = lockState.selectedTarget
+            } else if saved.targetSelection == nil {
+                saved.targetSelection = lockState.dailyAllowance.policyForEditing(at: Date()).targetSelection
+            }
+            return await configureDailyAllowance(saved)
+        } catch {
+            recordError("DailyAllowance.selection.failed", error)
+            return .rejected
+        }
+    }
+
     #if DEBUG
     func saveUITestingSelection(count: Int) async -> OperationOutcome {
         guard ProcessInfo.processInfo.arguments.contains("--ui-testing-target-picker"), count > 0 else {
@@ -398,8 +506,15 @@ final class BearLockAppModel: ObservableObject {
         }
     }
 
-    func deliverWakePurchase(transactionID: UInt64) async -> WakePurchaseDelivery? {
+    func deliverWakePurchase(transactionID: UInt64, productID: String) async -> WakePurchaseDelivery? {
         do {
+            let intent = try await lockStore.pendingWakePurchaseIntent()
+            if productID == WakeProduct.timedAllowanceUnlockID {
+                guard intent?.dailyAllowanceDurationMinutes != nil else { return nil }
+                return await deliverDailyAllowancePurchase(transactionID: transactionID)
+            }
+            guard productID == WakeProduct.immediateWakeID,
+                  intent?.dailyAllowanceDurationMinutes == nil else { return nil }
             let delivery = try await lockStore.deliverWakePurchase(transactionID: transactionID, at: Date())
             await synchronizeAndReconcile()
             if delivery == .unlocked { wakeCompletionID = UUID() }
@@ -407,6 +522,42 @@ final class BearLockAppModel: ObservableObject {
             return delivery
         } catch {
             recordError("Wake.purchase.delivery.failed", error)
+            return nil
+        }
+    }
+
+    private func deliverDailyAllowancePurchase(transactionID: UInt64) async -> WakePurchaseDelivery? {
+        guard !isCreatingLock, !isUpdatingLock, !isHandlingWake else { return nil }
+        isHandlingWake = true
+        defer { isHandlingWake = false; refreshDiagnostics() }
+        var registeredMonitor: String?
+        do {
+            switch try await lockStore.prepareDailyAllowancePurchaseDelivery(transactionID: transactionID) {
+            case .alreadyHandled:
+                await synchronizeAndReconcile()
+                return .alreadyHandled
+            case .credit:
+                let delivery = try await lockStore.creditDailyAllowancePurchase(transactionID: transactionID)
+                await synchronizeAndReconcile()
+                return delivery
+            case let .grant(grant):
+                let monitor = MonitoringSchedule.allowanceExpiry(for: grant)
+                guard try scheduleController.register(monitor) else {
+                    throw DailyAllowanceError.monitoringUnavailable
+                }
+                registeredMonitor = monitor.name
+                do {
+                    _ = try await lockStore.commitDailyAllowancePurchase(grant, transactionID: transactionID)
+                } catch {
+                    if let registeredMonitor { try? scheduleController.stopMonitoring(registeredMonitor) }
+                    throw error
+                }
+                await synchronizeAndReconcile()
+                diagnostics.record("DailyAllowance.purchase.delivered", detail: "transaction=\(transactionID) minutes=\(grant.durationMinutes)")
+                return .allowanceUnlocked
+            }
+        } catch {
+            recordError("DailyAllowance.purchase.delivery.failed", error)
             return nil
         }
     }
@@ -552,6 +703,10 @@ final class BearLockAppModel: ObservableObject {
             }
         }
 
+        if let allowanceError = error as? DailyAllowanceError, allowanceError == .monitoringUnavailable {
+            return L10n.string("Could not start the allowance. Try again.")
+        }
+
         if let wakeError = error as? WakeError {
             switch wakeError {
             case .activeLockNotFound:
@@ -562,6 +717,10 @@ final class BearLockAppModel: ObservableObject {
                 return L10n.string("The wake-up request is no longer active.")
             case .noWakeCredit:
                 return L10n.string("No wake-up ticket is available.")
+            case .purchaseAlreadyPending:
+                return L10n.string("A purchase is already being processed.")
+            case .invalidPurchaseIntent:
+                return L10n.string("The purchase request is no longer available.")
             }
         }
 

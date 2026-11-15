@@ -5,6 +5,8 @@ import ManagedSettings
 
 protocol ScheduleControlling: Sendable {
     func synchronize(_ state: LockState, at now: Date) throws
+    func register(_ schedule: MonitoringSchedule) throws -> Bool
+    func stopMonitoring(_ name: String) throws
 }
 
 struct DeviceActivityScheduleController: ScheduleControlling, @unchecked Sendable {
@@ -17,15 +19,25 @@ struct DeviceActivityScheduleController: ScheduleControlling, @unchecked Sendabl
                 end: schedule.intervalEnd, repeats: schedule.repeats)
         }
         try MonitoringSchedule.synchronize(desired: MonitoringSchedule.desired(for: state, at: now), existing: existing,
-            start: { schedule in
-                DiagnosticsLogger.shared.record("Schedule.register.begin", detail: schedule.name)
-                try center.startMonitoring(DeviceActivityName(schedule.name), during: DeviceActivitySchedule(
-                    intervalStart: schedule.start, intervalEnd: schedule.end, repeats: schedule.repeats))
-                DiagnosticsLogger.shared.record("Schedule.register.returned", detail: schedule.name)
-            }, stop: { name in
-                center.stopMonitoring([DeviceActivityName(name)])
-                ManagedSettingsStore(named: .init(name)).clearAllSettings()
-                DiagnosticsLogger.shared.record("Schedule.stop.returned", detail: name)
-            })
+            start: { _ = try register($0) }, stop: stopAndClear)
+    }
+
+    func register(_ schedule: MonitoringSchedule) throws -> Bool {
+        if center.activities.contains(DeviceActivityName(schedule.name)) { return false }
+        DiagnosticsLogger.shared.record("Schedule.register.begin", detail: schedule.name)
+        try center.startMonitoring(DeviceActivityName(schedule.name), during: DeviceActivitySchedule(
+            intervalStart: schedule.start, intervalEnd: schedule.end, repeats: schedule.repeats))
+        DiagnosticsLogger.shared.record("Schedule.register.returned", detail: schedule.name)
+        return true
+    }
+
+    func stopMonitoring(_ name: String) throws {
+        center.stopMonitoring([DeviceActivityName(name)])
+        DiagnosticsLogger.shared.record("Schedule.stop.returned", detail: name)
+    }
+
+    private func stopAndClear(_ name: String) throws {
+        try stopMonitoring(name)
+        ManagedSettingsStore(named: .init(name)).clearAllSettings()
     }
 }
