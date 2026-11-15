@@ -51,19 +51,26 @@ Record each result separately as **Pass**, **Fail**, or **Not run**.
 | End free unlock early | “End temporary unlock” relocks the target and returns each full unused minute to today's free balance. | Not run |
 | Free balance is exhausted | Free unlock buttons are unavailable; the paid timed option remains available when the product is loaded. | Not run |
 | Product metadata loads | The paid option is enabled and displays StoreKit's ¥500 price. | Not run |
-| Paid duration validation | 15 minutes is rejected; 16 minutes is accepted. A duration over 60 minutes, such as 90 minutes, is accepted. | Not run |
+| Paid duration validation | 15 minutes is accepted; durations are selected in 15-minute steps up to 1,440 minutes. A duration over the free daily limit, such as 90 minutes, is accepted. | Not run |
 | Sandbox purchase succeeds | Purchase confirmation completes, the chosen target is temporarily unshielded, and the free daily balance does not change. | Not run |
-| Paid unlock expiry | At the selected expiry time the daily Shield is restored. | Not run |
-| Paid unlock crosses midnight | The paid grant remains active until its selected expiry; the free daily balance resets independently at local midnight. | Not run |
+| Paid unlock expiry | If the Always Lock remains enabled, the daily Shield is restored at the selected expiry time. | Not run |
+| Paid unlock crosses midnight | If the Always Lock remains enabled, the paid grant remains active until its selected expiry; the free daily balance resets independently at local midnight. | Not run |
 | Purchase cancelled or fails | No paid grant is delivered and the target remains locked. | Not run |
 | Normal lock overlaps | A normal lock that blocks the selected target remains effective; unrelated normal locks do not disable the daily allowance. | Not run |
 
 Use short durations for expiry checks where practical, then test one duration over 60 minutes to confirm that the paid path has no 60-minute daily allowance cap. Do not infer the paid-flow result from the local StoreKit test host alone.
 
+## App Store listing materials
+
+- [x] Prepare five refreshed screenshot candidates in Japanese and English from the current 1.4 screenshot app: `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png`. They replace the previous five image files in [Japanese](../../ci-screenshots/app-store-ja/) and [English](../../ci-screenshots/app-store-en/). They are not uploaded to App Store Connect.
+- [ ] Compare these candidates with the final TestFlight build and existing App Store Connect gallery, then replace the corresponding image slots. Do not append a duplicate gallery; the current Connect gallery has not been verified from this workspace.
+- [x] Prepare Japanese release notes: [ios-1.4-whats-new-ja.txt](ios-1.4-whats-new-ja.txt).
+- [ ] Confirm the listing's Japanese localization and upload the finalized release notes with the 1.4 version.
+
 ## App Review preparation
 
 - [ ] Verify the App Store Connect product's display name and price match the purchase sheet on a TestFlight device.
-- [x] Capture the Japanese timed-unlock sheet for the IAP's App Review screenshot: [app-review-screenshot-ja.png](ios-1.4-timed-unlock/app-review-screenshot-ja.png). It uses one slider, with 15-minute steps from 15 to 1,440 minutes and a 30-minute default; it has no preset buttons. This is a review-only screen capture, not an App Store product-page screenshot or proof of a completed purchase. It shows the screenshot fixture price ¥500; set the App Store Connect price to ¥500 before submitting.
+- [x] Keep the Japanese timed-unlock sheet for the IAP's App Review screenshot in Git: [app-review-screenshot-ja.png](ios-1.4-timed-unlock/app-review-screenshot-ja.png). It uses one slider, with 15-minute steps from 15 to 1,440 minutes and a 30-minute default; it has no preset buttons. This is separate from the App Store product-page screenshots and is not proof of a completed purchase. It shows the screenshot fixture price ¥500; set the App Store Connect price to ¥500 before submitting.
 - [ ] Add review notes explaining how to configure an Always Lock, open **Choose unlock time**, enter a duration, and complete the Sandbox purchase.
 - [ ] Attach the current app version/build and the new consumable product to the intended review submission when ready to release.
 - [ ] Keep submission for review separate from TestFlight testing; App Store Connect Sandbox testing does not require prior IAP approval.

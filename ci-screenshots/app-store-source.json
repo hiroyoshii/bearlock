@@ -53,35 +53,35 @@
     "ci-screenshots/app-store-ja/wakeResult.png"
   ],
   "sha256": {
-    "ci-screenshots/app-store-en/activeLock.png": "b1ec07cca481508bd6c522c02b3f232f732d56fb078dcb8d26cccd0740a20955",
+    "ci-screenshots/app-store-en/activeLock.png": "e51d70f6e65eb65feea4c5311a46f77bce7e7cee6062b6bb966f61fde443460b",
     "ci-screenshots/app-store-en/composeDate.png": "3df4ddab7fdd4eed3e6f807e70d06a077ff05f3cf002b39db11b7c38571a8a60",
     "ci-screenshots/app-store-en/composeDelayed.png": "39c730430917d16f666ff060e1776d43fe68b7c162a0fa0adc8da66de435c69c",
     "ci-screenshots/app-store-en/composeNow.png": "608bfdd4c612e1925691618d9ee1d11b81563739170bc5126ef562a04ca0e583",
     "ci-screenshots/app-store-en/composeRepeat.png": "c854678f588671ced3d94c447c7b7cff0da47f3e6b1e96b617e20a9524fab622",
-    "ci-screenshots/app-store-en/confirmation.png": "256b567508f3d7ba1473a3b365ad7312efb67f35469b8eb1683a4e6d9c73f93d",
+    "ci-screenshots/app-store-en/confirmation.png": "073b0d0a60a950a5b3dd945a8a890e4eba74b5deb0004ae2c2e0f74d98c489a7",
     "ci-screenshots/app-store-en/diagnostics.png": "3923bf487db3700b91daaec8083c2f1e5bce04fb9d902a14603988d84bd0e4f3",
-    "ci-screenshots/app-store-en/home.png": "5bb042dbfc49073dc606260b4f5535d47b812bce8fa4508ab7f354e941140221",
+    "ci-screenshots/app-store-en/home.png": "1ed7a0deecf60c302edb98c57a9d360488b31dc751ad25596b1aa825ddf11ae3",
     "ci-screenshots/app-store-en/recurringEditor.png": "8926ebb63bb4cc38e227a4cd18b19f7d567193baa2e25f51ecc76741cb8ec6d2",
     "ci-screenshots/app-store-en/scheduledEditor.png": "6607429ff31d7eaee15d1a0b8e87fd8ce305d14ae2e5648b8342a5f5f74117d4",
     "ci-screenshots/app-store-en/scheduledList.png": "56d8bd76349b2315de19cd0ebf0f7bc13e5dedd3b11fa6e6283aefcc9c9d06f8",
     "ci-screenshots/app-store-en/settings.png": "3e874213d6e1da349dccdd057bdd65e28c47375ff50edf064902be291517ce4e",
-    "ci-screenshots/app-store-en/setup.png": "5f6a83a470cc71c97eec8c3d12b319e8e097423c93350251ae6fa4468fa05c09",
+    "ci-screenshots/app-store-en/setup.png": "3d2279ce5b500edb3275c07711fa33524ce5c186d06a4695e5f83032a1ba711e",
     "ci-screenshots/app-store-en/support.png": "78d1932db5d75cf2c474a7b153ecd8fcec52c0b81b59603f82075d816a8bfe18",
     "ci-screenshots/app-store-en/wakeOptions.png": "029ae6fc94e5b37b2364a4154df230278ac10b304bec2ac864f5aff75f5a4f98",
     "ci-screenshots/app-store-en/wakeResult.png": "f5f4c4507bd70701f90d93690b69a9693a14ffd4f46af111dabce65fe9c1b39c",
-    "ci-screenshots/app-store-ja/activeLock.png": "46271eaf50a5f04be0c977a7e34bb23ac73993939fbfe584feaefe24acce2cfa",
+    "ci-screenshots/app-store-ja/activeLock.png": "e1243a66e598afa18478e6cb9b8f6bf5dbf77243ebe4a8c75056c49b36016e26",
     "ci-screenshots/app-store-ja/composeDate.png": "f14d1e3333186503934492f321aac73acbb5610b6d5807346abf93d7980ac60d",
     "ci-screenshots/app-store-ja/composeDelayed.png": "34aa4f7879c1b5b2fbfb3b200a58a0d9f15a73f54d3cbeed57a08f5620631c3b",
     "ci-screenshots/app-store-ja/composeNow.png": "3c23ad888fc677b7a5098894f91ba457a57ac33b5137eb3fc96c17deb45609e4",
     "ci-screenshots/app-store-ja/composeRepeat.png": "ea525658f35148760c72d50f0bc76e07cdff1bd5f6e6eb2fd8cb29dd07d9256a",
-    "ci-screenshots/app-store-ja/confirmation.png": "bb71ddb542df4b462e8299a15f986a6ce25b2ef3072f136ff3a3812ace4376e6",
+    "ci-screenshots/app-store-ja/confirmation.png": "3ef5b0c7e11a84a81335bd2f6b20c535e2bcf1e526f73c625d7ae9f547522a7a",
     "ci-screenshots/app-store-ja/diagnostics.png": "db0f42a281f3457f4c133a326967bc7dc8494922f1dc3a40e24790cd8efd4546",
-    "ci-screenshots/app-store-ja/home.png": "22bd206969fed94f437f0d3311a623fbe1df2b6d4b470b1e31b2d58295253a52",
+    "ci-screenshots/app-store-ja/home.png": "3d484d2782c59a35f3d5ae5bc49683b257b0ae8f7d2cb2320692af4f602f0341",
     "ci-screenshots/app-store-ja/recurringEditor.png": "eb1fbea124c69a6eac8cc9ec9a9e483f0890f664febfbc5c8c8cef432357f24b",
     "ci-screenshots/app-store-ja/scheduledEditor.png": "517bd385f8be059f8ab84315f4ec470939b95cb0b81f2c3bbff9ac72df003070",
     "ci-screenshots/app-store-ja/scheduledList.png": "d3e97a06adcb9867b654d47a637343cb90f94ca4fc0a04a475f2556d703668fe",
     "ci-screenshots/app-store-ja/settings.png": "aeb3ab9dfff9022853e9950ffca76adc214459d6645ce2d0b45b82b385060604",
-    "ci-screenshots/app-store-ja/setup.png": "e4904a8b8a4c8a14f07cfed561d5cacf4a090951fbff595ae2cd8767f3e4ac13",
+    "ci-screenshots/app-store-ja/setup.png": "52472c2eae6d49a7153c372dfc89c16206a23465a18a43070b24aac6697588ca",
     "ci-screenshots/app-store-ja/support.png": "b17eee0f9662bd42a7b8ecb5515fe7f915fe2b4eae007afcedeaa870b55ef595",
     "ci-screenshots/app-store-ja/wakeOptions.png": "b1a7775e81bda23e177c65de79388821845e14e53bdab854ef882622fda7603a",
     "ci-screenshots/app-store-ja/wakeResult.png": "a0b779ff8f07d8759b7d6a66563cdd4cc5704858c4ea58d8828ab415c0c62be2"
@@ -93,7 +93,7 @@
       1284,
       2778
     ],
-    "note": "Feature-flow previews captured before main-branch integration. The reviewed App Store gallery above remains 1206x2622; use the manual iOS Screenshots workflow to regenerate these screens at the App Store device size.",
+    "note": "Eight daily-allowance preview captures are from iPhone 14 Plus at 1284x2778 before branch integration. composeAlways was refreshed on iPhone 17 Simulator at 1206x2622 on 2026-11-15 as part of the App Store candidate set; local replacement provenance is recorded above.",
     "files": [
       "ci-screenshots/app-store-en/composeAlways.png",
       "ci-screenshots/app-store-en/allowanceTargetSelection.png",
@@ -115,7 +115,7 @@
       "ci-screenshots/app-store-ja/allowanceStopped.png"
     ],
     "sha256": {
-      "ci-screenshots/app-store-en/composeAlways.png": "ae94047fa101e025fb73aa7443e0470a730a7f2e4f3df587c40a261d208de443",
+      "ci-screenshots/app-store-en/composeAlways.png": "0843cfb42094f20669e2588d8b809f8cbb7217a82ba2ee144a5d5854a7e0c56f",
       "ci-screenshots/app-store-en/allowanceTargetSelection.png": "feb7624b234c1c8a973484101bd3f504d735b5a5020596eef1fee7f186c99f75",
       "ci-screenshots/app-store-en/allowanceLocked.png": "70c802034a0ebebb5b4b1dce21b39fbe3533d8dc160181d6e458dcddc35f1504",
       "ci-screenshots/app-store-en/allowanceTemporary.png": "6bb0763c88b752f43d28b9b8ab62073eb170ad5c8f91b537e50906db2d65e9d5",
@@ -124,7 +124,7 @@
       "ci-screenshots/app-store-en/allowanceNextDay.png": "6b733c06a7bca18035a93dde580790aa1184a09a0acdc864c7f110ff6de70d10",
       "ci-screenshots/app-store-en/allowancePending.png": "e7d3ca5cddb1de28b8d5ca5b1d54f80c549918b86c41b4bc31c851932ede9e21",
       "ci-screenshots/app-store-en/allowanceStopped.png": "2475c402147df9ce7ad49333f689d598f472c796092e7be0a9a37e766700678d",
-      "ci-screenshots/app-store-ja/composeAlways.png": "2d9264c78a6912dd70c070f2710a99631c33e6d30a51770ade97bf87f471fd05",
+      "ci-screenshots/app-store-ja/composeAlways.png": "fe0fd93153ed036c59396d8af5c892fcc3d521a613d5f6d4146be43f845752e1",
       "ci-screenshots/app-store-ja/allowanceTargetSelection.png": "c3892e734e41049ea524ca331255d7e83a76c791e2708a2e3af13319ec2823ca",
       "ci-screenshots/app-store-ja/allowanceLocked.png": "cc0a949245bdebcf83598094ad2d28eeef246078face9b9f79c7aa443b2c098c",
       "ci-screenshots/app-store-ja/allowanceTemporary.png": "6aec5b9b0b0efd20feef955a202eb2b6c7c328a7c1802c354832abf3add52725",
@@ -134,5 +134,30 @@
       "ci-screenshots/app-store-ja/allowancePending.png": "a6b37d85f0040f049d77915f294290d31447a197462856e525e303d0b1a2622f",
       "ci-screenshots/app-store-ja/allowanceStopped.png": "96e4e0d25eda0bcdc9dbe066a48e0756cd5e60122c1a979b85250bd4950d8bd1"
     }
+  },
+  "local_replacements": {
+    "captured_at": "2026-11-15",
+    "source_commit": "ec6529db782094c85631a11a9e6740c45e6f1d27",
+    "device": "iPhone 17 Simulator",
+    "runtime": "iOS 27.0",
+    "xcode": "27.2",
+    "dimensions": [
+      1206,
+      2622
+    ],
+    "method": "BearLockScreenshot scheme; screenshot fixtures; local simctl capture",
+    "files": [
+      "ci-screenshots/app-store-en/setup.png",
+      "ci-screenshots/app-store-en/home.png",
+      "ci-screenshots/app-store-en/composeAlways.png",
+      "ci-screenshots/app-store-en/confirmation.png",
+      "ci-screenshots/app-store-en/activeLock.png",
+      "ci-screenshots/app-store-ja/setup.png",
+      "ci-screenshots/app-store-ja/home.png",
+      "ci-screenshots/app-store-ja/composeAlways.png",
+      "ci-screenshots/app-store-ja/confirmation.png",
+      "ci-screenshots/app-store-ja/activeLock.png"
+    ],
+    "note": "These 10 captures replace the prior five App Store image slots in Git, with Always Lock replacing the old recurring-schedule screen. They have not been uploaded to App Store Connect and are not evidence of real Screen Time blocking."
   }
 }
