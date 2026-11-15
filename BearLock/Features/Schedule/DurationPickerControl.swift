@@ -5,6 +5,25 @@ struct DurationPickerControl: View {
     @Binding var minutes: Double
     let minimumMinutes: Double
     let maximumMinutes: Double
+    let stepMinutes: Double
+    let title: LocalizedStringKey
+    let minimumDurationHint: LocalizedStringKey?
+
+    init(
+        minutes: Binding<Double>,
+        minimumMinutes: Double,
+        maximumMinutes: Double,
+        stepMinutes: Double = 5,
+        title: LocalizedStringKey = "Duration",
+        minimumDurationHint: LocalizedStringKey? = "Locks start at 15 minutes or longer."
+    ) {
+        _minutes = minutes
+        self.minimumMinutes = minimumMinutes
+        self.maximumMinutes = maximumMinutes
+        self.stepMinutes = stepMinutes
+        self.title = title
+        self.minimumDurationHint = minimumDurationHint
+    }
 
     private var presetMinutes: [Int] {
         [15, 30, 60, 120]
@@ -17,7 +36,7 @@ struct DurationPickerControl: View {
             : AnyLayout(HStackLayout())
         VStack(alignment: .leading, spacing: 10) {
             headingLayout {
-                Text("Duration")
+                Text(title)
                     .font(.headline)
                 if !dynamicTypeSize.isAccessibilitySize {
                     Spacer()
@@ -27,9 +46,9 @@ struct DurationPickerControl: View {
                     .foregroundStyle(AppTheme.navy)
             }
 
-            Slider(value: $minutes, in: minimumMinutes...maximumMinutes, step: 5)
+            Slider(value: $minutes, in: minimumMinutes...maximumMinutes, step: stepMinutes)
                 .tint(AppTheme.navy)
-                .accessibilityLabel("Duration")
+                .accessibilityLabel(title)
                 .accessibilityValue(Text(L10n.format("%d min", Int(minutes))))
                 .accessibilityIdentifier("duration-slider")
 
@@ -41,8 +60,8 @@ struct DurationPickerControl: View {
                 }
             }
 
-            if minimumMinutes >= 15 {
-                Text("Locks start at 15 minutes or longer.")
+            if minimumMinutes >= 15, let minimumDurationHint {
+                Text(minimumDurationHint)
                     .font(.caption)
                     .foregroundStyle(AppTheme.navy.opacity(0.62))
             }

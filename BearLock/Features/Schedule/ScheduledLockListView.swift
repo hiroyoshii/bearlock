@@ -274,32 +274,26 @@ private struct DailyAllowanceLockRow: View {
 private struct PaidDailyAllowanceUnlockSheet: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var model: BearLockAppModel
-    @State private var durationText = "30"
+    @State private var durationMinutes = 30.0
 
     let price: String?
     let onPurchase: (Int) async -> Void
 
-    private var durationMinutes: Int? {
-        guard let value = Int(durationText), value > 15,
-              Calendar.current.date(byAdding: .minute, value: value, to: Date()) != nil else { return nil }
-        return value
-    }
-
     var body: some View {
         NavigationStack {
             Form {
-                Section("Unlock duration") {
-                    TextField("Minutes", text: $durationText)
-                        .keyboardType(.numberPad)
-                        .accessibilityIdentifier("paid-daily-unlock-duration-minutes")
-                    if let durationMinutes,
-                       let expiry = Calendar.current.date(byAdding: .minute, value: durationMinutes, to: Date()) {
-                        Text(L10n.format("Relocks at %@", dailyAllowanceExpiryDisplay(expiry)))
-                            .font(.caption).foregroundStyle(AppTheme.steel)
-                    } else {
-                        Text("Enter 16 minutes or more")
-                            .font(.caption).foregroundStyle(AppTheme.steel)
-                    }
+                Section {
+                    DurationPickerControl(
+                        minutes: $durationMinutes,
+                        minimumMinutes: 15,
+                        maximumMinutes: 1_440,
+                        stepMinutes: 15,
+                        title: "Unlock duration",
+                        minimumDurationHint: "Unlocks are available for 15 minutes or longer."
+                    )
+                    let expiry = Date().addingTimeInterval(TimeInterval(Int(durationMinutes) * 60))
+                    Text(L10n.format("Relocks at %@", dailyAllowanceExpiryDisplay(expiry)))
+                        .font(.caption).foregroundStyle(AppTheme.steel)
                 }
                 Section {
                     Text("This purchase does not use today's allowance. Bear Lock returns when the selected time ends.")
@@ -307,13 +301,12 @@ private struct PaidDailyAllowanceUnlockSheet: View {
                 }
                 Section {
                     Button(price.map { L10n.format("Purchase timed unlock (%@)", $0) } ?? L10n.string("Purchase timed unlock")) {
-                        guard let durationMinutes else { return }
                         Task {
-                            await onPurchase(durationMinutes)
+                            await onPurchase(Int(durationMinutes))
                             dismiss()
                         }
                     }
-                    .disabled(durationMinutes == nil || price == nil || model.isUpdatingLock)
+                    .disabled(price == nil || model.isUpdatingLock)
                     .accessibilityIdentifier("paid-daily-unlock-confirm")
                 }
             }
@@ -325,7 +318,7 @@ private struct PaidDailyAllowanceUnlockSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
     }
 }
 

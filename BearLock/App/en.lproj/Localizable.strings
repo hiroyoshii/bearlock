@@ -297,6 +297,7 @@
 "No targets selected" = "No targets selected";
 "Today's allowance: %d min remaining" = "Today's allowance: %d min remaining";
 "Relocks at %@" = "Relocks at %@";
+"Unlocks are available for 15 minutes or longer." = "Unlocks are available for 15 minutes or longer.";
 "Regular lock prevents access to these targets. No allowance was used." = "Regular lock prevents access to these targets. No allowance was used.";
 "Regular lock prevents access to these targets." = "Regular lock prevents access to these targets.";
 "Resets tomorrow at 12:00 AM" = "Resets tomorrow at 12:00 AM";

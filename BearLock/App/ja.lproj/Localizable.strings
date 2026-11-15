@@ -297,6 +297,7 @@
 "No targets selected" = "対象が選択されていません";
 "Today's allowance: %d min remaining" = "今日の解除枠：残り%d分";
 "Relocks at %@" = "%@に再ロック";
+"Unlocks are available for 15 minutes or longer." = "解除時間は15分以上から選べます。";
 "Regular lock prevents access to these targets. No allowance was used." = "通常ロック中のため解除できません。解除枠は消費していません。";
 "Regular lock prevents access to these targets." = "通常ロック中のため解除できません。";
 "Resets tomorrow at 12:00 AM" = "明日0:00に更新";
