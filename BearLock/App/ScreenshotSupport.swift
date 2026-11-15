@@ -13,6 +13,7 @@ enum ScreenshotScreen: String, CaseIterable {
     case composeAlways
     case allowanceTargetSelection
     case allowanceLocked
+    case paidUnlockReview
     case allowanceTemporary
     case allowanceReturned
     case allowanceExhausted
@@ -106,10 +107,16 @@ struct ScreenshotHostView: View {
             HomeView(initialComposerMode: .always, onWake: { _ in })
         case .allowanceTargetSelection:
             HomeView(initialComposerMode: .always, onWake: { _ in })
-        case .allowanceLocked, .allowanceTemporary, .allowanceReturned, .allowanceExhausted, .allowanceNextDay, .allowancePending, .allowanceStopped:
+        case .allowanceLocked, .paidUnlockReview, .allowanceTemporary, .allowanceReturned, .allowanceExhausted, .allowanceNextDay, .allowancePending, .allowanceStopped:
             ScrollView {
-                ScheduledLockListView()
-                    .padding(20)
+                Group {
+                    if screen == .paidUnlockReview {
+                        PaidUnlockReviewScreenshot()
+                    } else {
+                        ScheduledLockListView()
+                    }
+                }
+                .padding(20)
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -345,7 +352,7 @@ private extension BearLockAppModel {
         case .activeLock, .wakeOptions:
             state = ScreenshotFixtures.activeState
             status = .approved
-        case .allowanceLocked:
+        case .allowanceLocked, .paidUnlockReview:
             let now = Date()
             state = ScreenshotFixtures.allowanceState(consumedMinutes: 20, usageDayStart: Calendar.current.startOfDay(for: now))
             status = .approved

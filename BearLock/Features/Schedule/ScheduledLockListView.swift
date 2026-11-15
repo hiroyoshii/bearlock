@@ -329,6 +329,20 @@ private struct PaidDailyAllowanceUnlockSheet: View {
     }
 }
 
+#if DEBUG
+struct PaidUnlockReviewScreenshot: View {
+    @EnvironmentObject private var model: BearLockAppModel
+
+    var body: some View {
+        ScheduledLockListView()
+            .sheet(isPresented: .constant(true)) {
+                PaidDailyAllowanceUnlockSheet(price: "¥500", onPurchase: { _ in })
+                    .environmentObject(model)
+            }
+    }
+}
+#endif
+
 private func dailyAllowanceExpiryDisplay(_ date: Date) -> String {
     if Calendar.current.isDateInToday(date) {
         return date.formatted(date: .omitted, time: .shortened)
