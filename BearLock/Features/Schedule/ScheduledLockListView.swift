@@ -318,7 +318,7 @@ private struct PaidDailyAllowanceUnlockSheet: View {
                 }
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([.medium, .large])
     }
 }
 

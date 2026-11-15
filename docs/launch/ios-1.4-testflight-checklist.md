@@ -63,7 +63,7 @@ Use short durations for expiry checks where practical, then test one duration ov
 ## App Review preparation
 
 - [ ] Verify the App Store Connect product's display name and price match the purchase sheet on a TestFlight device.
-- [x] Capture the Japanese timed-unlock purchase sheet for the IAP's App Review screenshot: [app-review-screenshot-ja.png](ios-1.4-timed-unlock/app-review-screenshot-ja.png). It uses the same slider and presets as other lock durations, with 15-minute steps from 15 to 1,440 minutes and a 30-minute default. This is a review-only screen capture, not an App Store product-page screenshot or proof of a completed purchase. It shows the screenshot fixture price ¥500; set the App Store Connect price to ¥500 before submitting it.
+- [x] Capture the Japanese timed-unlock sheet for the IAP's App Review screenshot: [app-review-screenshot-ja.png](ios-1.4-timed-unlock/app-review-screenshot-ja.png). It uses the same slider and presets as other lock durations, with 15-minute steps from 15 to 1,440 minutes and a 30-minute default. This is a review-only screen capture, not an App Store product-page screenshot or proof of a completed purchase. The purchase action is below the visible area in the default medium sheet; the full sheet remains scrollable. Set the App Store Connect price to ¥500 before submitting.
 - [ ] Add review notes explaining how to configure an Always Lock, open **Choose unlock time**, enter a duration, and complete the Sandbox purchase.
 - [ ] Attach the current app version/build and the new consumable product to the intended review submission when ready to release.
 - [ ] Keep submission for review separate from TestFlight testing; App Store Connect Sandbox testing does not require prior IAP approval.
