@@ -8,11 +8,14 @@ final class DailyAllowanceTests: XCTestCase {
         return value
     }
 
-    func testDailyAllowanceLimitCannotExceed60Minutes() throws {
+    func testDailyAllowanceAccepts120MinutesAndRejectsUnsupportedLimits() throws {
         let now = date("2026-11-14T12:00:00Z")
         var allowance = configuredAllowance(limit: 60, at: now)
 
-        for limit in [90, 120] {
+        XCTAssertEqual(DailyAllowancePolicy().dailyLimitMinutes, 60)
+        XCTAssertNoThrow(try allowance.configure(policy(limit: 120, target: allowance.currentPolicy.targetSelection), at: now, calendar: calendar))
+
+        for limit in [90, 150] {
             XCTAssertThrowsError(try allowance.configure(policy(limit: limit, target: allowance.currentPolicy.targetSelection), at: now, calendar: calendar)) {
                 XCTAssertEqual($0 as? DailyAllowanceError, .invalidDailyLimit)
             }

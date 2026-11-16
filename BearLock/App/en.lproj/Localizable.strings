@@ -281,12 +281,13 @@
 "Purchase timed unlock (%@)" = "Purchase timed unlock (%@)";
 "Purchase timed unlock" = "Purchase timed unlock";
 "Time-limited unlock" = "Time-limited unlock";
-"Always" = "Always";
-"Always Lock" = "Always Lock";
+"Always" = "Usage Limits";
+"Always Lock" = "Usage Limits";
 "Configured Locks" = "Configured Locks";
 "Configured" = "Configured";
-"Edit Always Lock" = "Edit Always Lock";
-"Start Always Lock" = "Start Always Lock";
+"Edit Always Lock" = "Edit Usage Limits";
+"Start Always Lock" = "Start Usage Limits";
+"Unlock price" = "Price per unlock";
 "Daily limit: %d min" = "Daily limit: %d min";
 "Target" = "Target";
 "Target: %@" = "Target: %@";

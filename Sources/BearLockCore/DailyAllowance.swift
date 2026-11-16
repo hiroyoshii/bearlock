@@ -15,7 +15,8 @@ public enum DailyAllowanceError: Error, Equatable, Sendable {
 }
 
 public struct DailyAllowancePolicy: Codable, Equatable, Sendable {
-    public static let allowedDailyLimits = [15, 30, 60]
+    public static let allowedDailyLimits = [15, 30, 60, 120]
+    public static let defaultDailyLimitMinutes = 60
 
     public var isEnabled: Bool
     public var targetSelection: LockTargetSelectionRef?
@@ -24,7 +25,7 @@ public struct DailyAllowancePolicy: Codable, Equatable, Sendable {
     public init(
         isEnabled: Bool = false,
         targetSelection: LockTargetSelectionRef? = nil,
-        dailyLimitMinutes: Int = 60
+        dailyLimitMinutes: Int = Self.defaultDailyLimitMinutes
     ) {
         self.isEnabled = isEnabled
         self.targetSelection = targetSelection

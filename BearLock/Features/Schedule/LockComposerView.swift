@@ -32,7 +32,7 @@ struct LockComposerView: View {
     @State private var recurringStart = DateComponents(hour: 23, minute: 0)
     @State private var selectedWeekdays: Set<Weekday> = [.monday, .tuesday, .wednesday, .thursday, .friday]
     @State private var confirmationDetails: LockConfirmationDetails?
-    @State private var dailyAllowanceLimitMinutes = 60
+    @State private var dailyAllowanceLimitMinutes = DailyAllowancePolicy.defaultDailyLimitMinutes
     @State private var allowanceSaveError: String?
 
     var body: some View {

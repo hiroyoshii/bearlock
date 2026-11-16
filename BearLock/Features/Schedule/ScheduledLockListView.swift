@@ -283,6 +283,12 @@ private struct PaidDailyAllowanceUnlockSheet: View {
         NavigationStack {
             Form {
                 Section {
+                    if let price {
+                        LabeledContent("Unlock price", value: price)
+                            .font(.title3.bold())
+                            .foregroundStyle(AppTheme.navy)
+                            .accessibilityIdentifier("paid-daily-unlock-price")
+                    }
                     DurationPickerControl(
                         minutes: $durationMinutes,
                         minimumMinutes: 15,
@@ -300,16 +306,25 @@ private struct PaidDailyAllowanceUnlockSheet: View {
                     Text("This purchase does not use today's allowance. Bear Lock returns when the selected time ends.")
                         .font(.footnote).foregroundStyle(AppTheme.steel)
                 }
-                Section {
-                    Button(price.map { L10n.format("Purchase timed unlock (%@)", $0) } ?? L10n.string("Purchase timed unlock")) {
-                        Task {
-                            await onPurchase(Int(durationMinutes))
-                            dismiss()
-                        }
+            }
+            .safeAreaInset(edge: .bottom) {
+                Button {
+                    Task {
+                        await onPurchase(Int(durationMinutes))
+                        dismiss()
                     }
-                    .disabled(price == nil || model.isUpdatingLock)
-                    .accessibilityIdentifier("paid-daily-unlock-confirm")
+                } label: {
+                    Text(price.map { L10n.format("Purchase timed unlock (%@)", $0) } ?? L10n.string("Purchase timed unlock"))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
+                .buttonStyle(.borderedProminent)
+                .tint(AppTheme.navy)
+                .disabled(price == nil || model.isUpdatingLock)
+                .accessibilityIdentifier("paid-daily-unlock-confirm")
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(.regularMaterial)
             }
             .navigationTitle("Time-limited unlock")
             .navigationBarTitleDisplayMode(.inline)

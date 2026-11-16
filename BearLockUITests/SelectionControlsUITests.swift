@@ -76,7 +76,7 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertTrue(picker.buttons["Now"].isSelected)
         XCTAssertFalse(picker.buttons["In"].isSelected)
         XCTAssertTrue(picker.buttons["Date & Time"].exists)
-        for title in ["Now", "In", "Date & Time", "Always"] {
+        for title in ["Now", "In", "Date & Time", "Usage Limits"] {
             let button = picker.buttons[title]
             XCTAssertTrue(button.isHittable)
             XCTAssertGreaterThanOrEqual(button.frame.width, 44)
@@ -113,7 +113,7 @@ final class SelectionControlsUITests: XCTestCase {
         let picker = app.segmentedControls["lock-composer-mode-picker"]
         XCTAssertTrue(picker.waitForExistence(timeout: 10))
         captureScreenshot(named: "four-lock-modes-en")
-        for title in ["Now", "In", "Date & Time", "Always"] {
+        for title in ["Now", "In", "Date & Time", "Usage Limits"] {
             XCTAssertTrue(picker.buttons[title].exists, "Missing composer mode \(title)")
         }
         XCTAssertFalse(picker.buttons["Repeat"].exists)
@@ -183,19 +183,19 @@ final class SelectionControlsUITests: XCTestCase {
 
     func testAlwaysLockSetupAndAllowanceUseTheConfiguredList() throws {
         let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
-        selectComposerMode("Always", in: app)
-        XCTAssertTrue(app.buttons["Start Always Lock"].waitForExistence(timeout: 5))
+        selectComposerMode("Usage Limits", in: app)
+        XCTAssertTrue(app.buttons["Start Usage Limits"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["daily-allowance-selected-limit"].exists)
         XCTAssertFalse(app.buttons["weekday-1"].exists)
         XCTAssertFalse(app.buttons["Select always-lock apps"].exists)
         captureScreenshot(named: "always-settings-after")
-        app.buttons["Start Always Lock"].tap()
+        app.buttons["Start Usage Limits"].tap()
         let row = app.staticTexts["always-lock-row"]
         XCTAssertTrue(row.waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["daily-allowance-balance"].label.contains("60 min remaining"))
         XCTAssertTrue(app.buttons["always-lock-edit-button"].exists)
         XCTAssertTrue(app.staticTexts["Configured"].exists)
-        XCTAssertFalse(app.buttons["Start Always Lock"].exists)
+        XCTAssertFalse(app.buttons["Start Usage Limits"].exists)
         let fiveMinutes = app.buttons["5 min unlock"]
         XCTAssertTrue(fiveMinutes.waitForExistence(timeout: 5))
         scrollToButton(fiveMinutes, in: app)
@@ -228,28 +228,30 @@ final class SelectionControlsUITests: XCTestCase {
         XCTAssertTrue(durationSlider.waitForExistence(timeout: 5))
         XCTAssertEqual(durationSlider.value as? String, "30分")
         XCTAssertFalse(app.buttons["duration-preset-15"].exists)
-        XCTAssertTrue(app.staticTexts["購入による解除は今日の解除枠を消費せず、指定時刻に常にロックへ戻ります。"].exists)
+        XCTAssertTrue(app.staticTexts["購入による解除は今日の解除枠を消費せず、指定時刻に使用制限へ戻ります。"].exists)
         let purchase = app.buttons["paid-daily-unlock-confirm"]
         XCTAssertTrue(purchase.isEnabled)
         XCTAssertTrue(purchase.label.contains("¥500"))
+        XCTAssertTrue(purchase.isHittable, "Purchase must be visible without scrolling the sheet")
+        XCTAssertTrue(app.frame.contains(purchase.frame))
+        XCTAssertTrue(app.descendants(matching: .any)["paid-daily-unlock-price"].exists)
         captureScreenshot(named: "always-paid-unlock-duration-ja")
     }
 
     func testAlwaysLockEditSchedulesChangesAndStopForTomorrow() throws {
         let app = launchApprovedSeededApp(extraArguments: ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"])
-        selectComposerMode("Always", in: app)
+        selectComposerMode("Usage Limits", in: app)
 
         let creationLimitPicker = app.descendants(matching: .any)["daily-allowance-limit-picker"]
         XCTAssertTrue(creationLimitPicker.exists)
         creationLimitPicker.tap()
-        for minutes in [15, 30, 60] {
+        for minutes in [15, 30, 60, 120] {
             XCTAssertTrue(app.buttons["\(minutes) minutes"].waitForExistence(timeout: 5))
         }
         XCTAssertFalse(app.buttons["90 minutes"].exists)
-        XCTAssertFalse(app.buttons["120 minutes"].exists)
         app.buttons["60 minutes"].tap()
 
-        app.buttons["Start Always Lock"].tap()
+        app.buttons["Start Usage Limits"].tap()
         let edit = app.buttons["always-lock-edit-button"]
         XCTAssertTrue(edit.waitForExistence(timeout: 10))
         scrollToButton(edit, in: app)
@@ -257,7 +259,7 @@ final class SelectionControlsUITests: XCTestCase {
 
         let inlineEditorTitle = app.staticTexts["daily-allowance-inline-editor-title"]
         XCTAssertTrue(inlineEditorTitle.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.navigationBars["Edit Always Lock"].exists)
+        XCTAssertFalse(app.navigationBars["Edit Usage Limits"].exists)
         XCTAssertFalse(app.switches["Enabled"].exists)
         XCTAssertFalse(app.buttons["weekday-1"].exists)
         XCTAssertTrue(app.buttons["daily-allowance-stop"].exists)
