@@ -13,6 +13,8 @@ The previous App Store gallery used five screen types in Japanese and English. T
 5. Active lock: `activeLock.png`
 
 Files: `ci-screenshots/app-store-en/` and `ci-screenshots/app-store-ja/`. The IAP review attachment is separate: [ios-1.4-timed-unlock-iap-ja.png](app-review/ios-1.4-timed-unlock-iap-ja.png).
+
+The exact 10 app-version upload files are grouped in [ios-1.4-app-version](app-review/ios-1.4-app-version/), with language and order in each filename.
    - Current files: `ci-screenshots/app-store-en/diagnostics.png` and `ci-screenshots/app-store-ja/diagnostics.png`
 
 ## E2E Evidence Screenshots

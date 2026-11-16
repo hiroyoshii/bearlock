@@ -62,7 +62,8 @@ Use short durations for expiry checks where practical, then test one duration ov
 
 ## App Store listing materials
 
-- [x] Re-capture all 25 tracked screenshot states in Japanese and English from the current 1.4 screenshot app. This replaces the old gallery images in [Japanese](../../ci-screenshots/app-store-ja/) and [English](../../ci-screenshots/app-store-en/) so old UI captures are not mixed in. The five App Store candidates are `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png` per locale. They are not uploaded to App Store Connect.
+- [x] Re-capture all 25 tracked screenshot states in Japanese and English from the current 1.4 screenshot app. This replaces the old gallery images in [Japanese](../../ci-screenshots/app-store-ja/) and [English](../../ci-screenshots/app-store-en/) so old UI captures are not mixed in.
+- [x] Package the 10 screenshots for the **app version** review in [ios-1.4-app-version](app-review/ios-1.4-app-version/). This folder contains five ordered images per language, ready for the App Store version's screenshot slots; it is separate from the IAP review attachment.
 - [ ] Compare these candidates with the final TestFlight build and existing App Store Connect gallery, then replace the corresponding image slots. Do not append a duplicate gallery; the current Connect gallery has not been verified from this workspace.
 - [x] Prepare Japanese release notes: [ios-1.4-whats-new-ja.txt](ios-1.4-whats-new-ja.txt).
 - [ ] Confirm the listing's Japanese localization and upload the finalized release notes with the 1.4 version.
@@ -70,7 +71,7 @@ Use short durations for expiry checks where practical, then test one duration ov
 ## App Review preparation
 
 - [ ] Verify the App Store Connect product's display name and price match the purchase sheet on a TestFlight device.
-- [x] Keep the Japanese timed-unlock sheet for the IAP App Review attachment in Git: [ios-1.4-timed-unlock-iap-ja.png](app-review/ios-1.4-timed-unlock-iap-ja.png). Attach this file to the timed-unlock IAP's review information. It uses one slider, with 15-minute steps from 15 to 1,440 minutes and a 30-minute default; it has no preset buttons. This is separate from the App Store product-page screenshots and is not proof of a completed purchase. It shows the screenshot fixture price ¥500; set the App Store Connect price to ¥500 before submitting.
+- [x] Keep the Japanese timed-unlock sheet for the IAP App Review attachment in Git: [ios-1.4-timed-unlock-iap-ja.png](app-review/ios-1.4-timed-unlock-iap-ja.png). Attach this file to the timed-unlock IAP's review information. It uses one slider, with 15-minute steps from 15 to 1,440 minutes and a 30-minute default; it has no preset buttons. This is separate from the 10 app version screenshots and is not proof of a completed purchase. It shows the screenshot fixture price ¥500; set the App Store Connect price to ¥500 before submitting.
 - [ ] Add review notes explaining how to configure an Always Lock, open **Choose unlock time**, enter a duration, and complete the Sandbox purchase.
 - [ ] Attach the current app version/build and the new consumable product to the intended review submission when ready to release.
 - [ ] Keep submission for review separate from TestFlight testing; App Store Connect Sandbox testing does not require prior IAP approval.
