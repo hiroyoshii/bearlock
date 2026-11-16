@@ -2,7 +2,7 @@
 
 The current Japanese and English screenshot galleries are in `app-store-ja` and `app-store-en`: 25 screen states per locale, captured on 2026-11-15 from the current 1.4 source using an iPhone 17 Simulator. All prior gallery images in these folders were replaced, so old UI captures are not mixed into the current gallery. Dimensions, selected App Store slots, source commit, and per-file hashes are recorded in [app-store-source.json](app-store-source.json).
 
-The five App Store listing candidates per locale are `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png`. The other captured states cover regular scheduling, recurring schedules, and daily allowance states. The timed-unlock IAP review image is stored separately at `docs/launch/ios-1.4-timed-unlock/app-review-screenshot-ja.png`.
+The five App Store listing candidates per locale are `setup.png`, `home.png`, `composeAlways.png`, `confirmation.png`, and `activeLock.png`. The other captured states cover regular scheduling, recurring schedules, and daily allowance states. The timed-unlock IAP review attachment is stored separately at `docs/launch/app-review/ios-1.4-timed-unlock-iap-ja.png`.
 
 These images use screenshot-app fixtures. They show the UI, not evidence of actual Screen Time blocking. The local captures have not been uploaded to App Store Connect; compare them with the final TestFlight build and existing Connect gallery before replacing listing images.
 

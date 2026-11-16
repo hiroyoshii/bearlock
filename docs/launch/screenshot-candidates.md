@@ -12,7 +12,7 @@ The previous App Store gallery used five screen types in Japanese and English. T
 4. Lock confirmation: `confirmation.png`
 5. Active lock: `activeLock.png`
 
-Files: `ci-screenshots/app-store-en/` and `ci-screenshots/app-store-ja/`. The paid timed-unlock purchase sheet is documented separately in [the IAP App Review screenshot](ios-1.4-timed-unlock/app-review-screenshot-ja.png).
+Files: `ci-screenshots/app-store-en/` and `ci-screenshots/app-store-ja/`. The IAP review attachment is separate: [ios-1.4-timed-unlock-iap-ja.png](app-review/ios-1.4-timed-unlock-iap-ja.png).
    - Current files: `ci-screenshots/app-store-en/diagnostics.png` and `ci-screenshots/app-store-ja/diagnostics.png`
 
 ## E2E Evidence Screenshots
